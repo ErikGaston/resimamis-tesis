@@ -2,6 +2,11 @@
 export const SHOW_LOADING = "SHOW_LOADING";
 //#endregion
 
+//#region - TOAST (global)
+export const SHOW_TOAST = "SHOW_TOAST";
+export const HIDE_TOAST = "HIDE_TOAST";
+//#endregion
+
 //#region - GENERICS
 export const SUCCESS_GET_LOCALITIES = "SUCCESS_GET_LOCALITIES";
 export const GET_LOCALITIES = "GET_LOCALITIES";

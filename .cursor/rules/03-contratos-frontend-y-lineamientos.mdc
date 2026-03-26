@@ -1,0 +1,155 @@
+---
+alwaysApply: true
+---
+# Contratos frontend y lineamientos — resimamis-web
+
+Documentación alineada al código en `src/`. **No** aplica Next.js, RTK Query ni App Router.
+
+---
+
+## 1. Stack y dependencias
+
+| Área | Tecnología |
+|------|------------|
+| Bundler / dev | **Vite 4** (`vite`, `@vitejs/plugin-react`) |
+| UI | **React 18** |
+| Enrutamiento | **react-router-dom v6** (`BrowserRouter`, `useRoutes`, `useNavigate`) |
+| Estado global | **redux** + **react-redux** |
+| Efectos asíncronos | **redux-saga** |
+| HTTP | **axios** — instancia única `AxiosInstance` en `src/redux/interceptor/interceptor.js` |
+| UI kit | **MUI v5** (`@mui/material`, `@mui/icons-material`, `@mui/x-date-pickers`) |
+| Estilos | **@emotion/react** y **@emotion/styled** |
+| Gráficos | **chart.js** + **react-chartjs-2** |
+| Fechas | **date-fns**, **dayjs** |
+| Carrusel | **@trendyol-js/react-carousel** |
+
+**Dependencia presente pero no usada en el árbol principal:** `react-query` está en `package.json` y el `QueryClientProvider` en `main.jsx` está comentado; el data fetching efectivo es **Redux + sagas + Axios**.
+
+**No asumir** stack de e-commerce (apiSlice, dashboard MARKET, etc.); ver `04-endpoints-backend.mdc` para la API real.
+
+---
+
+## 2. Estructura de carpetas
+
+```
+src/
+├── main.jsx                 # Punto de entrada: Provider, ThemeProvider, BrowserRouter, RouterApp
+├── index.css
+├── assets/                  # Imágenes estáticas de la app (home, voluntarias, etc.)
+├── helpers/
+│   ├── theme.js             # baseTheme, PALETTE — createTheme en main.jsx
+│   └── const/constLayout.js
+├── hooks/                   # useStep, useResponsive
+├── routes/
+│   └── RouterApp.jsx        # Definición de rutas con useRoutes
+├── pages/                   # Contenedores por pantalla; conectan Redux y templates
+├── components/
+│   ├── atoms/
+│   ├── molecules/
+│   ├── organisms/
+│   ├── templates/           # Layouts por feature (home, login, listados, estadísticas…)
+│   └── common/              # Componentes compartidos (Button, Dialog, Tabs…)
+├── redux/
+│   ├── store/index.js       # createStore + sagaMiddleware + rootSaga
+│   ├── reducer(s)           # user, mother, volunteer, baby, assignment, supply, loading…
+│   ├── actions/
+│   ├── sagas/               # userSaga, motherSaga, volunteerSaga, etc.
+│   ├── api/index.js         # Funciones HTTP que usan AxiosInstance
+│   ├── interceptor/interceptor.js
+│   └── consts/actionTypes.js
+└── utils/                   # setAuthToken, localStorage, dateFormat, functionCommon
+```
+
+---
+
+## 3. Enrutamiento (`src/routes/RouterApp.jsx`)
+
+Rutas declaradas con `useRoutes`:
+
+| Ruta | Página / propósito |
+|------|---------------------|
+| `/`, `/overview` | `HomePage` (resumen, voluntarias libres, panel) |
+| `/login` | `LoginPage` |
+| `/madres` | `ListMotherPage` |
+| `/madre` | `MotherPage` (alta/edición flujo madre) |
+| `/madre/perfil/:id` | `ProfileMotherPage` |
+| `/voluntaria` | `VolunteerPage` |
+| `/voluntaria/perfil/:id` | `ProfileVolunteerPage` |
+| `/tareas` | `TasksPage` |
+| `/estadisticas` | `StatisticsPage` |
+| `/voluntarias` | `ListVolunteerPage` |
+| `/bebes` | `ListBabysPage` |
+| `/insumos` | `SupplyPage` |
+
+**Nota:** `LoginPage` redirige a `/home` tras login, pero **no** existe ruta `/home` en `RouterApp`; conviene alinear con `/` o `/overview` en código futuro.
+
+`PublicRoute.jsx` existe pero no envuelve el router; las protecciones de ruta no están centralizadas ahí.
+
+---
+
+## 4. Estado y flujo de datos
+
+### 4.1 Patrón Redux + Saga
+
+1. **Páginas / organismos** despachan **actions** (`redux/actions/*.js`).
+2. **Sagas** (`redux/sagas/*.js`) escuchan con `takeLatest` y llaman funciones de **`redux/api/index.js`**.
+3. Las APIs devuelven la respuesta Axios; los reducers guardan `response.data` según el action type de éxito/error.
+
+### 4.2 Reducers principales (ver `redux/reducers/index.js`)
+
+- `userReducer`: login.
+- `motherReducer`: madres, estadísticas de localidades/edades.
+- `volunteerReducer`: voluntarias, asistencias, listados.
+- `babyReducer`: bebés.
+- `assignmentReducer`: asignaciones, abrazos, estadísticas de asignaciones.
+- `supplyReducer`: insumos y estadísticas.
+- Carga global vía `loadingActions` / `SHOW_LOADING` donde aplica.
+
+---
+
+## 5. HTTP y autenticación
+
+- **Base URL:** `import.meta.env.VITE_URL_API` (definir en `.env` / entorno de build).
+- **Cabecera:** `Authorization: Bearer <token>` si existe `localStorage.getItem('token')`.
+- **401:** interceptor limpia `localStorage`, recarga y envía a `/login`.
+- **Login exitoso:** se guardan `token` y objeto `voluntaria` (JSON) en `localStorage`; `setAuthToken` opcionalmente refuerza el header por defecto de axios global (ver `utils/setAuthToken.js`).
+
+Detalle de endpoints: **`04-endpoints-backend.mdc`**.
+
+---
+
+## 6. UI y tema
+
+- Tema MUI desde `helpers/theme.js` → `createTheme(baseTheme)` en `main.jsx`.
+- Tipografía base: Open Sans / Roboto / Helvetica (ver `baseTheme.typography`).
+- Componentes púrpura/spacing coherentes con `PALETTE` y tokens de `theme.js`.
+- **Atomic Design** relajado: `atoms` / `molecules` / `organisms` / `templates` + `common` para piezas transversales.
+
+---
+
+## 7. Estilo de código
+
+- Componentes funcionales, hooks estándar.
+- Dispatch de acciones con nombres alineados a `actionTypes`.
+- Nuevas llamadas API: agregar función en `redux/api/index.js`, saga, actions, reducer y tipos; actualizar **`04-endpoints-backend.mdc`** y esta regla si cambia el flujo.
+
+---
+
+## 8. Build y despliegue
+
+- `npm run dev` — Vite dev server.
+- `npm run build` — `vite build && cp web.config dist/` (despliegue tipo IIS/Windows).
+
+---
+
+## 9. Mapa página → dominio Redux (referencia rápida)
+
+| Área UI | Actions / sagas típicos |
+|---------|-------------------------|
+| Login | `postLogin` / `userSaga` |
+| Home / voluntarias libres | `getVolunteersFree` |
+| Madres | `postMother`, `getMother`, `getMotherId`, `putMother`, estadísticas madre |
+| Voluntarias | CRUD asistencia, estados, listados, `putVolunteer` |
+| Bebés | `postBaby`, `getBabys`, `getBabysFree` |
+| Tareas / abrazos | asignación generar, detalle insumo, iniciar/finalizar abrazo, listados del día |
+| Insumos / estadísticas | `getSupplies`, estadísticas de insumos |

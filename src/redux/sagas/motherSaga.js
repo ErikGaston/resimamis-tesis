@@ -1,6 +1,7 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import * as actionTypes from "../consts/actionTypes";
 import * as API from "../api";
+import { showApiErrorToast } from "./showApiErrorToast";
 
 function* asyncPostMother({ payload }) {
     try {
@@ -11,6 +12,7 @@ function* asyncPostMother({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_MOTHER,
             response: error,
@@ -28,6 +30,7 @@ function* asyncGetMother() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_MOTHER,
             response: error,
@@ -45,6 +48,7 @@ function* asyncGetMotherId({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_MOTHER,
             response: error,
@@ -63,6 +67,7 @@ function* asyncGetStatisticsLocalities() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_MOTHER,
             response: error,
@@ -80,6 +85,7 @@ function* asyncGetStatisticsAgeMother() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_MOTHER,
             response: error,
@@ -97,6 +103,7 @@ function* asyncPutMother({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_MOTHER,
             response: error,

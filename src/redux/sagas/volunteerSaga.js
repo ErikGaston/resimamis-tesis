@@ -1,6 +1,7 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import * as actionTypes from "../consts/actionTypes";
 import * as API from "../api";
+import { showApiErrorToast } from "./showApiErrorToast";
 
 function* asyncPostVolunteer({ payload }) {
     try {
@@ -11,6 +12,7 @@ function* asyncPostVolunteer({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_VOLUNTEER,
             response: error,
@@ -45,6 +47,7 @@ function* asyncGetVolunteersFree() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_VOLUNTEER,
             response: error,
@@ -62,6 +65,7 @@ function* asyncGetAssistance({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_VOLUNTEER,
             response: error,
@@ -79,6 +83,7 @@ function* asyncGetVolunteersStates() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_VOLUNTEER,
             response: error,
@@ -96,6 +101,7 @@ function* asyncGetVolunteerById({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_VOLUNTEER,
             response: error,
@@ -113,6 +119,7 @@ function* asyncPutVolunteer({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_VOLUNTEER,
             response: error,
@@ -130,6 +137,7 @@ function* asyncGetVolunteers() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_VOLUNTEER,
             response: error,

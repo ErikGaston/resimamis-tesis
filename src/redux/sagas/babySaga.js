@@ -1,6 +1,7 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import * as API from "../api";
 import * as actionTypes from "../consts/actionTypes";
+import { showApiErrorToast } from "./showApiErrorToast";
 
 function* asyncPostBaby({ payload }) {
     try {
@@ -11,6 +12,7 @@ function* asyncPostBaby({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_BABY,
             response: error,
@@ -28,6 +30,7 @@ function* asyncGetBabys() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_BABY,
             response: error,
@@ -45,6 +48,7 @@ function* asyncGetBabysFree() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_BABY,
             response: error,

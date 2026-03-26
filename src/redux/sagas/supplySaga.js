@@ -1,6 +1,7 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import * as actionTypes from "../consts/actionTypes";
 import * as API from "../api";
+import { showApiErrorToast } from "./showApiErrorToast";
 
 function* asyncGetSupplies() {
     try {
@@ -11,6 +12,7 @@ function* asyncGetSupplies() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_SUPPLY,
             response: error,
@@ -28,6 +30,7 @@ function* asyncGetStatisticsSupplies() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_SUPPLY,
             response: error,

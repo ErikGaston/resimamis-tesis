@@ -1,0 +1,36 @@
+---
+description: Autenticación en resimamis-web — login, token Bearer, localStorage, interceptor 401.
+alwaysApply: false
+globs: src/pages/login/**/*, src/redux/**/*/user*, src/redux/interceptor/**/*
+---
+
+# Flujos de autenticación — resimamis-web
+
+## Login
+
+- **Página:** `src/pages/login/LoginPage.jsx` + `LoginTemplate`.
+- **Acción:** `postLogin(model)` con `Dni` y `Contrasena` (coherente con payload esperado por el backend).
+- **Saga:** `userSaga` → `API.postLogin` → `usuario/login/`.
+
+## Tras login exitoso
+
+- `localStorage.setItem('token', token)`.
+- `localStorage.setItem('voluntaria', JSON.stringify({ id, nombre, apellido, mail, dni, celular }))`.
+- `setAuthToken(token)` (refuerzo de header en axios por defecto).
+- Navegación: `navigate('/home')` — **revisar alineación con rutas reales** (`/` / `/overview` en `RouterApp.jsx`).
+
+## Requests autenticados
+
+- `src/redux/interceptor/interceptor.js` lee `localStorage.getItem('token')` y envía `Authorization: Bearer <token>`.
+
+## Sesión inválida (401)
+
+- Interceptor: limpia `localStorage`, recarga y redirige a `/login`.
+
+## Logout explícito
+
+- No hay flujo centralizado documentado en sagas; limpiar `token` y `voluntaria` y redirigir a `/login` si se implementa logout en UI.
+
+## Rutas protegidas
+
+- `PublicRoute` no aplica guard activo (siempre renderiza `children`). Cualquier protección es implícita (API 401) o pendiente de unificar.

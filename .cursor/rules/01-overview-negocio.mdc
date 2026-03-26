@@ -1,0 +1,58 @@
+---
+description: Visión del negocio y dominio funcional de Resimamis (resimamis-web).
+alwaysApply: true
+---
+
+# Overview de negocio — Resimamis
+
+## Qué es el producto
+
+**Resimamis** es una aplicación web de gestión para un programa de **apoyo a la madre y al bebé** mediante **voluntarias** que realizan **abrazos** y acompañamiento. El frontend **resimamis-web** opera sobre un backend propio (REST con prefijos como `/madre/`, `/voluntaria/`, `/asignacion/`, etc.).
+
+## Actores
+
+| Actor | Rol en el sistema |
+|--------|-------------------|
+| **Voluntaria** | Usuario operativo: inicia sesión (DNI / contraseña), registra asistencia, ejecuta abrazos según asignaciones, puede actualizar su perfil. Identidad y token se persisten en `localStorage` tras el login. |
+| **Madre** | Persona asociada al programa: datos de contacto, consentimientos, localidad; puede tener uno o más **bebés** registrados. |
+| **Bebé** | Beneficiario directo del abrazo; figura en listados y en flujos de asignación (“bebés a abrazar”). |
+| **Insumos** | Recursos materiales vinculados a las visitas/tareas (cantidades registradas en detalle de asignación y estadísticas de consumo). |
+
+No hay en este repo un panel “e-commerce” ni roles tipo staff de marketplace; el modelo es **programa social / operativo de campo**.
+
+## Flujos funcionales principales
+
+1. **Autenticación de voluntaria**  
+   Login contra `usuario/login/`; respuesta incluye token JWT (Bearer) y datos de la voluntaria para personalizar la UI y las llamadas autenticadas.
+
+2. **Registro y gestión de madres**  
+   Alta y edición de ficha de madre, listado de madres, perfil por id. Datos demográficos alimentan **estadísticas** (por localidad, edades).
+
+3. **Registro de bebés**  
+   Alta de bebé asociado a la madre; listados generales y listado de bebés disponibles para abrazo (`/bebes/abrazar`).
+
+4. **Voluntarias**  
+   Alta de voluntaria, listados, estados, voluntarias “libres” para mostrar en home, asistencia (entrada / consulta por id), edición de perfil.
+
+5. **Asignaciones y abrazos**  
+   - **Generar** asignaciones del día.  
+   - **Registrar detalle** de asignación (insumo + cantidad en path).  
+   - **Iniciar** y **finalizar** abrazo (con comentario al finalizar).  
+   - **Listar** asignaciones del día (global y por voluntaria).  
+   - **Estadísticas** de cantidad de asignaciones por día (vista de gestión).
+
+6. **Insumos**  
+   Catálogo/listado de insumos y estadística de cantidades para reporting.
+
+7. **Datos maestros**  
+   Localidades vía endpoint genérico para formularios y filtros.
+
+## Valor de negocio
+
+Centralizar **quién** atiende (**voluntaria**), **a quién** (**madre** / **bebé**), **cuándo** (asignaciones y asistencia) y **con qué recursos** (**insumos**), con visibilidad en **estadísticas** para seguimiento del programa.
+
+## Relación con la documentación técnica
+
+- Rutas y capa UI: `03-contratos-frontend-y-lineamientos.mdc`  
+- API consumida por el front: `04-endpoints-backend.mdc`  
+- Login y tokens: `02-flujos-auth.mdc`

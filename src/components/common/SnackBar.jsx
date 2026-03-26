@@ -20,25 +20,23 @@ const SnackBar = ({
   };
 
   return (
-    <>
-      {open && 
-        <Snackbar 
-          anchorOrigin={{ vertical: 'top', horizontal: 'center', }} 
-          open={open}
-          autoHideDuration={autoHideDuration ? autoHideDuration : 6000} 
-          onClose={handleClose}
-        >
-          <Alert
-            variant={variant} 
-            sx={{ width: '100%' }}
-            color={error ? 'error' : null } 
-            onClose={handleClose} 
-            severity={severity ? severity : 'success'} 
-            >
-            {message}
-          </Alert> 
-      </Snackbar>}
-    </>
+    <Snackbar
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      open={open}
+      autoHideDuration={autoHideDuration ?? 6000}
+      onClose={handleClose}
+      sx={{ zIndex: 10050 }}
+    >
+      <Alert
+        variant={variant}
+        sx={{ width: '100%' }}
+        color={error ? 'error' : undefined}
+        onClose={handleClose}
+        severity={severity ?? 'success'}
+      >
+        {message}
+      </Alert>
+    </Snackbar>
   )
 }
 

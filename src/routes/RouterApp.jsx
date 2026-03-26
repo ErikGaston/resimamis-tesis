@@ -1,5 +1,5 @@
 import React from 'react'
-import { Navigate, useRoutes } from 'react-router-dom'
+import { useRoutes } from 'react-router-dom'
 import { HomePage, ListVolunteerPage, LoginPage, MotherPage, ProfileVolunteerPage } from '../pages'
 
 import ListBabysPage from '../pages/list/ListBabysPage'
@@ -9,62 +9,69 @@ import { StatisticsPage } from '../pages/statistics/StatisticsPage'
 import { TasksPage } from '../pages/tasks/TasksPage'
 import { VolunteerPage } from '../pages/volunteer/VolunteerPage'
 import { SupplyPage } from '../pages/supply/SupplyPage'
+import { PrivateRoute } from './PrivateRoute'
+import { RootRedirect } from './RootRedirect'
+
+const withAuth = (element) => <PrivateRoute>{element}</PrivateRoute>
 
 export const RouterApp = () => {
 
   const routes = useRoutes([
     {
       path: '/',
-      element: <HomePage />,
-      children: [
-        { element: <Navigate to="/overview" />, index: true },
-        { path: 'overview', element: <HomePage /> },
-        { path: '/*', element: <Navigate to="/overview" /> },
-      ],
+      element:             <RootRedirect />,
     },
     {
       path: 'login',
-      element: <LoginPage />
+      element: <LoginPage />,
+    },
+    {
+      path: 'home',
+      element: withAuth(<HomePage />),
+    },
+    {
+      path: 'overview',
+      element: withAuth(<HomePage />),
     },
     {
       path: 'madres',
-      element: <ListMotherPage />
+      element: withAuth(<ListMotherPage />),
     },
     {
       path: 'madre',
-      element: <MotherPage />
+      element: withAuth(<MotherPage />),
     },
     {
       path: '/madre/perfil/:id',
-      element: <ProfileMotherPage />
+      element: withAuth(<ProfileMotherPage />),
     },
     {
       path: 'voluntaria',
-      element: <VolunteerPage />
+      element: withAuth(<VolunteerPage />),
     },
     {
       path: '/voluntaria/perfil/:id',
-      element: <ProfileVolunteerPage />
+      element: withAuth(<ProfileVolunteerPage />),
     },
     {
       path: 'tareas',
-      element: <TasksPage />
+      element: withAuth(<TasksPage />),
     },
     {
       path: 'estadisticas',
-      element: <StatisticsPage />
+      element: withAuth(<StatisticsPage />),
     },
     {
       path: 'voluntarias',
-      element: <ListVolunteerPage />
+      element: withAuth(<ListVolunteerPage />),
     },
     {
       path: 'bebes',
-      element: <ListBabysPage />
+      element: withAuth(<ListBabysPage />),
     },
     {
       path: 'insumos',
-      element: <SupplyPage />
+      element: withAuth(<SupplyPage />),
     },
   ]);
 

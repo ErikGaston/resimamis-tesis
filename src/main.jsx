@@ -23,6 +23,8 @@ import { Provider } from 'react-redux';
 const theme = createTheme(baseTheme);
 
 import configureStore from "./redux/store";
+import GlobalSnackBar from "./components/common/GlobalSnackBar";
+
 const store = configureStore();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -31,6 +33,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <ThemeProvider theme={theme}>
         {/* <QueryClientProvider client={queryClient}> */}
         <BrowserRouter>
+          <GlobalSnackBar />
           <RouterApp />
         </BrowserRouter>
         {/* </QueryClientProvider> */}

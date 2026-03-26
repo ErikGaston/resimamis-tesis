@@ -1,0 +1,63 @@
+---
+alwaysApply: true
+---
+# Mantenimiento y actualización de reglas
+
+Las reglas en `.cursor/rules/` son la **fuente de verdad** del proyecto. Deben reflejar el código real en todo momento.
+
+---
+
+## Inventario actual de reglas
+
+| Archivo | Contenido |
+|---------|-----------|
+| `01-overview-negocio.mdc` | Dominio Resimamis: actores, flujos, valor de negocio |
+| `02-flujos-auth.mdc` | Login, token Bearer, localStorage, 401 |
+| `02-contratos-frontend-y-lineamientos.mdc` | Stub: apunta al contrato vigente en `03-…` |
+| `03-contratos-frontend-y-lineamientos.mdc` | Stack Vite/React/Redux-Saga/Router/MUI, carpetas, rutas |
+| `03-mantenimiento-reglas.mdc` | Este documento |
+| `04-endpoints-backend.mdc` | API REST integrada (`redux/api/index.js`) |
+
+Si añades reglas nuevas (p. ej. instrumentación de tests, convenciones de commits), actualiza la tabla anterior en la misma sesión.
+
+---
+
+## Cuándo actualizar reglas
+
+Actualizar la regla correspondiente **en la misma sesión** en que se realice cualquiera de estos cambios:
+
+| Cambio en el código | Regla a actualizar |
+|---------------------|--------------------|
+| Nuevo endpoint o cambio de path en `redux/api/index.js` | `04-endpoints-backend.mdc` |
+| Nuevo saga, action type o flujo de datos | `03-contratos-frontend-y-lineamientos.mdc` (mapa Redux), y `04-endpoints-backend.mdc` si hay HTTP nuevo |
+| Cambio en login, token o interceptor | `02-flujos-auth.mdc`, `04-endpoints-backend.mdc` si aplica |
+| Nueva ruta en `RouterApp.jsx` | `03-contratos-frontend-y-lineamientos.mdc` |
+| Nuevo átomo/molécula/organismo/template reutilizable importante | `03-contratos-frontend-y-lineamientos.mdc` (sección estructura / Atomic Design) |
+| Cambio de stack, `package.json` o `main.jsx` | `03-contratos-frontend-y-lineamientos.mdc` |
+| Nuevo actor de negocio o flujo funcional | `01-overview-negocio.mdc` |
+| Variables de entorno (`VITE_*`) | `03-contratos-frontend-y-lineamientos.mdc` y/o `04-endpoints-backend.mdc` |
+
+---
+
+## Qué actualizar en cada regla
+
+- **Eliminar** referencias a tecnologías que no están en el repo (Next.js, RTK Query, `src/app/`, apiSlice, etc.) salvo en el stub `02-contratos-…` como aviso histórico.
+- **Agregar** el patrón, ruta, función API o convención con ejemplo mínimo tomado del código real.
+- **Corregir** nombres de archivos y paths si cambiaron.
+- **No duplicar** información larga entre reglas: negocio en `01`, auth en `02-flujos-auth`, front en `03`, HTTP en `04`.
+
+---
+
+## Criterio de calidad de una regla
+
+Una regla está **actualizada** si:
+
+1. Un agente nuevo puede leerla y actuar de forma consistente con el código real.
+2. No contiene como vigente un stack que el proyecto ya no usa.
+3. Los paths de API coinciden con `src/redux/api/index.js`.
+
+---
+
+## Mejoras pendientes fuera de alcance inmediato
+
+Si un cambio es demasiado grande para la sesión actual, registrar en un único sitio acordado por el equipo (por ejemplo `.cursor/notas/mejoras-pendientes.md` si existe) con estado, archivos afectados y pasos. **No** dejar reglas contradictorias: mejor marcar temporalmente una sección como “pendiente verificación”.

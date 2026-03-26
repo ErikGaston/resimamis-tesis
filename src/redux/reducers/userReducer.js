@@ -18,7 +18,12 @@ export default function userReducer(state = initialState, action) {
     function responseToReturn(typeState) {
         let res = { ...state };
         if (action.response) {
-            res = { ...state, [typeState]: action.response.data, loading: false };
+            const payload = action.response.data;
+            if (typeState === 'postLogin') {
+                res = { ...state, postLogin: payload, error: null, loading: false };
+            } else {
+                res = { ...state, [typeState]: payload, loading: false };
+            }
         }
         return res;
     }

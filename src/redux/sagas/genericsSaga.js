@@ -1,6 +1,7 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import * as actionTypes from "../consts/actionTypes";
 import * as API from "../api";
+import { showApiErrorToast } from "./showApiErrorToast";
 
 function* asyncGetLocalities() {
     try {
@@ -11,6 +12,7 @@ function* asyncGetLocalities() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_LOCALITIES,
             response: error,

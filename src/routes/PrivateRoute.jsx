@@ -1,10 +1,13 @@
-import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 
 export const PrivateRoute = ({ children }) => {
-  
-  // const { logged } = useContext( AuthContext )
-  return (true)
-    ? children
-    : <Navigate to='/login' />
-}
+  const location = useLocation();
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  return children;
+};

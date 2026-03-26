@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { postLogin, clearLogin } from "../../redux/actions/userActions";
 import { showLoading } from "../../redux/actions/loadingActions";
+import { hideToast } from "../../redux/actions/toastActions";
 import LoginTemplate from "../../components/templates/login/LoginTemplate";
 import Loading from "../../components/atoms/loading/Loading";
 import { useNavigate } from "react-router-dom";
 import { setAuthToken } from "../../utils/setAuthToken";
+import { GENERIC_API_ERROR } from "../../utils/apiErrorMessage";
 
 export const LoginPage = () => {
   const dispatch = useDispatch();
@@ -19,21 +21,31 @@ export const LoginPage = () => {
   const [error, setError] = useState(null);
 
   const handleLogin = () => {
-    dispatch(showLoading(true))
-    dispatch(postLogin(model))
-  }
+    setError(null);
+    dispatch(hideToast());
+    dispatch(showLoading(true));
+    dispatch(postLogin(model));
+  };
 
   useEffect(() => {
+    if (localStorage.getItem('token')) {
+      navigate('/home', { replace: true })
+      return
+    }
     dispatch(clearLogin())
     return () => {
       dispatch(clearLogin())
     }
-  }, []);
+  }, [dispatch, navigate]);
 
   useEffect(() => {
-    if (dataLogin?.error !== null) {
-      dispatch(showLoading(false))
-      setError(dataLogin?.error?.message)
+    if (dataLogin?.error) {
+      dispatch(showLoading(false));
+      const msg =
+        typeof dataLogin.error?.message === "string" && dataLogin.error.message.trim()
+          ? dataLogin.error.message
+          : GENERIC_API_ERROR;
+      setError(msg);
     }
     if (dataLogin?.postLogin !== null) {
       let token = dataLogin?.postLogin?.token;
@@ -48,9 +60,11 @@ export const LoginPage = () => {
       localStorage.setItem("token", token);
       setAuthToken(token);
       dispatch(showLoading(false))
+      dispatch(hideToast());
+      setError(null);
       navigate("/home");
     }
-  }, [dataLogin?.error, dataLogin?.postLogin, navigate])
+  }, [dataLogin?.error, dataLogin?.postLogin, dispatch, navigate])
 
   return (
     <>
@@ -63,7 +77,6 @@ export const LoginPage = () => {
         handleLogin={handleLogin}
 
         error={error}
-        setError={setError}
       />
     </>
   )

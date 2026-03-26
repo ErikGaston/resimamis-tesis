@@ -29,7 +29,7 @@ AxiosInstance.interceptors.response.use(
     },
     async error => {
         let originalRequest = error.config;
-        if (error.response.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             localStorage.clear();
             window.location.reload();

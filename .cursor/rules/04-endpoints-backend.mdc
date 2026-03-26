@@ -1,0 +1,128 @@
+---
+alwaysApply: true
+---
+# Endpoints Backend — API Resimamis
+
+**Base URL:** valor de `import.meta.env.VITE_URL_API` (Vite). Las rutas siguientes son **relativas** a ese origen (sin barra final obligatoria en la base; los paths en código empiezan con `/` o `usuario/` según tabla).
+
+**Cliente HTTP:** `AxiosInstance` en `src/redux/interceptor/interceptor.js`.
+
+**Autenticación:** header `Authorization: Bearer <token>` cuando existe `localStorage.token` (tras login).  
+**401:** se limpia almacenamiento y se redirige a `/login`.
+
+---
+
+## Convención de documentación
+
+| Campo | Descripción |
+|-------|-------------|
+| **Método** | GET, POST, PUT |
+| **Path** | Como en `redux/api/index.js` |
+| **Función API** | Export en `src/redux/api/index.js` |
+| **Saga / uso** | Entrada saga si está registrada en `takeLatest` |
+
+---
+
+## 1. Usuario (login)
+
+| Método | Path | Función API | Saga |
+|--------|------|-------------|------|
+| POST | `usuario/login/` | `postLogin` | `userSaga` (`POST_LOGIN`) |
+
+**Body:** objeto con `Dni` y `Contrasena` (ver `LoginPage`).  
+**Respuesta:** incluye `token` y datos de `voluntaria` según `userReducer` (usa `response.data`).
+
+---
+
+## 2. Genéricos
+
+| Método | Path | Función API | Saga |
+|--------|------|-------------|------|
+| GET | `/genericos/localidades` | `getLocalities` | `genericsSaga` |
+
+---
+
+## 3. Voluntaria
+
+| Método | Path | Función API | Notas |
+|--------|------|-------------|-------|
+| POST | `/voluntaria/` | `postVolunteer` | Alta |
+| PUT | `/voluntaria/id/{idVoluntaria}/` | `putVolunteer` | Body `param` incluye `idVoluntaria` |
+| GET | `/voluntaria/` | `getVolunteers` | Listado |
+| GET | `/voluntaria/libres/` | `getVolunteersFree` | Home / carrusel |
+| GET | `/voluntaria/estados/` | `getVolunteersStates` | |
+| GET | `/voluntaria/id/{id}` | `getVolunteerById` | Implementado como GET `${postVolunteerURL}/id/${id}` → `/voluntaria//id/:id` (doble slash en código; el servidor suele tolerarlo — revisar) |
+
+### Asistencia
+
+| Método | Path | Función API | Notas |
+|--------|------|-------------|-------|
+| POST | `/asistencia/entrada/{id}` | `postAssistance` | `param` se concatena al path |
+| GET | `/asistencia/id/{id}` | `getAssistance` | |
+
+---
+
+## 4. Madre
+
+| Método | Path | Función API |
+|--------|------|-------------|
+| POST | `/madre/` | `postMother` |
+| GET | `/madre/` | `getMother` |
+| GET | `/madre/id/{id}` | `getMotherId` |
+| PUT | `/madre/id/{idMadre}/` | `putMother` |
+| GET | `/madre/estadisticaLocalidades` | `getStatisticsLocalities` |
+| GET | `/madre/estadisticaEdadesMadre` | `getStatisticsAgeMother` |
+
+---
+
+## 5. Bebé
+
+| Método | Path | Función API | Notas |
+|--------|------|-------------|-------|
+| POST | `/bebe/` | `postBaby` | |
+| GET | `/bebe/` | `getBabys` | |
+| GET | `/bebes/abrazar` | `getBabysFree` | Firma con `param` en `.get` por código; revisar si el backend espera query |
+
+---
+
+## 6. Asignación y abrazos
+
+| Método | Path | Función API | Notas |
+|--------|------|-------------|-------|
+| POST | `/asignacion/generar/` | `postAssignmentGenerate` | Sin body |
+| POST | `/asignacion/registrarDetalleAsignacion/{idAsignacion}/{idInsumo}/{cantidadInsumo}` | `postDetailAssignment` | Segmentos en URL |
+| POST | `/asignacion/iniciarAbrazo/{param}` | `postStartHug` | `param` en path |
+| POST | `/asignacion/finalizarAbrazo/{id}/{comentario}` | `postEndHug` | `comentario` puede ser vacío → `''` |
+| GET | `/asignacion/duracionAbrazos/` | `getDurationHug` | Definido en API; **no** registrado en `assignmentSaga` `takeLatest` (posible deuda) |
+| GET | `/asignacion/listarAsignacionesHoy/` | `getAssignmentToday` | |
+| GET | `/asignacion/listarAsignacionesHoyVoluntaria/{param}` | `getAssignmentTodayById` | |
+| GET | `/asignacion/listarCantidadAsignacionesPorDia/` | `getStatisticsAssignmentMonth` | |
+
+---
+
+## 7. Insumos
+
+| Método | Path | Función API |
+|--------|------|-------------|
+| GET | `/insumo` | `getSupplies` |
+| GET | `/insumo/estadisticaInsumoCantidad` | `getStatisticsSupplies` |
+
+---
+
+## Mapeo rápido: función → archivo saga
+
+| Función `api/index.js` | Saga principal |
+|--------------------------|----------------|
+| `postLogin` | `userSaga` |
+| `getLocalities` | `genericsSaga` |
+| `postMother`, `getMother`, `getMotherId`, `putMother`, `getStatisticsLocalities`, `getStatisticsAgeMother` | `motherSaga` |
+| `postVolunteer`, `putVolunteer`, `getVolunteers`, `getVolunteersFree`, `getVolunteersStates`, `getVolunteerById`, `postAssistance`, `getAssistance` | `volunteerSaga` |
+| `postBaby`, `getBabys`, `getBabysFree` | `babySaga` |
+| `postAssignmentGenerate`, `postDetailAssignment`, `postStartHug`, `postEndHug`, `getAssignmentToday`, `getAssignmentTodayById`, `getStatisticsAssignmentMonth` | `assignmentSaga` |
+| `getSupplies`, `getStatisticsSupplies` | `supplySaga` |
+
+---
+
+## Obsolescencia
+
+La documentación anterior de **Universal Market API** (productos, categorías, dashboard MARKET, `Token <token>`, etc.) **no** corresponde a este repositorio. Cualquier integración nueva debe partir de **`src/redux/api/index.js`** y actualizar este archivo.

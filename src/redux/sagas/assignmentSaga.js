@@ -1,6 +1,7 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import * as actionTypes from "../consts/actionTypes";
 import * as API from "../api";
+import { showApiErrorToast } from "./showApiErrorToast";
 
 function* asyncPostAssignmentGenerate() {
     try {
@@ -11,6 +12,7 @@ function* asyncPostAssignmentGenerate() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_ASSIGNMENT,
             response: error,
@@ -28,6 +30,7 @@ function* asyncPostDetailAssignment({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_ASSIGNMENT,
             response: error,
@@ -45,6 +48,7 @@ function* asyncPostStartHug({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_ASSIGNMENT,
             response: error,
@@ -62,6 +66,7 @@ function* asyncPostEndHug({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_ASSIGNMENT,
             response: error,
@@ -79,6 +84,7 @@ function* asyncGetDurationHug() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_ASSIGNMENT,
             response: error,
@@ -96,6 +102,7 @@ function* asyncGetAssignmentToday() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_ASSIGNMENT,
             response: error,
@@ -113,6 +120,7 @@ function* asyncGetAssignmentTodayById({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_ASSIGNMENT,
             response: error,
@@ -130,6 +138,7 @@ function* asyncGetStatisticsAssignmentMonth() {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_ASSIGNMENT,
             response: error,

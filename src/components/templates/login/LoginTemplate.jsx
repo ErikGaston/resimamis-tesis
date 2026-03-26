@@ -1,6 +1,6 @@
 import logoMamis from "../../../assets/login/mamis-login.svg";
 import { useState } from "react";
-import { Box, Container, FormHelperText, IconButton, InputAdornment } from "@mui/material";
+import { Box, Container, IconButton } from "@mui/material";
 import Button from "../../common/Button";
 import TitleText from "../../atoms/titleText/TitleText";
 import SubtitleText from "../../atoms/subtitleText/SubtitleText";
@@ -9,7 +9,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import styled from "@emotion/styled";
 
-const LoginTemplate = ({ model, setModel, handleLogin, error, setError }) => {
+const LoginTemplate = ({ model, setModel, handleLogin, error }) => {
     const [showPassword, setShowPassword] = useState(false);
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -71,10 +71,6 @@ const LoginTemplate = ({ model, setModel, handleLogin, error, setError }) => {
                         }}
                         className={error && 'errorInput'}
                     />
-                    {
-                        error &&
-                        <FormHelperText id="component-helper-text" className='error' sx={{ p: 1, fontSize: '16px', fontWeight: 600 }}>{error}</FormHelperText>
-                    }
                     <Button
                         type="submit"
                         fullWidth
