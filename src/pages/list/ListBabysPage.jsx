@@ -9,37 +9,28 @@ import { showLoading } from '../../redux/actions/loadingActions'
 export const ListBabysPage = () => {
 
   const dispatch = useDispatch();
-  const loading = useSelector(state => state.babyReducer.loading)
+  const loadingBaby = useSelector(state => state.babyReducer?.loading)
   const dataBabys = useSelector(state => state.babyReducer)
-  const [stateChart, setStateChart] = React.useState('')
-
 
   useEffect(() => {
-    //dispatch(showLoading(true))
+    dispatch(showLoading(true))
     dispatch(getBabys())
-
-    /* dispatch(clearVolunteer())
-    return () => {
-      dispatch(clearVolunteer())
-    } */
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
-    if (dataBabys?.error !== null) {
-      //dispatch(showLoading(false))
-    }
-    if (dataBabys?.getBabys !== null) {
+    if (dataBabys?.error != null) {
       dispatch(showLoading(false))
     }
-  }, [dataBabys?.error, dataBabys?.getBabys])
+    if (dataBabys?.getBabys != null) {
+      dispatch(showLoading(false))
+    }
+  }, [dataBabys?.error, dataBabys?.getBabys, dispatch])
 
-
-  console.log(dataBabys?.getBabys?.listadoBebes, 'dataBabys')
-
+  const showOverlay = loadingBaby
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {loading &&
+      {showOverlay &&
         <Loading position={'absolute'} height={'100%'} zIndex={9999} />
       }
       <ListBabysTemplate

@@ -11,7 +11,7 @@ export default function genericsReducer(state = initialState, action) {
     const ACTIONS = {
         [actionTypes.SHOW_LOADING]: showLoading(),
         [actionTypes.SUCCESS_GET_LOCALITIES]: responseToReturn('getLocalities'),
-        [actionTypes.ERROR_LOGIN]: responseToReturn('error'),
+        [actionTypes.ERROR_LOCALITIES]: responseToReturn('error'),
     };
 
     function responseToReturn(typeState) {

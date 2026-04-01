@@ -34,7 +34,7 @@ export const HomePage = () => {
     if (dataVolunteer?.getVolunteersFree !== null) {
       dispatch(showLoading(false))
     }
-  }, [dataVolunteer?.error, dataVolunteer?.getVolunteersFree])
+  }, [dataVolunteer?.error, dataVolunteer?.getVolunteersFree, dispatch])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

@@ -3,7 +3,7 @@ alwaysApply: true
 ---
 # Endpoints Backend — API Resimamis
 
-**Base URL:** valor de `import.meta.env.VITE_URL_API` (Vite). Las rutas siguientes son **relativas** a ese origen (sin barra final obligatoria en la base; los paths en código empiezan con `/` o `usuario/` según tabla).
+**Base URL:** valor de `import.meta.env.VITE_URL_API` (Vite; p. ej. `https://resimamis.onrender.com/`). Las rutas siguientes son **relativas** a ese origen (los paths en código empiezan con `/` o `usuario/` según tabla).
 
 **Cliente HTTP:** `AxiosInstance` en `src/redux/interceptor/interceptor.js`.
 

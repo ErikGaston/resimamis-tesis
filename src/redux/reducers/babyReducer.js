@@ -22,7 +22,12 @@ export default function babyReducer(state = initialState, action) {
     function responseToReturn(typeState) {
         let res = { ...state };
         if (action.response) {
-            res = { ...state, [typeState]: action.response.data, loading: false };
+            const payload = action.response.data;
+            if (typeState === 'getBabys' || typeState === 'postBaby' || typeState === 'getBabysFree') {
+                res = { ...state, [typeState]: payload, error: null, loading: false };
+            } else {
+                res = { ...state, [typeState]: payload, loading: false };
+            }
         }
         return res;
     }

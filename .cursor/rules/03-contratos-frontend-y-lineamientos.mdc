@@ -109,7 +109,7 @@ Rutas declaradas con `useRoutes`:
 
 ## 5. HTTP y autenticación
 
-- **Base URL:** `import.meta.env.VITE_URL_API` (definir en `.env` / entorno de build).
+- **Base URL:** `import.meta.env.VITE_URL_API` (definir en `.env` / entorno de build; ver también `.env.example`). Ej. producción: `https://resimamis.onrender.com/` (si el API vive bajo subpath, añadir `.../api/`).
 - **Cabecera:** `Authorization: Bearer <token>` si existe `localStorage.getItem('token')`.
 - **401:** interceptor limpia `localStorage`, recarga y envía a `/login`.
 - **Login exitoso:** se guardan `token` y objeto `voluntaria` (JSON) en `localStorage`; `setAuthToken` opcionalmente refuerza el header por defecto de axios global (ver `utils/setAuthToken.js`).

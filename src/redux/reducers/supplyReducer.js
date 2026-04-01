@@ -13,7 +13,7 @@ export default function supplyReducer(state = initialState, action) {
         [actionTypes.SHOW_LOADING]: showLoading(),
         [actionTypes.SUCCESS_GET_SUPPLIES]: responseToReturn('getSupplies'),
         [actionTypes.SUCCESS_GET_STATISTICS_SUPPLIES]: responseToReturn('getStatisticsSupplies'),
-        [actionTypes.ERROR_LOGIN]: responseToReturn('error'),
+        [actionTypes.ERROR_SUPPLY]: responseToReturn('error'),
         [actionTypes.CLEAR_SUPPLY]: clearSupply(),
     };
 

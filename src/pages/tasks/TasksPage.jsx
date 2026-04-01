@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearVolunteer, getAssistance, getVolunteersFree, postAssistance } from "../../redux/actions/volunteerActions";
-import { getBabysFree } from "../../redux/actions/babyActions";
 import { clearAssignment, getAssignmentTodayById, postAssignmentGenerate, postDetailAssignment, postEndHug, postStartHug } from "../../redux/actions/assignmentActions";
 import { clearSupply, getSupplies } from "../../redux/actions/supplyActions";
 import { showLoading } from "../../redux/actions/loadingActions";
@@ -13,12 +12,13 @@ import { getIdVolunteer } from '../../utils/localStorage';
 
 export const TasksPage = () => {
     const dispatch = useDispatch();
-    const localities = useSelector(state => state.genericsReducer?.getLocalities)
     const dataVolunteer = useSelector(state => state.volunteerReducer)
-    const dataBaby = useSelector(state => state.babyReducer)
     const dataAssignment = useSelector(state => state.assignmentReducer)
     const dataSupply = useSelector(state => state.supplyReducer)
-    const loading = useSelector(state => state.motherReducer?.loading)
+    const loadingVolunteer = useSelector(state => state.volunteerReducer?.loading)
+    const loadingAssignment = useSelector(state => state.assignmentReducer?.loading)
+    const loadingSupply = useSelector(state => state.supplyReducer?.loading)
+    const loading = loadingVolunteer || loadingAssignment || loadingSupply
     const [valueTask, setValueTask] = useState(1);
     const [model, setModel] = useState(null);
     const [error, setError] = useState(null);
@@ -106,15 +106,15 @@ export const TasksPage = () => {
             dispatch(showLoading(true))
             dispatch(getVolunteersFree())
         }
-    }, [valueTask])
+    }, [valueTask, dispatch, idVolunteer])
 
     useEffect(() => {
-        if (dataVolunteer?.error !== null) {
+        if (dataVolunteer?.error != null) {
             dispatch(showLoading(false))
             setStateForm('ERROR')
             setTimeout(() => {
                 setStateForm('');
-            }, [2500])
+            }, 2500)
         }
         if (dataVolunteer?.postAssistance !== null) {
             dispatch(showLoading(false))
@@ -126,10 +126,10 @@ export const TasksPage = () => {
                 dispatch(getAssignmentTodayById(idVolunteer))
                 setTimeout(() => {
                     setStateForm(null);
-                }, [2500])
+                }, 2500)
             }
         }
-    }, [dataVolunteer?.error, dataVolunteer?.postAssistance])
+    }, [dataVolunteer?.error, dataVolunteer?.postAssistance, dispatch])
 
     useEffect(() => {
         if (dataVolunteer?.getAssistance !== null) {
@@ -140,85 +140,88 @@ export const TasksPage = () => {
                 dispatch(getAssignmentTodayById(idVolunteer))
             }
         }
-    }, [dataVolunteer?.getAssistance])
+    }, [dataVolunteer?.getAssistance, dispatch])
 
     useEffect(() => {
-        if (dataAssignment?.error !== null) {
+        if (dataAssignment?.error != null) {
             dispatch(showLoading(false))
-            setStateForm('ERROR')
+            const msg =
+                dataAssignment?.error?.mensaje ??
+                dataAssignment?.error?.message ??
+                dataAssignment?.error?.detail
+            if (msg) {
+                setStateForm('ERROR_ASIGNACION')
+                setError(typeof msg === 'string' ? msg : JSON.stringify(msg))
+            } else {
+                setStateForm('ERROR')
+            }
             setTimeout(() => {
                 setStateForm('');
-            }, [2500])
+            }, 2500)
         }
         if (dataAssignment?.getAssignmentTodayById !== null) {
             dispatch(showLoading(false))
         }
-    }, [dataAssignment?.error, dataAssignment?.getAssignmentTodayById])
-
+    }, [dataAssignment?.error, dataAssignment?.getAssignmentTodayById, dispatch])
 
     useEffect(() => {
         if (dataAssignment?.postStartHug !== null) {
             if (dataAssignment?.postStartHug?.respuesta) {
+                dispatch(showLoading(false))
                 dispatch(getAssignmentTodayById(idVolunteer))
                 setStateForm('INICIO_ABRAZO');
                 setTimeout(() => {
                     setStateForm('');
-                }, [2500])
+                }, 2500)
             }
         }
-    }, [dataAssignment?.postStartHug])
+    }, [dataAssignment?.postStartHug, dispatch, idVolunteer])
 
     useEffect(() => {
         if (dataAssignment?.postEndHug !== null) {
             if (dataAssignment?.postEndHug?.respuesta) {
+                dispatch(showLoading(false))
                 setModel(null)
                 setChangeInformationHug(false)
                 dispatch(getAssignmentTodayById(idVolunteer))
                 setStateForm('FINALIZA_ABRAZO');
                 setTimeout(() => {
                     setStateForm('');
-                }, [2500])
+                }, 2500)
             }
         }
-    }, [dataAssignment?.postEndHug])
+    }, [dataAssignment?.postEndHug, dispatch, idVolunteer])
 
     useEffect(() => {
-        if (dataVolunteer?.error !== null) {
+        if (dataVolunteer?.error != null) {
+            dispatch(showLoading(false))
             setStateForm('ERROR')
             setTimeout(() => {
                 setStateForm('');
-            }, [2500])
+            }, 2500)
         }
         if (dataVolunteer?.getVolunteersFree !== null) {
             dispatch(showLoading(false))
             setTimeout(() => {
                 setStateForm(null);
-            }, [2500])
+            }, 2500)
         }
-    }, [dataVolunteer?.error, dataVolunteer?.getVolunteersFree])
+    }, [dataVolunteer?.error, dataVolunteer?.getVolunteersFree, dispatch])
 
     useEffect(() => {
-        if (dataAssignment?.error !== null && dataAssignment?.error?.mensaje) {
-            dispatch(showLoading(false))
-            setStateForm('ERROR_ASIGNACION')
-            setError(dataAssignment?.error?.mensaje)
-            setTimeout(() => {
-                setStateForm('');
-            }, [2500])
-        }
         if (dataAssignment?.postAssignmentGenerate !== null) {
             setSelectedListVolunteer(false);
             setChangeAssignedList(state => !state)
             dispatch(showLoading(false))
         }
-    }, [dataAssignment?.error, dataAssignment?.postAssignmentGenerate])
+    }, [dataAssignment?.postAssignmentGenerate, dispatch])
 
     useEffect(() => {
         if (dataSupply?.getSupplies !== null) {
             dispatch(showLoading(false))
             setStateInsumo('OPEN')
         }
-    }, [dataSupply?.getSupplies])
+    }, [dataSupply?.getSupplies, dispatch])
 
     useEffect(() => {
         if (dataAssignment?.postDetailAssignment !== null) {
@@ -232,9 +235,7 @@ export const TasksPage = () => {
                 }, [2500])
             }
         }
-    }, [dataAssignment?.postDetailAssignment])
-
-    console.log(dataAssignment?.getAssignmentTodayById)
+    }, [dataAssignment?.postDetailAssignment, dispatch, ultimoElementoRegistrarInsumo])
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

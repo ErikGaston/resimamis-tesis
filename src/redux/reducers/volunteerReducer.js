@@ -24,7 +24,7 @@ export default function volunteerReducer(state = initialState, action) {
         [actionTypes.SUCCESS_GET_VOLUNTEER_BY_ID]: responseToReturn('getVolunteer'),
         [actionTypes.SUCCESS_GET_VOLUNTEERS]: responseToReturn('getVolunteers'),
         [actionTypes.SUCCESS_PUT_VOLUNTEER]: responseToReturn('putVolunteer'),
-        [actionTypes.ERROR_LOGIN]: responseToReturn('error'),
+        [actionTypes.ERROR_VOLUNTEER]: responseToReturn('error'),
         [actionTypes.CLEAR_VOLUNTEER]: clearVolunteer(),
     };
 
