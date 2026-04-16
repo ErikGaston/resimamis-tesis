@@ -20,7 +20,7 @@ const listTurnos = [
     },
 ]
 
-const VolunteerTemplate = ({ model, setModel, localities, submitVolunteer, error, setError, mothers }) => {
+const VolunteerTemplate = ({ model, setModel, localities, submitVolunteer, error, setError, fieldErrors, setFieldErrors }) => {
     const navigate = useNavigate();
     const [listLocalities, setListLocalities] = React.useState(null)
     const [listMothers, setListMothers] = React.useState(null)
@@ -53,9 +53,9 @@ const VolunteerTemplate = ({ model, setModel, localities, submitVolunteer, error
                     setModel={setModel}
                     error={error}
                     setError={setError}
-
+                    fieldErrors={fieldErrors}
+                    setFieldErrors={setFieldErrors}
                     listTurnos={listTurnos}
-
                     submitVolunteer={submitVolunteer}
                 />
             </div>

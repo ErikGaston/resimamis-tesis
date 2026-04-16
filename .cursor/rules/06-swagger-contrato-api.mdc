@@ -1,0 +1,40 @@
+---
+alwaysApply: true
+---
+# Contrato API vía OpenAPI (Swagger)
+
+Antes de **implementar o modificar** integración HTTP (nuevas llamadas, cambiar paths, bodies, métodos o alinear el front con el backend), el agente debe **consultar el contrato real** del API publicado en Swagger, no asumir solo lo documentado en `04-endpoints-backend.mdc` o lo que ya existe en `src/redux/api/index.js`.
+
+---
+
+## Fuente de verdad del contrato
+
+| Recurso | Ubicación |
+|---------|-----------|
+| **OpenAPI 3 JSON** | `https://resimamis.onrender.com/swagger/v1/swagger.json` |
+| **Swagger UI** | `https://resimamis.onrender.com/index.html` (puede tardar en cold start en Render) |
+
+El JSON define **paths** (incl. prefijo `/api/`, mayúsculas en segmentos como `Asignacion`), **métodos**, **parámetros** y **`components.schemas`** para bodies y respuestas.
+
+---
+
+## Flujo obligatorio por tarea
+
+1. **Identificar** qué endpoint(s) toca la tarea (tag en Swagger: Asignacion, Voluntaria, etc.).
+2. **Abrir o obtener** `swagger/v1/swagger.json` y localizar el path y método exactos.
+3. **Contrastar** con `src/redux/api/index.js` (y sagas/reducers si aplica): path, verbo, forma del body (nombre de propiedades, tipos), query/path params.
+4. **Implementar o corregir** el front según el contrato Swagger. Si el front histórico difiere (p. ej. sin `/api`, distinto casing), verificar contra el despliegue real o acordar un proxy/base URL; no dar por sentado sin comprobar.
+5. Tras cambios en código o en el contrato desplegado, **actualizar** `04-endpoints-backend.mdc` y la tabla de `05-mantenimiento-reglas.mdc` si corresponde.
+
+---
+
+## Relación con otras reglas
+
+- **`04-endpoints-backend.mdc`**: mapa del front y sagas; debe mantenerse alineado al Swagger cuando se confirme el comportamiento real.
+- **`03-contratos-frontend-y-lineamientos.mdc`**: stack y patrones Redux; no sustituye la revisión del OpenAPI para detalles de API.
+
+---
+
+## Nota
+
+Si en el futuro se versiona una copia local del spec (p. ej. `docs/openapi/swagger.json`), esta regla debe apuntar también a ese archivo como referencia offline; hasta entonces, la URL anterior es la referencia principal.

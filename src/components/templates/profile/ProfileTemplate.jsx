@@ -1,6 +1,5 @@
-import { IconButton } from '@mui/material'
-import React, { Fragment, useEffect } from 'react'
-import TitlePurple from '../../atoms/titlePurple/TitlePurple';
+import { Box, IconButton } from '@mui/material'
+import React from 'react'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import ProfileForm from '../../molecules/profileForm/ProfileForm';
 import MotherTemplate from '../../templates/mother/MotherTemplate';
@@ -15,13 +14,15 @@ export const ProfileTemplate = ({
   model = {},
   setModel,
   error = false,
-  volunteersStates = [],
   submit = () => { },
   editForm,
   setEditForm,
   type,
   localities,
-  typeForm
+  typeForm,
+  fieldErrors,
+  setFieldErrors,
+  profileBabyExtras,
 }) => {
   const navigate = useNavigate();
 
@@ -81,8 +82,8 @@ export const ProfileTemplate = ({
 
         </div>
       </div>
-      {type === "MOTHER" &&
-        <Fragment style={{ padding: '20px 20px 75px 20px' }}>
+      {type === "MOTHER" && (
+        <Box sx={{ px: 2.5, pt: 1, pb: 1 }}>
           <MotherTemplate
             model={model}
             setModel={setModel}
@@ -91,20 +92,24 @@ export const ProfileTemplate = ({
             withTitle={false}
             edit={editForm}
             typeForm={typeForm}
+            fieldErrors={fieldErrors}
+            setFieldErrors={setFieldErrors}
+            profileBabyExtras={profileBabyExtras}
           />
-        </Fragment>
-      }
-      {type === "VOLUNTEER" &&
-        <Fragment style={{ padding: '20px 20px 75px 20px' }}>
+        </Box>
+      )}
+      {type === "VOLUNTEER" && (
+        <Box sx={{ px: 2.5, pt: 1, pb: 1 }}>
           <ProfileForm
             model={model}
             setModel={setModel}
             error={error}
-            volunteersStates={volunteersStates}
             edit={editForm}
+            fieldErrors={fieldErrors}
+            setFieldErrors={setFieldErrors}
           />
-        </Fragment>
-      }
+        </Box>
+      )}
 
     </>
   )

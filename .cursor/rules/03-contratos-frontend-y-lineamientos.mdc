@@ -7,7 +7,13 @@ Documentación alineada al código en `src/`. **No** aplica Next.js, RTK Query n
 
 ---
 
-## 1. Stack y dependencias
+## 1. Layout global (ancho columna)
+
+Toda la app va envuelta en `AppScreenLayout` (`main.jsx`): columna centrada con **`maxWidth` 444px** (misma referencia que el login con `Container maxWidth="xs"`), `min-width: 0` y `overflow-x: hidden` para no romper responsive. Constante **`APP_COLUMN_MAX_WIDTH_PX`** en `src/helpers/const/appLayout.js`. El footer fijo y algunos FAB usan la misma referencia para alinearse a la columna en escritorio.
+
+---
+
+## 2. Stack y dependencias
 
 | Área | Tecnología |
 |------|------------|
@@ -29,7 +35,7 @@ Documentación alineada al código en `src/`. **No** aplica Next.js, RTK Query n
 
 ---
 
-## 2. Estructura de carpetas
+## 3. Estructura de carpetas
 
 ```
 src/
@@ -57,12 +63,12 @@ src/
 │   ├── api/index.js         # Funciones HTTP que usan AxiosInstance
 │   ├── interceptor/interceptor.js
 │   └── consts/actionTypes.js
-└── utils/                   # setAuthToken, localStorage, dateFormat, functionCommon
+└── utils/                   # setAuthToken, localStorage, dateFormat, functionCommon, motherFormValidation, volunteerFormValidation
 ```
 
 ---
 
-## 3. Enrutamiento (`src/routes/RouterApp.jsx`)
+## 4. Enrutamiento (`src/routes/RouterApp.jsx`)
 
 Rutas declaradas con `useRoutes`:
 
@@ -70,44 +76,45 @@ Rutas declaradas con `useRoutes`:
 |------|---------------------|
 | `/`, `/overview` | `HomePage` (resumen, voluntarias libres, panel) |
 | `/login` | `LoginPage` |
-| `/madres` | `ListMotherPage` |
+| `/madres` | `ListMotherPage` → `ListMotherTemplate` (listado con buscador por nombre/apellido/DNI) |
 | `/madre` | `MotherPage` (alta/edición flujo madre) |
 | `/madre/perfil/:id` | `ProfileMotherPage` |
 | `/voluntaria` | `VolunteerPage` |
 | `/voluntaria/perfil/:id` | `ProfileVolunteerPage` |
 | `/tareas` | `TasksPage` |
 | `/estadisticas` | `StatisticsPage` |
-| `/voluntarias` | `ListVolunteerPage` |
-| `/bebes` | `ListBabysPage` |
+| `/voluntarias` | `ListVolunteerPage` → `ListVolunteerTemplate` (listado con buscador por nombre/apellido/DNI) |
+| `/bebes` | `ListBabysPage` → `ListBabysTemplate` (listado con buscador por nombre/apellido/DNI) |
+| `/baby/perfil/:id` | Redirección a `/madres` (URL heredada; consulta de bebé en perfil de madre vía acordeón) |
 | `/insumos` | `SupplyPage` |
 
-**Nota:** `LoginPage` redirige a `/home` tras login, pero **no** existe ruta `/home` en `RouterApp`; conviene alinear con `/` o `/overview` en código futuro.
+**Nota:** Tras login (o si ya hay token), `LoginPage` navega a **`/overview`**. La ruta `home` en `RouterApp` redirige a `/overview`.
 
-`PublicRoute.jsx` existe pero no envuelve el router; las protecciones de ruta no están centralizadas ahí.
+`PublicRoute` envuelve `LoginPage` (si hay token, redirige a `/overview`). El resto de pantallas usa `PrivateRoute` y el interceptor ante 401.
 
 ---
 
-## 4. Estado y flujo de datos
+## 5. Estado y flujo de datos
 
-### 4.1 Patrón Redux + Saga
+### 5.1 Patrón Redux + Saga
 
 1. **Páginas / organismos** despachan **actions** (`redux/actions/*.js`).
 2. **Sagas** (`redux/sagas/*.js`) escuchan con `takeLatest` y llaman funciones de **`redux/api/index.js`**.
 3. Las APIs devuelven la respuesta Axios; los reducers guardan `response.data` según el action type de éxito/error.
 
-### 4.2 Reducers principales (ver `redux/reducers/index.js`)
+### 5.2 Reducers principales (ver `redux/reducers/index.js`)
 
 - `userReducer`: login.
 - `motherReducer`: madres, estadísticas de localidades/edades.
-- `volunteerReducer`: voluntarias, asistencias, listados.
+- `volunteerReducer`: voluntarias, asistencias (entrada/salida, consulta por id, hoy e históricas en estado), listados.
 - `babyReducer`: bebés.
 - `assignmentReducer`: asignaciones, abrazos, estadísticas de asignaciones.
-- `supplyReducer`: insumos y estadísticas.
+- `supplyReducer`: insumos, estadísticas, consulta de movimientos, proveedores, registro de movimiento (API cableada).
 - Carga global vía `loadingActions` / `SHOW_LOADING` donde aplica.
 
 ---
 
-## 5. HTTP y autenticación
+## 6. HTTP y autenticación
 
 - **Base URL:** `import.meta.env.VITE_URL_API` (definir en `.env` / entorno de build; ver también `.env.example`). Ej. producción: `https://resimamis.onrender.com/` (si el API vive bajo subpath, añadir `.../api/`).
 - **Cabecera:** `Authorization: Bearer <token>` si existe `localStorage.getItem('token')`.
@@ -118,7 +125,7 @@ Detalle de endpoints: **`04-endpoints-backend.mdc`**.
 
 ---
 
-## 6. UI y tema
+## 7. UI y tema
 
 - Tema MUI desde `helpers/theme.js` → `createTheme(baseTheme)` en `main.jsx`.
 - Tipografía base: Open Sans / Roboto / Helvetica (ver `baseTheme.typography`).
@@ -127,7 +134,7 @@ Detalle de endpoints: **`04-endpoints-backend.mdc`**.
 
 ---
 
-## 7. Estilo de código
+## 8. Estilo de código
 
 - Componentes funcionales, hooks estándar.
 - Dispatch de acciones con nombres alineados a `actionTypes`.
@@ -135,21 +142,22 @@ Detalle de endpoints: **`04-endpoints-backend.mdc`**.
 
 ---
 
-## 8. Build y despliegue
+## 9. Build y despliegue
 
 - `npm run dev` — Vite dev server.
 - `npm run build` — `vite build && cp web.config dist/` (despliegue tipo IIS/Windows).
 
 ---
 
-## 9. Mapa página → dominio Redux (referencia rápida)
+## 10. Mapa página → dominio Redux (referencia rápida)
 
 | Área UI | Actions / sagas típicos |
 |---------|-------------------------|
 | Login | `postLogin` / `userSaga` |
 | Home / voluntarias libres | `getVolunteersFree` |
 | Madres | `postMother`, `getMother`, `getMotherId`, `putMother`, estadísticas madre |
-| Voluntarias | CRUD asistencia, estados, listados, `putVolunteer` |
+| Voluntarias | Asistencia entrada/salida, consulta, estados, listados, `putVolunteer` |
 | Bebés | `postBaby`, `getBabys`, `getBabysFree` |
-| Tareas / abrazos | asignación generar, detalle insumo, iniciar/finalizar abrazo, listados del día |
-| Insumos / estadísticas | `getSupplies`, estadísticas de insumos |
+| Tareas / abrazos | asignación `generarTareas` / `generarTarea` (API), consultar asignación por id (API), detalle insumo, iniciar/finalizar abrazo, listados del día |
+| Insumos / estadísticas | `getSupplies`, movimientos (`consultaMovimientos`), proveedores, estadísticas de insumos |
+| Estadísticas | incluye vista de datos crudos de `getDurationHug` |

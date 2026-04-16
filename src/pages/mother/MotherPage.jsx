@@ -9,6 +9,11 @@ import Footer from "../../components/molecules/Footer";
 import { getLocalities } from "../../redux/actions/genericsActions";
 import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
 import { useNavigate } from "react-router-dom";
+import {
+    validateMotherForm,
+    normalizeMotherPayload,
+    INITIAL_MOTHER_FIELD_ERRORS,
+} from "../../utils/motherFormValidation";
 
 export const MotherPage = () => {
     const dispatch = useDispatch();
@@ -16,16 +21,23 @@ export const MotherPage = () => {
     const dataMother = useSelector(state => state.motherReducer)
     const dataBaby = useSelector(state => state.babyReducer)
     const loading = useSelector(state => state.motherReducer?.loading)
-    const [model, setModel] = useState(null);
+    const [model, setModel] = useState({});
     const [error, setError] = useState(null);
     const [stateForm, setStateForm] = useState(null);
     const [type, setType] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_MOTHER_FIELD_ERRORS });
     const navigate = useNavigate();
 
     const submitMother = () => {
-        dispatch(showLoading(true))
-        delete model.nombre_localidad;
-        dispatch(postMother(model))
+        const mothers = dataMother?.getMother?.listadoMadres ?? [];
+        const { ok, errors } = validateMotherForm(model, {
+            mothers,
+            excludeMadreId: null,
+        });
+        setFieldErrors(errors);
+        if (!ok) return;
+        dispatch(showLoading(true));
+        dispatch(postMother(normalizeMotherPayload(model)));
     }
 
     const submitConset = () => {
@@ -66,7 +78,8 @@ export const MotherPage = () => {
         }
         if (dataMother?.postMother !== null) {
             setType('La madre')
-            setModel(null)
+            setModel({})
+            setFieldErrors({ ...INITIAL_MOTHER_FIELD_ERRORS });
             dispatch(showLoading(false))
             setStateForm('SUCCESS')
             setTimeout(() => {
@@ -113,6 +126,8 @@ export const MotherPage = () => {
                 submitConset={submitConset}
                 submitBaby={submitBaby}
                 typeForm={"ALTA"}
+                fieldErrors={fieldErrors}
+                setFieldErrors={setFieldErrors}
             />
             {
                 stateForm === 'SUCCESS' &&

@@ -30,6 +30,61 @@ function* asyncPostAssistance({ payload }) {
                 response,
             });
     } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({
+            type: actionTypes.ERROR_VOLUNTEER,
+            response: error,
+            message: error.message,
+        });
+    }
+}
+
+function* asyncPostAssistanceSalida({ payload }) {
+    try {
+        let response = yield call(API.postAssistanceSalida, payload);
+        if (response)
+            yield put({
+                type: actionTypes.SUCCESS_POST_ASSISTANCE_SALIDA,
+                response,
+            });
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({
+            type: actionTypes.ERROR_VOLUNTEER,
+            response: error,
+            message: error.message,
+        });
+    }
+}
+
+function* asyncGetAssistanceToday() {
+    try {
+        let response = yield call(API.getAssistanceToday);
+        if (response)
+            yield put({
+                type: actionTypes.SUCCESS_GET_ASSISTANCE_TODAY,
+                response,
+            });
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({
+            type: actionTypes.ERROR_VOLUNTEER,
+            response: error,
+            message: error.message,
+        });
+    }
+}
+
+function* asyncGetAssistanceHistoricas({ payload }) {
+    try {
+        let response = yield call(API.getAssistanceHistoricas, payload);
+        if (response)
+            yield put({
+                type: actionTypes.SUCCESS_GET_ASSISTANCE_HISTORICAS,
+                response,
+            });
+    } catch (error) {
+        yield* showApiErrorToast(error);
         yield put({
             type: actionTypes.ERROR_VOLUNTEER,
             response: error,
@@ -149,6 +204,9 @@ function* asyncGetVolunteers() {
 export default function* volunteerSaga() {
     yield takeLatest(actionTypes.POST_VOLUNTEER, asyncPostVolunteer);
     yield takeLatest(actionTypes.POST_ASSISTANCE, asyncPostAssistance);
+    yield takeLatest(actionTypes.POST_ASSISTANCE_SALIDA, asyncPostAssistanceSalida);
+    yield takeLatest(actionTypes.GET_ASSISTANCE_TODAY, asyncGetAssistanceToday);
+    yield takeLatest(actionTypes.GET_ASSISTANCE_HISTORICAS, asyncGetAssistanceHistoricas);
     yield takeLatest(actionTypes.GET_VOLUNTEERS_FREE, asyncGetVolunteersFree);
     yield takeLatest(actionTypes.GET_ASSISTANCE, asyncGetAssistance);
     yield takeLatest(actionTypes.GET_VOLUNTEERS_STATES, asyncGetVolunteersStates);

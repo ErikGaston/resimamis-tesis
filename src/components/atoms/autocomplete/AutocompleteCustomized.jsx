@@ -3,7 +3,7 @@ import { Autocomplete, TextField } from '@mui/material';
 import React from 'react'
 
 const AutocompleteCustomized = (props) => {
-    const { id, key, value, inputValue, options, label, placeholder, startAdornment, onChange, onInputChange, sx, borderleft, required, noOptionsText, inputColor, ...other } = props;
+    const { id, key, value, inputValue, options, label, placeholder, startAdornment, onChange, onInputChange, sx, borderleft, required, noOptionsText, inputColor, error, helperText, ...other } = props;
     return (
         <Autocomplete
             disableClearable
@@ -25,6 +25,8 @@ const AutocompleteCustomized = (props) => {
                     {...params}
                     label={label}
                     placeholder={placeholder}
+                    error={Boolean(error)}
+                    helperText={helperText}
                     InputProps={{
                         ...params.InputProps,
                         startAdornment: startAdornment,

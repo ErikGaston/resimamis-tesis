@@ -6,7 +6,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/es'
 
 const DatePickerCustomized = (props) => {
-    const { label, inputFormat, value, onChange, inputProps, sx, inputPropsTextfield, disabled, ...other } = props;
+    const { label, inputFormat, value, onChange, inputProps, sx, inputPropsTextfield, disabled, minDate, maxDate, error, helperText, ...other } = props;
     const [open, setOpen] = useState(false);
 
     return (
@@ -16,6 +16,8 @@ const DatePickerCustomized = (props) => {
                 inputFormat={inputFormat}
                 value={value}
                 onChange={onChange}
+                minDate={minDate}
+                maxDate={maxDate}
                 open={open}
                 onOpen={() => setOpen(true)}
                 onClose={() => setOpen(false)}
@@ -25,8 +27,9 @@ const DatePickerCustomized = (props) => {
                 renderInput={(params) =>
                     <TextCustom
                         {...params}
+                        error={error}
+                        helperText={helperText}
                         onClick={() => setOpen(true)}
-                    // inputProps={inputPropsTextfield}
                     />
                 }
             />

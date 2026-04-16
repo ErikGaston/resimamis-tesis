@@ -1,6 +1,7 @@
 import React from 'react'
 import BottomNavigationCustom from '../atoms/BottomNavigation'
 import { Box } from '@mui/material'
+import { APP_COLUMN_MAX_WIDTH_PX } from '../../helpers/const/appLayout'
 import home from '../../assets/home/home.svg'
 import homeSelected from '../../assets/home/homeSelected.svg'
 import task from '../../assets/home/task.svg'
@@ -23,7 +24,7 @@ const Footer = () => {
       iconSelected: <img src={taskSelected} alt="home" />
     },
     {
-      label: 'Estadisticas',
+      label: 'Estadísticas',
       value: 'estadisticas',
       icon: <img src={metrics} alt="estadisticas" />,
       iconSelected: <img src={metricsSelected} alt="home" />
@@ -35,11 +36,14 @@ const Footer = () => {
       sx={{
         position: 'fixed',
         bottom: 0,
-        left: 0,
-        width:
-          '100%',
-        alignContent: 'center'
-      }}>
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
+        maxWidth: APP_COLUMN_MAX_WIDTH_PX,
+        alignContent: 'center',
+        zIndex: 10,
+      }}
+    >
       <BottomNavigationCustom tabs={tabs} />
     </Box>
   )

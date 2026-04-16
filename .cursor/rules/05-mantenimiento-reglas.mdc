@@ -15,8 +15,9 @@ Las reglas en `.cursor/rules/` son la **fuente de verdad** del proyecto. Deben r
 | `02-flujos-auth.mdc` | Login, token Bearer, localStorage, 401 |
 | `02-contratos-frontend-y-lineamientos.mdc` | Stub: apunta al contrato vigente en `03-…` |
 | `03-contratos-frontend-y-lineamientos.mdc` | Stack Vite/React/Redux-Saga/Router/MUI, carpetas, rutas |
-| `03-mantenimiento-reglas.mdc` | Este documento |
 | `04-endpoints-backend.mdc` | API REST integrada (`redux/api/index.js`) |
+| `05-mantenimiento-reglas.mdc` | Inventario de reglas y cuándo actualizarlas |
+| `06-swagger-contrato-api.mdc` | Antes de tareas HTTP: revisar OpenAPI (`swagger/v1/swagger.json`) |
 
 Si añades reglas nuevas (p. ej. instrumentación de tests, convenciones de commits), actualiza la tabla anterior en la misma sesión.
 
@@ -28,7 +29,8 @@ Actualizar la regla correspondiente **en la misma sesión** en que se realice cu
 
 | Cambio en el código | Regla a actualizar |
 |---------------------|--------------------|
-| Nuevo endpoint o cambio de path en `redux/api/index.js` | `04-endpoints-backend.mdc` |
+| Nuevo endpoint o cambio de path en `redux/api/index.js` | `04-endpoints-backend.mdc` (tras contrastar con Swagger; ver `06-…`) |
+| Cambio en el OpenAPI desplegado (`swagger/v1/swagger.json`) o divergencia front/back confirmada | `04-endpoints-backend.mdc`, `06-swagger-contrato-api.mdc` si cambia la URL o el flujo, y código en `redux/api` |
 | Nuevo saga, action type o flujo de datos | `03-contratos-frontend-y-lineamientos.mdc` (mapa Redux), y `04-endpoints-backend.mdc` si hay HTTP nuevo |
 | Cambio en login, token o interceptor | `02-flujos-auth.mdc`, `04-endpoints-backend.mdc` si aplica |
 | Nueva ruta en `RouterApp.jsx` | `03-contratos-frontend-y-lineamientos.mdc` |
@@ -60,4 +62,4 @@ Una regla está **actualizada** si:
 
 ## Mejoras pendientes fuera de alcance inmediato
 
-Si un cambio es demasiado grande para la sesión actual, registrar en un único sitio acordado por el equipo (por ejemplo `.cursor/notas/mejoras-pendientes.md` si existe) con estado, archivos afectados y pasos. **No** dejar reglas contradictorias: mejor marcar temporalmente una sección como “pendiente verificación”.
+Si un cambio es demasiado grande para la sesión actual, registrar en **`docs/pendientes.md`** (backlog breve). El inventario **Swagger vs front** (prioridades, vistas faltantes, validación, seguridad) vive en **`docs/cobertura-swagger-frontend.md`**: actualizarlo al integrar o descartar endpoints. Alternativa local: `.cursor/notas/mejoras-pendientes.md`. Incluir estado, archivos afectados y pasos cuando aplique. **No** dejar reglas contradictorias: mejor marcar temporalmente una sección como “pendiente verificación”.

@@ -1,70 +1,75 @@
-import React, { useEffect } from 'react'
-import {
-  BottomNavigation,
-  BottomNavigationAction
-} from '@mui/material';
-import styled from '@emotion/styled';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BottomNavigation, BottomNavigationAction } from '@mui/material';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const BottomNavigationCustom = ({
-  tabs = []
-}) => {
-  const [selectedValue, setSelectedValue] = React.useState(tabs[0].value);
+const BottomNavigationCustom = ({ tabs = [] }) => {
+  const [selectedValue, setSelectedValue] = React.useState(tabs[0]?.value ?? '');
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleChange = (event, newValue) => {
     setSelectedValue(newValue);
-    navigate('/' + newValue)
+    navigate('/' + newValue);
   };
 
   useEffect(() => {
-    const currentPath = window.location.pathname; // Esto devuelve '/tareas' en tu caso
-    // Para obtener solamente lo que está después de la última barra
-    const lastPartOfPath = currentPath.substring(currentPath.lastIndexOf('/') + 1); // Esto devuelve 'tareas'
-
-    if (lastPartOfPath === 'home') {
-      setSelectedValue(tabs[0].value);
+    const lastPart = location.pathname.substring(location.pathname.lastIndexOf('/') + 1);
+    if (lastPart === 'home' || lastPart === '' || lastPart === 'overview') {
+      setSelectedValue(tabs[0]?.value ?? 'home');
+      return;
     }
-    if (lastPartOfPath === 'tareas') {
-      setSelectedValue(tabs[1].value);
+    if (lastPart === 'tareas') {
+      setSelectedValue('tareas');
+      return;
     }
-    if (lastPartOfPath === 'estadisticas') {
-      setSelectedValue(tabs[2].value);
+    if (lastPart === 'estadisticas') {
+      setSelectedValue('estadisticas');
     }
-  }, [])
+  }, [location.pathname, tabs]);
 
   return (
-    <StyledBottomNavigation value={selectedValue} onChange={handleChange}>
+    <BottomNavigation
+      value={selectedValue}
+      onChange={handleChange}
+      showLabels
+      aria-label="Navegación principal"
+      sx={{
+        bgcolor: '#8F00FF',
+        height: '3.75rem',
+        pt: 0.25,
+        '& .MuiBottomNavigationAction-root': {
+          color: 'rgba(255,255,255,0.92)',
+          minWidth: 0,
+          maxWidth: 'none',
+          py: 0.5,
+          '& .MuiBottomNavigationAction-label': {
+            fontSize: '0.7rem',
+            fontWeight: 600,
+            color: 'rgba(255,255,255,0.92)',
+            opacity: 1,
+            mt: 0.5,
+          },
+          '&.Mui-selected': {
+            color: '#FFEB3B',
+            '& .MuiBottomNavigationAction-label': {
+              color: '#FFEB3B',
+              fontSize: '0.7rem',
+            },
+          },
+        },
+      }}
+    >
       {tabs.map(({ label, value, icon, iconSelected }) => (
-        <StyledBottomNavigationAction
+        <BottomNavigationAction
           key={value}
           label={label}
           value={value}
           icon={value === selectedValue ? iconSelected : icon}
+          aria-current={selectedValue === value ? 'page' : undefined}
         />
       ))}
-    </StyledBottomNavigation>
-  )
-}
+    </BottomNavigation>
+  );
+};
 
 export default BottomNavigationCustom;
-
-const StyledBottomNavigationAction = styled(BottomNavigationAction)`
-  background: linear-gradient(90deg, #FFE259 0%, #FFA751 100%);
-  background-clip: text;
-  color:linear-gradient(90deg, #FFE259 0%, #FFA751 100%);
-  -webkit-text-fill-color: transparent;
-  .MuiBottomNavigationAction-label {
-    font-size:12px;
-    font-weight: bold;
-  }
-`;
-
-const StyledBottomNavigation = styled(BottomNavigation)`
-  width: '100%';
-  text-align:'center';
-  background:#8F00FF;
-  height:3.75rem;
-  padding-top:0.2rem;
-   
-`

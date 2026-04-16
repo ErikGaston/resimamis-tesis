@@ -12,6 +12,11 @@ import ChevronRight from '@mui/icons-material/ChevronRight';
 const CardBaby = ({ baby }) => {
   const name =
     [baby?.nombre, baby?.apellido].filter(Boolean).join(' ').trim() || 'Sin nombre';
+  const dniRaw = baby?.dni ?? baby?.Dni;
+  const dni =
+    dniRaw != null && String(dniRaw).trim() !== ''
+      ? String(dniRaw).trim()
+      : 'Sin DNI indicado';
   const sala = baby?.salaInternacion?.trim() || 'Sin sala indicada';
   const idMadre = baby?.idMadre ?? baby?.id_madre;
   const to =
@@ -20,7 +25,10 @@ const CardBaby = ({ baby }) => {
       : '/madres';
 
   return (
-    <StyledLink to={to}>
+    <StyledLink
+      to={to}
+      aria-label={`Ver ficha de la madre del bebé ${name}, DNI ${dni}`}
+    >
       <CardOuter>
         <IconWrap>
           <ChildCareOutlined sx={{ fontSize: 28, color: '#7A659B' }} />
@@ -41,17 +49,29 @@ const CardBaby = ({ baby }) => {
           <Typography
             component="span"
             sx={{
-              color: 'rgba(21, 44, 112, 0.72)',
+              color: 'rgba(21, 44, 112, 0.82)',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              mt: 0.35,
+              display: 'block',
+            }}
+          >
+            DNI: {dni}
+          </Typography>
+          <Typography
+            component="span"
+            sx={{
+              color: 'rgba(21, 44, 112, 0.88)',
               fontSize: '0.875rem',
-              fontWeight: 400,
-              mt: 0.5,
+              fontWeight: 500,
+              mt: 0.35,
               display: 'block',
             }}
           >
             Sala: {sala}
           </Typography>
         </TextBlock>
-        <ChevronRight sx={{ color: 'rgba(143, 0, 255, 0.55)', flexShrink: 0 }} />
+        <ChevronRight sx={{ color: 'rgba(95, 39, 148, 0.85)', flexShrink: 0 }} aria-hidden />
       </CardOuter>
     </StyledLink>
   );
@@ -65,6 +85,12 @@ const StyledLink = styled(Link)`
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  color: inherit;
+  border-radius: 16px;
+  outline: none;
+  &:focus-visible {
+    box-shadow: 0 0 0 3px rgba(143, 0, 255, 0.45);
+  }
 `;
 
 const CardOuter = styled(Box)`

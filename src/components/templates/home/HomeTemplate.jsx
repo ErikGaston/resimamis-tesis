@@ -42,8 +42,10 @@ export const HomeTemplate = (props) => {
 
 const StyledContainer = styled('div')`
   height: 50%;
-    width: 100vw;
-    background: linear-gradient(0deg, #FFF -54.68%, #FFF -3.39%, rgba(255, 255, 255, 0.00)), url(${(props) => props.img});
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
+  width: 100%;
+  max-width: 100%;
+  background: linear-gradient(0deg, #FFF -54.68%, #FFF -3.39%, rgba(255, 255, 255, 0.00)), url(${(props) => props.img});
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+ box-sizing: border-box;
 `;

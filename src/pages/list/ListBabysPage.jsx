@@ -29,7 +29,7 @@ export const ListBabysPage = () => {
   const showOverlay = loadingBaby
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
       {showOverlay &&
         <Loading position={'absolute'} height={'100%'} zIndex={9999} />
       }

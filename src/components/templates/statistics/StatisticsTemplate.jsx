@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import { Button, IconButton } from '@mui/material';
+import { Box, Button, IconButton, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import TitleText from '../../atoms/titleText/TitleText';
 import styled from '@emotion/styled';
@@ -13,7 +13,7 @@ import { ChartSupplies } from '../../organisms/statistics/ChartSupplies';
 import { ChartAssignmentMonth } from '../../organisms/statistics/ChartAssignmentMonth';
 
 const StatisticsTemplate = (props) => {
-    const { stateChart, setStateChart, generateChart, valueChart, statisticsMonthMother, statisticsLocalities, statisticsSupplies, statisticsAssignment } = props;
+    const { stateChart, setStateChart, generateChart, valueChart, statisticsMonthMother, statisticsLocalities, statisticsSupplies, statisticsAssignment, statisticsDurationHug } = props;
     const navigate = useNavigate();
     const [listBabysFree, setListBabysFree] = React.useState(null)
 
@@ -28,7 +28,7 @@ const StatisticsTemplate = (props) => {
                 <IconButton onClick={functionBack}>
                     <HighlightOffIcon style={{ color: 'white' }} />
                 </IconButton>
-                <TitleText fontsize={'20px'} style={{ width: '85%' }}>ESTADISTICAS</TitleText>
+                <TitleText fontsize={'20px'} style={{ width: '85%' }}>ESTADÍSTICAS</TitleText>
             </div>
             <ContainerButtons>
                 <Button
@@ -37,7 +37,7 @@ const StatisticsTemplate = (props) => {
                 >
                     <AddchartIcon style={{ color: '#8F00FF', marginRight: '10px' }} />
                     <Title>
-                        Grafico de edades de las madres
+                        Gráfico de edades de las madres
                     </Title>
                 </Button>
 
@@ -47,7 +47,7 @@ const StatisticsTemplate = (props) => {
                 >
                     <AddchartIcon style={{ color: '#8F00FF', marginRight: '10px' }} />
                     <Title>
-                        Grafico de localidades de las madres
+                        Gráfico de localidades de las madres
                     </Title>
                 </Button>
 
@@ -57,7 +57,7 @@ const StatisticsTemplate = (props) => {
                 >
                     <AddchartIcon style={{ color: '#8F00FF', marginRight: '10px' }} />
                     <Title>
-                        Grafico de insumos mas utilizados
+                        Gráfico de insumos más utilizados
                     </Title>
                 </Button>
 
@@ -67,7 +67,17 @@ const StatisticsTemplate = (props) => {
                 >
                     <AddchartIcon style={{ color: '#8F00FF', marginRight: '10px' }} />
                     <Title>
-                        Grafico de abrazos por mes
+                        Gráfico de abrazos por mes
+                    </Title>
+                </Button>
+
+                <Button
+                    style={{ textTransform: 'inherit', border: '1px solid #8F00FF', margin: '10px 0' }}
+                    onClick={() => generateChart(5)}
+                >
+                    <AddchartIcon style={{ color: '#8F00FF', marginRight: '10px' }} />
+                    <Title>
+                        Datos de duración de abrazos (API)
                     </Title>
                 </Button>
             </ContainerButtons>
@@ -80,7 +90,7 @@ const StatisticsTemplate = (props) => {
                             <IconButton onClick={() => setStateChart('')}>
                                 <HighlightOffIcon style={{ color: 'white' }} />
                             </IconButton>
-                            <TitleText fontsize={'20px'} style={{ width: '85%' }}>ESTADISTICAS</TitleText>
+                            <TitleText fontsize={'20px'} style={{ width: '85%' }}>ESTADÍSTICAS</TitleText>
                         </div>
                     }
                     content={
@@ -111,6 +121,18 @@ const StatisticsTemplate = (props) => {
                                     title={'Estadistica de cantidad de asignaciones'}
                                     statisticsAssignment={statisticsAssignment}
                                 />
+                            }
+                            {valueChart === 5 &&
+                                <Box sx={{ p: 2, maxHeight: '70vh', overflow: 'auto' }}>
+                                    <Typography variant="subtitle1" sx={{ color: '#152C70', fontWeight: 600, mb: 1 }}>
+                                        Respuesta GET /asignacion/duracionAbrazos
+                                    </Typography>
+                                    <Typography component="pre" sx={{ fontSize: 12, whiteSpace: 'pre-wrap', color: '#3d4f7a' }}>
+                                        {statisticsDurationHug != null
+                                            ? JSON.stringify(statisticsDurationHug, null, 2)
+                                            : 'Sin datos'}
+                                    </Typography>
+                                </Box>
                             }
                         </>
                     }

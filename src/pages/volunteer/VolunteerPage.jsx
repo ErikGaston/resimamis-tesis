@@ -1,32 +1,42 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { clearVolunteer, postAssistance, postVolunteer } from "../../redux/actions/volunteerActions";
+import { clearVolunteer, postVolunteer, getVolunteers } from "../../redux/actions/volunteerActions";
 import { showLoading } from "../../redux/actions/loadingActions";
 import Loading from "../../components/atoms/loading/Loading";
 import Footer from "../../components/molecules/Footer";
 import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
 import VolunteerTemplate from "../../components/templates/volunteer/VolunteerTemplate";
 import { useNavigate } from "react-router-dom";
+import {
+    validateVolunteerAlta,
+    normalizeVolunteerPayload,
+    INITIAL_VOLUNTEER_FIELD_ERRORS,
+} from "../../utils/volunteerFormValidation";
 
 export const VolunteerPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const localities = useSelector(state => state.genericsReducer?.getLocalities)
     const dataVolunteer = useSelector(state => state.volunteerReducer)
-    const loading = useSelector(state => state.motherReducer?.loading)
-    const [model, setModel] = useState(null);
+    const loading = useSelector(state => state.volunteerReducer?.loading)
+    const [model, setModel] = useState({});
     const [error, setError] = useState(null);
     const [stateForm, setStateForm] = useState(null);
+    const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_VOLUNTEER_FIELD_ERRORS });
 
     const submitVolunteer = () => {
+        const mdl = model || {};
+        const volunteers = dataVolunteer?.getVolunteers?.listadoVoluntaria ?? [];
+        const { ok, errors } = validateVolunteerAlta(mdl, { volunteers });
+        setFieldErrors(errors);
+        if (!ok) return;
         dispatch(showLoading(true))
-        delete model.nombre_localidad;
-        // model.fechaFin = null;
-        dispatch(postVolunteer(model))
+        dispatch(postVolunteer(normalizeVolunteerPayload(mdl)))
     }
 
     useEffect(() => {
         dispatch(clearVolunteer())
+        dispatch(getVolunteers())
         return () => {
             dispatch(clearVolunteer())
         }
@@ -38,7 +48,8 @@ export const VolunteerPage = () => {
             // setError(dataVolunteer?.error)
         }
         if (dataVolunteer?.postVolunteer !== null) {
-            setModel(null)
+            setModel({})
+            setFieldErrors({ ...INITIAL_VOLUNTEER_FIELD_ERRORS });
             dispatch(showLoading(false))
             setStateForm('SUCCESS')
             setTimeout(() => {
@@ -57,14 +68,12 @@ export const VolunteerPage = () => {
             <VolunteerTemplate
                 model={model}
                 setModel={setModel}
-
                 error={error}
                 setError={setError}
-
                 localities={localities?.localidades ?? null}
-                // mothers={dataMother?.getMother?.listadoMadres ?? null}
-
                 submitVolunteer={submitVolunteer}
+                fieldErrors={fieldErrors}
+                setFieldErrors={setFieldErrors}
             />
             {
                 stateForm === 'SUCCESS' &&

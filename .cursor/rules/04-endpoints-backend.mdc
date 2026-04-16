@@ -5,6 +5,8 @@ alwaysApply: true
 
 **Base URL:** valor de `import.meta.env.VITE_URL_API` (Vite; p. ej. `https://resimamis.onrender.com/`). Las rutas siguientes son **relativas** a ese origen (los paths en código empiezan con `/` o `usuario/` según tabla).
 
+**Contrato canónico del backend:** antes de cambiar integración HTTP, revisar el OpenAPI en `https://resimamis.onrender.com/swagger/v1/swagger.json` (ver regla `06-swagger-contrato-api.mdc`).
+
 **Cliente HTTP:** `AxiosInstance` en `src/redux/interceptor/interceptor.js`.
 
 **Autenticación:** header `Authorization: Bearer <token>` cuando existe `localStorage.token` (tras login).  
@@ -29,7 +31,7 @@ alwaysApply: true
 |--------|------|-------------|------|
 | POST | `usuario/login/` | `postLogin` | `userSaga` (`POST_LOGIN`) |
 
-**Body:** objeto con `Dni` y `Contrasena` (ver `LoginPage`).  
+**Body (OpenAPI `RequestLogin`):** `dni` (entero) y `contrasena` (string). En `LoginPage` el estado usa `Dni` y `Contrasena`; `postLogin` en `redux/api/index.js` normaliza a `dni`/`contrasena` antes del POST.  
 **Respuesta:** incluye `token` y datos de `voluntaria` según `userReducer` (usa `response.data`).
 
 ---
@@ -51,14 +53,17 @@ alwaysApply: true
 | GET | `/voluntaria/` | `getVolunteers` | Listado |
 | GET | `/voluntaria/libres/` | `getVolunteersFree` | Home / carrusel |
 | GET | `/voluntaria/estados/` | `getVolunteersStates` | |
-| GET | `/voluntaria/id/{id}` | `getVolunteerById` | Implementado como GET `${postVolunteerURL}/id/${id}` → `/voluntaria//id/:id` (doble slash en código; el servidor suele tolerarlo — revisar) |
+| GET | `/voluntaria/id/{id}` | `getVolunteerById` | GET `${postVolunteerURL}id/${id}` → `/voluntaria/id/:id` (sin doble slash; `postVolunteerURL` ya termina en `/`). |
 
 ### Asistencia
 
-| Método | Path | Función API | Notas |
-|--------|------|-------------|-------|
-| POST | `/asistencia/entrada/{id}` | `postAssistance` | `param` se concatena al path |
-| GET | `/asistencia/id/{id}` | `getAssistance` | |
+| Método | Path | Función API | Saga / UI |
+|--------|------|-------------|-----------|
+| POST | `/asistencia/entrada/{id}` | `postAssistance` | `volunteerSaga` — Tareas → Actividades |
+| POST | `/asistencia/salida/{id}` | `postAssistanceSalida` | `volunteerSaga` — botón «Registrar salida» |
+| GET | `/asistencia/id/{id}` | `getAssistance` | `volunteerSaga` |
+| GET | `/asistencia/hoy` | `getAssistanceToday` | `volunteerSaga`; Tareas → Actividades (enlace «Asistencias de hoy»; diálogo JSON) |
+| GET | `/asistencia/historicas/{id}` | `getAssistanceHistoricas` | `volunteerSaga`; Tareas → Actividades («Mi histórico»; diálogo JSON) |
 
 ---
 
@@ -73,6 +78,8 @@ alwaysApply: true
 | GET | `/madre/estadisticaLocalidades` | `getStatisticsLocalities` |
 | GET | `/madre/estadisticaEdadesMadre` | `getStatisticsAgeMother` |
 
+**Body POST/PUT (OpenAPI `MADRE`):** además de nombre, apellido, `dni`, `fechaNacimiento`, `localidad`, `motivoAbrazo`, `celular` (en schema como entero), el contrato incluye **`cantidadHijos`** (int) y **`estadoCivil`** (int). El formulario (`MotherForm`) envía ambos; los valores de estado civil mostrados en UI están en `MOTHER_ESTADO_CIVIL_OPTIONS` (`motherFormValidation.js`) y deben coincidir con la enumeración real del backend.
+
 ---
 
 ## 5. Bebé
@@ -80,8 +87,11 @@ alwaysApply: true
 | Método | Path | Función API | Notas |
 |--------|------|-------------|-------|
 | POST | `/bebe/` | `postBaby` | |
+| PUT | `/bebe/` | `putBaby` | Body `BEBE` (OpenAPI); saga `babySaga`; UI edición en perfil madre (acordeón bebé) |
 | GET | `/bebe/` | `getBabys` | |
-| GET | `/bebes/abrazar` | `getBabysFree` | Firma con `param` en `.get` por código; revisar si el backend espera query |
+| GET | `/bebe/abrazar` | `getBabysFree` | Query opcional vía `{ params }` |
+| GET | `/bebe/listarSalas` | `getBabySalas` | Perfil madre (selector de sala en edición de bebé) |
+| GET | `/bebe/id/{dni}` | `getBabyByDni` | Perfil madre (búsqueda por DNI en extras de bebé) |
 
 ---
 
@@ -89,23 +99,68 @@ alwaysApply: true
 
 | Método | Path | Función API | Notas |
 |--------|------|-------------|-------|
-| POST | `/asignacion/generar/` | `postAssignmentGenerate` | Sin body |
-| POST | `/asignacion/registrarDetalleAsignacion/{idAsignacion}/{idInsumo}/{cantidadInsumo}` | `postDetailAssignment` | Segmentos en URL |
+| POST | `/asignacion/generar/` | `postAssignmentGenerateLegacy` | Sin body (legacy OpenAPI); el flujo de tareas usa `postAssignmentGenerateTareas`. |
+| POST | `/asignacion/generarTareas/` | `postAssignmentGenerateTareas` | **Body:** `{ idVoluntarias: number[], idTareas: number[] \| null }` (`RequestAsignacionTareas`). En tareas → Asignación se eligen voluntarias y bebés; `idTareas` usa `idTarea` del bebé si existe, si no `idBebe`/`id` (ver `assignmentSelection.js`). |
+| POST | `/asignacion/generarTarea` | `postAssignmentGenerateTarea` | **Body:** `{ idVoluntaria, idTarea }` (`RequestAsignacionTarea`). UI: bloque «Asignación rápida» en Tareas → Asignación. |
+| GET | `/asignacion/consultar/{idAsignacion}` | `getAssignmentById` | En código: `getConsultarAsignacionURL` + `id`. UI: ícono en tarjeta de abrazo (Tareas → Actividades); diálogo JSON. |
+| POST | `/asignacion/registrarDetalleAsignacion/` | `postDetailAssignment` | **Body:** arreglo JSON de `RequestDetalleAsignacion` (OpenAPI). Ver ejemplo y nota Swagger más abajo. |
 | POST | `/asignacion/iniciarAbrazo/{param}` | `postStartHug` | `param` en path |
-| POST | `/asignacion/finalizarAbrazo/{id}/{comentario}` | `postEndHug` | `comentario` puede ser vacío → `''` |
-| GET | `/asignacion/duracionAbrazos/` | `getDurationHug` | Definido en API; **no** registrado en `assignmentSaga` `takeLatest` (posible deuda) |
+| POST | `/asignacion/finalizarAbrazo/` | `postEndHug` | Ver **Finalizar abrazo** (OpenAPI) más abajo. |
+| GET | `/asignacion/duracionAbrazos/` | `getDurationHug` | `assignmentSaga` + Estadísticas → «Datos de duración de abrazos (API)» |
 | GET | `/asignacion/listarAsignacionesHoy/` | `getAssignmentToday` | |
 | GET | `/asignacion/listarAsignacionesHoyVoluntaria/{param}` | `getAssignmentTodayById` | |
 | GET | `/asignacion/listarCantidadAsignacionesPorDia/` | `getStatisticsAssignmentMonth` | |
+
+### Registrar detalle de asignación (fuente de verdad: OpenAPI)
+
+En el Swagger del backend (`/api/Asignacion/registrarDetalleAsignacion`, método **POST**) el contrato es:
+
+- **Sin** segmentos extra en la URL: no forman parte del spec los valores tipo `.../registrarDetalleAsignacion/142/1/2` (eso mezcla path con datos que en el contrato van en el body).
+- **Body:** `application/json` — arreglo de objetos con `idAsignacion`, `idInsumo`, `cantidadInsumo` (todos enteros, nullable en el schema).
+
+Ejemplo de body con un ítem (equivalente a lo que arma `TasksPage` con varios ítems en el mismo array):
+
+```json
+[
+  {
+    "idAsignacion": 432,
+    "idInsumo": 1,
+    "cantidadInsumo": 3
+  }
+]
+```
+
+En `src/redux/api/index.js`, `postDetailAssignment` normaliza a ese arreglo y acepta un solo objeto o un array.
+
+### Finalizar abrazo (fuente de verdad: OpenAPI)
+
+Swagger: `POST /api/Asignacion/finalizarAbrazo` con **requestBody** JSON `ResquestFinalizarAbrazo` (typo del backend en el schema).
+
+- **No** se envían `idAsignacion` ni `comentario` en la ruta. Colecciones tipo `.../finalizarAbrazo/141/comentario` **no** forman parte del contrato OpenAPI; el comentario va **solo** en el body.
+- **Body:** `{ "idAsignacion": number, "comentario": string | null }`.
+
+Ejemplo:
+
+```json
+{
+  "idAsignacion": 141,
+  "comentario": "Texto libre o null si no hay comentario"
+}
+```
+
+En `src/redux/api/index.js`, `postEndHug` hace `POST` a `/asignacion/finalizarAbrazo/` con ese body; `TasksPage` despacha `postEndHug({ idAsignacion, comentario })`. Compat en API: también se puede pasar `id` en lugar de `idAsignacion` al armar el objeto antes de la llamada HTTP (el cliente normaliza a `idAsignacion`).
 
 ---
 
 ## 7. Insumos
 
-| Método | Path | Función API |
-|--------|------|-------------|
-| GET | `/insumo` | `getSupplies` |
-| GET | `/insumo/estadisticaInsumoCantidad` | `getStatisticsSupplies` |
+| Método | Path | Función API | Notas |
+|--------|------|-------------|-------|
+| GET | `/insumo` | `getSupplies` | |
+| GET | `/insumo/estadisticaInsumoCantidad` | `getStatisticsSupplies` | |
+| POST | `/insumo/consultaMovimientos` | `postSupplyConsultMovements` | Body `RequestMovimiento` (`fechaDesde`, `fechaHasta` opcionales). Pestaña Movimientos en Insumos. |
+| GET | `/insumo/proveedores` | `getSupplyProviders` | Carga junto a movimientos |
+| POST | `/insumo/registrarMovimiento` | `postSupplyRegisterMovement` | Body `MOVIMIENTOSTOCK`; formulario en Insumos → Movimientos |
 
 ---
 
@@ -116,10 +171,24 @@ alwaysApply: true
 | `postLogin` | `userSaga` |
 | `getLocalities` | `genericsSaga` |
 | `postMother`, `getMother`, `getMotherId`, `putMother`, `getStatisticsLocalities`, `getStatisticsAgeMother` | `motherSaga` |
-| `postVolunteer`, `putVolunteer`, `getVolunteers`, `getVolunteersFree`, `getVolunteersStates`, `getVolunteerById`, `postAssistance`, `getAssistance` | `volunteerSaga` |
-| `postBaby`, `getBabys`, `getBabysFree` | `babySaga` |
-| `postAssignmentGenerate`, `postDetailAssignment`, `postStartHug`, `postEndHug`, `getAssignmentToday`, `getAssignmentTodayById`, `getStatisticsAssignmentMonth` | `assignmentSaga` |
-| `getSupplies`, `getStatisticsSupplies` | `supplySaga` |
+| `postVolunteer`, `putVolunteer`, `getVolunteers`, `getVolunteersFree`, `getVolunteersStates`, `getVolunteerById`, `postAssistance`, `postAssistanceSalida`, `getAssistance`, `getAssistanceToday`, `getAssistanceHistoricas` | `volunteerSaga` |
+| `postBaby`, `putBaby`, `getBabys`, `getBabysFree`, `getBabySalas`, `getBabyByDni` | `babySaga` |
+| Redux `postAssignmentGenerate` → HTTP `postAssignmentGenerateTareas`; `postAssignmentGenerateTarea`; `getAssignmentById`; `postDetailAssignment`; `postStartHug`; `postEndHug`; `getDurationHug`; `getAssignmentToday`; `getAssignmentTodayById`; `getStatisticsAssignmentMonth` | `assignmentSaga` |
+| `getSupplies`, `getStatisticsSupplies`, `postSupplyConsultMovements`, `getSupplyProviders`, `postSupplyRegisterMovement` | `supplySaga` |
+
+---
+
+## Cruce OpenAPI (`swagger/v1/swagger.json`) vs `redux/api/index.js`
+
+Rutas integradas en el front alinean prefijos y casing habituales del despliegue (`/madre/`, `/asignacion/…`, etc.). Diferencias a tener presentes al contrastar el JSON de Swagger del servidor:
+
+| Tema | OpenAPI (ejemplo) | Código front |
+|------|-------------------|--------------|
+| Bebés a abrazar | `GET /api/bebe/abrazar` | `GET /bebe/abrazar` (`getBabysFree`) relativo a `VITE_URL_API`. |
+| Login | `POST /api/Usuario/login`, body `RequestLogin` (`dni`, `contrasena`) | `POST usuario/login/`; el cliente envía `dni`/`contrasena` normalizados desde el formulario. |
+| Asistencia entrada | `POST /api/Asistencia/entrada/{IdVoluntaria}` | `POST /asistencia/entrada/{id}` — mismo patrón. |
+
+El resto de métodos usados (madre, voluntaria, asignación con body JSON, insumo, genéricos localidades) coinciden en intención con las operaciones documentadas bajo `/api/...` en Swagger; la base `VITE_URL_API` absorbe el prefijo `/api` si el backend lo expone así.
 
 ---
 

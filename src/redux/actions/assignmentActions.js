@@ -1,8 +1,28 @@
 import * as actionTypes from '../consts/actionTypes';
 
-export function postAssignmentGenerate() {
+/**
+ * Genera asignaciones en lote. La saga llama a **`postAssignmentGenerateTareas`** (OpenAPI `generarTareas`), no al POST legacy `generar`.
+ * @param {{ idVoluntarias: number[], idTareas: number[]|null }} payload
+ */
+export function postAssignmentGenerate(payload) {
     return {
         type: actionTypes.POST_ASSIGNMENT_GENERATE,
+        payload,
+    };
+}
+
+/** OpenAPI `generarTarea`: una voluntaria y una tarea. */
+export function postAssignmentGenerateTarea(payload) {
+    return {
+        type: actionTypes.POST_ASSIGNMENT_GENERATE_TAREA,
+        payload,
+    };
+}
+
+export function getAssignmentById(idAsignacion) {
+    return {
+        type: actionTypes.GET_ASSIGNMENT_BY_ID,
+        payload: idAsignacion,
     };
 }
 

@@ -6,7 +6,17 @@ import img from '../../../assets/tasks/asistencia-abrazo.png'
 import CardBabyHug from '../../molecules/cardBabyHug/CardBabyHug';
 import { getIdVolunteer } from '../../../utils/localStorage';
 
-const ActivityTask = ({ check, submitAssistence, listAssignmentVolunteer, editHug, submitStartHug }) => {
+const ActivityTask = ({
+    check,
+    submitAssistence,
+    submitAssistanceSalida,
+    listAssignmentVolunteer,
+    editHug,
+    submitStartHug,
+    onShowAssistanceToday,
+    onShowAssistanceHistoricas,
+    onAssignmentDetail,
+}) => {
     let idVolunteer = getIdVolunteer();
     let existAssigned = listAssignmentVolunteer?.find(item => ((item.idVoluntaria === idVolunteer) && (item.fechaHoraFin === null)))
 
@@ -22,6 +32,31 @@ const ActivityTask = ({ check, submitAssistence, listAssignmentVolunteer, editHu
                 </Title>
                 <CheckCircleIcon style={{ color: check ? '#8F00FF' : '#CECECE', marginLeft: '10px' }} />
             </Button>
+            {typeof submitAssistanceSalida === 'function' && (
+                <Button
+                    style={{ textTransform: 'inherit', marginTop: 8 }}
+                    onClick={submitAssistanceSalida}
+                    disabled={!check}
+                    variant="outlined"
+                    color="secondary"
+                >
+                    <Title>Registrar salida</Title>
+                </Button>
+            )}
+            {(typeof onShowAssistanceToday === 'function' || typeof onShowAssistanceHistoricas === 'function') && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16 }}>
+                    {typeof onShowAssistanceToday === 'function' && (
+                        <Button variant="text" color="secondary" style={{ textTransform: 'inherit' }} onClick={onShowAssistanceToday}>
+                            <Title>Asistencias de hoy (todas)</Title>
+                        </Button>
+                    )}
+                    {typeof onShowAssistanceHistoricas === 'function' && (
+                        <Button variant="text" color="secondary" style={{ textTransform: 'inherit' }} onClick={onShowAssistanceHistoricas}>
+                            <Title>Mi histórico de asistencias</Title>
+                        </Button>
+                    )}
+                </div>
+            )}
             <div style={{ padding: '20px 10px' }}>
                 <Title>
                     Abrazos del dia
@@ -37,6 +72,7 @@ const ActivityTask = ({ check, submitAssistence, listAssignmentVolunteer, editHu
                                     hall={item.sala}
                                     editHug={editHug}
                                     submitStartHug={submitStartHug}
+                                    onAssignmentDetail={onAssignmentDetail}
                                 />
                             ))}
                             {!existAssigned &&

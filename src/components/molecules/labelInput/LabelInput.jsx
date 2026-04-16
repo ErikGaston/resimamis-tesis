@@ -3,8 +3,8 @@ import { InputAdornment, InputLabel, TextField } from '@mui/material'
 import React from 'react'
 
 const LabelInput = (props) => {
-    const { id, required, label, defaultValue, value, type, name, className, fullWidth, autoComplete, onChange, multiline, helperText, placeholder, InputProps, rows,
-        labelColor, inputColor, styleLabel, maxRows, variant, disabled } = props
+    const { id, required, label, defaultValue, value, type, name, className, fullWidth, autoComplete, onChange, multiline, helperText, placeholder, InputProps, inputProps, rows,
+        labelColor, inputColor, styleLabel, maxRows, variant, disabled, error } = props
 
     return (
         <div>
@@ -22,12 +22,12 @@ const LabelInput = (props) => {
                 autoComplete={autoComplete}
                 onChange={onChange}
                 multiline={multiline}
-                error={false}
+                error={Boolean(error)}
                 helperText={helperText}
                 required={required}
                 placeholder={placeholder}
                 rows={rows}
-                // endAdornment={endAdornment}
+                inputProps={inputProps}
                 inputColor={inputColor}
                 InputProps={InputProps}
                 maxRows={maxRows}

@@ -29,7 +29,7 @@ export const LoginPage = () => {
 
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      navigate('/home', { replace: true })
+      navigate('/overview', { replace: true })
       return
     }
     dispatch(clearLogin())
@@ -62,7 +62,7 @@ export const LoginPage = () => {
       dispatch(showLoading(false))
       dispatch(hideToast());
       setError(null);
-      navigate("/home");
+      navigate("/overview");
     }
   }, [dataLogin?.error, dataLogin?.postLogin, dispatch, navigate])
 

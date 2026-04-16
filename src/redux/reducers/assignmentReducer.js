@@ -2,6 +2,7 @@ import * as actionTypes from '../consts/actionTypes';
 
 const initialState = {
     postAssignmentGenerate: null,
+    postAssignmentGenerateTarea: null,
     postDetailAssignment: null,
     loading: false,
     error: null,
@@ -10,6 +11,7 @@ const initialState = {
     getDurationHug: null,
     getAssignmentToday: null,
     getAssignmentTodayById: null,
+    getAssignmentById: null,
     getStatisticsAssignmentMonth: null,
 };
 
@@ -18,7 +20,9 @@ export default function assignmentReducer(state = initialState, action) {
     const ACTIONS = {
         [actionTypes.SHOW_LOADING]: showLoading(),
         [actionTypes.SUCCESS_POST_ASSIGNMENT_GENERATE]: responseToReturn('postAssignmentGenerate'),
+        [actionTypes.SUCCESS_POST_ASSIGNMENT_GENERATE_TAREA]: responseToReturn('postAssignmentGenerateTarea'),
         [actionTypes.SUCCESS_POST_DETAIL_ASSIGNMENT]: responseToReturn('postDetailAssignment'),
+        [actionTypes.SUCCESS_GET_ASSIGNMENT_BY_ID]: responseToReturn('getAssignmentById'),
         [actionTypes.SUCCESS_POST_START_HUG]: responseToReturn('postStartHug'),
         [actionTypes.SUCCESS_POST_END_HUG]: responseToReturn('postEndHug'),
         [actionTypes.SUCCESS_GET_DURATION_HUG]: responseToReturn('getDurationHug'),
@@ -49,8 +53,9 @@ export default function assignmentReducer(state = initialState, action) {
         let res = { ...state };
         if (action.type === 'CLEAR_ASSIGNMENT') {
             res = {
-                ...state, postAssignmentGenerate: null, error: null, postDetailAssignment: null,
+                ...state, postAssignmentGenerate: null, postAssignmentGenerateTarea: null, error: null, postDetailAssignment: null,
                 postStartHug: null, postEndHug: null, getDurationHug: null, getAssignmentToday: null, getAssignmentTodayById: null,
+                getAssignmentById: null,
                 getStatisticsAssignmentMonth: null
             };
         }

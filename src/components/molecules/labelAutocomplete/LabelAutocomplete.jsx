@@ -5,7 +5,7 @@ import AutocompleteCustomized from '../../atoms/autocomplete/AutocompleteCustomi
 
 const LabelAutocomplete = (props) => {
     const { id, required, label, value, onChange, placeholder, labelColor, inputColor, styleLabel,
-        key, inputValue, options, startAdornment, onInputChange, sx, borderleft, noOptionsText, disabled } = props
+        key, inputValue, options, startAdornment, onInputChange, sx, borderleft, noOptionsText, disabled, error, helperText } = props
 
     return (
         <div>
@@ -27,6 +27,8 @@ const LabelAutocomplete = (props) => {
                 noOptionsText={noOptionsText}
                 inputColor={inputColor}
                 disabled={disabled}
+                error={error}
+                helperText={helperText}
             />
         </div>
     )

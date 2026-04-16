@@ -2,7 +2,7 @@ import React from "react";
 import CauroselSecundary from "../../molecules/CauroselSecundary";
 import { Box, Typography } from "@mui/material";
 
-const TITLE = "Quienes estamos hoy";
+const TITLE = "Voluntarias de hoy";
 
 import styled from "@emotion/styled";
 

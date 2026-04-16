@@ -24,6 +24,7 @@ const theme = createTheme(baseTheme);
 
 import configureStore from "./redux/store";
 import GlobalSnackBar from "./components/common/GlobalSnackBar";
+import AppScreenLayout from "./components/common/AppScreenLayout";
 
 const store = configureStore();
 
@@ -34,7 +35,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         {/* <QueryClientProvider client={queryClient}> */}
         <BrowserRouter>
           <GlobalSnackBar />
-          <RouterApp />
+          <AppScreenLayout>
+            <RouterApp />
+          </AppScreenLayout>
         </BrowserRouter>
         {/* </QueryClientProvider> */}
       </ThemeProvider>

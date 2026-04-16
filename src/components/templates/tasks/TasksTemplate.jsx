@@ -11,13 +11,18 @@ import InformationHug from '../../organisms/informationHug/InformationHug';
 
 const TasksTemplate = (props) => {
     const { model, setModel, assignmentVolunteer, valueTask,
-        changeTask, submitAssistence, checkAssistance, volunteersFree, selectVolunteersFree, selectedListVolunteer, submitAssignmentTask,
+        changeTask, submitAssistence, submitAssistanceSalida, checkAssistance, volunteersFree, listBabysFree, selectVolunteersFree, selectedVolunteerIds, toggleVolunteerSelection,
+        selectAllBabysFree, selectedBabyTareaIds, toggleBabyTareaSelection, submitAssignmentTask,
         listAssignment,
         submitStartHug, submitEndHug,
         changeStateInsumo, stateInsumo, setStateInsumo,
         supplies, submitChangeSupplies,
         changeInformationHug, setChangeInformationHug,
-        changeAssignedList, setChangeAssignedList
+        changeAssignedList, setChangeAssignedList,
+        onShowAssistanceToday,
+        onShowAssistanceHistoricas,
+        onAssignmentDetail,
+        submitAssignmentQuick,
     } = props;
     const navigate = useNavigate();
     const [listAssignmentVolunteer, setListAssignmentVolunteer] = React.useState(null)
@@ -106,11 +111,15 @@ const TasksTemplate = (props) => {
                     :
                     <ActivityTask
                         submitAssistence={submitAssistence}
+                        submitAssistanceSalida={submitAssistanceSalida}
                         check={checkAssistance}
                         listAssignmentVolunteer={listAssignmentVolunteer}
                         editHug={editHug}
 
                         submitStartHug={submitStartHug}
+                        onShowAssistanceToday={onShowAssistanceToday}
+                        onShowAssistanceHistoricas={onShowAssistanceHistoricas}
+                        onAssignmentDetail={onAssignmentDetail}
                     />)
             }
             {valueTask === 2 &&
@@ -122,9 +131,15 @@ const TasksTemplate = (props) => {
                     :
                     <AssignmentTask
                         listVolunteersFree={listVolunteersFree}
-                        selectedListVolunteer={selectedListVolunteer}
+                        selectedVolunteerIds={selectedVolunteerIds}
+                        toggleVolunteerSelection={toggleVolunteerSelection}
                         selectVolunteersFree={selectVolunteersFree}
+                        listBabysFree={listBabysFree}
+                        selectedBabyTareaIds={selectedBabyTareaIds}
+                        toggleBabyTareaSelection={toggleBabyTareaSelection}
+                        selectAllBabysFree={selectAllBabysFree}
                         submitAssignmentTask={submitAssignmentTask}
+                        submitAssignmentQuick={submitAssignmentQuick}
 
                         existAssigned={listAssignedVolunteer}
                         setChangeAssignedList={setChangeAssignedList}

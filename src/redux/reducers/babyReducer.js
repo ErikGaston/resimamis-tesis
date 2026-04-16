@@ -3,9 +3,12 @@ import * as actionTypes from '../consts/actionTypes';
 const initialState = {
     getBabys: null,
     postBaby: null,
+    putBaby: null,
     loading: false,
     error: null,
-    getBabysFree: null
+    getBabysFree: null,
+    getBabySalas: null,
+    getBabyByDni: null,
 };
 
 export default function babyReducer(state = initialState, action) {
@@ -14,7 +17,10 @@ export default function babyReducer(state = initialState, action) {
         [actionTypes.SHOW_LOADING]: showLoading(),
         [actionTypes.SUCCESS_GET_BABYS]: responseToReturn('getBabys'),
         [actionTypes.SUCCESS_POST_BABY]: responseToReturn('postBaby'),
+        [actionTypes.SUCCESS_PUT_BABY]: responseToReturn('putBaby'),
         [actionTypes.SUCCESS_GET_BABYS_FREE]: responseToReturn('getBabysFree'),
+        [actionTypes.SUCCESS_GET_BABY_SALAS]: responseToReturn('getBabySalas'),
+        [actionTypes.SUCCESS_GET_BABY_BY_DNI]: responseToReturn('getBabyByDni'),
         [actionTypes.ERROR_BABY]: responseToReturn('error'),
         [actionTypes.CLEAR_BABY]: clearBaby(),
     };
@@ -23,7 +29,8 @@ export default function babyReducer(state = initialState, action) {
         let res = { ...state };
         if (action.response) {
             const payload = action.response.data;
-            if (typeState === 'getBabys' || typeState === 'postBaby' || typeState === 'getBabysFree') {
+            if (typeState === 'getBabys' || typeState === 'postBaby' || typeState === 'putBaby' || typeState === 'getBabysFree'
+                || typeState === 'getBabySalas' || typeState === 'getBabyByDni') {
                 res = { ...state, [typeState]: payload, error: null, loading: false };
             } else {
                 res = { ...state, [typeState]: payload, loading: false };
@@ -44,7 +51,13 @@ export default function babyReducer(state = initialState, action) {
         let res = { ...state };
         if (action.type === 'CLEAR_BABY') {
             res = {
-                ...state, postBaby: null, error: null, getBabysFree: null,
+                ...state,
+                postBaby: null,
+                putBaby: null,
+                error: null,
+                getBabysFree: null,
+                getBabySalas: null,
+                getBabyByDni: null,
             };
         }
         return res;

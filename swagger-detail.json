@@ -1,0 +1,1630 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "My API",
+    "description": "A simple example ASP.NET Core Web API",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/Asignacion/listarAsignacionesHoy": {
+      "get": {
+        "tags": [
+          "Asignacion"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asignacion/consultar/{idAsignacion}": {
+      "get": {
+        "tags": [
+          "Asignacion"
+        ],
+        "parameters": [
+          {
+            "name": "idAsignacion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asignacion/listarCantidadAsignacionesPorDia": {
+      "get": {
+        "tags": [
+          "Asignacion"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asignacion/duracionAbrazos": {
+      "get": {
+        "tags": [
+          "Asignacion"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asignacion/listarAsignacionesHoyVoluntaria/{idVoluntaria}": {
+      "get": {
+        "tags": [
+          "Asignacion"
+        ],
+        "parameters": [
+          {
+            "name": "idVoluntaria",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asignacion/registrarDetalleAsignacion": {
+      "post": {
+        "tags": [
+          "Asignacion"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RequestDetalleAsignacion"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RequestDetalleAsignacion"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RequestDetalleAsignacion"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asignacion/generar": {
+      "post": {
+        "tags": [
+          "Asignacion"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asignacion/generarTarea": {
+      "post": {
+        "tags": [
+          "Asignacion"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestAsignacionTarea"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestAsignacionTarea"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestAsignacionTarea"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asignacion/generarTareas": {
+      "post": {
+        "tags": [
+          "Asignacion"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestAsignacionTareas"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestAsignacionTareas"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestAsignacionTareas"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asignacion/iniciarAbrazo/{idAsignacion}": {
+      "post": {
+        "tags": [
+          "Asignacion"
+        ],
+        "parameters": [
+          {
+            "name": "idAsignacion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asignacion/finalizarAbrazo": {
+      "post": {
+        "tags": [
+          "Asignacion"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResquestFinalizarAbrazo"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResquestFinalizarAbrazo"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResquestFinalizarAbrazo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asistencia/id/{IdVoluntaria}": {
+      "get": {
+        "tags": [
+          "Asistencia"
+        ],
+        "parameters": [
+          {
+            "name": "IdVoluntaria",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asistencia/hoy": {
+      "get": {
+        "tags": [
+          "Asistencia"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asistencia/historicas/{IdVoluntaria}": {
+      "get": {
+        "tags": [
+          "Asistencia"
+        ],
+        "parameters": [
+          {
+            "name": "IdVoluntaria",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asistencia/entrada/{IdVoluntaria}": {
+      "post": {
+        "tags": [
+          "Asistencia"
+        ],
+        "parameters": [
+          {
+            "name": "IdVoluntaria",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asistencia/salida/{IdVoluntaria}": {
+      "post": {
+        "tags": [
+          "Asistencia"
+        ],
+        "parameters": [
+          {
+            "name": "IdVoluntaria",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Bebe": {
+      "get": {
+        "tags": [
+          "Bebe"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Bebe"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BEBE"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BEBE"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BEBE"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Bebe"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BEBE"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BEBE"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BEBE"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Bebe/listarSalas": {
+      "get": {
+        "tags": [
+          "Bebe"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Bebe/id/{Dni}": {
+      "get": {
+        "tags": [
+          "Bebe"
+        ],
+        "parameters": [
+          {
+            "name": "Dni",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Bebe/abrazar": {
+      "get": {
+        "tags": [
+          "Bebe"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Genericos/localidades": {
+      "get": {
+        "tags": [
+          "Genericos"
+        ],
+        "parameters": [
+          {
+            "name": "Dni",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Horario/dias": {
+      "get": {
+        "tags": [
+          "Horario"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Horario": {
+      "post": {
+        "tags": [
+          "Horario"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/HorarioVoluntaria"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/HorarioVoluntaria"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/HorarioVoluntaria"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Insumo": {
+      "get": {
+        "tags": [
+          "Insumo"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Insumo/consultaMovimientos": {
+      "post": {
+        "tags": [
+          "Insumo"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestMovimiento"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestMovimiento"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestMovimiento"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Insumo/proveedores": {
+      "get": {
+        "tags": [
+          "Insumo"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Insumo/estadisticaInsumoCantidad": {
+      "get": {
+        "tags": [
+          "Insumo"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Insumo/registrarMovimiento": {
+      "post": {
+        "tags": [
+          "Insumo"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MOVIMIENTOSTOCK"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MOVIMIENTOSTOCK"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MOVIMIENTOSTOCK"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Madre": {
+      "get": {
+        "tags": [
+          "Madre"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Madre"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MADRE"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MADRE"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MADRE"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Madre/estadisticaLocalidades": {
+      "get": {
+        "tags": [
+          "Madre"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Madre/id/{Id}": {
+      "get": {
+        "tags": [
+          "Madre"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Madre"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MADRE"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MADRE"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MADRE"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Madre/estadisticaEdadesMadre": {
+      "get": {
+        "tags": [
+          "Madre"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Usuario": {
+      "post": {
+        "tags": [
+          "Usuario"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/USUARIO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/USUARIO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/USUARIO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Usuario/login": {
+      "post": {
+        "tags": [
+          "Usuario"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestLogin"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestLogin"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestLogin"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Voluntaria": {
+      "get": {
+        "tags": [
+          "Voluntaria"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Voluntaria"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VOLUNTARIA"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VOLUNTARIA"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VOLUNTARIA"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Voluntaria/libres": {
+      "get": {
+        "tags": [
+          "Voluntaria"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Voluntaria/estados": {
+      "get": {
+        "tags": [
+          "Voluntaria"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Voluntaria/id/{Id}": {
+      "get": {
+        "tags": [
+          "Voluntaria"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Voluntaria"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VOLUNTARIA"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VOLUNTARIA"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VOLUNTARIA"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Voluntaria/delete": {
+      "post": {
+        "tags": [
+          "Voluntaria"
+        ],
+        "parameters": [
+          {
+            "name": "idVoluntaria",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AMBITO": {
+        "type": "object",
+        "properties": {
+          "idAmbito": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "estados": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ESTADO"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ASIGNACION": {
+        "type": "object",
+        "properties": {
+          "idAsignacion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fechaHoraInicio": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "fechaHoraFin": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "fechaHoraAsignacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "idBebe": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "idTarea": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "idEstado": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "idVoluntaria": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comentario": {
+            "type": "string",
+            "nullable": true
+          },
+          "voluntaria": {
+            "$ref": "#/components/schemas/VOLUNTARIA"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/ESTADO"
+          },
+          "bebe": {
+            "$ref": "#/components/schemas/BEBE"
+          },
+          "tarea": {
+            "$ref": "#/components/schemas/TAREA"
+          },
+          "detallesAsignacion": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DETALLEASIGNACION"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BEBE": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dni": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "apellido": {
+            "type": "string",
+            "nullable": true
+          },
+          "sexo": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaNacimiento": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lugarNacimiento": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaIngresoNEO": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "pesoNacimiento": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "pesoIngresoNEO": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "pesoDiaAbrazos": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "pesoAlta": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "diagnosticoIngreso": {
+            "type": "string",
+            "nullable": true
+          },
+          "diagnosticoEgreso": {
+            "type": "string",
+            "nullable": true
+          },
+          "idSala": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "idMadre": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "idEstado": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "estado": {
+            "$ref": "#/components/schemas/ESTADO"
+          },
+          "nombreSala": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DETALLEASIGNACION": {
+        "type": "object",
+        "properties": {
+          "idDetalleAsignacion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fechaRetiro": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "fechaEntrega": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "nombreInsumo": {
+            "type": "string",
+            "nullable": true
+          },
+          "idAsignacion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "idInsumo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "asignacion": {
+            "$ref": "#/components/schemas/ASIGNACION"
+          },
+          "insumo": {
+            "$ref": "#/components/schemas/INSUMO"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ESTADO": {
+        "type": "object",
+        "properties": {
+          "idEstado": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "idAmbito": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ambito": {
+            "$ref": "#/components/schemas/AMBITO"
+          },
+          "bebes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BEBE"
+            },
+            "nullable": true
+          },
+          "voluntarias": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VOLUNTARIA"
+            },
+            "nullable": true
+          },
+          "asignaciones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ASIGNACION"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "HorarioVoluntaria": {
+        "type": "object",
+        "properties": {
+          "idDia": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "idVoluntaria": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "turno": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "INSUMO": {
+        "type": "object",
+        "properties": {
+          "idInsumo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockMaximo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stockMinimo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stockActual": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "detalles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DETALLEASIGNACION"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MADRE": {
+        "type": "object",
+        "properties": {
+          "idMadre": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaNacimiento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "apellido": {
+            "type": "string",
+            "nullable": true
+          },
+          "dni": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "localidad": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "estadoCivil": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cantidadHijos": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "estado": {
+            "type": "boolean"
+          },
+          "motivoAbrazo": {
+            "type": "string",
+            "nullable": true
+          },
+          "celular": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "bebe": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BEBE"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MOVIMIENTOSTOCK": {
+        "type": "object",
+        "properties": {
+          "idMovimiento": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "idInsumo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "idBebe": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "idVoluntaria": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "fechaMovimiento": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "observacion": {
+            "type": "string",
+            "nullable": true
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "esEntrada": {
+            "type": "string",
+            "nullable": true
+          },
+          "idProveedor": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestAsignacionTarea": {
+        "type": "object",
+        "properties": {
+          "idVoluntaria": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "idTarea": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestAsignacionTareas": {
+        "type": "object",
+        "properties": {
+          "idVoluntarias": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "idTareas": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestDetalleAsignacion": {
+        "type": "object",
+        "properties": {
+          "idAsignacion": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "idInsumo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "cantidadInsumo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestLogin": {
+        "type": "object",
+        "properties": {
+          "dni": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "contrasena": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestMovimiento": {
+        "type": "object",
+        "properties": {
+          "fechaDesde": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "fechaHasta": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResquestFinalizarAbrazo": {
+        "type": "object",
+        "properties": {
+          "idAsignacion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comentario": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TAREA": {
+        "type": "object",
+        "properties": {
+          "idTarea": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "estado": {
+            "type": "boolean"
+          },
+          "asignaciones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ASIGNACION"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "USUARIO": {
+        "type": "object",
+        "properties": {
+          "idUsuario": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dni": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "contrasena": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "idVoluntaria": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VOLUNTARIA": {
+        "type": "object",
+        "properties": {
+          "idVoluntaria": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dni": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "apellido": {
+            "type": "string",
+            "nullable": true
+          },
+          "mail": {
+            "type": "string",
+            "nullable": true
+          },
+          "celular": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fechaInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fechaFin": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "idEstado": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "idRol": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "rol": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

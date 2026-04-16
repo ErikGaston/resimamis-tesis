@@ -1,34 +1,34 @@
 import styled from '@emotion/styled'
-import { InputLabel } from '@mui/material'
+import { FormControl, FormHelperText, InputLabel } from '@mui/material'
 import React from 'react'
 import SelectCustomized from '../../atoms/select/SelectCustomized'
 
 const LabelSelect = (props) => {
     const { id, labelColor, styleLabel, name, textDefault, list, onChange, value,
-        classes, displayEmpty, labelId, label, placeholder, placeholderColor, sx, required, notched, disabled, other, } = props;
+        classes, displayEmpty, labelId, label, placeholder, placeholderColor, sx, required, notched, disabled, helperText, error, } = props;
 
     return (
-        <div>
-            <StyledInputLabel htmlFor={id} labelColor={labelColor} style={styleLabel}>{label}</StyledInputLabel>
+        <FormControl fullWidth error={Boolean(error)} disabled={disabled} sx={{ margin: '10px 0' }}>
+            <StyledInputLabel htmlFor={id} labelColor={labelColor} style={styleLabel} id={labelId}>{label}</StyledInputLabel>
             <StyledSelectCustomized
                 name={name}
                 textDefault={textDefault}
                 list={list}
                 onChange={onChange}
                 value={value}
-                disable
                 classes={classes}
                 displayEmpty={displayEmpty}
                 labelId={labelId}
-                // label={label}
                 placeholder={placeholder}
                 placeholderColor={placeholderColor}
                 sx={sx}
                 required={required}
                 notched={notched}
                 disabled={disabled}
+                error={error}
             />
-        </div>
+            {helperText ? <FormHelperText>{helperText}</FormHelperText> : null}
+        </FormControl>
     )
 }
 

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { showLoading } from "../../redux/actions/loadingActions";
 import { clearMother, getStatisticsAgeMother, getStatisticsLocalities } from "../../redux/actions/motherActions";
 import { clearSupply, getStatisticsSupplies } from "../../redux/actions/supplyActions";
-import { clearAssignment, getStatisticsAssignmentMonth } from "../../redux/actions/assignmentActions";
+import { clearAssignment, getStatisticsAssignmentMonth, getDurationHug } from "../../redux/actions/assignmentActions";
 import Loading from "../../components/atoms/loading/Loading";
 import Footer from "../../components/molecules/Footer";
 import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
@@ -36,6 +36,9 @@ export const StatisticsPage = () => {
             case 4:
                 dispatch(getStatisticsAssignmentMonth());
                 break;
+            case 5:
+                dispatch(getDurationHug());
+                break;
         }
     }
 
@@ -52,15 +55,16 @@ export const StatisticsPage = () => {
 
     useEffect(() => {
         if ((dataMother?.getStatisticsLocalities !== null || dataMother?.getStatisticsAgeMother !== null
-            || dataSupply.getStatisticsSupplies !== null || dataAssignment?.getStatisticsAssignmentMonth !== null) && valueChart !== 0) {
+            || dataSupply.getStatisticsSupplies !== null || dataAssignment?.getStatisticsAssignmentMonth !== null
+            || dataAssignment?.getDurationHug !== null) && valueChart !== 0) {
             setStateChart('OPEN')
             dispatch(showLoading(false))
         }
-    }, [dataMother?.getStatisticsLocalities, dataMother?.getStatisticsAgeMother, dataSupply?.getStatisticsSupplies, dataAssignment?.getStatisticsAssignmentMonth])
+    }, [dataMother?.getStatisticsLocalities, dataMother?.getStatisticsAgeMother, dataSupply?.getStatisticsSupplies, dataAssignment?.getStatisticsAssignmentMonth, dataAssignment?.getDurationHug])
 
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
             {loading &&
                 <Loading position={'absolute'} height={'100%'} zIndex={9999} />
             }
@@ -74,6 +78,7 @@ export const StatisticsPage = () => {
                 statisticsLocalities={dataMother?.getStatisticsLocalities?.resultado}
                 statisticsSupplies={dataSupply?.getStatisticsSupplies?.listadoInsumo}
                 statisticsAssignment={dataAssignment?.getStatisticsAssignmentMonth?.listadoAsignaciones}
+                statisticsDurationHug={dataAssignment?.getDurationHug}
             />
             {/* {
                 stateForm === 'ASSISTENCE' &&

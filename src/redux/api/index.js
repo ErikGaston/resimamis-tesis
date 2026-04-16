@@ -18,9 +18,15 @@ export const getLocalities = async () => {
 //#region - USER
 const postLoginURL = 'usuario/login/';
 
+/** Alineado a OpenAPI `RequestLogin`: `dni` (int), `contrasena` (string). Acepta también `Dni`/`Contrasena` del formulario. */
 export const postLogin = async (param) => {
+  const dniRaw = param?.dni ?? param?.Dni;
+  const digits = dniRaw != null ? String(dniRaw).replace(/\D/g, '') : '';
+  const dni = digits ? Number(digits) : 0;
+  const contrasena = param?.contrasena ?? param?.Contrasena ?? '';
+  const body = { dni, contrasena };
   return AxiosInstance
-    .post(`${postLoginURL}`, param)
+    .post(`${postLoginURL}`, body)
     .then((response) => {
       return response;
     })
@@ -33,7 +39,10 @@ export const postLogin = async (param) => {
 //#region - VOLUNTEER
 const postVolunteerURL = '/voluntaria/';
 const postAssistanceURL = '/asistencia/entrada/';
+const postAssistanceSalidaURL = '/asistencia/salida/';
 const getAssistanceURL = '/asistencia/id/';
+const getAssistanceHoyURL = '/asistencia/hoy';
+const getAssistanceHistoricasURL = '/asistencia/historicas/';
 const getVolunteersFreeURL = '/voluntaria/libres/';
 const getVolunteersStatesURL = '/voluntaria/estados/';
 const getVolunteersURL = '/voluntaria/';
@@ -52,6 +61,39 @@ export const postVolunteer = async (param) => {
 export const postAssistance = async (param) => {
   return AxiosInstance
     .post(`${postAssistanceURL}${param}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const postAssistanceSalida = async (idVoluntaria) => {
+  return AxiosInstance
+    .post(`${postAssistanceSalidaURL}${idVoluntaria}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const getAssistanceToday = async () => {
+  return AxiosInstance
+    .get(`${getAssistanceHoyURL}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const getAssistanceHistoricas = async (idVoluntaria) => {
+  return AxiosInstance
+    .get(`${getAssistanceHistoricasURL}${idVoluntaria}`)
     .then((response) => {
       return response;
     })
@@ -95,7 +137,7 @@ export const getVolunteersStates = async () => {
 
 export const getVolunteerById = async (id) => {
   return AxiosInstance
-    .get(`${postVolunteerURL}/id/${id}`)
+    .get(`${postVolunteerURL}id/${id}`)
     .then((response) => {
       return response;
     })
@@ -206,7 +248,8 @@ export const putMother = async (param) => {
 
 //#region - BABY
 const babyURL = '/bebe/';
-const getBabysFreeURL = '/bebes/abrazar';
+/** Listado de bebés disponibles para abrazar (backend: GET .../bebe/abrazar, no /bebes/abrazar). */
+const getBabysFreeURL = '/bebe/abrazar';
 
 export const postBaby = async (param) => {
   return AxiosInstance
@@ -219,9 +262,20 @@ export const postBaby = async (param) => {
     });
 };
 
-export const getBabysFree = async (param) => {
+/** OpenAPI: PUT `/api/Bebe` con body `BEBE` (mismo esquema que POST). */
+export const putBaby = async (param) => {
   return AxiosInstance
-    .get(`${getBabysFreeURL}`, param)
+    .put(`${babyURL}`, param)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const getBabysFree = async (params) => {
+  return AxiosInstance.get(getBabysFreeURL, params ? { params } : undefined)
     .then((response) => {
       return response;
     })
@@ -240,10 +294,33 @@ export const getBabys = async () => {
       throw error;
     });
 };
+
+export const getBabySalas = async () => {
+  return AxiosInstance
+    .get(`${babyURL}listarSalas`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const getBabyByDni = async (dni) => {
+  return AxiosInstance
+    .get(`${babyURL}id/${dni}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
 //#endregion
 
 //#region - ASSIGNMENT
 const postAssignmentGenerateURL = '/asignacion/generar/';
+const postAssignmentGenerateTareasURL = '/asignacion/generarTareas/';
 const postDetailAssignmentURL = '/asignacion/registrarDetalleAsignacion/';
 const postStartHugURL = '/asignacion/iniciarAbrazo/';
 const postEndHugURL = '/asignacion/finalizarAbrazo/';
@@ -251,8 +328,15 @@ const getDurationHugURL = '/asignacion/duracionAbrazos/';
 const getAssignmentTodayURL = '/asignacion/listarAsignacionesHoy/';
 const getAssignmentTodayByIdURL = '/asignacion/listarAsignacionesHoyVoluntaria/';
 const getStatisticsAssignmentMonthURL = '/asignacion/listarCantidadAsignacionesPorDia/';
+const getConsultarAsignacionURL = '/asignacion/consultar/';
+const postGenerarTareaURL = '/asignacion/generarTarea';
 
-export const postAssignmentGenerate = async () => {
+/**
+ * POST vacío a `/asignacion/generar/` (legacy OpenAPI).
+ * El flujo de **Tareas → Asignación** usa `postAssignmentGenerateTareas` vía la acción Redux `POST_ASSIGNMENT_GENERATE`.
+ * Mantener solo si el backend sigue exponiendo este endpoint y hay un caso de uso explícito.
+ */
+export const postAssignmentGenerateLegacy = async () => {
   return AxiosInstance
     .post(`${postAssignmentGenerateURL}`)
     .then((response) => {
@@ -263,9 +347,62 @@ export const postAssignmentGenerate = async () => {
     });
 };
 
-export const postDetailAssignment = async (param) => {
+/** Body OpenAPI `RequestAsignacionTareas`: idVoluntarias (int[]), idTareas (int[]|null). */
+export const postAssignmentGenerateTareas = async (body) => {
+  const payload = {
+    idVoluntarias: Array.isArray(body?.idVoluntarias) ? body.idVoluntarias.map((n) => Number(n)) : [],
+    idTareas:
+      Array.isArray(body?.idTareas) && body.idTareas.length > 0
+        ? body.idTareas.map((n) => Number(n))
+        : null,
+  };
   return AxiosInstance
-    .post(`${postDetailAssignmentURL}${param.idAsignacion}/${param.idInsumo}/${param.cantidadInsumo}`)
+    .post(`${postAssignmentGenerateTareasURL}`, payload)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+/** OpenAPI `RequestAsignacionTarea`: una voluntaria y una tarea. */
+export const postAssignmentGenerateTarea = async (body) => {
+  const payload = {
+    idVoluntaria: body?.idVoluntaria != null ? Number(body.idVoluntaria) : null,
+    idTarea: body?.idTarea != null ? Number(body.idTarea) : null,
+  };
+  return AxiosInstance
+    .post(`${postGenerarTareaURL}`, payload)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const getAssignmentById = async (idAsignacion) => {
+  return AxiosInstance
+    .get(`${getConsultarAsignacionURL}${idAsignacion}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+/** Body: arreglo de RequestDetalleAsignacion (OpenAPI). Acepta un solo objeto o un array. */
+export const postDetailAssignment = async (param) => {
+  const toItem = (p) => ({
+    idAsignacion: p.idAsignacion != null ? Number(p.idAsignacion) : null,
+    idInsumo: p.idInsumo != null ? Number(p.idInsumo) : null,
+    cantidadInsumo: p.cantidadInsumo != null ? Number(p.cantidadInsumo) : null,
+  });
+  const body = Array.isArray(param) ? param.map(toItem) : [toItem(param)];
+  return AxiosInstance
+    .post(`${postDetailAssignmentURL}`, body)
     .then((response) => {
       return response;
     })
@@ -285,9 +422,15 @@ export const postStartHug = async (param) => {
     });
 };
 
+/** Body: ResquestFinalizarAbrazo — idAsignacion, comentario (nullable). */
 export const postEndHug = async (param) => {
+  const idAsignacion = param.idAsignacion ?? param.id;
+  const body = {
+    idAsignacion: idAsignacion != null ? Number(idAsignacion) : null,
+    comentario: param.comentario != null && param.comentario !== '' ? String(param.comentario) : null,
+  };
   return AxiosInstance
-    .post(`${postEndHugURL}${param.id}/${param.comentario ?? ''}`)
+    .post(`${postEndHugURL}`, body)
     .then((response) => {
       return response;
     })
@@ -344,6 +487,9 @@ export const getStatisticsAssignmentMonth = async () => {
 //#region - SUPPLY
 const getSuppliesURL = '/insumo';
 const getStatisticsSuppliesURL = '/insumo/estadisticaInsumoCantidad';
+const postInsumoConsultaMovimientosURL = '/insumo/consultaMovimientos';
+const getInsumoProveedoresURL = '/insumo/proveedores';
+const postInsumoRegistrarMovimientoURL = '/insumo/registrarMovimiento';
 
 export const getSupplies = async () => {
   return AxiosInstance
@@ -359,6 +505,41 @@ export const getSupplies = async () => {
 export const getStatisticsSupplies = async () => {
   return AxiosInstance
     .get(`${getStatisticsSuppliesURL}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+/** Body OpenAPI `RequestMovimiento`: `fechaDesde`, `fechaHasta` (opcionales, date-time). */
+export const postSupplyConsultMovements = async (body = {}) => {
+  return AxiosInstance
+    .post(`${postInsumoConsultaMovimientosURL}`, body)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+export const getSupplyProviders = async () => {
+  return AxiosInstance
+    .get(`${getInsumoProveedoresURL}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+/** Body OpenAPI `MOVIMIENTOSTOCK`. */
+export const postSupplyRegisterMovement = async (body) => {
+  return AxiosInstance
+    .post(`${postInsumoRegistrarMovimientoURL}`, body)
     .then((response) => {
       return response;
     })

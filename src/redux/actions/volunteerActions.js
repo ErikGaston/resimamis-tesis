@@ -14,6 +14,26 @@ export function postAssistance(param) {
     };
 }
 
+export function postAssistanceSalida(idVoluntaria) {
+    return {
+        type: actionTypes.POST_ASSISTANCE_SALIDA,
+        payload: idVoluntaria,
+    };
+}
+
+export function getAssistanceToday() {
+    return {
+        type: actionTypes.GET_ASSISTANCE_TODAY,
+    };
+}
+
+export function getAssistanceHistoricas(idVoluntaria) {
+    return {
+        type: actionTypes.GET_ASSISTANCE_HISTORICAS,
+        payload: idVoluntaria,
+    };
+}
+
 export function getVolunteersFree() {
     return {
         type: actionTypes.GET_VOLUNTEERS_FREE,

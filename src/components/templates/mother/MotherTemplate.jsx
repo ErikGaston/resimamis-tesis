@@ -9,7 +9,7 @@ const listAccordion = [
     'Datos de la madre',
 ];
 
-const MotherTemplate = ({ model, setModel, localities, submitMother, submitConset, error, setError, mothers, submitBaby, typeForm, edit }) => {
+const MotherTemplate = ({ model, setModel, localities, submitMother, submitConset, error, setError, mothers, submitBaby, typeForm, edit, fieldErrors, setFieldErrors, profileBabyExtras }) => {
     const navigate = useNavigate();
     const [listLocalities, setListLocalities] = React.useState(null)
     const [listMothers, setListMothers] = React.useState(null)
@@ -71,6 +71,9 @@ const MotherTemplate = ({ model, setModel, localities, submitMother, submitConse
                     expandedMother={true}
                     editForm={edit}
                     typeForm={typeForm}
+                    fieldErrors={fieldErrors}
+                    setFieldErrors={setFieldErrors}
+                    profileBabyExtras={profileBabyExtras}
                 />
             </div>
         </>

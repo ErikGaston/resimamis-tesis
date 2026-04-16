@@ -6,7 +6,11 @@ const initialState = {
     loading: false,
     error: null,
     postAssistance: null,
+    postAssistanceSalida: null,
+    getAssistanceToday: null,
+    getAssistanceHistoricas: null,
     getVolunteersFree: null,
+    getVolunteers: null,
     getAssistance: null,
     getVolunteerStates: [],
     getVolunteer: null
@@ -18,6 +22,9 @@ export default function volunteerReducer(state = initialState, action) {
         [actionTypes.SHOW_LOADING]: showLoading(),
         [actionTypes.SUCCESS_POST_VOLUNTEER]: responseToReturn('postVolunteer'),
         [actionTypes.SUCCESS_POST_ASSISTANCE]: responseToReturn('postAssistance'),
+        [actionTypes.SUCCESS_POST_ASSISTANCE_SALIDA]: responseToReturn('postAssistanceSalida'),
+        [actionTypes.SUCCESS_GET_ASSISTANCE_TODAY]: responseToReturn('getAssistanceToday'),
+        [actionTypes.SUCCESS_GET_ASSISTANCE_HISTORICAS]: responseToReturn('getAssistanceHistoricas'),
         [actionTypes.SUCCESS_GET_VOLUNTEERS_FREE]: responseToReturn('getVolunteersFree'),
         [actionTypes.SUCCESS_GET_ASSISTANCE]: responseToReturn('getAssistance'),
         [actionTypes.SUCCESS_GET_VOLUNTEERS_STATES]: responseToReturn('getVolunteerStates'),
@@ -47,7 +54,13 @@ export default function volunteerReducer(state = initialState, action) {
     function clearVolunteer() {
         let res = { ...state };
         if (action.type === 'CLEAR_VOLUNTEER') {
-            res = { ...state, postVolunteer: null };
+            res = {
+                ...state,
+                postVolunteer: null,
+                postAssistanceSalida: null,
+                getAssistanceToday: null,
+                getAssistanceHistoricas: null,
+            };
         }
         return res;
     }

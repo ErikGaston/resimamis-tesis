@@ -30,7 +30,7 @@ const LoginTemplate = ({ model, setModel, handleLogin, error }) => {
     }
 
     return (
-        <StyledContainer maxWidth='xs'>
+        <StyledContainer maxWidth={false} disableGutters>
             <Box
                 sx={{
                     display: 'flex',
@@ -101,9 +101,13 @@ const LoginTemplate = ({ model, setModel, handleLogin, error }) => {
 export default LoginTemplate;
 
 const StyledContainer = styled(Container)`
-  height:100%;
+  flex: 1;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   background: linear-gradient(90deg, #A54DFF 0%, #F187FF 100%);
-  overflow-y:auto;
+  overflow-y: auto;
+  box-sizing: border-box;
 `;
 
 const StyledImage = styled('img')`

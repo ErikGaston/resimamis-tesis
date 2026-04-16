@@ -7,7 +7,7 @@ import ShareLocationIcon from '@mui/icons-material/ShareLocation';
 import ButtonCustomized from '../../atoms/button/ButtonCustomized';
 
 const CardBabyHug = (props) => {
-    const { item, name, hall, editHug, informationHug, submitStartHug } = props;
+    const { item, name, hall, editHug, submitStartHug, onAssignmentDetail } = props;
 
     return (
         <ContainerCard>
@@ -24,7 +24,16 @@ const CardBabyHug = (props) => {
             </div>
             <div>
                 {item.fechaHoraInicio === null ?
-                    <div style={{ textAlign: 'right' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4 }}>
+                        {typeof onAssignmentDetail === 'function' && (
+                            <IconButton
+                                aria-label="Ver detalle de asignación"
+                                onClick={() => onAssignmentDetail(item?.idAsignacion)}
+                                size="small"
+                            >
+                                <InsertDriveFileIcon style={{ color: '#8F00FF', fontSize: '26px' }} />
+                            </IconButton>
+                        )}
                         <ButtonCustomized
                             variant={'container'}
                             // colorButton={'#18A974'}
@@ -41,6 +50,15 @@ const CardBabyHug = (props) => {
                     </div>
                     :
                     <>
+                        {typeof onAssignmentDetail === 'function' && (
+                            <IconButton
+                                aria-label="Ver detalle de asignación"
+                                onClick={() => onAssignmentDetail(item?.idAsignacion)}
+                                size="small"
+                            >
+                                <InsertDriveFileIcon style={{ color: '#8F00FF', fontSize: '26px' }} />
+                            </IconButton>
+                        )}
                         <IconButton onClick={() => editHug(item)} >
                             <EditIcon style={{ color: '#8F00FF', fontSize: '30px' }} />
                         </IconButton>

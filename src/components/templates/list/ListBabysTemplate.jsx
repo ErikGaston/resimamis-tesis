@@ -2,15 +2,35 @@ import styled from '@emotion/styled';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ChildCareOutlined from '@mui/icons-material/ChildCareOutlined';
-import { Box, Fab, IconButton, Typography } from '@mui/material';
-import React, { useEffect } from 'react';
+import SearchIcon from '@mui/icons-material/Search';
+import { Box, Fab, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { fabRightInsetInColumn } from '../../../helpers/const/appLayout';
+import { fabBottomAboveNav, listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
 import CardBaby from '../../molecules/cardBaby/CardBaby';
+
+function babyMatchesQuery(baby, rawQuery) {
+  const q = rawQuery.trim().toLowerCase();
+  if (!q) return true;
+  const nombre = (baby?.nombre ?? '').toLowerCase();
+  const apellido = (baby?.apellido ?? '').toLowerCase();
+  const full = `${nombre} ${apellido}`.trim();
+  const dniStr =
+    baby?.dni != null ? String(baby.dni) : baby?.Dni != null ? String(baby.Dni) : '';
+  const qDigits = q.replace(/\D/g, '');
+  const dniDigits = dniStr.replace(/\D/g, '');
+  if (full.includes(q) || nombre.includes(q) || apellido.includes(q)) return true;
+  if (qDigits.length > 0 && dniDigits.includes(qDigits)) return true;
+  if (dniStr.toLowerCase().includes(q)) return true;
+  return false;
+}
 
 const ListBabysTemplate = (props) => {
   const { babys } = props;
   const navigate = useNavigate();
   const [listBabys, setListBabys] = React.useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const functionBack = () => {
     navigate(-1);
@@ -29,22 +49,30 @@ const ListBabysTemplate = (props) => {
     setListBabys(sorted);
   }, [babys]);
 
+  const filteredBabys = useMemo(() => {
+    if (!listBabys?.length) return null;
+    return listBabys.filter((b) => babyMatchesQuery(b, searchQuery));
+  }, [listBabys, searchQuery]);
+
   const listadoCargado = babys != null;
   const sinResultados = listadoCargado && Array.isArray(babys) && babys.length === 0;
+  const sinCoincidenciasBusqueda =
+    Boolean(listBabys?.length && searchQuery.trim() && filteredBabys && filteredBabys.length === 0);
 
   return (
     <PageWrap>
       <HeaderBar>
         <IconButton
           onClick={functionBack}
-          aria-label="Volver"
+          aria-label="Volver a la pantalla anterior"
           sx={{
             color: '#fff',
-            p: 1,
+            minWidth: 48,
+            minHeight: 48,
             '&:hover': { backgroundColor: 'rgba(255,255,255,0.12)' },
           }}
         >
-          <ArrowBackIosNewIcon sx={{ fontSize: 20 }} />
+          <ArrowBackIosNewIcon sx={{ fontSize: 22 }} />
         </IconButton>
         <Typography
           component="h1"
@@ -54,9 +82,8 @@ const ListBabysTemplate = (props) => {
             color: '#fff',
             fontWeight: 600,
             fontSize: '1.05rem',
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            pr: '40px',
+            letterSpacing: '0.04em',
+            pr: '48px',
             textShadow: '0 2px 8px rgba(0,0,0,0.2)',
           }}
         >
@@ -64,13 +91,54 @@ const ListBabysTemplate = (props) => {
         </Typography>
       </HeaderBar>
 
+      <SearchWrap>
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Buscar por nombre, apellido o DNI"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Buscar bebé"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: '#8F00FF' }} aria-hidden />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            maxWidth: 560,
+            margin: '0 auto',
+            ...listSearchTextFieldSx,
+          }}
+        />
+      </SearchWrap>
+
       <ContentScroll>
-        {listBabys?.length ? (
+        {filteredBabys?.length ? (
           <ListStack>
-            {listBabys.map((item, index) => (
+            {filteredBabys.map((item, index) => (
               <CardBaby key={item?.idBebe ?? item?.id ?? index} baby={item} />
             ))}
           </ListStack>
+        ) : sinCoincidenciasBusqueda ? (
+          <EmptyState>
+            <ChildCareOutlined sx={{ fontSize: 56, color: 'rgba(122, 101, 155, 0.5)', mb: 1 }} />
+            <Typography sx={{ color: '#152C70', fontWeight: 600, textAlign: 'center' }}>
+              No se encontraron bebés con ese criterio
+            </Typography>
+            <Typography
+              sx={{
+                color: 'rgba(21, 44, 112, 0.65)',
+                fontSize: '0.9rem',
+                textAlign: 'center',
+                mt: 0.5,
+                maxWidth: 320,
+              }}
+            >
+              Probá con otro nombre o DNI.
+            </Typography>
+          </EmptyState>
         ) : sinResultados ? (
           <EmptyState>
             <ChildCareOutlined sx={{ fontSize: 56, color: 'rgba(122, 101, 155, 0.5)', mb: 1 }} />
@@ -99,9 +167,9 @@ const ListBabysTemplate = (props) => {
         aria-label="Registrar bebé"
         sx={{
           position: 'fixed',
-          bottom: 'calc(3.75rem + 20px)',
-          right: 20,
-          zIndex: 8,
+          bottom: fabBottomAboveNav,
+          right: fabRightInsetInColumn,
+          zIndex: 9,
           width: 56,
           height: 56,
           background: 'linear-gradient(135deg, #A54DFF 0%, #8F00FF 100%)',
@@ -109,9 +177,10 @@ const ListBabysTemplate = (props) => {
           '&:hover': {
             background: 'linear-gradient(135deg, #B55DFF 0%, #9F10FF 100%)',
           },
+          '&:focus-visible': { outline: '3px solid #FFEB3B', outlineOffset: 2 },
         }}
       >
-        <AddCircleIcon sx={{ fontSize: 32 }} />
+        <AddCircleIcon sx={{ fontSize: 32, color: '#fff' }} />
       </Fab>
     </PageWrap>
   );
@@ -135,6 +204,13 @@ const HeaderBar = styled(Box)`
   top: 0;
   z-index: 10;
   box-shadow: 0 4px 14px rgba(143, 0, 255, 0.22);
+`;
+
+const SearchWrap = styled(Box)`
+  padding: 12px 16px 8px;
+  background: linear-gradient(180deg, rgba(143, 0, 255, 0.06) 0%, transparent 100%);
+  display: flex;
+  justify-content: center;
 `;
 
 const ContentScroll = styled(Box)`

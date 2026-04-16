@@ -1,5 +1,5 @@
 import React from 'react'
-import { useRoutes } from 'react-router-dom'
+import { Navigate, useRoutes } from 'react-router-dom'
 import { HomePage, ListVolunteerPage, LoginPage, MotherPage, ProfileVolunteerPage } from '../pages'
 
 import ListBabysPage from '../pages/list/ListBabysPage'
@@ -10,6 +10,7 @@ import { TasksPage } from '../pages/tasks/TasksPage'
 import { VolunteerPage } from '../pages/volunteer/VolunteerPage'
 import { SupplyPage } from '../pages/supply/SupplyPage'
 import { PrivateRoute } from './PrivateRoute'
+import { PublicRoute } from './PublicRoute'
 import { RootRedirect } from './RootRedirect'
 
 const withAuth = (element) => <PrivateRoute>{element}</PrivateRoute>
@@ -23,11 +24,15 @@ export const RouterApp = () => {
     },
     {
       path: 'login',
-      element: <LoginPage />,
+      element: (
+        <PublicRoute>
+          <LoginPage />
+        </PublicRoute>
+      ),
     },
     {
       path: 'home',
-      element: withAuth(<HomePage />),
+      element: <Navigate to="/overview" replace />,
     },
     {
       path: 'overview',
@@ -68,6 +73,10 @@ export const RouterApp = () => {
     {
       path: 'bebes',
       element: withAuth(<ListBabysPage />),
+    },
+    {
+      path: 'baby/perfil/:id',
+      element: withAuth(<Navigate to="/madres" replace />),
     },
     {
       path: 'insumos',
