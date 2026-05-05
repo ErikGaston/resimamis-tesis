@@ -39,6 +39,9 @@ export default function volunteerReducer(state = initialState, action) {
         let res = { ...state };
         if (action.response) {
             res = { ...state, [typeState]: action.response.data, loading: false };
+            if (typeState !== 'error') {
+                res.error = null;
+            }
         }
         return res;
     }
@@ -52,17 +55,10 @@ export default function volunteerReducer(state = initialState, action) {
     }
 
     function clearVolunteer() {
-        let res = { ...state };
         if (action.type === 'CLEAR_VOLUNTEER') {
-            res = {
-                ...state,
-                postVolunteer: null,
-                postAssistanceSalida: null,
-                getAssistanceToday: null,
-                getAssistanceHistoricas: null,
-            };
+            return { ...initialState };
         }
-        return res;
+        return { ...state };
     }
 
     let receiveAction = DEFAULT;

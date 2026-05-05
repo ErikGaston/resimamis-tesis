@@ -37,6 +37,9 @@ export default function assignmentReducer(state = initialState, action) {
         let res = { ...state };
         if (action.response) {
             res = { ...state, [typeState]: action.response.data, loading: false };
+            if (typeState !== 'error') {
+                res.error = null;
+            }
         }
         return res;
     }

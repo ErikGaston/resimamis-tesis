@@ -3,8 +3,8 @@ import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 
-export default function AccordionCustomized({ item, expandIcon, summary, details }) {
-    const [expanded, setExpanded] = React.useState(false);
+export default function AccordionCustomized({ item, expandIcon, summary, details, defaultExpanded = false }) {
+    const [expanded, setExpanded] = React.useState(() => (defaultExpanded ? item : false));
 
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);

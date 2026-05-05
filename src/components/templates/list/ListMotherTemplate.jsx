@@ -1,13 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import SearchIcon from '@mui/icons-material/Search';
-import { Fab, IconButton, InputAdornment, TextField, Typography, Box } from '@mui/material';
+import { IconButton, InputAdornment, TextField, Typography, Box } from '@mui/material';
 import styled from '@emotion/styled';
 import CardIcon from '../../molecules/cardIcon/CardIcon';
-import { Link, useNavigate } from 'react-router-dom';
-import { fabRightInsetInColumn } from '../../../helpers/const/appLayout';
-import { fabBottomAboveNav, listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
+import { useNavigate } from 'react-router-dom';
+import { listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
 
 function motherMatchesQuery(mother, rawQuery) {
   const q = rawQuery.trim().toLowerCase();
@@ -59,7 +57,7 @@ const ListMotherTemplate = (props) => {
   }, [listMothers, searchQuery]);
 
   return (
-    <div style={{ height: '100%' }}>
+    <PageRoot>
       <HeaderBar>
         <IconButton
           onClick={functionBack}
@@ -129,33 +127,26 @@ const ListMotherTemplate = (props) => {
           </Typography>
         ) : null}
       </ContainerList>
-      <Fab
-        component={Link}
-        to="/madre"
-        color="primary"
-        aria-label="Registrar nueva madre"
-        sx={{
-          position: 'fixed',
-          right: fabRightInsetInColumn,
-          bottom: fabBottomAboveNav,
-          zIndex: 9,
-          width: 56,
-          height: 56,
-          background: 'linear-gradient(135deg, #A54DFF 0%, #8F00FF 100%)',
-          boxShadow: '0 6px 20px rgba(143, 0, 255, 0.35)',
-          '&:hover': { background: 'linear-gradient(135deg, #B55DFF 0%, #9F10FF 100%)' },
-          '&:focus-visible': { outline: '3px solid #FFEB3B', outlineOffset: 2 },
-        }}
-      >
-        <AddCircleIcon sx={{ fontSize: 32, color: '#fff' }} />
-      </Fab>
-    </div>
+    </PageRoot>
   );
 };
 
 export default ListMotherTemplate;
 
+const PageRoot = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow: hidden;
+`;
+
 const HeaderBar = styled(Box)`
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   background: linear-gradient(90deg, #8f00ff 0%, #a54dff 100%);
@@ -163,11 +154,16 @@ const HeaderBar = styled(Box)`
 `;
 
 const SearchWrap = styled('div')`
+  flex-shrink: 0;
   padding: 12px 16px 8px;
   background: linear-gradient(180deg, rgba(143, 0, 255, 0.06) 0%, transparent 100%);
 `;
 
 const ContainerList = styled(Box)`
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   align-items: stretch;

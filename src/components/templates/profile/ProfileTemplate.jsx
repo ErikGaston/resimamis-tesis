@@ -19,6 +19,7 @@ export const ProfileTemplate = ({
   setEditForm,
   type,
   localities,
+  mothers,
   typeForm,
   fieldErrors,
   setFieldErrors,
@@ -57,7 +58,7 @@ export const ProfileTemplate = ({
                 background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
                 boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)'
               }}
-              onClick={() => submit(setEditForm)}
+              onClick={() => submit()}
             >
               <CheckIcon style={{ fontSize: '30px' }} />
             </ButtonCustomized>
@@ -89,6 +90,7 @@ export const ProfileTemplate = ({
             setModel={setModel}
             error={error}
             localities={localities}
+            mothers={mothers}
             withTitle={false}
             edit={editForm}
             typeForm={typeForm}

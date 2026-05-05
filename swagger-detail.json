@@ -1156,7 +1156,17 @@
           "idMadre": {
             "type": "integer",
             "format": "int32",
-            "nullable": true
+            "nullable": true,
+            "description": "Madre principal o primera vinculación. Si se envía `idMadres`, conviene que el primer elemento coincida con `idMadre` para compatibilidad con clientes que solo lean este campo."
+          },
+          "idMadres": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true,
+            "description": "Lista de identificadores de madres asociadas al bebé (p. ej. madre biológica y acompañante). Sin duplicados. Si está vacío o ausente, aplica solo `idMadre`."
           },
           "idEstado": {
             "type": "integer",

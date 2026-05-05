@@ -22,6 +22,7 @@ export default function motherReducer(state = initialState, action) {
         [actionTypes.SUCCESS_GET_STATISTICS_LOCALITIES]: responseToReturn('getStatisticsLocalities'),
         [actionTypes.SUCCESS_GET_STATISTICS_AGE_MOTHER]: responseToReturn('getStatisticsAgeMother'),
         [actionTypes.ERROR_MOTHER]: responseToReturn('error'),
+        [actionTypes.CLEAR_MOTHER_API_ERROR]: clearMotherApiError(),
         [actionTypes.CLEAR_MOTHER]: clearMother(),
         [actionTypes.SUCCESS_PUT_MOTHER]: responseToReturn('putMother'),
 
@@ -30,9 +31,17 @@ export default function motherReducer(state = initialState, action) {
     function responseToReturn(typeState) {
         let res = { ...state };
         if (action.response) {
-            res = { ...state, [typeState]: action.response.data, loading: false };
+            const patch = { [typeState]: action.response.data, loading: false };
+            if (typeState !== 'error') {
+                patch.error = null;
+            }
+            res = { ...state, ...patch };
         }
         return res;
+    }
+
+    function clearMotherApiError() {
+        return { ...state, error: null };
     }
 
     function showLoading() {

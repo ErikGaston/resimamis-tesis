@@ -39,6 +39,13 @@ export function clearMother() {
     };
 }
 
+/** Limpia solo el último error de API (sin borrar listados ni datos cargados). */
+export function clearMotherApiError() {
+    return {
+        type: actionTypes.CLEAR_MOTHER_API_ERROR,
+    };
+}
+
 export function putMother(param) {
     return {
         type: actionTypes.PUT_MOTHER,

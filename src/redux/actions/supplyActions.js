@@ -12,7 +12,10 @@ export function getStatisticsSupplies() {
     };
 }
 
-/** @param {{ fechaDesde?: string, fechaHasta?: string }} payload */
+/**
+ * @param {{ fechaDesde?: string, fechaHasta?: string, idVoluntaria?: number }} payload
+ * `idVoluntaria` opcional: algunos despliegues del API filtran por voluntaria autenticada.
+ */
 export function postSupplyConsultMovements(payload) {
     return {
         type: actionTypes.POST_SUPPLY_CONSULT_MOVEMENTS,
@@ -29,6 +32,14 @@ export function getSupplyProviders() {
 export function postSupplyRegisterMovement(payload) {
     return {
         type: actionTypes.POST_SUPPLY_REGISTER_MOVEMENT,
+        payload,
+    };
+}
+
+/** @param {{ nombre: string, descripcion?: string|null, stockMinimo: number, stockMaximo: number, stockActual: number }} payload */
+export function postSupplyCreate(payload) {
+    return {
+        type: actionTypes.POST_SUPPLY_CREATE,
         payload,
     };
 }

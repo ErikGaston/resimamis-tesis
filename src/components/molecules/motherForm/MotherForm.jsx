@@ -127,6 +127,10 @@ const MotherForm = ({
 
     const minBirthDate = dayjs().subtract(MOTHER_DATE_MIN_YEARS_BACK, 'year').startOf('day')
     const maxBirthDate = dayjs().subtract(MOTHER_MIN_AGE, 'year').startOf('day')
+    const shouldDisableBirthDate = (date) => {
+        const x = dayjs(date).startOf('day')
+        return x.isBefore(minBirthDate, 'day') || x.isAfter(maxBirthDate, 'day')
+    }
     const dateValue = m?.fechaNacimiento && dayjs(m.fechaNacimiento).isValid()
         ? dayjs(m.fechaNacimiento)
         : null
@@ -186,6 +190,9 @@ const MotherForm = ({
                 disabled={!editForm && typeForm === "EDITAR"}
                 minDate={minBirthDate}
                 maxDate={maxBirthDate}
+                disableFuture
+                shouldDisableDate={shouldDisableBirthDate}
+                defaultCalendarMonth={maxBirthDate}
                 error={!!fieldErrors.fechaNacimiento}
                 helperText={fieldErrors.fechaNacimiento}
             />

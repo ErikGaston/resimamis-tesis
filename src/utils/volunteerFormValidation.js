@@ -12,8 +12,28 @@ export const VOLUNTEER_DATE_MIN_YEARS_BACK = 100;
 export const VOLUNTEER_TURNO_VALUES = [1, 2, 3];
 
 const NAME_REGEX = /^[\p{L}\s]+$/u;
-/** Letras, números y @ . _ % + - (sin espacios). */
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+/** Solo letras, números, @ y . (sin espacios). */
+const EMAIL_ALLOWED_CHARS = /^[\p{L}0-9.@]+$/u;
+
+/**
+ * @param {string} mail sin espacios
+ */
+function isVolunteerEmailShape(mail) {
+  if (!EMAIL_ALLOWED_CHARS.test(mail)) return false;
+  const at = mail.indexOf('@');
+  if (at <= 0 || at !== mail.lastIndexOf('@')) return false;
+  const domain = mail.slice(at + 1);
+  if (!domain.includes('.')) return false;
+  const lastDot = domain.lastIndexOf('.');
+  const tld = domain.slice(lastDot + 1);
+  if (tld.length < 2 || !/^[\p{L}]+$/u.test(tld)) return false;
+  return true;
+}
+
+function volunteerTurnoRaw(model) {
+  const t = model?.idTurno ?? model?.idEstado;
+  return t;
+}
 
 export const INITIAL_VOLUNTEER_FIELD_ERRORS = {
   nombre: '',
@@ -24,7 +44,7 @@ export const INITIAL_VOLUNTEER_FIELD_ERRORS = {
   fechaNacimiento: '',
   fechaInicio: '',
   fechaFin: '',
-  idEstado: '',
+  idTurno: '',
 };
 
 function assignmentWindowBounds() {
@@ -67,7 +87,7 @@ export function validateVolunteerAlta(model, options = {}) {
   } else if (!NAME_REGEX.test(nombre)) {
     set(
       'nombre',
-      'Solo letras, espacios y tildes. No se permiten números ni caracteres especiales.',
+      'El nombre no debe contener caracteres especiales. Solo letras, espacios y tildes (incluye ñ).',
     );
   }
 
@@ -78,7 +98,7 @@ export function validateVolunteerAlta(model, options = {}) {
   } else if (!NAME_REGEX.test(apellido)) {
     set(
       'apellido',
-      'Solo letras, espacios y tildes. No se permiten números ni caracteres especiales.',
+      'El apellido no debe contener caracteres especiales. Solo letras, espacios y tildes (incluye ñ).',
     );
   }
 
@@ -86,9 +106,9 @@ export function validateVolunteerAlta(model, options = {}) {
   const dniStr =
     dniRaw === '' || dniRaw === undefined || dniRaw === null ? '' : String(dniRaw);
   if (!dniStr) set('dni', 'El DNI es obligatorio.');
-  else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI solo debe contener números.');
+  else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI solo puede contener números.');
   else if (dniStr.length !== VOLUNTEER_DNI_LEN) {
-    set('dni', `El DNI debe tener exactamente ${VOLUNTEER_DNI_LEN} dígitos.`);
+    set('dni', `El DNI debe tener ${VOLUNTEER_DNI_LEN} dígitos.`);
   } else {
     const dup = volunteers.find((v) => {
       if (v == null) return false;
@@ -110,7 +130,7 @@ export function validateVolunteerAlta(model, options = {}) {
   else {
     const normalized = celRaw.replace(/\s/g, '');
     if (!/^\+?[0-9]+$/.test(normalized)) {
-      set('celular', 'Solo números y, si aplica, un único + al inicio.');
+      set('celular', 'El celular solo puede contener números y, si aplica, un único + al inicio.');
     } else {
       const digits = normalized.replace(/\D/g, '');
       if (
@@ -135,10 +155,10 @@ export function validateVolunteerAlta(model, options = {}) {
       'mail',
       `El correo debe tener entre ${VOLUNTEER_EMAIL_MIN} y ${VOLUNTEER_EMAIL_MAX} caracteres.`,
     );
-  } else if (!EMAIL_REGEX.test(mail)) {
+  } else if (!isVolunteerEmailShape(mail)) {
     set(
       'mail',
-      'Ingresá un correo válido. Solo letras, números y los caracteres @ . _ % + -.',
+      'Ingresá un correo válido. Solo letras, números y los signos @ y .',
     );
   }
 
@@ -149,19 +169,19 @@ export function validateVolunteerAlta(model, options = {}) {
     if (!d.isValid()) set('fechaNacimiento', 'La fecha no es válida.');
     else {
       if (d.isAfter(dayjs(), 'day')) {
-        set('fechaNacimiento', 'No se puede seleccionar una fecha futura.');
+        set('fechaNacimiento', 'No podés seleccionar una fecha futura.');
       }
       const oldestAllowed = dayjs()
         .subtract(VOLUNTEER_MIN_AGE, 'year')
         .startOf('day');
       if (d.isAfter(oldestAllowed, 'day')) {
-        set('fechaNacimiento', 'La persona debe ser mayor de edad (al menos 18 años).');
+        set('fechaNacimiento', 'Debés ser mayor de edad (al menos 18 años).');
       }
       const minBirth = dayjs()
         .subtract(VOLUNTEER_DATE_MIN_YEARS_BACK, 'year')
         .startOf('day');
       if (d.isBefore(minBirth, 'day')) {
-        set('fechaNacimiento', 'La fecha de nacimiento no es válida.');
+        set('fechaNacimiento', 'Seleccioná una fecha de nacimiento válida.');
       }
     }
   }
@@ -176,10 +196,10 @@ export function validateVolunteerAlta(model, options = {}) {
     }
   }
 
-  const turno = model?.idEstado;
+  const turno = volunteerTurnoRaw(model);
   const turnoNum = turno === '' || turno === undefined || turno === null ? NaN : Number(turno);
   if (!Number.isInteger(turnoNum) || !VOLUNTEER_TURNO_VALUES.includes(turnoNum)) {
-    set('idEstado', 'El turno es obligatorio.');
+    set('idTurno', 'El turno es obligatorio.');
   }
 
   return { ok, errors };
@@ -208,7 +228,7 @@ export function validateVolunteerProfile(model, options = {}) {
   } else if (!NAME_REGEX.test(nombre)) {
     set(
       'nombre',
-      'Solo letras, espacios y tildes. No se permiten números ni caracteres especiales.',
+      'El nombre no debe contener caracteres especiales. Solo letras, espacios y tildes (incluye ñ).',
     );
   }
 
@@ -219,7 +239,7 @@ export function validateVolunteerProfile(model, options = {}) {
   } else if (!NAME_REGEX.test(apellido)) {
     set(
       'apellido',
-      'Solo letras, espacios y tildes. No se permiten números ni caracteres especiales.',
+      'El apellido no debe contener caracteres especiales. Solo letras, espacios y tildes (incluye ñ).',
     );
   }
 
@@ -227,9 +247,9 @@ export function validateVolunteerProfile(model, options = {}) {
   const dniStr =
     dniRaw === '' || dniRaw === undefined || dniRaw === null ? '' : String(dniRaw);
   if (!dniStr) set('dni', 'El DNI es obligatorio.');
-  else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI solo debe contener números.');
+  else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI solo puede contener números.');
   else if (dniStr.length !== VOLUNTEER_DNI_LEN) {
-    set('dni', `El DNI debe tener exactamente ${VOLUNTEER_DNI_LEN} dígitos.`);
+    set('dni', `El DNI debe tener ${VOLUNTEER_DNI_LEN} dígitos.`);
   } else {
     const dup = volunteers.find((v) => {
       if (v == null) return false;
@@ -251,7 +271,7 @@ export function validateVolunteerProfile(model, options = {}) {
   else {
     const normalized = celRaw.replace(/\s/g, '');
     if (!/^\+?[0-9]+$/.test(normalized)) {
-      set('celular', 'Solo números y, si aplica, un único + al inicio.');
+      set('celular', 'El celular solo puede contener números y, si aplica, un único + al inicio.');
     } else {
       const digits = normalized.replace(/\D/g, '');
       if (
@@ -276,10 +296,10 @@ export function validateVolunteerProfile(model, options = {}) {
       'mail',
       `El correo debe tener entre ${VOLUNTEER_EMAIL_MIN} y ${VOLUNTEER_EMAIL_MAX} caracteres.`,
     );
-  } else if (!EMAIL_REGEX.test(mail)) {
+  } else if (!isVolunteerEmailShape(mail)) {
     set(
       'mail',
-      'Ingresá un correo válido. Solo letras, números y los caracteres @ . _ % + -.',
+      'Ingresá un correo válido. Solo letras, números y los signos @ y .',
     );
   }
 
@@ -289,19 +309,19 @@ export function validateVolunteerProfile(model, options = {}) {
     if (!d.isValid()) set('fechaNacimiento', 'La fecha no es válida.');
     else {
       if (d.isAfter(dayjs(), 'day')) {
-        set('fechaNacimiento', 'No se puede seleccionar una fecha futura.');
+        set('fechaNacimiento', 'No podés seleccionar una fecha futura.');
       }
       const oldestAllowed = dayjs()
         .subtract(VOLUNTEER_MIN_AGE, 'year')
         .startOf('day');
       if (d.isAfter(oldestAllowed, 'day')) {
-        set('fechaNacimiento', 'La persona debe ser mayor de edad (al menos 18 años).');
+        set('fechaNacimiento', 'Debés ser mayor de edad (al menos 18 años).');
       }
       const minBirth = dayjs()
         .subtract(VOLUNTEER_DATE_MIN_YEARS_BACK, 'year')
         .startOf('day');
       if (d.isBefore(minBirth, 'day')) {
-        set('fechaNacimiento', 'La fecha de nacimiento no es válida.');
+        set('fechaNacimiento', 'Seleccioná una fecha de nacimiento válida.');
       }
     }
   }
@@ -342,6 +362,10 @@ export function normalizeVolunteerPayload(model) {
   if (p.dni !== '' && p.dni != null) {
     p.dni = Number(String(p.dni).replace(/\D/g, ''));
   }
+  if (p.idTurno !== '' && p.idTurno != null && p.idTurno !== undefined) {
+    p.idEstado = Number(p.idTurno);
+  }
+  delete p.idTurno;
   if (p.idEstado !== '' && p.idEstado != null) {
     p.idEstado = Number(p.idEstado);
   }

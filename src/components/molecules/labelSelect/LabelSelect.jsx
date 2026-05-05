@@ -5,13 +5,33 @@ import SelectCustomized from '../../atoms/select/SelectCustomized'
 
 const LabelSelect = (props) => {
     const { id, labelColor, styleLabel, name, textDefault, list, onChange, value,
-        classes, displayEmpty, labelId, label, placeholder, placeholderColor, sx, required, notched, disabled, helperText, error, } = props;
+        classes, displayEmpty, labelId, label, placeholder, placeholderColor, sx, required, disabled, helperText, error, } = props;
+
+    const labelShrink =
+        Boolean(displayEmpty) ||
+        (value !== '' && value !== undefined && value !== null);
 
     return (
-        <FormControl fullWidth error={Boolean(error)} disabled={disabled} sx={{ margin: '10px 0' }}>
-            <StyledInputLabel htmlFor={id} labelColor={labelColor} style={styleLabel} id={labelId}>{label}</StyledInputLabel>
+        <FormControl
+            fullWidth
+            required={Boolean(required)}
+            error={Boolean(error)}
+            disabled={disabled}
+            sx={{ margin: '10px 0' }}
+        >
+            <StyledInputLabel
+                htmlFor={id}
+                labelColor={labelColor}
+                style={styleLabel}
+                id={labelId}
+                shrink={labelShrink}
+                required={Boolean(required)}
+            >
+                {label}
+            </StyledInputLabel>
             <StyledSelectCustomized
                 name={name}
+                label={label}
                 textDefault={textDefault}
                 list={list}
                 onChange={onChange}
@@ -23,11 +43,18 @@ const LabelSelect = (props) => {
                 placeholderColor={placeholderColor}
                 sx={sx}
                 required={required}
-                notched={notched}
+                notched={labelShrink}
                 disabled={disabled}
                 error={error}
             />
-            {helperText ? <FormHelperText>{helperText}</FormHelperText> : null}
+            {helperText ? (
+                <FormHelperText
+                    error={Boolean(error)}
+                    sx={error ? { color: '#d32f2f', marginLeft: 0 } : { marginLeft: 0 }}
+                >
+                    {helperText}
+                </FormHelperText>
+            ) : null}
         </FormControl>
     )
 }

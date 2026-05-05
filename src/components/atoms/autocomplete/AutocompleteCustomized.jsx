@@ -4,6 +4,8 @@ import React from 'react'
 
 const AutocompleteCustomized = (props) => {
     const { id, key, value, inputValue, options, label, placeholder, startAdornment, onChange, onInputChange, sx, borderleft, required, noOptionsText, inputColor, error, helperText, ...other } = props;
+    const helperColorSx =
+        error && helperText ? { sx: { color: '#d32f2f', marginLeft: 0 } } : undefined;
     return (
         <Autocomplete
             disableClearable
@@ -27,6 +29,7 @@ const AutocompleteCustomized = (props) => {
                     placeholder={placeholder}
                     error={Boolean(error)}
                     helperText={helperText}
+                    FormHelperTextProps={helperColorSx}
                     InputProps={{
                         ...params.InputProps,
                         startAdornment: startAdornment,

@@ -49,13 +49,18 @@ export const LoginPage = () => {
     }
     if (dataLogin?.postLogin !== null) {
       let token = dataLogin?.postLogin?.token;
+      const vol = dataLogin?.postLogin?.voluntaria ?? {};
+      const idRol = vol.idRol ?? vol.IdRol ?? null;
+      const rol = vol.rol ?? vol.Rol ?? null;
       localStorage.setItem("voluntaria", JSON.stringify({
-        'id': dataLogin?.postLogin?.voluntaria?.idVoluntaria,
-        'nombre': dataLogin?.postLogin?.voluntaria?.nombre,
-        'apellido': dataLogin?.postLogin?.voluntaria?.apellido,
-        'mail': dataLogin?.postLogin?.voluntaria?.mail,
-        'dni': dataLogin?.postLogin?.voluntaria?.dni,
-        'celular': dataLogin?.postLogin?.voluntaria?.celular,
+        'id': vol.idVoluntaria ?? vol.id,
+        'nombre': vol.nombre,
+        'apellido': vol.apellido,
+        'mail': vol.mail,
+        'dni': vol.dni,
+        'celular': vol.celular,
+        'idRol': idRol,
+        'rol': rol,
       }))
       localStorage.setItem("token", token);
       setAuthToken(token);

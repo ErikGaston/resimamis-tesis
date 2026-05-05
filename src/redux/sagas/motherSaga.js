@@ -2,6 +2,12 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import * as actionTypes from "../consts/actionTypes";
 import * as API from "../api";
 import { showApiErrorToast } from "./showApiErrorToast";
+import { isAspNetModelStateErrors } from "../../utils/apiErrorMessage";
+
+function shouldToastMotherWriteError(error) {
+    const data = error?.data;
+    return !(error?.status === 400 && isAspNetModelStateErrors(data));
+}
 
 function* asyncPostMother({ payload }) {
     try {
@@ -12,7 +18,9 @@ function* asyncPostMother({ payload }) {
                 response,
             });
     } catch (error) {
-        yield* showApiErrorToast(error);
+        if (shouldToastMotherWriteError(error)) {
+            yield* showApiErrorToast(error);
+        }
         yield put({
             type: actionTypes.ERROR_MOTHER,
             response: error,
@@ -103,7 +111,9 @@ function* asyncPutMother({ payload }) {
                 response,
             });
     } catch (error) {
-        yield* showApiErrorToast(error);
+        if (shouldToastMotherWriteError(error)) {
+            yield* showApiErrorToast(error);
+        }
         yield put({
             type: actionTypes.ERROR_MOTHER,
             response: error,

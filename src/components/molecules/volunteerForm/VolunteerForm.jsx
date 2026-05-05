@@ -33,7 +33,7 @@ const VolunteerForm = ({
 
     const onChangeName = (e) => {
         const { name, value } = e.target;
-        const v = value.slice(0, VOLUNTEER_NAME_MAX);
+        const v = value.replace(/[^\p{L}\s]/gu, '').slice(0, VOLUNTEER_NAME_MAX);
         setModel({ ...m, [name]: v });
         clearField(name);
     }
@@ -59,7 +59,8 @@ const VolunteerForm = ({
     }
 
     const onChangeMail = (e) => {
-        const v = e.target.value.replace(/\s/g, '').slice(0, VOLUNTEER_EMAIL_MAX);
+        const raw = e.target.value.replace(/\s/g, '');
+        const v = raw.replace(/[^\p{L}0-9.@]/gu, '').slice(0, VOLUNTEER_EMAIL_MAX);
         setModel({ ...m, mail: v });
         clearField('mail');
     }
@@ -189,21 +190,20 @@ const VolunteerForm = ({
             <LabelSelect
                 label="Turno"
                 labelId="label-select-turno"
-                name='idEstado'
+                name='idTurno'
                 list={listTurnos}
-                value={m?.idEstado ?? ''}
+                value={m?.idTurno ?? ''}
                 onChange={(e) => onChangeSelect(e)}
                 placeholder={'Selecciona un turno'}
                 InputLabelProps={{
                     style: { color: 'black', fontFamily: 'Montserrat' },
                 }}
                 displayEmpty={true}
-                notched={true}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
                 required
-                error={!!fieldErrors.idEstado}
-                helperText={fieldErrors.idEstado}
+                error={!!fieldErrors.idTurno}
+                helperText={fieldErrors.idTurno}
             />
 
             <div style={{ textAlign: 'right' }}>

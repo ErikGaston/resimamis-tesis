@@ -109,7 +109,7 @@ Rutas declaradas con `useRoutes`:
 - `volunteerReducer`: voluntarias, asistencias (entrada/salida, consulta por id, hoy e históricas en estado), listados.
 - `babyReducer`: bebés.
 - `assignmentReducer`: asignaciones, abrazos, estadísticas de asignaciones.
-- `supplyReducer`: insumos, estadísticas, consulta de movimientos, proveedores, registro de movimiento (API cableada).
+- `supplyReducer`: insumos, estadísticas, consulta de movimientos, proveedores, registro de movimiento (`postSupplyRegisterMovement`), alta de ítem en catálogo (`postSupplyCreate`). API cableada.
 - Carga global vía `loadingActions` / `SHOW_LOADING` donde aplica.
 
 ---

@@ -5,7 +5,72 @@ export const GENERIC_API_ERROR =
 /** Quita prefijos tipo "0: " que envía a veces ASP.NET / validación por índice. */
 export function stripValidationIndexPrefix(msg) {
   if (typeof msg !== 'string') return msg;
-  return msg.replace(/^\d+:\s*/, '').trim();
+  let s = msg.trim();
+  // Variantes: "0: texto", "0:texto", varios segmentos "0: a 1: b"
+  s = s.replace(/(?:^\d+\s*:\s*)|(?:\s+\d+\s*:\s*)/g, ' ').trim();
+  return s;
+}
+
+/** Primer mensaje legible de un valor típico de ModelState (string o array). */
+function firstErrorMessage(val) {
+  if (val == null) return '';
+  const arr = Array.isArray(val) ? val : [val];
+  const first = arr.find((m) => m != null && String(m).trim());
+  if (first == null) return '';
+  return stripValidationIndexPrefix(typeof first === 'string' ? first : String(first));
+}
+
+/**
+ * Mapea `errors` de ProblemDetails / ASP.NET Core a las claves del formulario madre.
+ * @param {unknown} body — suele ser `error.response.data` o el objeto guardado en el reducer.
+ * @returns {Record<string, string>} solo entradas con mensaje no vacío
+ */
+export function mapAspNetErrorsToMotherFieldErrors(body) {
+  const out = {};
+  if (!body || typeof body !== 'object') return out;
+  const errs = body.errors;
+  if (!errs || typeof errs !== 'object' || Array.isArray(errs)) return out;
+
+  const normKey = (k) =>
+    String(k)
+      .toLowerCase()
+      .replace(/_/g, '');
+
+  const fieldMap = {
+    nombre: 'nombre',
+    apellido: 'apellido',
+    dni: 'dni',
+    fechanacimiento: 'fechaNacimiento',
+    fecha_nacimiento: 'fechaNacimiento',
+    localidad: 'localidad',
+    celular: 'celular',
+    motivoabrazo: 'motivoAbrazo',
+    motivo_abrazo: 'motivoAbrazo',
+    cantidadhijos: 'cantidadHijos',
+    cantidad_hijos: 'cantidadHijos',
+    estadocivil: 'estadoCivil',
+    estado_civil: 'estadoCivil',
+  };
+
+  for (const [apiKey, val] of Object.entries(errs)) {
+    const fk = fieldMap[normKey(apiKey)];
+    if (!fk) continue;
+    const msg = firstErrorMessage(val);
+    if (msg) out[fk] = msg;
+  }
+  return out;
+}
+
+/** True si el cuerpo de error parece validación por campo (mostrar inline y omitir toast genérico). */
+export function isAspNetModelStateErrors(body) {
+  if (!body || typeof body !== 'object') return false;
+  const errs = body.errors;
+  return Boolean(
+    errs &&
+      typeof errs === 'object' &&
+      !Array.isArray(errs) &&
+      Object.keys(errs).length > 0,
+  );
 }
 
 /**

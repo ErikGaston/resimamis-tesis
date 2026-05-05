@@ -20,13 +20,6 @@ export function getBabySalas() {
     };
 }
 
-export function getBabyByDni(dni) {
-    return {
-        type: actionTypes.GET_BABY_BY_DNI,
-        payload: dni,
-    };
-}
-
 export function getBabysFree() {
     return {
         type: actionTypes.GET_BABYS_FREE,

@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React from 'react'
 import AccordionCustomized from '../../atoms/accordionCustomized/AccordionCustomized'
 import styled from '@emotion/styled'
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 import MotherForm from '../../molecules/motherForm/MotherForm';
 import ButtonCustomized from '../../atoms/button/ButtonCustomized';
 import BabyForm from '../../molecules/motherForm/BabyForm';
-import { Box, TextField, Typography, Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { normalizeBabyApiPayload } from '../../../utils/babyPayload';
 
 const MotherAccordionForm = (props) => {
@@ -19,6 +19,8 @@ const MotherAccordionForm = (props) => {
         setError,
         listMothers,
         listAccordionBaby,
+        submitBaby,
+        expandedMother = false,
         editForm,
         typeForm,
         fieldErrors,
@@ -26,69 +28,33 @@ const MotherAccordionForm = (props) => {
         profileBabyExtras,
     } = props;
 
-    const [babyEditIdx, setBabyEditIdx] = useState(null);
-
     const madreNombreCompleto = [model?.nombre, model?.apellido].filter(Boolean).join(' ').trim();
+    const tituloMadre = `Datos de la madre: ${madreNombreCompleto || 'Sin nombre'}`;
 
     const handleSaveBaby = (index) => {
         const row = model?.bebe?.[index];
         if (!row || !profileBabyExtras?.onPutBaby) return;
         const payload = normalizeBabyApiPayload(row, model?.idMadre);
         profileBabyExtras.onPutBaby(payload);
-        setBabyEditIdx(null);
+    };
+
+    const handleCancelBabyEdits = () => {
+        if (typeof profileBabyExtras?.onReloadMother === 'function') {
+            profileBabyExtras.onReloadMother();
+        }
     };
 
     return (
         <div style={{ paddingBottom: '60px' }}>
-            {profileBabyExtras?.dniLookup && typeForm === 'EDITAR' && (
-                <Box sx={{ px: 1, pb: 2 }}>
-                    <Typography sx={{ color: '#152C70', fontWeight: 600, mb: 1, fontSize: '0.95rem' }}>
-                        Consultar bebé por DNI
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-                        <TextField
-                            size="small"
-                            label="DNI"
-                            value={profileBabyExtras.dniLookup.value}
-                            onChange={(e) => profileBabyExtras.dniLookup.setValue(e.target.value.replace(/\D/g, ''))}
-                            sx={{ minWidth: 160 }}
-                        />
-                        <Button variant="contained" onClick={profileBabyExtras.dniLookup.onSearch} sx={{ textTransform: 'none' }}>
-                            Buscar
-                        </Button>
-                        {profileBabyExtras.dniLookup.result != null && (
-                            <Button variant="text" onClick={profileBabyExtras.dniLookup.onClear} sx={{ textTransform: 'none' }}>
-                                Limpiar
-                            </Button>
-                        )}
-                    </Box>
-                    {profileBabyExtras.dniLookup.result != null && (
-                        <Box
-                            component="pre"
-                            sx={{
-                                mt: 1,
-                                p: 1,
-                                bgcolor: 'rgba(143,0,255,0.06)',
-                                borderRadius: 1,
-                                fontSize: 12,
-                                overflow: 'auto',
-                                maxHeight: 200,
-                            }}
-                        >
-                            {JSON.stringify(profileBabyExtras.dniLookup.result, null, 2)}
-                        </Box>
-                    )}
-                </Box>
-            )}
-
             {listAccordion?.map((item, index) => (
                 <AccordionCustomized
                     key={item}
                     item={item}
+                    defaultExpanded={index === 0 && expandedMother}
                     expandIcon={<ExpandCircleDownIcon style={{ color: '#8F00FF' }} />}
                     summary={
                         <TitleAccordion>
-                            {item}
+                            {index === 0 ? tituloMadre : item}
                         </TitleAccordion>}
                     details={
                         <>
@@ -125,12 +91,56 @@ const MotherAccordionForm = (props) => {
                 />
             ))}
 
+            {typeForm === 'ALTA' &&
+                submitBaby &&
+                (listAccordionBaby ?? []).map((babyTitle, babyIdx) => (
+                    <AccordionCustomized
+                        key={`alta-bebe-${babyTitle}-${babyIdx}`}
+                        item={babyTitle}
+                        expandIcon={<ExpandCircleDownIcon style={{ color: '#8F00FF' }} />}
+                        summary={<TitleAccordion>{babyTitle}</TitleAccordion>}
+                        details={
+                            <>
+                                <BabyForm
+                                    model={model?.bebe?.[babyIdx] ?? {}}
+                                    setModel={(nextBaby) => {
+                                        setModel((m) => {
+                                            const prev = m?.bebe ?? [];
+                                            const next = [...prev];
+                                            while (next.length <= babyIdx) next.push({});
+                                            next[babyIdx] = { ...(next[babyIdx] ?? {}), ...nextBaby };
+                                            return { ...m, bebe: next };
+                                        });
+                                    }}
+                                    error={error}
+                                    listLocalities={listLocalities}
+                                    listMothers={listMothers}
+                                    salaOptions={profileBabyExtras?.babySalasOptions ?? null}
+                                />
+                                <div style={{ textAlign: 'right', marginTop: 12 }}>
+                                    <ButtonCustomized
+                                        variant={'container'}
+                                        colorText={'#FFF'}
+                                        sx={{
+                                            fontSize: '16px',
+                                            background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
+                                            boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)',
+                                        }}
+                                        onClick={submitBaby}
+                                    >
+                                        REGISTRAR BEBÉ
+                                    </ButtonCustomized>
+                                </div>
+                            </>
+                        }
+                    />
+                ))}
+
             {model?.bebe?.map((item, index) => {
                 const panelId = `bebe-${item?.id ?? item?.idBebe ?? index}`;
                 const tituloBebe = `Datos del bebé: ${[item?.nombre, item?.apellido].filter(Boolean).join(' ').trim() || 'Sin nombre'}`;
-                const isEditingBaby = babyEditIdx === index;
                 const canEditBaby = typeForm === 'EDITAR' && editForm && profileBabyExtras?.onPutBaby;
-                const readOnlyBaby = !canEditBaby || !isEditingBaby;
+                const readOnlyBaby = !canEditBaby;
 
                 return (
                     <AccordionCustomized
@@ -145,35 +155,22 @@ const MotherAccordionForm = (props) => {
                             <>
                                 {canEditBaby && (
                                     <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
-                                        {!isEditingBaby ? (
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                onClick={() => setBabyEditIdx(index)}
-                                                sx={{ textTransform: 'none' }}
-                                            >
-                                                Editar datos del bebé
-                                            </Button>
-                                        ) : (
-                                            <>
-                                                <Button
-                                                    size="small"
-                                                    variant="contained"
-                                                    onClick={() => handleSaveBaby(index)}
-                                                    sx={{ textTransform: 'none' }}
-                                                >
-                                                    Guardar en servidor
-                                                </Button>
-                                                <Button
-                                                    size="small"
-                                                    variant="text"
-                                                    onClick={() => setBabyEditIdx(null)}
-                                                    sx={{ textTransform: 'none' }}
-                                                >
-                                                    Cancelar
-                                                </Button>
-                                            </>
-                                        )}
+                                        <Button
+                                            size="small"
+                                            variant="contained"
+                                            onClick={() => handleSaveBaby(index)}
+                                            sx={{ textTransform: 'none' }}
+                                        >
+                                            Guardar en servidor
+                                        </Button>
+                                        <Button
+                                            size="small"
+                                            variant="text"
+                                            onClick={handleCancelBabyEdits}
+                                            sx={{ textTransform: 'none' }}
+                                        >
+                                            Cancelar
+                                        </Button>
                                     </Box>
                                 )}
                                 <BabyForm
@@ -188,7 +185,7 @@ const MotherAccordionForm = (props) => {
                                         }));
                                     }}
                                     listLocalities={listLocalities}
-                                    listMothers={null}
+                                    listMothers={readOnlyBaby ? null : listMothers}
                                     readOnly={readOnlyBaby}
                                     madreDisplayName={madreNombreCompleto}
                                     salaOptions={profileBabyExtras?.babySalasOptions ?? null}

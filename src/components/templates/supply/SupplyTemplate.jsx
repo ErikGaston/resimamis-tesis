@@ -1,7 +1,24 @@
 import React, { useEffect } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import { Box, Button, Fab, IconButton, Typography, Paper, TextField, MenuItem, FormControl, InputLabel, Select } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Fab,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
 import CardSupply from '../../molecules/cardSupply/CardSupply';
@@ -41,8 +58,11 @@ const SupplyTemplate = (props) => {
     changeTask,
     supplies,
     movementsData,
+    movementsError,
     providersData,
     onRegisterSupplyMovement,
+    onCreateSupply,
+    createSupplyCloseSignal,
     idVoluntariaDefault,
   } = props;
   const navigate = useNavigate();
@@ -53,6 +73,12 @@ const SupplyTemplate = (props) => {
   const [movIdProveedor, setMovIdProveedor] = React.useState('__none__');
   const [movObservacion, setMovObservacion] = React.useState('');
   const [movIdBebe, setMovIdBebe] = React.useState('');
+  const [registerDialogOpen, setRegisterDialogOpen] = React.useState(false);
+  const [newNombre, setNewNombre] = React.useState('');
+  const [newDescripcion, setNewDescripcion] = React.useState('');
+  const [newStockMin, setNewStockMin] = React.useState('0');
+  const [newStockMax, setNewStockMax] = React.useState('1000');
+  const [newStockActual, setNewStockActual] = React.useState('0');
 
   const functionBack = () => {
     navigate(-1);
@@ -66,13 +92,34 @@ const SupplyTemplate = (props) => {
 
   const providerRows = Array.isArray(providersData?.resultado) ? providersData.resultado : [];
 
-  const goToRegistrarMovimiento = () => {
-    changeTask(2)();
-    window.setTimeout(() => {
-      document
-        .getElementById('supply-register-movement')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 120);
+  useEffect(() => {
+    if (createSupplyCloseSignal > 0) {
+      setRegisterDialogOpen(false);
+      setNewNombre('');
+      setNewDescripcion('');
+      setNewStockMin('0');
+      setNewStockMax('1000');
+      setNewStockActual('0');
+    }
+  }, [createSupplyCloseSignal]);
+
+  const openRegisterSupplyDialog = () => setRegisterDialogOpen(true);
+
+  const submitNewSupply = () => {
+    if (typeof onCreateSupply !== 'function') return;
+    const nombre = newNombre.trim();
+    const smin = Number(newStockMin);
+    const smax = Number(newStockMax);
+    const sact = Number(newStockActual);
+    if (!nombre || [smin, smax, sact].some((n) => Number.isNaN(n) || n < 0)) return;
+    if (smax < smin) return;
+    onCreateSupply({
+      nombre,
+      descripcion: newDescripcion.trim() || null,
+      stockMinimo: Math.floor(smin),
+      stockMaximo: Math.floor(smax),
+      stockActual: Math.floor(sact),
+    });
   };
 
   const submitMovement = () => {
@@ -210,8 +257,8 @@ const SupplyTemplate = (props) => {
               </Box>
             ))}
           <Fab
-            aria-label="Registrar movimiento de stock"
-            onClick={goToRegistrarMovimiento}
+            aria-label="Agregar insumo al catálogo"
+            onClick={openRegisterSupplyDialog}
             sx={{
               position: 'fixed',
               left: '50%',
@@ -227,6 +274,93 @@ const SupplyTemplate = (props) => {
           >
             <AddCircleIcon sx={{ fontSize: 32, color: '#fff' }} />
           </Fab>
+          <Dialog
+            open={registerDialogOpen}
+            onClose={() => setRegisterDialogOpen(false)}
+            fullWidth
+            maxWidth="sm"
+            aria-labelledby="register-supply-dialog-title"
+          >
+            <DialogTitle id="register-supply-dialog-title" sx={{ color: '#4A148C', fontWeight: 700 }}>
+              Nuevo insumo
+            </DialogTitle>
+            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+              <Typography variant="body2" sx={{ color: 'rgba(21, 44, 112, 0.75)' }}>
+                Registrá un ítem en el catálogo (aparecerá como tarjeta en esta lista). Para entradas o salidas de
+                stock existente usá la pestaña Movimientos.
+              </Typography>
+              <TextField
+                autoFocus
+                required
+                label="Nombre"
+                value={newNombre}
+                onChange={(e) => setNewNombre(e.target.value)}
+                fullWidth
+                size="small"
+              />
+              <TextField
+                label="Descripción (opcional)"
+                value={newDescripcion}
+                onChange={(e) => setNewDescripcion(e.target.value)}
+                fullWidth
+                size="small"
+                multiline
+                minRows={2}
+              />
+              <TextField
+                label="Stock inicial"
+                type="number"
+                value={newStockActual}
+                onChange={(e) => setNewStockActual(e.target.value)}
+                fullWidth
+                size="small"
+                inputProps={{ min: 0 }}
+              />
+              <TextField
+                label="Stock mínimo (alerta)"
+                type="number"
+                value={newStockMin}
+                onChange={(e) => setNewStockMin(e.target.value)}
+                fullWidth
+                size="small"
+                inputProps={{ min: 0 }}
+              />
+              <TextField
+                label="Stock máximo"
+                type="number"
+                value={newStockMax}
+                onChange={(e) => setNewStockMax(e.target.value)}
+                fullWidth
+                size="small"
+                inputProps={{ min: 0 }}
+              />
+            </DialogContent>
+            <DialogActions sx={{ px: 3, pb: 2 }}>
+              <Button onClick={() => setRegisterDialogOpen(false)} color="inherit">
+                Cancelar
+              </Button>
+              <Button
+                variant="contained"
+                onClick={submitNewSupply}
+                disabled={
+                  !newNombre.trim() ||
+                  Number.isNaN(Number(newStockMin)) ||
+                  Number.isNaN(Number(newStockMax)) ||
+                  Number.isNaN(Number(newStockActual)) ||
+                  Number(newStockMin) < 0 ||
+                  Number(newStockMax) < 0 ||
+                  Number(newStockActual) < 0 ||
+                  Number(newStockMax) < Number(newStockMin)
+                }
+                sx={{
+                  textTransform: 'none',
+                  background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
+                }}
+              >
+                Guardar insumo
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       )}
            {valueTask === 2 && (
@@ -239,6 +373,43 @@ const SupplyTemplate = (props) => {
           <Typography sx={{ color: '#152C70', fontWeight: 600, mb: 1, fontSize: '0.95rem' }}>
             Movimientos (últimos 30 días)
           </Typography>
+          {movementsError != null && movementsError !== '' && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {movementsError}
+            </Alert>
+          )}
+          {(() => {
+            const rows = listSupplyMovementsFromResponse(movementsData);
+            if (movementsError != null && movementsError !== '') {
+              return null;
+            }
+            if (!rows?.length) {
+              return (
+                <Typography sx={{ color: 'rgba(21, 44, 112, 0.75)', textAlign: 'center', py: 3 }}>
+                  {movementsData == null
+                    ? 'Cargando…'
+                    : 'No hay movimientos en este período o el servidor devolvió un formato distinto.'}
+                </Typography>
+              );
+            }
+            return rows.map((row, idx) => (
+              <Paper
+                key={row.idMovimiento ?? row.id ?? idx}
+                elevation={0}
+                sx={{
+                  p: 1.5,
+                  mb: 1.25,
+                  borderRadius: 2,
+                  border: '1px solid rgba(143, 0, 255, 0.12)',
+                  bgcolor: '#fff',
+                }}
+              >
+                <Typography sx={{ fontSize: '0.9rem', color: '#152C70', fontWeight: 500 }}>
+                  {summarizeSupplyMovementRow(row)}
+                </Typography>
+              </Paper>
+            ));
+          })()}
           {typeof onRegisterSupplyMovement === 'function' && (
             <Paper
               id="supply-register-movement"
@@ -348,49 +519,6 @@ const SupplyTemplate = (props) => {
               </Box>
             </Paper>
           )}
-          {(() => {
-            const rows = listSupplyMovementsFromResponse(movementsData);
-            if (!rows?.length) {
-              return (
-                <Typography sx={{ color: 'rgba(21, 44, 112, 0.75)', textAlign: 'center', py: 3 }}>
-                  {movementsData == null
-                    ? 'Cargando…'
-                    : 'No hay movimientos en este período o el servidor devolvió un formato distinto.'}
-                </Typography>
-              );
-            }
-            return rows.map((row, idx) => (
-              <Paper
-                key={row.idMovimiento ?? row.id ?? idx}
-                elevation={0}
-                sx={{
-                  p: 1.5,
-                  mb: 1.25,
-                  borderRadius: 2,
-                  border: '1px solid rgba(143, 0, 255, 0.12)',
-                  bgcolor: '#fff',
-                }}
-              >
-                <Typography sx={{ fontSize: '0.9rem', color: '#152C70', fontWeight: 500 }}>
-                  {summarizeSupplyMovementRow(row)}
-                </Typography>
-                <Typography
-                  component="pre"
-                  variant="caption"
-                  sx={{
-                    display: 'block',
-                    mt: 0.75,
-                    color: 'rgba(21, 44, 112, 0.55)',
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                    fontSize: 11,
-                  }}
-                >
-                  {JSON.stringify(row, null, 2)}
-                </Typography>
-              </Paper>
-            ));
-          })()}
           {providerRows.length > 0 && (
             <Typography sx={{ color: 'rgba(21, 44, 112, 0.6)', fontSize: '0.8rem', mt: 2 }}>
               Proveedores disponibles: {providerRows.length}

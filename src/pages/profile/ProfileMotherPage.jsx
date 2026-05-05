@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 import Loading from '../../components/atoms/loading/Loading';
 import { ProfileTemplate } from '../../components/templates/profile/ProfileTemplate';
 import { useDispatch, useSelector } from 'react-redux';
-import { getMotherId, clearMother, putMother, getMother } from '../../redux/actions/motherActions';
+import { getMotherId, clearMother, putMother, getMother, clearMotherApiError } from '../../redux/actions/motherActions';
 import { useParams } from 'react-router-dom';
 import Footer from '../../components/molecules/Footer';
 import PageScrollMain from '../../components/common/PageScrollMain';
@@ -15,7 +15,11 @@ import {
   normalizeMotherPayload,
   INITIAL_MOTHER_FIELD_ERRORS,
 } from '../../utils/motherFormValidation';
-import { clearBaby, getBabyByDni, getBabySalas, putBaby } from '../../redux/actions/babyActions';
+import {
+  mapAspNetErrorsToMotherFieldErrors,
+  resolveApiErrorMessage,
+} from '../../utils/apiErrorMessage';
+import { clearBaby, getBabySalas, putBaby } from '../../redux/actions/babyActions';
 
 export const ProfileMotherPage = () => {
 
@@ -30,11 +34,10 @@ export const ProfileMotherPage = () => {
   const { id } = useParams();
   const [editForm, setEditForm] = React.useState(false);
   const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_MOTHER_FIELD_ERRORS });
-  const [babyDniSearch, setBabyDniSearch] = useState('');
   const [babySaveNotice, setBabySaveNotice] = useState(null);
-  const [dniLookupDismissed, setDniLookupDismissed] = useState(false);
 
   const submitMother = () => {
+    dispatch(clearMotherApiError());
     const mdl = model || {};
     const mothers = dataMother?.getMother?.listadoMadres ?? [];
     const { ok, errors } = validateMotherForm(mdl, {
@@ -69,27 +72,12 @@ export const ProfileMotherPage = () => {
         dispatch(showLoading(true));
         dispatch(putBaby(payload));
       },
-      dniLookup: {
-        value: babyDniSearch,
-        setValue: (v) => {
-          setBabyDniSearch(v);
-          setDniLookupDismissed(false);
-        },
-        result: !dniLookupDismissed ? dataBaby?.getBabyByDni ?? null : null,
-        onSearch: () => {
-          const d = babyDniSearch.replace(/\D/g, '');
-          if (!d) return;
-          setDniLookupDismissed(false);
-          dispatch(showLoading(true));
-          dispatch(getBabyByDni(Number(d)));
-        },
-        onClear: () => {
-          setBabyDniSearch('');
-          setDniLookupDismissed(true);
-        },
+      onReloadMother: () => {
+        dispatch(showLoading(true));
+        dispatch(getMotherId(id));
       },
     }),
-    [babySalasOptions, babyDniSearch, dniLookupDismissed, dataBaby?.getBabyByDni, dispatch],
+    [babySalasOptions, dispatch, id],
   );
 
   useEffect(() => {
@@ -115,9 +103,16 @@ export const ProfileMotherPage = () => {
   }, [dataMother?.getMotherId, dispatch])
 
   useEffect(() => {
-    if (dataMother?.error !== null) {
-      dispatch(showLoading(false))
-      setError(dataMother?.error)
+    if (dataMother?.error !== null && dataMother?.error !== undefined) {
+      dispatch(showLoading(false));
+      const mapped = mapAspNetErrorsToMotherFieldErrors(dataMother.error);
+      if (Object.keys(mapped).length > 0) {
+        setFieldErrors({ ...INITIAL_MOTHER_FIELD_ERRORS, ...mapped });
+        dispatch(clearMotherApiError());
+      } else {
+        setError(resolveApiErrorMessage({ data: dataMother.error }));
+        setStateForm('ERROR');
+      }
     }
     if (dataMother?.putMother !== null) {
       setEditForm(state => !state)
@@ -129,12 +124,6 @@ export const ProfileMotherPage = () => {
       }, [2500])
     }
   }, [dataMother?.error, dataMother?.putMother, dispatch])
-
-  useEffect(() => {
-    if (dataBaby?.getBabyByDni != null) {
-      dispatch(showLoading(false));
-    }
-  }, [dataBaby?.getBabyByDni, dispatch]);
 
   useEffect(() => {
     if (dataBaby?.getBabySalas != null) {
@@ -179,6 +168,7 @@ export const ProfileMotherPage = () => {
           setModel={setModel}
           submit={submitMother}
           localities={localities?.localidades ?? null}
+          mothers={dataMother?.getMother?.listadoMadres ?? null}
           editForm={editForm}
           setEditForm={setEditForm}
           typeForm="EDITAR"

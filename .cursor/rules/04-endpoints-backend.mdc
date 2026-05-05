@@ -157,6 +157,7 @@ En `src/redux/api/index.js`, `postEndHug` hace `POST` a `/asignacion/finalizarAb
 | Método | Path | Función API | Notas |
 |--------|------|-------------|-------|
 | GET | `/insumo` | `getSupplies` | |
+| POST | `/insumo` | `postSupplyCreate` | Body schema `INSUMO` (alta de ítem en catálogo). Si el servidor responde 405, falta exponer POST en el backend. |
 | GET | `/insumo/estadisticaInsumoCantidad` | `getStatisticsSupplies` | |
 | POST | `/insumo/consultaMovimientos` | `postSupplyConsultMovements` | Body `RequestMovimiento` (`fechaDesde`, `fechaHasta` opcionales). Pestaña Movimientos en Insumos. |
 | GET | `/insumo/proveedores` | `getSupplyProviders` | Carga junto a movimientos |
@@ -174,7 +175,7 @@ En `src/redux/api/index.js`, `postEndHug` hace `POST` a `/asignacion/finalizarAb
 | `postVolunteer`, `putVolunteer`, `getVolunteers`, `getVolunteersFree`, `getVolunteersStates`, `getVolunteerById`, `postAssistance`, `postAssistanceSalida`, `getAssistance`, `getAssistanceToday`, `getAssistanceHistoricas` | `volunteerSaga` |
 | `postBaby`, `putBaby`, `getBabys`, `getBabysFree`, `getBabySalas`, `getBabyByDni` | `babySaga` |
 | Redux `postAssignmentGenerate` → HTTP `postAssignmentGenerateTareas`; `postAssignmentGenerateTarea`; `getAssignmentById`; `postDetailAssignment`; `postStartHug`; `postEndHug`; `getDurationHug`; `getAssignmentToday`; `getAssignmentTodayById`; `getStatisticsAssignmentMonth` | `assignmentSaga` |
-| `getSupplies`, `getStatisticsSupplies`, `postSupplyConsultMovements`, `getSupplyProviders`, `postSupplyRegisterMovement` | `supplySaga` |
+| `getSupplies`, `postSupplyCreate`, `getStatisticsSupplies`, `postSupplyConsultMovements`, `getSupplyProviders`, `postSupplyRegisterMovement` | `supplySaga` |
 
 ---
 

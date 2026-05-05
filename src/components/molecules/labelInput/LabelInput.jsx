@@ -6,6 +6,9 @@ const LabelInput = (props) => {
     const { id, required, label, defaultValue, value, type, name, className, fullWidth, autoComplete, onChange, multiline, helperText, placeholder, InputProps, inputProps, rows,
         labelColor, inputColor, styleLabel, maxRows, variant, disabled, error } = props
 
+    const helperColorSx =
+        error && helperText ? { sx: { color: '#d32f2f', marginLeft: 0 } } : undefined;
+
     return (
         <div>
             <StyledInputLabel htmlFor={id} labelColor={labelColor} style={styleLabel}>{label}</StyledInputLabel>
@@ -24,6 +27,7 @@ const LabelInput = (props) => {
                 multiline={multiline}
                 error={Boolean(error)}
                 helperText={helperText}
+                FormHelperTextProps={helperColorSx}
                 required={required}
                 placeholder={placeholder}
                 rows={rows}

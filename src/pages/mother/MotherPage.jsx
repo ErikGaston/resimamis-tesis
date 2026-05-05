@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { clearMother, getMother, postMother } from "../../redux/actions/motherActions";
+import { clearMother, clearMotherApiError, getMother, postMother } from "../../redux/actions/motherActions";
 import { clearBaby, postBaby } from "../../redux/actions/babyActions";
 import { showLoading } from "../../redux/actions/loadingActions";
 import Loading from "../../components/atoms/loading/Loading";
@@ -14,6 +14,11 @@ import {
     normalizeMotherPayload,
     INITIAL_MOTHER_FIELD_ERRORS,
 } from "../../utils/motherFormValidation";
+import { normalizeBabyApiPayload, collectIdMadresForBaby } from "../../utils/babyPayload";
+import {
+    mapAspNetErrorsToMotherFieldErrors,
+    resolveApiErrorMessage,
+} from "../../utils/apiErrorMessage";
 
 export const MotherPage = () => {
     const dispatch = useDispatch();
@@ -21,7 +26,7 @@ export const MotherPage = () => {
     const dataMother = useSelector(state => state.motherReducer)
     const dataBaby = useSelector(state => state.babyReducer)
     const loading = useSelector(state => state.motherReducer?.loading)
-    const [model, setModel] = useState({});
+    const [model, setModel] = useState({ bebe: [{}] });
     const [error, setError] = useState(null);
     const [stateForm, setStateForm] = useState(null);
     const [type, setType] = useState('');
@@ -29,6 +34,7 @@ export const MotherPage = () => {
     const navigate = useNavigate();
 
     const submitMother = () => {
+        dispatch(clearMotherApiError());
         const mothers = dataMother?.getMother?.listadoMadres ?? [];
         const { ok, errors } = validateMotherForm(model, {
             mothers,
@@ -54,9 +60,17 @@ export const MotherPage = () => {
     }
 
     const submitBaby = () => {
-        dispatch(showLoading(true))
-        delete model.nombre_localidad;
-        dispatch(postBaby(model))
+        const row = model?.bebe?.[0];
+        if (!row) return;
+        const idsMadre = collectIdMadresForBaby(row, model?.idMadre);
+        if (idsMadre.length < 1) {
+            setError('Seleccioná al menos una madre para vincular al bebé.');
+            setStateForm('ERROR');
+            return;
+        }
+        dispatch(showLoading(true));
+        setError(null);
+        dispatch(postBaby(normalizeBabyApiPayload(row, model?.idMadre)));
     }
 
     useEffect(() => {
@@ -72,13 +86,20 @@ export const MotherPage = () => {
     }, [])
 
     useEffect(() => {
-        if (dataMother?.error !== null) {
-            // dispatch(showLoading(false))
-            // setError(dataMother?.error)
+        if (dataMother?.error != null) {
+            dispatch(showLoading(false));
+            const mapped = mapAspNetErrorsToMotherFieldErrors(dataMother.error);
+            if (Object.keys(mapped).length > 0) {
+                setFieldErrors({ ...INITIAL_MOTHER_FIELD_ERRORS, ...mapped });
+                dispatch(clearMotherApiError());
+            } else {
+                setError(resolveApiErrorMessage({ data: dataMother.error }));
+                setStateForm('ERROR');
+            }
         }
         if (dataMother?.postMother !== null) {
             setType('La madre')
-            setModel({})
+            setModel({ bebe: [{}] })
             setFieldErrors({ ...INITIAL_MOTHER_FIELD_ERRORS });
             dispatch(showLoading(false))
             setStateForm('SUCCESS')
@@ -98,7 +119,7 @@ export const MotherPage = () => {
         }
         if (dataBaby?.postBaby !== null) {
             setType('El bebe')
-            setModel(null)
+            setModel({ bebe: [{}] })
             dispatch(showLoading(false))
             setStateForm('SUCCESS')
             setTimeout(() => {
@@ -142,7 +163,8 @@ export const MotherPage = () => {
                 <DialogSuccess
                     open={stateForm === 'ERROR'}
                     setOpen={setStateForm}
-                    message={error}
+                    message={error != null ? resolveApiErrorMessage(typeof error === 'string' ? error : { data: error }) : ''}
+                    error
                 />
             }
             <Footer />

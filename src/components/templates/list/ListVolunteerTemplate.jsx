@@ -67,7 +67,7 @@ const ListVolunteerTemplate = (props) => {
   );
 
   return (
-    <div style={{ height: '100%' }}>
+    <PageRoot>
       <HeaderBar>
         <IconButton
           onClick={functionBack}
@@ -157,13 +157,26 @@ const ListVolunteerTemplate = (props) => {
       >
         <AddCircleIcon sx={{ fontSize: 32, color: '#fff' }} />
       </Fab>
-    </div>
+    </PageRoot>
   );
 };
 
 export default ListVolunteerTemplate;
 
+const PageRoot = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow: hidden;
+`;
+
 const HeaderBar = styled(Box)`
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   background: linear-gradient(90deg, #8f00ff 0%, #a54dff 100%);
@@ -171,11 +184,16 @@ const HeaderBar = styled(Box)`
 `;
 
 const SearchWrap = styled('div')`
+  flex-shrink: 0;
   padding: 12px 16px 8px;
   background: linear-gradient(180deg, rgba(143, 0, 255, 0.06) 0%, transparent 100%);
 `;
 
 const ContainerList = styled(Box)`
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   align-items: stretch;

@@ -61,7 +61,7 @@ export function validateMotherForm(model, options = {}) {
   } else if (!NAME_REGEX.test(nombre)) {
     set(
       'nombre',
-      'Solo letras, espacios y tildes. No se permiten números ni caracteres especiales.',
+      'Solo se permiten letras (incluye ñ y tildes) y espacios.',
     );
   }
 
@@ -72,14 +72,14 @@ export function validateMotherForm(model, options = {}) {
   } else if (!NAME_REGEX.test(apellido)) {
     set(
       'apellido',
-      'Solo letras, espacios y tildes. No se permiten números ni caracteres especiales.',
+      'Solo se permiten letras (incluye ñ y tildes) y espacios.',
     );
   }
 
   const dniRaw = model?.dni;
   const dniStr =
     dniRaw === '' || dniRaw === undefined || dniRaw === null ? '' : String(dniRaw);
-  if (!dniStr) set('dni', 'El DNI es obligatorio.');
+  if (!dniStr) set('dni', 'Completá el DNI.');
   else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI solo debe contener números.');
   else if (dniStr.length < MOTHER_DNI_MIN_LEN || dniStr.length > MOTHER_DNI_MAX_LEN) {
     set(
@@ -120,7 +120,7 @@ export function validateMotherForm(model, options = {}) {
   }
 
   const celRaw = model?.celular == null ? '' : String(model.celular).trim();
-  if (!celRaw) set('celular', 'El celular es obligatorio.');
+  if (!celRaw) set('celular', 'Completá el número de celular.');
   else {
     const normalized = celRaw.replace(/\s/g, '');
     if (!/^\+?[0-9]+$/.test(normalized)) {

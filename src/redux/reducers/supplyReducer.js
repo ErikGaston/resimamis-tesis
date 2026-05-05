@@ -6,6 +6,7 @@ const initialState = {
     postSupplyConsultMovements: null,
     getSupplyProviders: null,
     postSupplyRegisterMovement: null,
+    postSupplyCreate: null,
     loading: false,
     error: null
 };
@@ -19,6 +20,7 @@ export default function supplyReducer(state = initialState, action) {
         [actionTypes.SUCCESS_POST_SUPPLY_CONSULT_MOVEMENTS]: responseToReturn('postSupplyConsultMovements'),
         [actionTypes.SUCCESS_GET_SUPPLY_PROVIDERS]: responseToReturn('getSupplyProviders'),
         [actionTypes.SUCCESS_POST_SUPPLY_REGISTER_MOVEMENT]: responseToReturn('postSupplyRegisterMovement'),
+        [actionTypes.SUCCESS_POST_SUPPLY_CREATE]: responseToReturn('postSupplyCreate'),
         [actionTypes.ERROR_SUPPLY]: responseToReturn('error'),
         [actionTypes.CLEAR_SUPPLY]: clearSupply(),
     };
@@ -27,6 +29,9 @@ export default function supplyReducer(state = initialState, action) {
         let res = { ...state };
         if (action.response) {
             res = { ...state, [typeState]: action.response.data, loading: false };
+            if (typeState !== 'error') {
+                res.error = null;
+            }
         }
         return res;
     }
@@ -50,6 +55,7 @@ export default function supplyReducer(state = initialState, action) {
                 postSupplyConsultMovements: null,
                 getSupplyProviders: null,
                 postSupplyRegisterMovement: null,
+                postSupplyCreate: null,
             };
         }
         return res;

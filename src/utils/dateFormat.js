@@ -1,10 +1,8 @@
-export const formattedDate = date => {
-    let d = new Date(date);
-    let day = d.getDate().toString().padStart(2, '0');
-    let month = (d.getMonth() + 1).toString().padStart(2, '0');
-    let year = d.getFullYear().toString().padStart(4, '0');
+import dayjs from 'dayjs';
 
-    let formatDate = "";
-    formatDate = year + "-" + month + "-" + day;
-    return formatDate;
+/** ISO fecha local YYYY-MM-DD (compatible con dayjs del date picker). */
+export const formattedDate = (date) => {
+    const d = dayjs(date);
+    if (!d.isValid()) return '';
+    return d.format('YYYY-MM-DD');
 };

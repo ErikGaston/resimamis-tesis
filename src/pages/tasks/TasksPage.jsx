@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearVolunteer, getAssistance, getAssistanceHistoricas, getAssistanceToday, getVolunteersFree, postAssistance, postAssistanceSalida } from "../../redux/actions/volunteerActions";
 import { clearBaby, getBabysFree } from "../../redux/actions/babyActions";
 import { clearAssignment, getAssignmentById, getAssignmentTodayById, postAssignmentGenerate, postAssignmentGenerateTarea, postDetailAssignment, postEndHug, postStartHug } from "../../redux/actions/assignmentActions";
 import { clearSupply, getSupplies } from "../../redux/actions/supplyActions";
 import { showLoading } from "../../redux/actions/loadingActions";
+import { hideToast } from "../../redux/actions/toastActions";
 import Loading from "../../components/atoms/loading/Loading";
 import Footer from "../../components/molecules/Footer";
 import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
@@ -12,6 +13,7 @@ import TasksTemplate from "../../components/templates/tasks/TasksTemplate";
 import AssistanceDataDialog from "../../components/organisms/assistanceDialogs/AssistanceDataDialog";
 import { getIdVolunteer } from '../../utils/localStorage';
 import { listBabysFromAbrazarResponse, resolveIdTareaForGenerarTareas } from "../../utils/assignmentSelection";
+import { isCoordinadoraSession } from "../../utils/coordinadoraRole";
 
 export const TasksPage = () => {
     const dispatch = useDispatch();
@@ -48,6 +50,7 @@ export const TasksPage = () => {
         }
     }, []);
 
+    const canAccessAssignment = isCoordinadoraSession();
     const [valueTask, setValueTask] = useState(1);
     const [model, setModel] = useState(null);
     const [error, setError] = useState(null);
@@ -183,30 +186,41 @@ export const TasksPage = () => {
         dispatch(postDetailAssignment(payload));
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         dispatch(clearAssignment());
         dispatch(clearVolunteer());
         dispatch(clearSupply());
         dispatch(clearBaby());
+        dispatch(hideToast());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (!canAccessAssignment && valueTask === 2) {
+            setValueTask(1);
+        }
+    }, [canAccessAssignment, valueTask]);
+
+    useEffect(() => {
         return () => {
             dispatch(clearAssignment());
             dispatch(clearVolunteer());
             dispatch(clearSupply());
             dispatch(clearBaby());
-        }
-    }, [])
+            dispatch(hideToast());
+        };
+    }, [dispatch]);
 
     useEffect(() => {
         if (valueTask === 1) {
             dispatch(showLoading(true))
             dispatch(getAssistance(idVolunteer))
         }
-        else {
+        else if (canAccessAssignment) {
             dispatch(showLoading(true))
             dispatch(getVolunteersFree())
             dispatch(getBabysFree())
         }
-    }, [valueTask, dispatch, idVolunteer])
+    }, [valueTask, dispatch, idVolunteer, canAccessAssignment])
 
     useEffect(() => {
         if (dataVolunteer?.error != null) {
@@ -430,6 +444,7 @@ export const TasksPage = () => {
                 onShowAssistanceHistoricas={openAssistanceHistoricasDialog}
                 onAssignmentDetail={openAssignmentDetailDialog}
                 submitAssignmentQuick={submitAssignmentQuick}
+                canAccessAssignment={canAccessAssignment}
             />
             <AssistanceDataDialog
                 open={rawDataDialog.open}

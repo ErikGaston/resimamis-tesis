@@ -12,7 +12,7 @@ import CarouselWork from "../../molecules/carouselWork/CarouselWork";
 
 const DATA_TRABAJO = [
     {
-        name: "Mamás",
+        name: "Madres",
         image: mama,
         url: '/madres'
     },

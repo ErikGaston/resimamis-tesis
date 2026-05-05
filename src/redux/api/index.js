@@ -305,17 +305,6 @@ export const getBabySalas = async () => {
       throw error;
     });
 };
-
-export const getBabyByDni = async (dni) => {
-  return AxiosInstance
-    .get(`${babyURL}id/${dni}`)
-    .then((response) => {
-      return response;
-    })
-    .catch((error) => {
-      throw error;
-    });
-};
 //#endregion
 
 //#region - ASSIGNMENT
@@ -540,6 +529,22 @@ export const getSupplyProviders = async () => {
 export const postSupplyRegisterMovement = async (body) => {
   return AxiosInstance
     .post(`${postInsumoRegistrarMovimientoURL}`, body)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+/**
+ * Alta de insumo en catálogo (mismo recurso que GET `/insumo`).
+ * Contrato alineado a schema `INSUMO`: sin `idInsumo` en alta.
+ * Si el despliegue devuelve 405, falta exponer POST en el backend.
+ */
+export const postSupplyCreate = async (body) => {
+  return AxiosInstance
+    .post(`${getSuppliesURL}`, body)
     .then((response) => {
       return response;
     })

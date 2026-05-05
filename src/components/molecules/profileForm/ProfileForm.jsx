@@ -30,7 +30,7 @@ const ProfileForm = ({
 
     const onChangeName = (e) => {
         const { name, value } = e.target;
-        const v = value.slice(0, VOLUNTEER_NAME_MAX);
+        const v = value.replace(/[^\p{L}\s]/gu, '').slice(0, VOLUNTEER_NAME_MAX);
         setModel({ ...m, [name]: v });
         clearField(name);
     }
@@ -56,7 +56,8 @@ const ProfileForm = ({
     }
 
     const onChangeMail = (e) => {
-        const v = e.target.value.replace(/\s/g, '').slice(0, VOLUNTEER_EMAIL_MAX);
+        const raw = e.target.value.replace(/\s/g, '');
+        const v = raw.replace(/[^\p{L}0-9.@]/gu, '').slice(0, VOLUNTEER_EMAIL_MAX);
         setModel({ ...m, mail: v });
         clearField('mail');
     }
@@ -70,9 +71,16 @@ const ProfileForm = ({
         clearField(option);
     }
 
-    /** Alta usa ventana corta; perfil puede traer fechas históricas del servidor (ej. inicio 1901). */
-    const fechaPerfilMin = dayjs().subtract(120, 'year').startOf('day')
-    const fechaPerfilMax = dayjs().add(5, 'year').endOf('day')
+    const assignmentMin = dayjs().subtract(1, 'month').startOf('day')
+    const assignmentMax = dayjs().add(1, 'month').endOf('day')
+    const profileAssignmentPickerMin = (d) => {
+        if (!d || !d.isValid()) return assignmentMin
+        return d.isBefore(assignmentMin, 'day') ? d.startOf('day') : assignmentMin
+    }
+    const profileAssignmentPickerMax = (d) => {
+        if (!d || !d.isValid()) return assignmentMax
+        return d.isAfter(assignmentMax, 'day') ? d.endOf('day') : assignmentMax
+    }
     const birthMin = dayjs().subtract(VOLUNTEER_DATE_MIN_YEARS_BACK, 'year').startOf('day')
     const birthMax = dayjs().subtract(VOLUNTEER_MIN_AGE, 'year').endOf('day')
 
@@ -183,8 +191,8 @@ const ProfileForm = ({
                 inputColor={'#152C70'}
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaInicio')}
                 disabled={!edit}
-                minDate={fechaPerfilMin}
-                maxDate={fechaPerfilMax}
+                minDate={profileAssignmentPickerMin(dateInicioValue)}
+                maxDate={profileAssignmentPickerMax(dateInicioValue)}
                 error={!!fieldErrors.fechaInicio}
                 helperText={fieldErrors.fechaInicio}
             />
@@ -196,8 +204,8 @@ const ProfileForm = ({
                 inputColor={'#152C70'}
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaFin')}
                 disabled={!edit}
-                minDate={fechaPerfilMin}
-                maxDate={fechaPerfilMax}
+                minDate={profileAssignmentPickerMin(dateFinValue)}
+                maxDate={profileAssignmentPickerMax(dateFinValue)}
                 error={!!fieldErrors.fechaFin}
                 helperText={fieldErrors.fechaFin}
             />

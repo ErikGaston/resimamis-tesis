@@ -1,12 +1,44 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { clearSupply, getSupplies, postSupplyConsultMovements, getSupplyProviders, postSupplyRegisterMovement } from "../../redux/actions/supplyActions";
+import { clearSupply, getSupplies, postSupplyConsultMovements, getSupplyProviders, postSupplyRegisterMovement, postSupplyCreate } from "../../redux/actions/supplyActions";
 import { showLoading } from "../../redux/actions/loadingActions";
+import { hideToast } from "../../redux/actions/toastActions";
 import Loading from "../../components/atoms/loading/Loading";
 import Footer from "../../components/molecules/Footer";
 import SupplyTemplate from "../../components/templates/supply/SupplyTemplate";
 import { getIdVolunteer } from "../../utils/localStorage";
 import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
+import { resolveApiErrorMessage } from "../../utils/apiErrorMessage";
+
+function rangeUltimos30DiasISO() {
+    const hasta = new Date();
+    const desde = new Date(hasta);
+    desde.setDate(desde.getDate() - 30);
+    return { fechaDesde: desde.toISOString(), fechaHasta: hasta.toISOString() };
+}
+
+function buildConsultaMovimientosPayload() {
+    const base = rangeUltimos30DiasISO();
+    let idV;
+    try {
+        idV = getIdVolunteer();
+    } catch {
+        idV = null;
+    }
+    const n = idV != null && idV !== "" ? Number(idV) : Number.NaN;
+    if (Number.isInteger(n) && n > 0) {
+        return { ...base, idVoluntaria: n };
+    }
+    return base;
+}
+
+function safeIdVolunteer() {
+    try {
+        return getIdVolunteer();
+    } catch {
+        return null;
+    }
+}
 
 export const SupplyPage = () => {
     const dispatch = useDispatch();
@@ -14,17 +46,27 @@ export const SupplyPage = () => {
     const loading = useSelector(state => state.supplyReducer?.loading)
     const [valueTask, setValueTask] = useState(1);
     const [stateForm, setStateForm] = useState(null);
+    const [createSupplyCloseSignal, setCreateSupplyCloseSignal] = useState(0);
+
+    const movementsErrorMessage = useMemo(() => {
+        if (valueTask !== 2 || dataSupply?.error == null) return null;
+        return resolveApiErrorMessage({ data: dataSupply.error });
+    }, [valueTask, dataSupply?.error]);
 
     const changeTask = (number) => e => {
         setValueTask(number)
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         dispatch(clearSupply());
+        dispatch(hideToast());
+    }, [dispatch]);
+
+    useEffect(() => {
         return () => {
             dispatch(clearSupply());
-        }
-    }, [])
+        };
+    }, [dispatch])
 
     useEffect(() => {
         if (valueTask === 1) {
@@ -35,22 +77,17 @@ export const SupplyPage = () => {
         else {
             dispatch(showLoading(true))
             dispatch(getSupplies())
-            const hasta = new Date()
-            const desde = new Date(hasta)
-            desde.setDate(desde.getDate() - 30)
-            dispatch(postSupplyConsultMovements({
-                fechaDesde: desde.toISOString(),
-                fechaHasta: hasta.toISOString(),
-            }))
+            dispatch(postSupplyConsultMovements(buildConsultaMovimientosPayload()))
             dispatch(getSupplyProviders())
         }
     }, [valueTask, dispatch])
 
     useEffect(() => {
+        if (valueTask !== 1) return;
         if (dataSupply?.getSupplies !== null) {
             dispatch(showLoading(false))
         }
-    }, [dataSupply?.getSupplies, dispatch])
+    }, [valueTask, dataSupply?.getSupplies, dispatch])
 
     useEffect(() => {
         if (valueTask !== 2) return
@@ -63,20 +100,28 @@ export const SupplyPage = () => {
         if (dataSupply?.postSupplyRegisterMovement == null) return
         dispatch(showLoading(false))
         setStateForm('MOVIMIENTO_OK')
-        const hasta = new Date()
-        const desde = new Date(hasta)
-        desde.setDate(desde.getDate() - 30)
-        dispatch(postSupplyConsultMovements({
-            fechaDesde: desde.toISOString(),
-            fechaHasta: hasta.toISOString(),
-        }))
+        dispatch(postSupplyConsultMovements(buildConsultaMovimientosPayload()))
         dispatch(getSupplies())
         setTimeout(() => setStateForm(null), 2200)
     }, [dataSupply?.postSupplyRegisterMovement, dispatch])
 
+    useEffect(() => {
+        if (dataSupply?.postSupplyCreate == null) return
+        dispatch(showLoading(false))
+        setStateForm('INSUMO_OK')
+        setCreateSupplyCloseSignal((s) => s + 1)
+        dispatch(getSupplies())
+        setTimeout(() => setStateForm(null), 2200)
+    }, [dataSupply?.postSupplyCreate, dispatch])
+
     const registerMovement = (body) => {
         dispatch(showLoading(true))
         dispatch(postSupplyRegisterMovement(body))
+    }
+
+    const registerCreateSupply = (body) => {
+        dispatch(showLoading(true))
+        dispatch(postSupplyCreate(body))
     }
 
     return (
@@ -89,15 +134,25 @@ export const SupplyPage = () => {
                 changeTask={changeTask}
                 supplies={dataSupply?.getSupplies?.resultado ?? null}
                 movementsData={dataSupply?.postSupplyConsultMovements}
+                movementsError={movementsErrorMessage}
                 providersData={dataSupply?.getSupplyProviders}
                 onRegisterSupplyMovement={registerMovement}
-                idVoluntariaDefault={getIdVolunteer()}
+                onCreateSupply={registerCreateSupply}
+                createSupplyCloseSignal={createSupplyCloseSignal}
+                idVoluntariaDefault={safeIdVolunteer()}
             />
             {stateForm === 'MOVIMIENTO_OK' && (
                 <DialogSuccess
                     open={stateForm === 'MOVIMIENTO_OK'}
                     setOpen={setStateForm}
                     message="Movimiento registrado."
+                />
+            )}
+            {stateForm === 'INSUMO_OK' && (
+                <DialogSuccess
+                    open={stateForm === 'INSUMO_OK'}
+                    setOpen={setStateForm}
+                    message="Insumo registrado."
                 />
             )}
             <Footer />

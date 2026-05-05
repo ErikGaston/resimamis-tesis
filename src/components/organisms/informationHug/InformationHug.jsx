@@ -95,6 +95,24 @@ const InformationHug = (props) => {
                     rows={3}
                 />
             </div>
+            {Array.isArray(listSupplies) && listSupplies.some((i) => Number(i?.cantidad) > 0) && (
+                <div style={{ padding: '0 10px 10px' }}>
+                    <Title>Insumos registrados en este abrazo</Title>
+                    {listSupplies
+                        .filter((i) => Number(i?.cantidad) > 0)
+                        .map((i) => (
+                            <ContainerText key={i.idInsumo} style={{ marginTop: 6 }}>
+                                <Subtitle>
+                                    {i.nombre}
+                                </Subtitle>
+                                <Subtitle style={{ fontWeight: 600 }}>
+                                    {Number(i.cantidad)} u.
+                                </Subtitle>
+                            </ContainerText>
+                        ))}
+                    <Divider style={{ marginTop: 10 }} />
+                </div>
+            )}
             <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
                 <Button style={{ textTransform: 'inherit' }}
                     onClick={changeStateInsumo}
@@ -137,6 +155,7 @@ const InformationHug = (props) => {
                         <>
                             {listSupplies?.map((item) => (
                                 <InsumoQuantity
+                                    key={item.idInsumo ?? item.nombre}
                                     item={item}
                                     listSupplies={listSupplies}
                                     setListSupplies={setListSupplies}

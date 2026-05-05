@@ -68,7 +68,7 @@ const MotherTemplate = ({ model, setModel, localities, submitMother, submitConse
                     submitBaby={submitBaby}
 
                     listAccordionBaby={listAccordionBaby}
-                    expandedMother={true}
+                    expandedMother={typeForm === 'ALTA'}
                     editForm={edit}
                     typeForm={typeForm}
                     fieldErrors={fieldErrors}

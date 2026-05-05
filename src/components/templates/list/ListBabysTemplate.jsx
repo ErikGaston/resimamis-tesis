@@ -191,22 +191,28 @@ export default ListBabysTemplate;
 const PageWrap = styled(Box)`
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow: hidden;
   background: linear-gradient(180deg, #f3f0ff 0%, #faf8fc 32%, #ffffff 100%);
 `;
 
 const HeaderBar = styled(Box)`
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   background: linear-gradient(90deg, #8f00ff 0%, #a54dff 55%, #c18aff 100%);
   padding: 8px 4px 10px;
-  position: sticky;
-  top: 0;
   z-index: 10;
   box-shadow: 0 4px 14px rgba(143, 0, 255, 0.22);
 `;
 
 const SearchWrap = styled(Box)`
+  flex-shrink: 0;
   padding: 12px 16px 8px;
   background: linear-gradient(180deg, rgba(143, 0, 255, 0.06) 0%, transparent 100%);
   display: flex;
@@ -215,6 +221,9 @@ const SearchWrap = styled(Box)`
 
 const ContentScroll = styled(Box)`
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 16px 16px 120px;
   box-sizing: border-box;
   width: 100%;

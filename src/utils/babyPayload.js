@@ -1,11 +1,43 @@
 /**
- * Normaliza fila de bebé del formulario al body esperado por PUT/POST OpenAPI `BEBE`.
+ * Normaliza fila de bebé del formulario al body esperado por PUT/POST OpenAPI `BEBE`
+ * (incl. `idMadres` cuando hay varias madres; `idMadre` refleja la primera para compatibilidad).
+ */
+
+/**
+ * @param {Record<string, unknown>} baby
+ * @param {number|string|null|undefined} idMadreFallback id de la madre del contexto (p. ej. perfil madre)
+ * @returns {number[]}
+ */
+export function collectIdMadresForBaby(baby, idMadreFallback) {
+  const b = baby || {};
+  const out = [];
+  const push = (v) => {
+    if (v === '' || v === undefined || v === null) return;
+    const n = Number(v);
+    if (!Number.isFinite(n) || n <= 0) return;
+    if (!out.includes(n)) out.push(n);
+  };
+
+  const raw = b.idMadres;
+  if (Array.isArray(raw)) {
+    raw.forEach(push);
+  }
+  push(b.idMadre);
+  push(idMadreFallback);
+  return out;
+}
+
+/**
+ * @param {Record<string, unknown>} baby
+ * @param {number|string|null|undefined} idMadreFallback
  */
 export function normalizeBabyApiPayload(baby, idMadreFallback) {
   const b = baby || {};
   const id = b.id ?? b.idBebe;
-  const idMadre = b.idMadre ?? idMadreFallback ?? null;
-  return {
+  const idMadres = collectIdMadresForBaby(b, idMadreFallback);
+  const idMadre = idMadres.length ? idMadres[0] : null;
+
+  const body = {
     id: id != null ? Number(id) : null,
     dni: b.dni != null && b.dni !== '' ? Number(String(b.dni).replace(/\D/g, '')) : null,
     nombre: b.nombre ?? null,
@@ -24,4 +56,10 @@ export function normalizeBabyApiPayload(baby, idMadreFallback) {
     idMadre: idMadre != null ? Number(idMadre) : null,
     idEstado: b.idEstado != null ? Number(b.idEstado) : null,
   };
+
+  if (idMadres.length > 0) {
+    body.idMadres = idMadres;
+  }
+
+  return body;
 }

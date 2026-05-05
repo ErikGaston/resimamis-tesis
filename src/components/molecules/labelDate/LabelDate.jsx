@@ -4,7 +4,7 @@ import { InputLabel } from '@mui/material'
 import DatePickerCustomized from '../../atoms/datePicker/DatePickerCustomized'
 
 const LabelDate = (props) => {
-    const { id, required, label, value, onChange, helperText, labelColor, inputColor, styleLabel, inputFormat, inputPropsTextfield, disabled, minDate, maxDate, error } = props
+    const { id, required, label, value, onChange, helperText, labelColor, inputColor, styleLabel, inputFormat, inputPropsTextfield, disabled, minDate, maxDate, error, disableFuture, shouldDisableDate, defaultCalendarMonth } = props
 
     return (
         <div>
@@ -19,6 +19,9 @@ const LabelDate = (props) => {
                 error={error}
                 minDate={minDate}
                 maxDate={maxDate}
+                disableFuture={disableFuture}
+                shouldDisableDate={shouldDisableDate}
+                defaultCalendarMonth={defaultCalendarMonth}
                 required={required}
                 inputColor={inputColor}
                 disabled={disabled}

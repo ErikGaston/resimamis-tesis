@@ -1,10 +1,12 @@
 import React from 'react'
 import dayjs from 'dayjs'
+import { Autocomplete, Chip, TextField } from '@mui/material';
 import LabelInput from '../labelInput/LabelInput';
 import LabelDate from '../labelDate/LabelDate';
 import LabelAutocomplete from '../labelAutocomplete/LabelAutocomplete';
 import { formattedDate } from '../../../utils/dateFormat';
 import Loading from '../../atoms/loading/Loading';
+import { collectIdMadresForBaby } from '../../../utils/babyPayload';
 
 const listSexo = [
     { value: 'Masculino', label: 'Masculino' },
@@ -58,12 +60,20 @@ const BabyForm = ({
         safeSetModel({ ...model, sexo: newValue.value })
     };
 
-    const onChangeAutocompleteMother = (e, newValue) => {
+    const motherIds = collectIdMadresForBaby(model, null);
+    const mothersAutocompleteValue = (listMothers ?? []).filter((o) =>
+        motherIds.includes(Number(o.value)),
+    );
+
+    const onChangeMothersMulti = (e, newValue) => {
+        const idMadres = newValue.map((o) => Number(o.value)).filter((n) => Number.isFinite(n) && n > 0);
+        const unique = [...new Set(idMadres)];
         safeSetModel({
             ...model,
-            nombre_madre: newValue?.label,
-            idMadre: newValue?.value,
-        })
+            idMadres: unique,
+            idMadre: unique[0] ?? null,
+            nombre_madre: newValue.map((o) => o.label).filter(Boolean).join(', '),
+        });
     };
 
     const birthValue =
@@ -154,7 +164,7 @@ const BabyForm = ({
             />
             {readOnly ? (
                 <LabelInput
-                    label='Madre'
+                    label='Madre(s)'
                     name='madre_display'
                     value={model?.nombre_madre || madreDisplayName || '—'}
                     onChange={noop}
@@ -164,18 +174,45 @@ const BabyForm = ({
                     disabled
                 />
             ) : listMothers !== null ? (
-                <LabelAutocomplete
-                    id='nombre_madre'
-                    label={'Madre'}
-                    options={listMothers}
-                    value={model?.nombre_madre}
-                    onChange={onChangeAutocompleteMother}
-                    placeholder={'Buscar madre'}
-                    noOptionsText={'No se encontraron madres'}
-                    required
-                    labelColor={'#152C70'}
-                    inputColor={'#152C70'}
-                />
+                <div style={{ margin: '10px 0' }}>
+                    <Autocomplete
+                        multiple
+                        disableCloseOnSelect
+                        id="madres_bebe"
+                        options={listMothers}
+                        getOptionLabel={(o) => o?.label ?? ''}
+                        isOptionEqualToValue={(a, b) => Number(a?.value) === Number(b?.value)}
+                        value={mothersAutocompleteValue}
+                        onChange={onChangeMothersMulti}
+                        renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                                <Chip
+                                    {...getTagProps({ index })}
+                                    key={option.value}
+                                    label={option.label}
+                                    size="small"
+                                    sx={{ maxWidth: '100%' }}
+                                />
+                            ))
+                        }
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Madre(s)"
+                                placeholder="Buscar y agregar madres"
+                                required
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: '10px',
+                                        color: '#152C70',
+                                    },
+                                    '& .MuiInputLabel-root': { color: '#152C70' },
+                                }}
+                            />
+                        )}
+                        noOptionsText="No se encontraron madres"
+                    />
+                </div>
             ) : (
                 <Loading />
             )}

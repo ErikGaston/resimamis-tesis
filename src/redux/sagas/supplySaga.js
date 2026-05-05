@@ -93,10 +93,29 @@ function* asyncPostSupplyRegisterMovement({ payload }) {
     }
 }
 
+function* asyncPostSupplyCreate({ payload }) {
+    try {
+        let response = yield call(API.postSupplyCreate, payload);
+        if (response)
+            yield put({
+                type: actionTypes.SUCCESS_POST_SUPPLY_CREATE,
+                response,
+            });
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({
+            type: actionTypes.ERROR_SUPPLY,
+            response: error,
+            message: error.message,
+        });
+    }
+}
+
 export default function* supplySaga() {
     yield takeLatest(actionTypes.GET_SUPPLIES, asyncGetSupplies);
     yield takeLatest(actionTypes.GET_STATISTICS_SUPPLIES, asyncGetStatisticsSupplies);
     yield takeLatest(actionTypes.POST_SUPPLY_CONSULT_MOVEMENTS, asyncPostSupplyConsultMovements);
     yield takeLatest(actionTypes.GET_SUPPLY_PROVIDERS, asyncGetSupplyProviders);
     yield takeLatest(actionTypes.POST_SUPPLY_REGISTER_MOVEMENT, asyncPostSupplyRegisterMovement);
+    yield takeLatest(actionTypes.POST_SUPPLY_CREATE, asyncPostSupplyCreate);
 }

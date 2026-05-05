@@ -23,6 +23,7 @@ const TasksTemplate = (props) => {
         onShowAssistanceHistoricas,
         onAssignmentDetail,
         submitAssignmentQuick,
+        canAccessAssignment = false,
     } = props;
     const navigate = useNavigate();
     const [listAssignmentVolunteer, setListAssignmentVolunteer] = React.useState(null)
@@ -43,6 +44,8 @@ const TasksTemplate = (props) => {
     useEffect(() => {
         if (assignmentVolunteer) {
             setListAssignmentVolunteer(assignmentVolunteer);
+        } else {
+            setListAssignmentVolunteer(null);
         }
     }, [assignmentVolunteer]);
 
@@ -61,10 +64,7 @@ const TasksTemplate = (props) => {
 
     useEffect(() => {
         if (supplies) {
-            supplies?.forEach(item => {
-                item.cantidad = 0;
-            })
-            setListSupplies(supplies);
+            setListSupplies(supplies.map((item) => ({ ...item, cantidad: 0 })));
         }
     }, [supplies]);
 
@@ -79,16 +79,24 @@ const TasksTemplate = (props) => {
             <div style={{ display: 'flex', marginTop: '3px' }}>
                 <Button
                     onClick={changeTask(1)}
-                    style={{ backgroundColor: valueTask === 1 ? '#8F00FF' : '#D094FF', width: '50%', height: '30px', textTransform: 'capitalize', borderRadius: '5px' }}
+                    style={{
+                        backgroundColor: valueTask === 1 ? '#8F00FF' : '#D094FF',
+                        width: canAccessAssignment ? '50%' : '100%',
+                        height: '30px',
+                        textTransform: 'capitalize',
+                        borderRadius: '5px',
+                    }}
                 >
                     <SubTitle>Actividades</SubTitle>
                 </Button>
-                <Button
-                    onClick={changeTask(2)}
-                    style={{ backgroundColor: valueTask === 2 ? '#8F00FF' : '#D094FF', width: '50%', height: '30px', textTransform: 'capitalize', borderRadius: '5px' }}
-                >
-                    <SubTitle>Asignación</SubTitle>
-                </Button>
+                {canAccessAssignment && (
+                    <Button
+                        onClick={changeTask(2)}
+                        style={{ backgroundColor: valueTask === 2 ? '#8F00FF' : '#D094FF', width: '50%', height: '30px', textTransform: 'capitalize', borderRadius: '5px' }}
+                    >
+                        <SubTitle>Asignación</SubTitle>
+                    </Button>
+                )}
             </div>
             {valueTask === 1 &&
                 (changeInformationHug ?
@@ -122,7 +130,7 @@ const TasksTemplate = (props) => {
                         onAssignmentDetail={onAssignmentDetail}
                     />)
             }
-            {valueTask === 2 &&
+            {canAccessAssignment && valueTask === 2 &&
                 ((listAssignedVolunteer && changeAssignedList) ?
                     <AssignedList
                         listAssignedVolunteer={listAssignedVolunteer}

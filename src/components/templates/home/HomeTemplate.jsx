@@ -6,6 +6,7 @@ import Modules from '../../organisms/homeCarousels/Modules';
 import VolutariasDisponible from '../../organisms/homeCarousels/VolutariasDisponible';
 import PanelTrabajo from '../../organisms/homeCarousels/PanelTrabajo';
 import imagePNG from "../../../assets/voluntarias/person1.png";
+import { APP_SCROLL_BOTTOM_PADDING } from '../../../helpers/const/appLayout';
 
 export const HomeTemplate = (props) => {
     const { nameVolunteer, volunteersFree } = props;
@@ -31,7 +32,7 @@ export const HomeTemplate = (props) => {
                     listVolunteersFree={listVolunteersFree}
                 />
             </div>
-            <div style={{ padding: '50px 0' }}>
+            <div style={{ paddingTop: '50px', paddingBottom: APP_SCROLL_BOTTOM_PADDING }}>
                 <PanelTrabajo />
             </div>
 
