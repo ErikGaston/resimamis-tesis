@@ -59,6 +59,8 @@ export const GET_VOLUNTEERS = "GET_VOLUNTEERS";
 export const ERROR_VOLUNTEER = "ERROR_VOLUNTEER"
 
 export const CLEAR_VOLUNTEER = "CLEAR_VOLUNTEER"
+/** Conserva listados y datos de sesión; solo anula bajas asistencia/voluntaria y error. */
+export const CLEAR_VOLUNTEER_WRITES = "CLEAR_VOLUNTEER_WRITES";
 //#endregion
 
 //#region - MOTHER
@@ -79,6 +81,8 @@ export const GET_STATISTICS_AGE_MOTHER = "GET_STATISTICS_AGE_MOTHER";
 
 export const ERROR_MOTHER = "ERROR_MOTHER"
 export const CLEAR_MOTHER = "CLEAR_MOTHER"
+/** Limpia solo resultados de escritura (POST/PUT/delete); conserva `getMother` y `getMotherId` para listados y duplicados DNI. */
+export const CLEAR_MOTHER_WRITES = "CLEAR_MOTHER_WRITES";
 export const CLEAR_MOTHER_API_ERROR = "CLEAR_MOTHER_API_ERROR"
 
 export const SUCCESS_PUT_MOTHER = "SUCCESS_PUT_MOTHER";
@@ -103,6 +107,8 @@ export const GET_BABY_SALAS = "GET_BABY_SALAS";
 
 export const ERROR_BABY = "ERROR_BABY"
 export const CLEAR_BABY = "CLEAR_BABY"
+/** Solo flags de baja/edición reciente; conserva `getBabys`, `getBabyByDni`, etc. */
+export const CLEAR_BABY_WRITES = "CLEAR_BABY_WRITES";
 //#endregion
 
 //#region - ASSIGNMENT
@@ -138,6 +144,8 @@ export const GET_STATISTICS_ASSIGNMENT_MONTH = "GET_STATISTICS_ASSIGNMENT_MONTH"
 
 export const ERROR_ASSIGNMENT = "ERROR_ASSIGNMENT";
 export const CLEAR_ASSIGNMENT = "CLEAR_ASSIGNMENT";
+/** Anula solo PUT/DELETE/reset recientes; conserva consultas y listados del día en Tareas. */
+export const CLEAR_ASSIGNMENT_WRITES = "CLEAR_ASSIGNMENT_WRITES";
 //#endregion
 
 //#region - SUPPLY
@@ -162,4 +170,68 @@ export const POST_SUPPLY_CREATE = "POST_SUPPLY_CREATE";
 
 export const ERROR_SUPPLY = "ERROR_SUPPLY";
 export const CLEAR_SUPPLY = "CLEAR_SUPPLY";
+/** Limpia resultados de edición/baja de insumo en coordinación sin vaciar catálogo ni movimientos. */
+export const CLEAR_SUPPLY_WRITES = "CLEAR_SUPPLY_WRITES";
+
+export const SUCCESS_GET_SUPPLY_BY_ID = "SUCCESS_GET_SUPPLY_BY_ID";
+export const GET_SUPPLY_BY_ID = "GET_SUPPLY_BY_ID";
+export const SUCCESS_PUT_SUPPLY_BY_ID = "SUCCESS_PUT_SUPPLY_BY_ID";
+export const PUT_SUPPLY_BY_ID = "PUT_SUPPLY_BY_ID";
+export const SUCCESS_POST_SUPPLY_DELETE = "SUCCESS_POST_SUPPLY_DELETE";
+export const POST_SUPPLY_DELETE = "POST_SUPPLY_DELETE";
+//#endregion
+
+//#region - ASSIGNMENT EXTRA
+export const SUCCESS_PUT_ASSIGNMENT_BY_ID = "SUCCESS_PUT_ASSIGNMENT_BY_ID";
+export const PUT_ASSIGNMENT_BY_ID = "PUT_ASSIGNMENT_BY_ID";
+export const SUCCESS_DELETE_ASSIGNMENT_BY_ID = "SUCCESS_DELETE_ASSIGNMENT_BY_ID";
+export const DELETE_ASSIGNMENT_BY_ID = "DELETE_ASSIGNMENT_BY_ID";
+export const SUCCESS_POST_RESET_ABRAZOS_COLGADOS = "SUCCESS_POST_RESET_ABRAZOS_COLGADOS";
+export const POST_RESET_ABRAZOS_COLGADOS = "POST_RESET_ABRAZOS_COLGADOS";
+//#endregion
+
+//#region - ASISTENCIA EXTRA
+export const SUCCESS_GET_ASSISTANCE_REPORTE = "SUCCESS_GET_ASSISTANCE_REPORTE";
+export const GET_ASSISTANCE_REPORTE = "GET_ASSISTANCE_REPORTE";
+export const SUCCESS_POST_ASSISTANCE_DELETE = "SUCCESS_POST_ASSISTANCE_DELETE";
+export const POST_ASSISTANCE_DELETE = "POST_ASSISTANCE_DELETE";
+//#endregion
+
+//#region - BABY EXTRA
+export const SUCCESS_GET_BABY_BY_DNI = "SUCCESS_GET_BABY_BY_DNI";
+export const GET_BABY_BY_DNI = "GET_BABY_BY_DNI";
+export const SUCCESS_POST_BABY_DELETE = "SUCCESS_POST_BABY_DELETE";
+export const POST_BABY_DELETE = "POST_BABY_DELETE";
+//#endregion
+
+//#region - MOTHER EXTRA
+export const SUCCESS_POST_MOTHER_DELETE = "SUCCESS_POST_MOTHER_DELETE";
+export const POST_MOTHER_DELETE = "POST_MOTHER_DELETE";
+//#endregion
+
+//#region - VOLUNTEER EXTRA
+export const SUCCESS_POST_VOLUNTEER_DELETE = "SUCCESS_POST_VOLUNTEER_DELETE";
+export const POST_VOLUNTEER_DELETE = "POST_VOLUNTEER_DELETE";
+//#endregion
+
+//#region - USER ADMIN
+export const SUCCESS_POST_USUARIO = "SUCCESS_POST_USUARIO";
+export const POST_USUARIO = "POST_USUARIO";
+export const SUCCESS_GET_USUARIO_BY_ID = "SUCCESS_GET_USUARIO_BY_ID";
+export const GET_USUARIO_BY_ID = "GET_USUARIO_BY_ID";
+export const SUCCESS_PUT_USUARIO = "SUCCESS_PUT_USUARIO";
+export const PUT_USUARIO = "PUT_USUARIO";
+export const SUCCESS_POST_USUARIO_DELETE = "SUCCESS_POST_USUARIO_DELETE";
+export const POST_USUARIO_DELETE = "POST_USUARIO_DELETE";
+export const ERROR_USER = "ERROR_USER";
+export const CLEAR_USER_ADMIN = "CLEAR_USER_ADMIN";
+//#endregion
+
+//#region - HORARIO
+export const SUCCESS_GET_HORARIO_DIAS = "SUCCESS_GET_HORARIO_DIAS";
+export const GET_HORARIO_DIAS = "GET_HORARIO_DIAS";
+export const SUCCESS_POST_HORARIO = "SUCCESS_POST_HORARIO";
+export const POST_HORARIO = "POST_HORARIO";
+export const ERROR_HORARIO = "ERROR_HORARIO";
+export const CLEAR_HORARIO = "CLEAR_HORARIO";
 //#endregion

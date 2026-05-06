@@ -6,16 +6,25 @@ import whatsappImg from '../../../assets/list/whatsapp.png';
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
 import { Box, IconButton } from '@mui/material';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 const AVATAR_BY_CONTEXT = {
   madre: PersonOutline,
   voluntaria: GroupsOutlined,
 };
 
-const CardIcon = ({ id, name, dni, whatsapp, context }) => {
+const CardIcon = ({ id, name, dni, whatsapp, context, onAdminDelete }) => {
   const profilePath = `/${context}/perfil/${id}`;
   const dniLabel = dni != null ? String(dni) : '';
   const AvatarIcon = AVATAR_BY_CONTEXT[context] ?? PersonOutline;
+
+  const handleAdminDelete = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof onAdminDelete === 'function') {
+      onAdminDelete(id);
+    }
+  };
 
   return (
     <ContainerCard as="article" aria-label={`${name}, DNI ${dniLabel}`}>
@@ -29,6 +38,15 @@ const CardIcon = ({ id, name, dni, whatsapp, context }) => {
           <SubtitleDni as="span">DNI {dniLabel}</SubtitleDni>
         </DniRow>
       </StyledLink>
+      {typeof onAdminDelete === 'function' && (
+        <IconButton
+          onClick={handleAdminDelete}
+          aria-label={`Eliminar registro de ${name}`}
+          sx={{ p: 1, minWidth: 48, minHeight: 48, flexShrink: 0, color: '#b71c1c' }}
+        >
+          <DeleteOutlineIcon />
+        </IconButton>
+      )}
       <IconButton
         component="a"
         href={whatsapp}

@@ -25,14 +25,18 @@ alwaysApply: true
 
 ---
 
-## 1. Usuario (login)
+## 1. Usuario (login y administración)
 
-| Método | Path | Función API | Saga |
-|--------|------|-------------|------|
-| POST | `usuario/login/` | `postLogin` | `userSaga` (`POST_LOGIN`) |
+| Método | Path | Función API | Saga / UI |
+|--------|------|-------------|-----------|
+| POST | `usuario/login/` | `postLogin` | `userSaga` (`POST_LOGIN`) — `LoginPage` |
+| POST | `/usuario` | `postUsuario` | `userSaga` — `CoordinacionPage` (coordinadora) |
+| GET | `/usuario/id/{idUsuario}` | `getUsuarioById` | Idem |
+| PUT | `/usuario/id/{idUsuario}/` | `putUsuarioById` | Idem |
+| POST | `/usuario/delete` | `postUsuarioDelete` | Query `idUsuario` — Idem |
 
-**Body (OpenAPI `RequestLogin`):** `dni` (entero) y `contrasena` (string). En `LoginPage` el estado usa `Dni` y `Contrasena`; `postLogin` en `redux/api/index.js` normaliza a `dni`/`contrasena` antes del POST.  
-**Respuesta:** incluye `token` y datos de `voluntaria` según `userReducer` (usa `response.data`).
+**Body login (OpenAPI `RequestLogin`):** `dni` (entero) y `contrasena` (string). En `LoginPage` el estado usa `Dni` y `Contrasena`; `postLogin` en `redux/api/index.js` normaliza a `dni`/`contrasena` antes del POST.  
+**Respuesta login:** incluye `token` y datos de `voluntaria` según `userReducer` (usa `response.data`).
 
 ---
 
@@ -54,6 +58,7 @@ alwaysApply: true
 | GET | `/voluntaria/libres/` | `getVolunteersFree` | Home / carrusel |
 | GET | `/voluntaria/estados/` | `getVolunteersStates` | |
 | GET | `/voluntaria/id/{id}` | `getVolunteerById` | GET `${postVolunteerURL}id/${id}` → `/voluntaria/id/:id` (sin doble slash; `postVolunteerURL` ya termina en `/`). |
+| POST | `/voluntaria/delete` | `postVolunteerDelete` | Query `idVoluntaria` — `ListVolunteerPage` (coordinadora) + `CoordinacionPage` |
 
 ### Asistencia
 
@@ -64,19 +69,22 @@ alwaysApply: true
 | GET | `/asistencia/id/{id}` | `getAssistance` | `volunteerSaga` |
 | GET | `/asistencia/hoy` | `getAssistanceToday` | `volunteerSaga`; Tareas → Actividades (enlace «Asistencias de hoy»; diálogo JSON) |
 | GET | `/asistencia/historicas/{id}` | `getAssistanceHistoricas` | `volunteerSaga`; Tareas → Actividades («Mi histórico»; diálogo JSON) |
+| GET | `/asistencia/reporte` | `getAssistanceReporte` | Query opcional `fechaInicio`, `fechaFin` — `CoordinacionPage` |
+| POST | `/asistencia/delete` | `postAssistanceDelete` | Query `idAsistencia` — `CoordinacionPage` |
 
 ---
 
 ## 4. Madre
 
-| Método | Path | Función API |
-|--------|------|-------------|
-| POST | `/madre/` | `postMother` |
-| GET | `/madre/` | `getMother` |
-| GET | `/madre/id/{id}` | `getMotherId` |
-| PUT | `/madre/id/{idMadre}/` | `putMother` |
-| GET | `/madre/estadisticaLocalidades` | `getStatisticsLocalities` |
-| GET | `/madre/estadisticaEdadesMadre` | `getStatisticsAgeMother` |
+| Método | Path | Función API | Notas |
+|--------|------|-------------|--------|
+| POST | `/madre/` | `postMother` | |
+| GET | `/madre/` | `getMother` | |
+| GET | `/madre/id/{id}` | `getMotherId` | |
+| PUT | `/madre/id/{idMadre}/` | `putMother` | |
+| GET | `/madre/estadisticaLocalidades` | `getStatisticsLocalities` | |
+| GET | `/madre/estadisticaEdadesMadre` | `getStatisticsAgeMother` | |
+| POST | `/madre/delete` | `postMotherDelete` | Query `idMadre` — `ListMotherPage` (coordinadora) + `CoordinacionPage` |
 
 **Body POST/PUT (OpenAPI `MADRE`):** además de nombre, apellido, `dni`, `fechaNacimiento`, `localidad`, `motivoAbrazo`, `celular` (en schema como entero), el contrato incluye **`cantidadHijos`** (int) y **`estadoCivil`** (int). El formulario (`MotherForm`) envía ambos; los valores de estado civil mostrados en UI están en `MOTHER_ESTADO_CIVIL_OPTIONS` (`motherFormValidation.js`) y deben coincidir con la enumeración real del backend.
 
@@ -89,9 +97,11 @@ alwaysApply: true
 | POST | `/bebe/` | `postBaby` | |
 | PUT | `/bebe/` | `putBaby` | Body `BEBE` (OpenAPI); saga `babySaga`; UI edición en perfil madre (acordeón bebé) |
 | GET | `/bebe/` | `getBabys` | |
-| GET | `/bebe/abrazar` | `getBabysFree` | Query opcional vía `{ params }` |
+| GET | `/bebe/abrazar` | `getBabysFree` | Query opcional vía `{ params }`; en `babySaga` se intenta antes `getBabysDisponiblesAbrazo` y se hace fallback aquí |
+| GET | `/bebe/disponibles-abrazo` | `getBabysDisponiblesAbrazo` | OpenAPI alias de “bebés disponibles para abrazo” |
 | GET | `/bebe/listarSalas` | `getBabySalas` | Perfil madre (selector de sala en edición de bebé) |
-| GET | `/bebe/id/{dni}` | `getBabyByDni` | Perfil madre (búsqueda por DNI en extras de bebé) |
+| GET | `/bebe/id/{dni}` | `getBabyByDni` | `ListBabysPage` (coordinadora: consulta por DNI) |
+| POST | `/bebe/delete` | `postBabyDelete` | Query `idBebe` — `ListBabysPage` + `CoordinacionPage` |
 
 ---
 
@@ -110,6 +120,9 @@ alwaysApply: true
 | GET | `/asignacion/listarAsignacionesHoy/` | `getAssignmentToday` | |
 | GET | `/asignacion/listarAsignacionesHoyVoluntaria/{param}` | `getAssignmentTodayById` | |
 | GET | `/asignacion/listarCantidadAsignacionesPorDia/` | `getStatisticsAssignmentMonth` | |
+| PUT | `/asignacion/id/{idAsignacion}/` | `putAssignmentById` | Body `ASIGNACION` — `CoordinacionPage` |
+| DELETE | `/asignacion/id/{idAsignacion}/` | `deleteAssignmentById` | `CoordinacionPage` |
+| POST | `/asignacion/resetearAbrazosColgados` | `postResetAbrazosColgados` | Sin body — `CoordinacionPage` |
 
 ### Registrar detalle de asignación (fuente de verdad: OpenAPI)
 
@@ -162,6 +175,24 @@ En `src/redux/api/index.js`, `postEndHug` hace `POST` a `/asignacion/finalizarAb
 | POST | `/insumo/consultaMovimientos` | `postSupplyConsultMovements` | Body `RequestMovimiento` (`fechaDesde`, `fechaHasta` opcionales). Pestaña Movimientos en Insumos. |
 | GET | `/insumo/proveedores` | `getSupplyProviders` | Carga junto a movimientos |
 | POST | `/insumo/registrarMovimiento` | `postSupplyRegisterMovement` | Body `MOVIMIENTOSTOCK`; formulario en Insumos → Movimientos |
+| GET | `/insumo/id/{idInsumo}` | `getSupplyById` | `CoordinacionPage` (JSON / edición técnica) |
+| PUT | `/insumo/id/{idInsumo}/` | `putSupplyById` | Idem |
+| POST | `/insumo/delete` | `postSupplyDelete` | Query `idInsumo` — Idem |
+
+---
+
+## 8. Horario (voluntaria)
+
+| Método | Path | Función API | UI |
+|--------|------|-------------|-----|
+| GET | `/horario/dias` | `getHorarioDias` | `VolunteerHorarioSection` en `ProfileVolunteerPage` |
+| POST | `/horario` | `postHorario` | Body: arreglo `HorarioVoluntaria[]` — Idem |
+
+---
+
+## 9. Pantalla Coordinación (`/coordinacion`)
+
+Ruta **`CoordinacionPage`**: pestañas para coordinadora — asignación (PUT/DELETE por id, reset abrazos colgados), asistencia (reporte por fechas, baja por id), CRUD usuario (`postUsuario`, GET/PUT por id, delete), bajas por id (madre, voluntaria, bebé), insumo por id (GET/PUT/delete con carga desde JSON). Acceso desde **Tareas → Coordinación**, **Panel de trabajo** (carrusel) y acciones en listados cuando la sesión es coordinadora.
 
 ---
 
@@ -169,13 +200,14 @@ En `src/redux/api/index.js`, `postEndHug` hace `POST` a `/asignacion/finalizarAb
 
 | Función `api/index.js` | Saga principal |
 |--------------------------|----------------|
-| `postLogin` | `userSaga` |
+| `postLogin`, `postUsuario`, `getUsuarioById`, `putUsuarioById`, `postUsuarioDelete` | `userSaga` |
 | `getLocalities` | `genericsSaga` |
-| `postMother`, `getMother`, `getMotherId`, `putMother`, `getStatisticsLocalities`, `getStatisticsAgeMother` | `motherSaga` |
-| `postVolunteer`, `putVolunteer`, `getVolunteers`, `getVolunteersFree`, `getVolunteersStates`, `getVolunteerById`, `postAssistance`, `postAssistanceSalida`, `getAssistance`, `getAssistanceToday`, `getAssistanceHistoricas` | `volunteerSaga` |
-| `postBaby`, `putBaby`, `getBabys`, `getBabysFree`, `getBabySalas`, `getBabyByDni` | `babySaga` |
-| Redux `postAssignmentGenerate` → HTTP `postAssignmentGenerateTareas`; `postAssignmentGenerateTarea`; `getAssignmentById`; `postDetailAssignment`; `postStartHug`; `postEndHug`; `getDurationHug`; `getAssignmentToday`; `getAssignmentTodayById`; `getStatisticsAssignmentMonth` | `assignmentSaga` |
-| `getSupplies`, `postSupplyCreate`, `getStatisticsSupplies`, `postSupplyConsultMovements`, `getSupplyProviders`, `postSupplyRegisterMovement` | `supplySaga` |
+| `postMother`, `getMother`, `getMotherId`, `putMother`, `getStatisticsLocalities`, `getStatisticsAgeMother`, `postMotherDelete` | `motherSaga` |
+| `postVolunteer`, `putVolunteer`, `getVolunteers`, `getVolunteersFree`, `getVolunteersStates`, `getVolunteerById`, `postVolunteerDelete`, `postAssistance`, `postAssistanceSalida`, `getAssistance`, `getAssistanceToday`, `getAssistanceHistoricas`, `getAssistanceReporte`, `postAssistanceDelete` | `volunteerSaga` |
+| `postBaby`, `putBaby`, `getBabys`, `getBabysFree`, `getBabysDisponiblesAbrazo`, `getBabySalas`, `getBabyByDni`, `postBabyDelete` | `babySaga` |
+| Redux `postAssignmentGenerate` → HTTP `postAssignmentGenerateTareas`; `postAssignmentGenerateTarea`; `getAssignmentById`; `postDetailAssignment`; `postStartHug`; `postEndHug`; `getDurationHug`; `getAssignmentToday`; `getAssignmentTodayById`; `getStatisticsAssignmentMonth`; `putAssignmentById`; `deleteAssignmentById`; `postResetAbrazosColgados` | `assignmentSaga` |
+| `getSupplies`, `postSupplyCreate`, `getStatisticsSupplies`, `postSupplyConsultMovements`, `getSupplyProviders`, `postSupplyRegisterMovement`, `getSupplyById`, `putSupplyById`, `postSupplyDelete` | `supplySaga` |
+| `getHorarioDias`, `postHorario` | `horarioSaga` |
 
 ---
 
@@ -185,7 +217,7 @@ Rutas integradas en el front alinean prefijos y casing habituales del despliegue
 
 | Tema | OpenAPI (ejemplo) | Código front |
 |------|-------------------|--------------|
-| Bebés a abrazar | `GET /api/bebe/abrazar` | `GET /bebe/abrazar` (`getBabysFree`) relativo a `VITE_URL_API`. |
+| Bebés a abrazar | `GET /api/bebe/abrazar` o `GET /api/bebe/disponibles-abrazo` | `getBabysDisponiblesAbrazo` con fallback a `GET /bebe/abrazar` (`getBabysFree`) en `babySaga`. |
 | Login | `POST /api/Usuario/login`, body `RequestLogin` (`dni`, `contrasena`) | `POST usuario/login/`; el cliente envía `dni`/`contrasena` normalizados desde el formulario. |
 | Asistencia entrada | `POST /api/Asistencia/entrada/{IdVoluntaria}` | `POST /asistencia/entrada/{id}` — mismo patrón. |
 

@@ -13,8 +13,12 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import dayjs from 'dayjs';
 
 const PALETTE = {
@@ -144,20 +148,130 @@ function formatAssistancePayload(data) {
   }
 }
 
+function pickAssignmentRoot(raw) {
+  if (raw == null || typeof raw !== 'object') return null;
+  return raw.asignacion ?? raw.Asignacion ?? raw.resultado ?? raw.data ?? raw;
+}
+
+function isAssignmentLikePayload(raw) {
+  const o = pickAssignmentRoot(raw);
+  if (!o || typeof o !== 'object') return false;
+  if (o.idAsignacion != null || o.IdAsignacion != null) return true;
+  if (
+    o.idVoluntaria != null &&
+    (o.idBebe != null || o.idTarea != null || o.IdBebe != null || o.IdTarea != null)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function pickStr(...cands) {
+  for (const c of cands) {
+    if (c != null && String(c).trim() !== '') return String(c);
+  }
+  return null;
+}
+
+function AssignmentReadableBlock({ data }) {
+  const o = pickAssignmentRoot(data) || data || {};
+  const vol = o.voluntaria ?? o.Voluntaria ?? {};
+  const bebe = o.bebe ?? o.Bebe ?? {};
+  const rows = [
+    ['ID asignación', pickStr(o.idAsignacion, o.IdAsignacion)],
+    ['Voluntaria', pickStr([vol.nombre, vol.apellido].filter(Boolean).join(' '), vol.nombreCompleto, o.nombreVoluntaria)],
+    ['DNI voluntaria', pickStr(vol.dni, vol.Dni)],
+    ['Bebé / tarea', pickStr(bebe.nombre, bebe.apellido, o.descripcionTarea, o.nombreBebe)],
+    ['DNI bebé', pickStr(bebe.dni, bebe.Dni)],
+    ['Estado', pickStr(o.estado, o.estadoAbrazo, o.Estado)],
+  ].filter(([, v]) => v != null);
+
+  return (
+    <Box sx={{ p: 2 }}>
+      <Typography sx={{ color: PALETTE.text, fontWeight: 600, mb: 1.5 }}>
+        Resumen
+      </Typography>
+      <TableContainer
+        component={Paper}
+        elevation={0}
+        sx={{ borderRadius: 2, border: `1px solid ${PALETTE.border}`, mb: 2 }}
+      >
+        <Table size="small">
+          <TableBody>
+            {rows.map(([k, v]) => (
+              <TableRow key={k}>
+                <TableCell sx={{ fontWeight: 600, color: PALETTE.text, width: '38%', borderColor: PALETTE.border }}>
+                  {k}
+                </TableCell>
+                <TableCell sx={{ color: PALETTE.text, borderColor: PALETTE.border }}>{v}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Accordion
+        disableGutters
+        elevation={0}
+        sx={{ border: `1px solid ${PALETTE.border}`, borderRadius: 2, '&:before': { display: 'none' } }}
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: PALETTE.text }} />}>
+          <Typography sx={{ color: PALETTE.text, fontWeight: 600, fontSize: '0.9rem' }}>
+            JSON completo (depuración)
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ pt: 0 }}>
+          <Box
+            component="pre"
+            sx={{
+              m: 0,
+              p: 2,
+              fontSize: 11,
+              lineHeight: 1.5,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              color: PALETTE.text,
+              maxHeight: '40vh',
+              overflow: 'auto',
+              bgcolor: '#fff',
+              borderRadius: 1,
+              border: `1px solid ${PALETTE.border}`,
+              fontFamily: 'ui-monospace, monospace',
+            }}
+          >
+            {formatAssistancePayload(data)}
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+    </Box>
+  );
+}
+
 /**
- * Diálogo para GET asistencia/hoy, históricas u otras respuestas.
- * Si reconoce filas de asistencia, muestra tabla; si no, JSON legible.
+ * Diálogo para GET asistencia/hoy, históricas, detalle de asignación u otras respuestas.
+ * Si reconoce filas de asistencia, muestra tabla; asignación: resumen + JSON plegable; si no, JSON legible.
  *
- * @param {{ idVoluntaria?: number, nombre?: string, apellido?: string, dni?: string|number } | null | undefined} volunteerFallback — datos de la voluntaria logueada cuando el listado no incluye el objeto anidado (típico en históricos).
+ * @param {{ idVoluntaria?: number, nombre?: string, apellido?: string, dni?: string|number } | null | undefined} volunteerFallback
+ * @param {'auto' | 'assistance' | 'assignment'} [presentation] — `assignment` fuerza vista de asignación; `auto` infiere.
  */
-const AssistanceDataDialog = ({ open, title, onClose, data, volunteerFallback = null }) => {
+const AssistanceDataDialog = ({
+  open,
+  title,
+  onClose,
+  data,
+  volunteerFallback = null,
+  presentation = 'auto',
+}) => {
   const rows = useMemo(() => {
     const extracted = extractAssistanceRows(data);
     return extracted.map(normalizeAssistanceRow);
   }, [data]);
 
-  const showTable = rows.length > 0 && rows.every(isAssistanceShape);
-  const showEmptyList = isExplicitlyEmptyAssistancePayload(data);
+  const showAssignmentView =
+    presentation === 'assignment' || (presentation === 'auto' && isAssignmentLikePayload(data));
+
+  const showTable =
+    !showAssignmentView && rows.length > 0 && rows.every(isAssistanceShape);
+  const showEmptyList = !showAssignmentView && isExplicitlyEmptyAssistancePayload(data);
 
   return (
     <Dialog
@@ -208,6 +322,8 @@ const AssistanceDataDialog = ({ open, title, onClose, data, volunteerFallback = 
               Cuando haya asistencias, aparecerán en la tabla.
             </Typography>
           </Box>
+        ) : showAssignmentView ? (
+          <AssignmentReadableBlock data={data} />
         ) : showTable ? (
           <Box sx={{ p: 2 }}>
             <TableContainer
@@ -221,118 +337,118 @@ const AssistanceDataDialog = ({ open, title, onClose, data, volunteerFallback = 
                 bgcolor: '#fff',
               }}
             >
-                <Table size="small" stickyHeader aria-label="Listado de asistencias">
-                  <TableHead>
-                    <TableRow>
+              <Table size="small" stickyHeader aria-label="Listado de asistencias">
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        color: PALETTE.text,
+                        bgcolor: 'rgba(143, 0, 255, 0.08)',
+                        borderBottom: `1px solid ${PALETTE.border}`,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Voluntaria
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        fontWeight: 700,
+                        color: PALETTE.text,
+                        bgcolor: 'rgba(143, 0, 255, 0.08)',
+                        borderBottom: `1px solid ${PALETTE.border}`,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      DNI
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        color: PALETTE.text,
+                        bgcolor: 'rgba(143, 0, 255, 0.08)',
+                        borderBottom: `1px solid ${PALETTE.border}`,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Ingreso
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        color: PALETTE.text,
+                        bgcolor: 'rgba(143, 0, 255, 0.08)',
+                        borderBottom: `1px solid ${PALETTE.border}`,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Salida
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row, idx) => (
+                    <TableRow
+                      key={
+                        row.idAsistencia ??
+                        row.idVoluntaria ??
+                        volunteerFromRow(row, volunteerFallback).idVoluntaria ??
+                        idx
+                      }
+                      sx={{
+                        '&:nth-of-type(even)': { bgcolor: 'rgba(143, 0, 255, 0.03)' },
+                        '&:last-child td': { borderBottom: 0 },
+                      }}
+                    >
                       <TableCell
                         sx={{
-                          fontWeight: 700,
                           color: PALETTE.text,
-                          bgcolor: 'rgba(143, 0, 255, 0.08)',
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
                           borderBottom: `1px solid ${PALETTE.border}`,
-                          whiteSpace: 'nowrap',
                         }}
                       >
-                        Voluntaria
+                        {rowDisplayName(row, volunteerFallback)}
                       </TableCell>
                       <TableCell
                         align="right"
                         sx={{
-                          fontWeight: 700,
                           color: PALETTE.text,
-                          bgcolor: 'rgba(143, 0, 255, 0.08)',
+                          fontWeight: 500,
+                          fontSize: '0.875rem',
                           borderBottom: `1px solid ${PALETTE.border}`,
-                          whiteSpace: 'nowrap',
+                          fontVariantNumeric: 'tabular-nums',
                         }}
                       >
-                        DNI
+                        {rowDni(row, volunteerFallback)}
                       </TableCell>
                       <TableCell
                         sx={{
-                          fontWeight: 700,
                           color: PALETTE.text,
-                          bgcolor: 'rgba(143, 0, 255, 0.08)',
+                          fontSize: '0.85rem',
                           borderBottom: `1px solid ${PALETTE.border}`,
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        Ingreso
+                        {formatDateTime(row.fechaHoraIngreso)}
                       </TableCell>
                       <TableCell
                         sx={{
-                          fontWeight: 700,
-                          color: PALETTE.text,
-                          bgcolor: 'rgba(143, 0, 255, 0.08)',
+                          color: row.fechaHoraSalida ? PALETTE.text : 'rgba(21, 44, 112, 0.55)',
+                          fontSize: '0.85rem',
+                          fontStyle: row.fechaHoraSalida ? 'normal' : 'italic',
                           borderBottom: `1px solid ${PALETTE.border}`,
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        Salida
+                        {row.fechaHoraSalida ? formatDateTime(row.fechaHoraSalida) : 'En centro / sin salida'}
                       </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map((row, idx) => (
-                      <TableRow
-                        key={
-                          row.idAsistencia ??
-                          row.idVoluntaria ??
-                          volunteerFromRow(row, volunteerFallback).idVoluntaria ??
-                          idx
-                        }
-                        sx={{
-                          '&:nth-of-type(even)': { bgcolor: 'rgba(143, 0, 255, 0.03)' },
-                          '&:last-child td': { borderBottom: 0 },
-                        }}
-                      >
-                        <TableCell
-                          sx={{
-                            color: PALETTE.text,
-                            fontWeight: 600,
-                            fontSize: '0.9rem',
-                            borderBottom: `1px solid ${PALETTE.border}`,
-                          }}
-                        >
-                          {rowDisplayName(row, volunteerFallback)}
-                        </TableCell>
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color: PALETTE.text,
-                            fontWeight: 500,
-                            fontSize: '0.875rem',
-                            borderBottom: `1px solid ${PALETTE.border}`,
-                            fontVariantNumeric: 'tabular-nums',
-                          }}
-                        >
-                          {rowDni(row, volunteerFallback)}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            color: PALETTE.text,
-                            fontSize: '0.85rem',
-                            borderBottom: `1px solid ${PALETTE.border}`,
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {formatDateTime(row.fechaHoraIngreso)}
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            color: row.fechaHoraSalida ? PALETTE.text : 'rgba(21, 44, 112, 0.55)',
-                            fontSize: '0.85rem',
-                            fontStyle: row.fechaHoraSalida ? 'normal' : 'italic',
-                            borderBottom: `1px solid ${PALETTE.border}`,
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {row.fechaHoraSalida ? formatDateTime(row.fechaHoraSalida) : 'En centro / sin salida'}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
             <Typography
               variant="caption"
               sx={{ display: 'block', mt: 1.5, color: 'rgba(21, 44, 112, 0.55)', px: 0.5 }}

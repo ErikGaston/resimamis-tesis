@@ -23,7 +23,7 @@ function motherMatchesQuery(mother, rawQuery) {
 }
 
 const ListMotherTemplate = (props) => {
-  const { mothers } = props;
+  const { mothers, isCoordinator, onDeleteMother } = props;
   const navigate = useNavigate();
   const [listMothers, setListMothers] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -118,6 +118,7 @@ const ListMotherTemplate = (props) => {
                 dni={item.dni}
                 whatsapp={item.whatsapp}
                 context="madre"
+                onAdminDelete={isCoordinator && onDeleteMother ? () => onDeleteMother(item.idMadre) : undefined}
               />
             ))}
           </ListStack>

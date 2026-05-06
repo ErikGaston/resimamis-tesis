@@ -32,10 +32,28 @@ export function getBabys() {
     };
 }
 
+export function getBabyByDni(dni) {
+    return {
+        type: actionTypes.GET_BABY_BY_DNI,
+        payload: dni,
+    };
+}
+
+export function postBabyDelete(idBebe) {
+    return {
+        type: actionTypes.POST_BABY_DELETE,
+        payload: idBebe,
+    };
+}
+
 
 export function clearBaby() {
     return {
         type: actionTypes.CLEAR_BABY,
     };
+}
+
+export function clearBabyWrites() {
+    return { type: actionTypes.CLEAR_BABY_WRITES };
 }
 

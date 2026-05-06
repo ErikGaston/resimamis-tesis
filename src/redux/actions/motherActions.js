@@ -39,6 +39,13 @@ export function clearMother() {
     };
 }
 
+/** Solo POST/PUT/delete madre; mantiene `getMother` (listado duplicados) y `getMotherId`. */
+export function clearMotherWrites() {
+    return {
+        type: actionTypes.CLEAR_MOTHER_WRITES,
+    };
+}
+
 /** Limpia solo el último error de API (sin borrar listados ni datos cargados). */
 export function clearMotherApiError() {
     return {
@@ -50,5 +57,12 @@ export function putMother(param) {
     return {
         type: actionTypes.PUT_MOTHER,
         payload: param
+    };
+}
+
+export function postMotherDelete(idMadre) {
+    return {
+        type: actionTypes.POST_MOTHER_DELETE,
+        payload: idMadre,
     };
 }

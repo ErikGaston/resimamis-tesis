@@ -78,3 +78,32 @@ export function clearVolunteer() {
         type: actionTypes.CLEAR_VOLUNTEER,
     };
 }
+
+/** Conserva listados (`getVolunteers`, asistencias, etc.); solo limpia flags de bajas coordinación. */
+export function clearVolunteerWrites() {
+    return {
+        type: actionTypes.CLEAR_VOLUNTEER_WRITES,
+    };
+}
+
+/** @param {{ fechaInicio?: string, fechaFin?: string }} params — ISO date-time */
+export function getAssistanceReporte(params) {
+    return {
+        type: actionTypes.GET_ASSISTANCE_REPORTE,
+        payload: params ?? {},
+    };
+}
+
+export function postAssistanceDelete(idAsistencia) {
+    return {
+        type: actionTypes.POST_ASSISTANCE_DELETE,
+        payload: idAsistencia,
+    };
+}
+
+export function postVolunteerDelete(idVoluntaria) {
+    return {
+        type: actionTypes.POST_VOLUNTEER_DELETE,
+        payload: idVoluntaria,
+    };
+}

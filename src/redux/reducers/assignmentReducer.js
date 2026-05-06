@@ -13,6 +13,9 @@ const initialState = {
     getAssignmentTodayById: null,
     getAssignmentById: null,
     getStatisticsAssignmentMonth: null,
+    putAssignmentById: null,
+    deleteAssignmentById: null,
+    postResetAbrazosColgados: null,
 };
 
 export default function assignmentReducer(state = initialState, action) {
@@ -29,8 +32,12 @@ export default function assignmentReducer(state = initialState, action) {
         [actionTypes.SUCCESS_GET_ASSIGNMENT_TODAY]: responseToReturn('getAssignmentToday'),
         [actionTypes.SUCCESS_GET_ASSIGNMENT_TODAY_BY_ID]: responseToReturn('getAssignmentTodayById'),
         [actionTypes.SUCCESS_GET_STATISTICS_ASSIGNMENT_MONTH]: responseToReturn('getStatisticsAssignmentMonth'),
+        [actionTypes.SUCCESS_PUT_ASSIGNMENT_BY_ID]: responseToReturn('putAssignmentById'),
+        [actionTypes.SUCCESS_DELETE_ASSIGNMENT_BY_ID]: responseToReturn('deleteAssignmentById'),
+        [actionTypes.SUCCESS_POST_RESET_ABRAZOS_COLGADOS]: responseToReturn('postResetAbrazosColgados'),
         [actionTypes.ERROR_ASSIGNMENT]: responseToReturn('error'),
         [actionTypes.CLEAR_ASSIGNMENT]: clearAssignment(),
+        [actionTypes.CLEAR_ASSIGNMENT_WRITES]: clearAssignmentWrites(),
     };
 
     function responseToReturn(typeState) {
@@ -59,10 +66,26 @@ export default function assignmentReducer(state = initialState, action) {
                 ...state, postAssignmentGenerate: null, postAssignmentGenerateTarea: null, error: null, postDetailAssignment: null,
                 postStartHug: null, postEndHug: null, getDurationHug: null, getAssignmentToday: null, getAssignmentTodayById: null,
                 getAssignmentById: null,
-                getStatisticsAssignmentMonth: null
+                getStatisticsAssignmentMonth: null,
+                putAssignmentById: null,
+                deleteAssignmentById: null,
+                postResetAbrazosColgados: null,
             };
         }
         return res;
+    }
+
+    function clearAssignmentWrites() {
+        if (action.type === 'CLEAR_ASSIGNMENT_WRITES') {
+            return {
+                ...state,
+                putAssignmentById: null,
+                deleteAssignmentById: null,
+                postResetAbrazosColgados: null,
+                error: null,
+            };
+        }
+        return { ...state };
     }
 
 

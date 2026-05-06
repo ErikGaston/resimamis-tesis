@@ -9,6 +9,9 @@ const initialState = {
     postAssistanceSalida: null,
     getAssistanceToday: null,
     getAssistanceHistoricas: null,
+    getAssistanceReporte: null,
+    postAssistanceDelete: null,
+    postVolunteerDelete: null,
     getVolunteersFree: null,
     getVolunteers: null,
     getAssistance: null,
@@ -25,6 +28,9 @@ export default function volunteerReducer(state = initialState, action) {
         [actionTypes.SUCCESS_POST_ASSISTANCE_SALIDA]: responseToReturn('postAssistanceSalida'),
         [actionTypes.SUCCESS_GET_ASSISTANCE_TODAY]: responseToReturn('getAssistanceToday'),
         [actionTypes.SUCCESS_GET_ASSISTANCE_HISTORICAS]: responseToReturn('getAssistanceHistoricas'),
+        [actionTypes.SUCCESS_GET_ASSISTANCE_REPORTE]: responseToReturn('getAssistanceReporte'),
+        [actionTypes.SUCCESS_POST_ASSISTANCE_DELETE]: responseToReturn('postAssistanceDelete'),
+        [actionTypes.SUCCESS_POST_VOLUNTEER_DELETE]: responseToReturn('postVolunteerDelete'),
         [actionTypes.SUCCESS_GET_VOLUNTEERS_FREE]: responseToReturn('getVolunteersFree'),
         [actionTypes.SUCCESS_GET_ASSISTANCE]: responseToReturn('getAssistance'),
         [actionTypes.SUCCESS_GET_VOLUNTEERS_STATES]: responseToReturn('getVolunteerStates'),
@@ -33,6 +39,7 @@ export default function volunteerReducer(state = initialState, action) {
         [actionTypes.SUCCESS_PUT_VOLUNTEER]: responseToReturn('putVolunteer'),
         [actionTypes.ERROR_VOLUNTEER]: responseToReturn('error'),
         [actionTypes.CLEAR_VOLUNTEER]: clearVolunteer(),
+        [actionTypes.CLEAR_VOLUNTEER_WRITES]: clearVolunteerWrites(),
     };
 
     function responseToReturn(typeState) {
@@ -57,6 +64,18 @@ export default function volunteerReducer(state = initialState, action) {
     function clearVolunteer() {
         if (action.type === 'CLEAR_VOLUNTEER') {
             return { ...initialState };
+        }
+        return { ...state };
+    }
+
+    function clearVolunteerWrites() {
+        if (action.type === 'CLEAR_VOLUNTEER_WRITES') {
+            return {
+                ...state,
+                postAssistanceDelete: null,
+                postVolunteerDelete: null,
+                error: null,
+            };
         }
         return { ...state };
     }

@@ -3,7 +3,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ChildCareOutlined from '@mui/icons-material/ChildCareOutlined';
 import SearchIcon from '@mui/icons-material/Search';
-import { Box, Fab, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
+import { Box, Fab, IconButton, InputAdornment, TextField, Typography, Button, Alert } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { fabRightInsetInColumn } from '../../../helpers/const/appLayout';
@@ -27,7 +27,15 @@ function babyMatchesQuery(baby, rawQuery) {
 }
 
 const ListBabysTemplate = (props) => {
-  const { babys } = props;
+  const {
+    babys,
+    isCoordinator,
+    onDeleteBaby,
+    dniApiSearch,
+    onDniApiSearchChange,
+    onConsultarDniApi,
+    babyByDniPayload,
+  } = props;
   const navigate = useNavigate();
   const [listBabys, setListBabys] = React.useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -114,11 +122,57 @@ const ListBabysTemplate = (props) => {
         />
       </SearchWrap>
 
+      {isCoordinator && (
+        <Box
+          sx={{
+            maxWidth: 560,
+            margin: '0 auto',
+            px: 2,
+            pb: 1,
+            display: 'flex',
+            gap: 1,
+            alignItems: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
+          <TextField
+            size="small"
+            label="DNI (consulta API)"
+            value={dniApiSearch ?? ''}
+            onChange={(e) => onDniApiSearchChange?.(e.target.value)}
+            sx={{ flex: 1, minWidth: 140 }}
+            inputProps={{ inputMode: 'numeric' }}
+          />
+          <Button variant="outlined" size="small" onClick={() => onConsultarDniApi?.()}>
+            Consultar
+          </Button>
+        </Box>
+      )}
+
+      {babyByDniPayload != null && (
+        <Box sx={{ maxWidth: 560, margin: '0 auto', px: 2, pb: 1 }}>
+          <Alert severity="info" sx={{ '& pre': { m: 0, fontSize: 11, overflow: 'auto', maxHeight: 200 } }}>
+            <Typography variant="caption" component="div" sx={{ fontWeight: 600, mb: 0.5 }}>
+              Respuesta GET /bebe/id/…
+            </Typography>
+            <pre>{JSON.stringify(babyByDniPayload, null, 2)}</pre>
+          </Alert>
+        </Box>
+      )}
+
       <ContentScroll>
         {filteredBabys?.length ? (
           <ListStack>
             {filteredBabys.map((item, index) => (
-              <CardBaby key={item?.idBebe ?? item?.id ?? index} baby={item} />
+              <CardBaby
+                key={item?.idBebe ?? item?.id ?? index}
+                baby={item}
+                onAdminDelete={
+                  isCoordinator && onDeleteBaby
+                    ? (idBebe) => onDeleteBaby(idBebe)
+                    : undefined
+                }
+              />
             ))}
           </ListStack>
         ) : sinCoincidenciasBusqueda ? (

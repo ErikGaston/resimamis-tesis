@@ -201,6 +201,42 @@ function* asyncGetVolunteers() {
     }
 }
 
+function* asyncGetAssistanceReporte({ payload }) {
+    try {
+        const response = yield call(API.getAssistanceReporte, payload);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_GET_ASSISTANCE_REPORTE, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_VOLUNTEER, response: error });
+    }
+}
+
+function* asyncPostAssistanceDelete({ payload }) {
+    try {
+        const response = yield call(API.postAssistanceDelete, payload);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_POST_ASSISTANCE_DELETE, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_VOLUNTEER, response: error });
+    }
+}
+
+function* asyncPostVolunteerDelete({ payload }) {
+    try {
+        const response = yield call(API.postVolunteerDelete, payload);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_POST_VOLUNTEER_DELETE, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_VOLUNTEER, response: error });
+    }
+}
+
 export default function* volunteerSaga() {
     yield takeLatest(actionTypes.POST_VOLUNTEER, asyncPostVolunteer);
     yield takeLatest(actionTypes.POST_ASSISTANCE, asyncPostAssistance);
@@ -213,4 +249,7 @@ export default function* volunteerSaga() {
     yield takeLatest(actionTypes.GET_VOLUNTEER_BY_ID, asyncGetVolunteerById);
     yield takeLatest(actionTypes.PUT_VOLUNTEER, asyncPutVolunteer);
     yield takeLatest(actionTypes.GET_VOLUNTEERS, asyncGetVolunteers);
+    yield takeLatest(actionTypes.GET_ASSISTANCE_REPORTE, asyncGetAssistanceReporte);
+    yield takeLatest(actionTypes.POST_ASSISTANCE_DELETE, asyncPostAssistanceDelete);
+    yield takeLatest(actionTypes.POST_VOLUNTEER_DELETE, asyncPostVolunteerDelete);
 }

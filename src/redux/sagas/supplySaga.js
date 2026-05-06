@@ -2,6 +2,7 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import * as actionTypes from "../consts/actionTypes";
 import * as API from "../api";
 import { showApiErrorToast } from "./showApiErrorToast";
+import { normalizeSupplyRegisterMovementBody } from "../../utils/supplyMovementPayload";
 
 function* asyncGetSupplies() {
     try {
@@ -77,7 +78,8 @@ function* asyncGetSupplyProviders() {
 
 function* asyncPostSupplyRegisterMovement({ payload }) {
     try {
-        let response = yield call(API.postSupplyRegisterMovement, payload);
+        const body = normalizeSupplyRegisterMovementBody(payload);
+        let response = yield call(API.postSupplyRegisterMovement, body);
         if (response)
             yield put({
                 type: actionTypes.SUCCESS_POST_SUPPLY_REGISTER_MOVEMENT,
@@ -111,6 +113,43 @@ function* asyncPostSupplyCreate({ payload }) {
     }
 }
 
+function* asyncGetSupplyById({ payload }) {
+    try {
+        const response = yield call(API.getSupplyById, payload);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_GET_SUPPLY_BY_ID, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_SUPPLY, response: error });
+    }
+}
+
+function* asyncPutSupplyById({ payload }) {
+    try {
+        const { idInsumo, body } = payload || {};
+        const response = yield call(API.putSupplyById, idInsumo, body);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_PUT_SUPPLY_BY_ID, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_SUPPLY, response: error });
+    }
+}
+
+function* asyncPostSupplyDelete({ payload }) {
+    try {
+        const response = yield call(API.postSupplyDelete, payload);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_POST_SUPPLY_DELETE, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_SUPPLY, response: error });
+    }
+}
+
 export default function* supplySaga() {
     yield takeLatest(actionTypes.GET_SUPPLIES, asyncGetSupplies);
     yield takeLatest(actionTypes.GET_STATISTICS_SUPPLIES, asyncGetStatisticsSupplies);
@@ -118,4 +157,7 @@ export default function* supplySaga() {
     yield takeLatest(actionTypes.GET_SUPPLY_PROVIDERS, asyncGetSupplyProviders);
     yield takeLatest(actionTypes.POST_SUPPLY_REGISTER_MOVEMENT, asyncPostSupplyRegisterMovement);
     yield takeLatest(actionTypes.POST_SUPPLY_CREATE, asyncPostSupplyCreate);
+    yield takeLatest(actionTypes.GET_SUPPLY_BY_ID, asyncGetSupplyById);
+    yield takeLatest(actionTypes.PUT_SUPPLY_BY_ID, asyncPutSupplyById);
+    yield takeLatest(actionTypes.POST_SUPPLY_DELETE, asyncPostSupplyDelete);
 }

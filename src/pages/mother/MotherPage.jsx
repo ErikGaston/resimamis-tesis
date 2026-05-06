@@ -74,11 +74,10 @@ export const MotherPage = () => {
     }
 
     useEffect(() => {
-        dispatch(getLocalities())
-        dispatch(getMother())
-
         dispatch(clearMother())
         dispatch(clearBaby())
+        dispatch(getLocalities())
+        dispatch(getMother())
         return () => {
             dispatch(clearMother())
             dispatch(clearBaby())

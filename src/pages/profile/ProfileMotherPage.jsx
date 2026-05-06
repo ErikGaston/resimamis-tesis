@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Box } from '@mui/material';
+import { Box, Alert, TextField, Button } from '@mui/material';
 import Loading from '../../components/atoms/loading/Loading';
 import { ProfileTemplate } from '../../components/templates/profile/ProfileTemplate';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,7 +19,8 @@ import {
   mapAspNetErrorsToMotherFieldErrors,
   resolveApiErrorMessage,
 } from '../../utils/apiErrorMessage';
-import { clearBaby, getBabySalas, putBaby } from '../../redux/actions/babyActions';
+import { clearBaby, getBabyByDni, getBabySalas, putBaby } from '../../redux/actions/babyActions';
+import { isCoordinadoraSession } from '../../utils/coordinadoraRole';
 
 export const ProfileMotherPage = () => {
 
@@ -35,6 +36,8 @@ export const ProfileMotherPage = () => {
   const [editForm, setEditForm] = React.useState(false);
   const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_MOTHER_FIELD_ERRORS });
   const [babySaveNotice, setBabySaveNotice] = useState(null);
+  const [coordBabyDni, setCoordBabyDni] = useState('');
+  const isCoord = isCoordinadoraSession();
 
   const submitMother = () => {
     dispatch(clearMotherApiError());
@@ -42,7 +45,7 @@ export const ProfileMotherPage = () => {
     const mothers = dataMother?.getMother?.listadoMadres ?? [];
     const { ok, errors } = validateMotherForm(mdl, {
       mothers,
-      excludeMadreId: mdl?.idMadre ?? null,
+      excludeMadreId: mdl?.idMadre ?? mdl?.IdMadre ?? mdl?.id ?? null,
     });
     setFieldErrors(errors);
     if (!ok) return;
@@ -82,12 +85,12 @@ export const ProfileMotherPage = () => {
 
   useEffect(() => {
     dispatch(showLoading(true))
+    dispatch(clearMother())
     dispatch(getMotherId(id))
     dispatch(getLocalities())
     dispatch(getMother())
     dispatch(getBabySalas())
 
-    dispatch(clearMother())
     return () => {
       dispatch(clearMother())
       dispatch(clearBaby())
@@ -163,6 +166,61 @@ export const ProfileMotherPage = () => {
         <Loading position={'absolute'} height={'100%'} zIndex={9999} />
       )}
       <PageScrollMain>
+        {isCoord && (
+          <Box sx={{ px: 2.5, pt: 1.5, pb: 0 }}>
+            <Alert severity="info" sx={{ mb: 1 }}>
+              Coordinación: consultá un bebé por DNI (solo lectura). Para bajas usá el listado de bebés o Coordinación.
+            </Alert>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'flex-start', mb: 1 }}>
+              <TextField
+                size="small"
+                label="DNI bebé"
+                value={coordBabyDni}
+                onChange={(e) => setCoordBabyDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                inputProps={{ inputMode: 'numeric' }}
+              />
+              <Button
+                variant="contained"
+                sx={{ background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)' }}
+                onClick={() => {
+                  if (!coordBabyDni || coordBabyDni.length < 7) return;
+                  dispatch(getBabyByDni(coordBabyDni));
+                }}
+              >
+                Buscar
+              </Button>
+              <Button size="small" onClick={() => { setCoordBabyDni(''); dispatch(clearBaby()); }}>
+                Limpiar
+              </Button>
+            </Box>
+            {dataBaby?.getBabyByDni != null && (
+              <Box
+                component="pre"
+                sx={{
+                  m: 0,
+                  mb: 1,
+                  p: 1.5,
+                  fontSize: 12,
+                  maxHeight: 220,
+                  overflow: 'auto',
+                  bgcolor: '#fff',
+                  border: '1px solid rgba(143,0,255,0.2)',
+                  borderRadius: 1,
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                }}
+              >
+                {(() => {
+                  try {
+                    return JSON.stringify(dataBaby.getBabyByDni, null, 2);
+                  } catch {
+                    return String(dataBaby.getBabyByDni);
+                  }
+                })()}
+              </Box>
+            )}
+          </Box>
+        )}
         <ProfileTemplate
           model={model}
           setModel={setModel}

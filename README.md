@@ -1,20 +1,51 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# Resimamis — frontend (tesis)
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+Aplicación web **React 18** + **Vite** + **Redux / Redux-Saga** + **Material UI** para la gestión de madres, voluntarias, bebés, asignación de abrazos, asistencias e insumos, integrada con la API documentada en OpenAPI (Swagger).
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+## Requisitos
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+- **Node.js** 18+ (recomendado LTS)
+- **npm** 9+
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+## Variables de entorno
+
+Copiá `.env.example` a `.env` y definí al menos:
+
+- `VITE_URL_API` — URL base del backend (incluye prefijo si corresponde, p. ej. `https://.../`).
+- Opcional: `VITE_COORDINADORA_ID_ROL` — id numérico del rol coordinadora si el login no envía texto `rol` reconocible.
+
+## Instalación y desarrollo
+
+```bash
+npm install
+npm run dev
+```
+
+La app suele levantarse en `http://localhost:5173`.
+
+## Build de producción
+
+```bash
+npm run build
+```
+
+El script ejecuta `vite build` y copia `web.config` al directorio `dist/` con Node (compatible con Windows y Unix).
+
+## Estructura útil
+
+- `src/redux/api/index.js` — cliente HTTP (Axios) y funciones por endpoint.
+- `src/redux/sagas/` — efectos secundarios y llamadas API.
+- `src/pages/` — páginas por ruta.
+- `docs/` — inventario Swagger vs front (`cobertura-swagger-frontend.md`), pendientes y tareas de validación.
+
+## Documentación
+
+- Contrato API y matrices de cobertura: carpeta **`docs/`** y reglas en **`.cursor/rules/`** (p. ej. `04-endpoints-backend.mdc`, `06-swagger-contrato-api.mdc`).
+
+## Tests
+
+No hay suite E2E ni unitaria configurada en este repositorio; si se agrega, documentar el comando aquí (p. ej. Vitest / Playwright).
+
+## Contribución
+
+Usar ramas por feature, mensajes de commit claros y mantener alineados `swagger-detail.json`, `redux/api` y los documentos de `docs/` cuando cambie el contrato HTTP.

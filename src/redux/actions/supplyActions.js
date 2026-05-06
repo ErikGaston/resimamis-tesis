@@ -49,3 +49,19 @@ export function clearSupply() {
         type: actionTypes.CLEAR_SUPPLY,
     };
 }
+
+export function clearSupplyWrites() {
+    return { type: actionTypes.CLEAR_SUPPLY_WRITES };
+}
+
+export function getSupplyById(idInsumo) {
+    return { type: actionTypes.GET_SUPPLY_BY_ID, payload: idInsumo };
+}
+
+export function putSupplyById(idInsumo, body) {
+    return { type: actionTypes.PUT_SUPPLY_BY_ID, payload: { idInsumo, body } };
+}
+
+export function postSupplyDelete(idInsumo) {
+    return { type: actionTypes.POST_SUPPLY_DELETE, payload: idInsumo };
+}

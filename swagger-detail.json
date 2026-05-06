@@ -225,6 +225,69 @@
         }
       }
     },
+    "/api/Asignacion/id/{idAsignacion}": {
+      "delete": {
+        "tags": [
+          "Asignacion"
+        ],
+        "parameters": [
+          {
+            "name": "idAsignacion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Asignacion"
+        ],
+        "parameters": [
+          {
+            "name": "idAsignacion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ASIGNACION"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ASIGNACION"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ASIGNACION"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Asignacion/finalizarAbrazo": {
       "post": {
         "tags": [
@@ -256,6 +319,18 @@
         }
       }
     },
+    "/api/Asignacion/resetearAbrazosColgados": {
+      "post": {
+        "tags": [
+          "Asignacion"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Asistencia/id/{IdVoluntaria}": {
       "get": {
         "tags": [
@@ -269,6 +344,36 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asistencia/reporte": {
+      "get": {
+        "tags": [
+          "Asistencia"
+        ],
+        "parameters": [
+          {
+            "name": "fechaInicio",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "fechaFin",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
             }
           }
         ],
@@ -347,6 +452,28 @@
             "name": "IdVoluntaria",
             "in": "path",
             "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Asistencia/delete": {
+      "post": {
+        "tags": [
+          "Asistencia"
+        ],
+        "parameters": [
+          {
+            "name": "idAsistencia",
+            "in": "query",
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -465,10 +592,44 @@
         }
       }
     },
+    "/api/Bebe/disponibles-abrazo": {
+      "get": {
+        "tags": [
+          "Bebe"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Bebe/abrazar": {
       "get": {
         "tags": [
           "Bebe"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Bebe/delete": {
+      "post": {
+        "tags": [
+          "Bebe"
+        ],
+        "parameters": [
+          {
+            "name": "idBebe",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -555,6 +716,91 @@
       "get": {
         "tags": [
           "Insumo"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Insumo/id/{idInsumo}": {
+      "get": {
+        "tags": [
+          "Insumo"
+        ],
+        "parameters": [
+          {
+            "name": "idInsumo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Insumo"
+        ],
+        "parameters": [
+          {
+            "name": "idInsumo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/INSUMO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/INSUMO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/INSUMO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Insumo/delete": {
+      "post": {
+        "tags": [
+          "Insumo"
+        ],
+        "parameters": [
+          {
+            "name": "idInsumo",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -765,6 +1011,28 @@
         }
       }
     },
+    "/api/Madre/delete": {
+      "post": {
+        "tags": [
+          "Madre"
+        ],
+        "parameters": [
+          {
+            "name": "idMadre",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Madre/estadisticaEdadesMadre": {
       "get": {
         "tags": [
@@ -832,6 +1100,91 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Usuario/id/{idUsuario}": {
+      "get": {
+        "tags": [
+          "Usuario"
+        ],
+        "parameters": [
+          {
+            "name": "idUsuario",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Usuario"
+        ],
+        "parameters": [
+          {
+            "name": "idUsuario",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/USUARIO"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/USUARIO"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/USUARIO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Usuario/delete": {
+      "post": {
+        "tags": [
+          "Usuario"
+        ],
+        "parameters": [
+          {
+            "name": "idUsuario",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -1082,6 +1435,45 @@
         },
         "additionalProperties": false
       },
+      "ASISTENCIA": {
+        "type": "object",
+        "properties": {
+          "idAsistencia": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "idVoluntaria": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "idHorario": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "fechaHoraSalida": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "fechaHoraIngreso": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "idEstado": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "voluntaria": {
+            "$ref": "#/components/schemas/VOLUNTARIA"
+          }
+        },
+        "additionalProperties": false
+      },
       "BEBE": {
         "type": "object",
         "properties": {
@@ -1156,17 +1548,7 @@
           "idMadre": {
             "type": "integer",
             "format": "int32",
-            "nullable": true,
-            "description": "Madre principal o primera vinculación. Si se envía `idMadres`, conviene que el primer elemento coincida con `idMadre` para compatibilidad con clientes que solo lean este campo."
-          },
-          "idMadres": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "nullable": true,
-            "description": "Lista de identificadores de madres asociadas al bebé (p. ej. madre biológica y acompañante). Sin duplicados. Si está vacío o ausente, aplica solo `idMadre`."
+            "nullable": true
           },
           "idEstado": {
             "type": "integer",
@@ -1262,10 +1644,38 @@
             },
             "nullable": true
           },
+          "madres": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MADRE"
+            },
+            "nullable": true
+          },
           "asignaciones": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ASIGNACION"
+            },
+            "nullable": true
+          },
+          "insumos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/INSUMO"
+            },
+            "nullable": true
+          },
+          "asistencias": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ASISTENCIA"
+            },
+            "nullable": true
+          },
+          "usuarios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/USUARIO"
             },
             "nullable": true
           }
@@ -1316,6 +1726,11 @@
           "stockActual": {
             "type": "integer",
             "format": "int32"
+          },
+          "idEstado": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           },
           "detalles": {
             "type": "array",
@@ -1372,6 +1787,11 @@
           "celular": {
             "type": "integer",
             "format": "int64"
+          },
+          "idEstado": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           },
           "bebe": {
             "type": "array",
@@ -1577,6 +1997,11 @@
           "idVoluntaria": {
             "type": "integer",
             "format": "int32"
+          },
+          "idEstado": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false

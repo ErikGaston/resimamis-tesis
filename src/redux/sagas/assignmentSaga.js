@@ -183,6 +183,43 @@ function* asyncGetStatisticsAssignmentMonth() {
     }
 }
 
+function* asyncPutAssignmentById({ payload }) {
+    try {
+        const { idAsignacion, body } = payload || {};
+        const response = yield call(API.putAssignmentById, idAsignacion, body);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_PUT_ASSIGNMENT_BY_ID, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_ASSIGNMENT, response: error });
+    }
+}
+
+function* asyncDeleteAssignmentById({ payload }) {
+    try {
+        const response = yield call(API.deleteAssignmentById, payload);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_DELETE_ASSIGNMENT_BY_ID, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_ASSIGNMENT, response: error });
+    }
+}
+
+function* asyncPostResetAbrazosColgados() {
+    try {
+        const response = yield call(API.postResetAbrazosColgados);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_POST_RESET_ABRAZOS_COLGADOS, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_ASSIGNMENT, response: error });
+    }
+}
+
 export default function* assignmentSaga() {
     yield takeLatest(actionTypes.POST_ASSIGNMENT_GENERATE, asyncPostAssignmentGenerate);
     yield takeLatest(actionTypes.POST_ASSIGNMENT_GENERATE_TAREA, asyncPostAssignmentGenerateTarea);
@@ -194,4 +231,7 @@ export default function* assignmentSaga() {
     yield takeLatest(actionTypes.GET_ASSIGNMENT_TODAY, asyncGetAssignmentToday);
     yield takeLatest(actionTypes.GET_ASSIGNMENT_TODAY_BY_ID, asyncGetAssignmentTodayById);
     yield takeLatest(actionTypes.GET_STATISTICS_ASSIGNMENT_MONTH, asyncGetStatisticsAssignmentMonth);
+    yield takeLatest(actionTypes.PUT_ASSIGNMENT_BY_ID, asyncPutAssignmentById);
+    yield takeLatest(actionTypes.DELETE_ASSIGNMENT_BY_ID, asyncDeleteAssignmentById);
+    yield takeLatest(actionTypes.POST_RESET_ABRAZOS_COLGADOS, asyncPostResetAbrazosColgados);
 }

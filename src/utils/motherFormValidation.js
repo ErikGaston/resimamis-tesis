@@ -25,6 +25,39 @@ export const MOTHER_ESTADO_CIVIL_OPTIONS = [
   { label: 'Separada/o', value: 6 },
 ];
 
+/**
+ * Id de madre en ítems de `listadoMadres` (GET `/madre`): el backend puede usar distintos nombres.
+ * @param {Record<string, unknown> | null | undefined} m
+ * @returns {number | null}
+ */
+export function resolveListadoMadreId(m) {
+  if (m == null || typeof m !== 'object') return null;
+  const raw = m.idMadre ?? m.IdMadre ?? m.idMadreNavigation?.idMadre ?? m.id ?? m.Id;
+  if (raw === '' || raw === undefined || raw === null) return null;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Opciones para el autocomplete de estado civil: catálogo fijo + entrada dinámica si el registro trae un código no listado (datos legacy / backend).
+ * @param {unknown} currentEstadoCivil — valor actual del modelo
+ * @returns {Array<{ label: string, value: number }>}
+ */
+export function getMotherEstadoCivilOptionsForSelect(currentEstadoCivil) {
+  const n =
+    currentEstadoCivil === '' || currentEstadoCivil === undefined || currentEstadoCivil === null
+      ? null
+      : Number(currentEstadoCivil);
+  const base = [...MOTHER_ESTADO_CIVIL_OPTIONS];
+  if (n != null && !Number.isNaN(n) && !base.some((o) => o.value === n)) {
+    base.unshift({
+      label: `Código ${n} (registrado en el sistema)`,
+      value: n,
+    });
+  }
+  return base;
+}
+
 export const INITIAL_MOTHER_FIELD_ERRORS = {
   nombre: '',
   apellido: '',
@@ -39,7 +72,7 @@ export const INITIAL_MOTHER_FIELD_ERRORS = {
 
 /**
  * @param {Record<string, unknown>} model
- * @param {{ mothers?: Array<{ dni?: number|string, idMadre?: number }>, excludeMadreId?: number|null }} options
+ * @param {{ mothers?: Array<Record<string, unknown>>, excludeMadreId?: number|null }} options — `mothers`: ítems de `listadoMadres`; id por fila vía `resolveListadoMadreId`.
  */
 export function validateMotherForm(model, options = {}) {
   const mothers = options.mothers ?? [];
@@ -90,7 +123,8 @@ export function validateMotherForm(model, options = {}) {
     const dup = mothers.find((m) => {
       if (m == null) return false;
       if (String(m.dni) !== dniStr) return false;
-      if (excludeMadreId != null && Number(m.idMadre) === Number(excludeMadreId)) {
+      const mid = resolveListadoMadreId(m);
+      if (excludeMadreId != null && mid != null && Number(mid) === Number(excludeMadreId)) {
         return false;
       }
       return true;
@@ -157,7 +191,8 @@ export function validateMotherForm(model, options = {}) {
     set('estadoCivil', 'El estado civil es obligatorio.');
   } else {
     const n = Number(ec);
-    if (!MOTHER_ESTADO_CIVIL_OPTIONS.some((o) => o.value === n)) {
+    const allowed = getMotherEstadoCivilOptionsForSelect(ec);
+    if (!allowed.some((o) => o.value === n)) {
       set('estadoCivil', 'Seleccioná un estado civil de la lista.');
     }
   }

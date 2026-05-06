@@ -2,7 +2,6 @@ import * as actionTypes from '../consts/actionTypes';
 
 const initialState = {
     postMother: null,
-    getMother: null,
     getStatisticsLocalities: null,
     getStatisticsAgeMother: null,
     getMother: null,
@@ -10,6 +9,7 @@ const initialState = {
     loading: false,
     error: null,
     putMother: null,
+    postMotherDelete: null,
 };
 
 export default function motherReducer(state = initialState, action) {
@@ -24,7 +24,9 @@ export default function motherReducer(state = initialState, action) {
         [actionTypes.ERROR_MOTHER]: responseToReturn('error'),
         [actionTypes.CLEAR_MOTHER_API_ERROR]: clearMotherApiError(),
         [actionTypes.CLEAR_MOTHER]: clearMother(),
+        [actionTypes.CLEAR_MOTHER_WRITES]: clearMotherWrites(),
         [actionTypes.SUCCESS_PUT_MOTHER]: responseToReturn('putMother'),
+        [actionTypes.SUCCESS_POST_MOTHER_DELETE]: responseToReturn('postMotherDelete'),
 
     };
 
@@ -57,10 +59,24 @@ export default function motherReducer(state = initialState, action) {
         if (action.type === 'CLEAR_MOTHER') {
             res = {
                 ...state, postMother: null, error: null, getMother: null,
-                getStatisticsLocalities: null, getStatisticsAgeMother: null, putMother: null
+                getStatisticsLocalities: null, getStatisticsAgeMother: null, putMother: null,
+                postMotherDelete: null,
             };
         }
         return res;
+    }
+
+    function clearMotherWrites() {
+        if (action.type === 'CLEAR_MOTHER_WRITES') {
+            return {
+                ...state,
+                postMother: null,
+                putMother: null,
+                postMotherDelete: null,
+                error: null,
+            };
+        }
+        return { ...state };
     }
 
     let receiveAction = DEFAULT;

@@ -9,6 +9,7 @@ import { StatisticsPage } from '../pages/statistics/StatisticsPage'
 import { TasksPage } from '../pages/tasks/TasksPage'
 import { VolunteerPage } from '../pages/volunteer/VolunteerPage'
 import { SupplyPage } from '../pages/supply/SupplyPage'
+import { CoordinacionPage } from '../pages/coordinacion/CoordinacionPage'
 import { PrivateRoute } from './PrivateRoute'
 import { PublicRoute } from './PublicRoute'
 import { RootRedirect } from './RootRedirect'
@@ -81,6 +82,10 @@ export const RouterApp = () => {
     {
       path: 'insumos',
       element: withAuth(<SupplyPage />),
+    },
+    {
+      path: 'coordinacion',
+      element: withAuth(<CoordinacionPage />),
     },
   ]);
 

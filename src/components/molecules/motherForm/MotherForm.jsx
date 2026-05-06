@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import dayjs from 'dayjs'
 import LabelInput from '../labelInput/LabelInput';
 import LabelDate from '../labelDate/LabelDate';
@@ -12,7 +12,7 @@ import {
     MOTHER_MIN_AGE,
     MOTHER_DATE_MIN_YEARS_BACK,
     MOTHER_PHONE_DIGITS_MAX,
-    MOTHER_ESTADO_CIVIL_OPTIONS,
+    getMotherEstadoCivilOptionsForSelect,
 } from '../../../utils/motherFormValidation';
 
 const MotherForm = ({
@@ -26,6 +26,11 @@ const MotherForm = ({
 }) => {
 
     const m = model || {}
+
+    const estadoCivilOptions = useMemo(
+        () => getMotherEstadoCivilOptionsForSelect(m?.estadoCivil),
+        [m?.estadoCivil],
+    )
 
     const clearField = (name) => {
         if (setFieldErrors) {
@@ -119,7 +124,7 @@ const MotherForm = ({
         if (m?.estadoCivil === '' || m?.estadoCivil === undefined || m?.estadoCivil === null) {
             return '';
         }
-        const opt = MOTHER_ESTADO_CIVIL_OPTIONS.find(
+        const opt = estadoCivilOptions.find(
             (o) => o.value === Number(m.estadoCivil),
         );
         return opt?.label ?? '';
@@ -211,7 +216,7 @@ const MotherForm = ({
             />
             <LabelAutocomplete
                 id='estado_civil'
-                options={MOTHER_ESTADO_CIVIL_OPTIONS}
+                options={estadoCivilOptions}
                 value={searchEstadoCivil()}
                 onChange={onChangeEstadoCivil}
                 placeholder={'Seleccionar estado civil'}

@@ -14,6 +14,7 @@ import {
   normalizeVolunteerPayload,
   INITIAL_VOLUNTEER_FIELD_ERRORS,
 } from '../../utils/volunteerFormValidation';
+import { VolunteerHorarioSection } from '../../components/molecules/volunteerHorario/VolunteerHorarioSection';
 
 export const ProfileVolunteerPage = () => {
 
@@ -115,6 +116,9 @@ export const ProfileVolunteerPage = () => {
           fieldErrors={fieldErrors}
           setFieldErrors={setFieldErrors}
         />
+        {model?.idVoluntaria != null && (
+          <VolunteerHorarioSection idVoluntaria={Number(model.idVoluntaria)} />
+        )}
       </PageScrollMain>
       {stateForm === 'SUCCESS' && (
         <DialogSuccess

@@ -8,6 +8,8 @@ const initialState = {
     error: null,
     getBabysFree: null,
     getBabySalas: null,
+    getBabyByDni: null,
+    postBabyDelete: null,
 };
 
 export default function babyReducer(state = initialState, action) {
@@ -19,8 +21,11 @@ export default function babyReducer(state = initialState, action) {
         [actionTypes.SUCCESS_PUT_BABY]: responseToReturn('putBaby'),
         [actionTypes.SUCCESS_GET_BABYS_FREE]: responseToReturn('getBabysFree'),
         [actionTypes.SUCCESS_GET_BABY_SALAS]: responseToReturn('getBabySalas'),
+        [actionTypes.SUCCESS_GET_BABY_BY_DNI]: responseToReturn('getBabyByDni'),
+        [actionTypes.SUCCESS_POST_BABY_DELETE]: responseToReturn('postBabyDelete'),
         [actionTypes.ERROR_BABY]: responseToReturn('error'),
         [actionTypes.CLEAR_BABY]: clearBaby(),
+        [actionTypes.CLEAR_BABY_WRITES]: clearBabyWrites(),
     };
 
     function responseToReturn(typeState) {
@@ -28,7 +33,7 @@ export default function babyReducer(state = initialState, action) {
         if (action.response) {
             const payload = action.response.data;
             if (typeState === 'getBabys' || typeState === 'postBaby' || typeState === 'putBaby' || typeState === 'getBabysFree'
-                || typeState === 'getBabySalas') {
+                || typeState === 'getBabySalas' || typeState === 'getBabyByDni' || typeState === 'postBabyDelete') {
                 res = { ...state, [typeState]: payload, error: null, loading: false };
             } else {
                 res = { ...state, [typeState]: payload, loading: false };
@@ -55,9 +60,24 @@ export default function babyReducer(state = initialState, action) {
                 error: null,
                 getBabysFree: null,
                 getBabySalas: null,
+                getBabyByDni: null,
+                postBabyDelete: null,
             };
         }
         return res;
+    }
+
+    function clearBabyWrites() {
+        if (action.type === 'CLEAR_BABY_WRITES') {
+            return {
+                ...state,
+                postBaby: null,
+                putBaby: null,
+                postBabyDelete: null,
+                error: null,
+            };
+        }
+        return { ...state };
     }
 
     let receiveAction = DEFAULT;

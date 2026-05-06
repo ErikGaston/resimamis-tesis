@@ -72,8 +72,35 @@ export function clearAssignment() {
     };
 }
 
+/** Solo PUT/DELETE/reset; no borra `getAssignmentById` ni listados del día (Tareas). */
+export function clearAssignmentWrites() {
+    return {
+        type: actionTypes.CLEAR_ASSIGNMENT_WRITES,
+    };
+}
+
 export function getStatisticsAssignmentMonth() {
     return {
         type: actionTypes.GET_STATISTICS_ASSIGNMENT_MONTH,
+    };
+}
+
+export function putAssignmentById(idAsignacion, body) {
+    return {
+        type: actionTypes.PUT_ASSIGNMENT_BY_ID,
+        payload: { idAsignacion, body },
+    };
+}
+
+export function deleteAssignmentById(idAsignacion) {
+    return {
+        type: actionTypes.DELETE_ASSIGNMENT_BY_ID,
+        payload: idAsignacion,
+    };
+}
+
+export function postResetAbrazosColgados() {
+    return {
+        type: actionTypes.POST_RESET_ABRAZOS_COLGADOS,
     };
 }

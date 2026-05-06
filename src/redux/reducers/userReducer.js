@@ -3,7 +3,12 @@ import * as actionTypes from '../consts/actionTypes';
 const initialState = {
     postLogin: null,
     loading: false,
-    error: null
+    error: null,
+    postUsuario: null,
+    getUsuarioById: null,
+    putUsuario: null,
+    postUsuarioDelete: null,
+    userAdminError: null,
 };
 
 export default function userReducer(state = initialState, action) {
@@ -12,7 +17,13 @@ export default function userReducer(state = initialState, action) {
         [actionTypes.SHOW_LOADING]: showLoading(),
         [actionTypes.SUCCESS_POST_LOGIN]: responseToReturn('postLogin'),
         [actionTypes.ERROR_LOGIN]: responseToReturn('error'),
-        [actionTypes.CLEAR_LOGIN]: clearLogin()
+        [actionTypes.CLEAR_LOGIN]: clearLogin(),
+        [actionTypes.SUCCESS_POST_USUARIO]: responseToReturn('postUsuario'),
+        [actionTypes.SUCCESS_GET_USUARIO_BY_ID]: responseToReturn('getUsuarioById'),
+        [actionTypes.SUCCESS_PUT_USUARIO]: responseToReturn('putUsuario'),
+        [actionTypes.SUCCESS_POST_USUARIO_DELETE]: responseToReturn('postUsuarioDelete'),
+        [actionTypes.ERROR_USER]: userAdminError(),
+        [actionTypes.CLEAR_USER_ADMIN]: clearUserAdmin(),
     };
 
     function responseToReturn(typeState) {
@@ -21,11 +32,39 @@ export default function userReducer(state = initialState, action) {
             const payload = action.response.data;
             if (typeState === 'postLogin') {
                 res = { ...state, postLogin: payload, error: null, loading: false };
+            } else if (['postUsuario', 'getUsuarioById', 'putUsuario', 'postUsuarioDelete'].includes(typeState)) {
+                res = {
+                    ...state,
+                    [typeState]: payload,
+                    userAdminError: null,
+                    loading: false,
+                };
             } else {
                 res = { ...state, [typeState]: payload, loading: false };
             }
         }
         return res;
+    }
+
+    function userAdminError() {
+        if (action.type === 'ERROR_USER') {
+            return { ...state, userAdminError: action.response, loading: false };
+        }
+        return { ...state };
+    }
+
+    function clearUserAdmin() {
+        if (action.type === 'CLEAR_USER_ADMIN') {
+            return {
+                ...state,
+                postUsuario: null,
+                getUsuarioById: null,
+                putUsuario: null,
+                postUsuarioDelete: null,
+                userAdminError: null,
+            };
+        }
+        return { ...state };
     }
 
     function showLoading() {

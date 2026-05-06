@@ -70,11 +70,20 @@ const TasksTemplate = (props) => {
 
     return (
         <div style={{ height: '100%' }}>
-            <div style={{ display: 'flex', backgroundColor: '#8F00FF' }}>
+            <div style={{ display: 'flex', backgroundColor: '#8F00FF', alignItems: 'center' }}>
                 <IconButton onClick={functionBack}>
                     <HighlightOffIcon style={{ color: 'white' }} />
                 </IconButton>
-                <TitleText fontsize={'20px'} style={{ width: '85%' }}>TAREAS</TitleText>
+                <TitleText fontsize={'20px'} style={{ flex: 1, textAlign: 'center' }}>TAREAS</TitleText>
+                {canAccessAssignment && (
+                    <Button
+                        size="small"
+                        onClick={() => navigate('/coordinacion')}
+                        sx={{ color: '#fff', fontSize: '12px', mr: 0.5, whiteSpace: 'nowrap' }}
+                    >
+                        Coordinación
+                    </Button>
+                )}
             </div>
             <div style={{ display: 'flex', marginTop: '3px' }}>
                 <Button

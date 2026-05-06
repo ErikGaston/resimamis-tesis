@@ -122,6 +122,18 @@ function* asyncPutMother({ payload }) {
     }
 }
 
+function* asyncPostMotherDelete({ payload }) {
+    try {
+        const response = yield call(API.postMotherDelete, payload);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_POST_MOTHER_DELETE, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_MOTHER, response: error });
+    }
+}
+
 
 export default function* motherSaga() {
     yield takeLatest(actionTypes.POST_MOTHER, asyncPostMother);
@@ -130,5 +142,6 @@ export default function* motherSaga() {
     yield takeLatest(actionTypes.GET_STATISTICS_LOCALITIES, asyncGetStatisticsLocalities);
     yield takeLatest(actionTypes.GET_STATISTICS_AGE_MOTHER, asyncGetStatisticsAgeMother);
     yield takeLatest(actionTypes.PUT_MOTHER, asyncPutMother);
+    yield takeLatest(actionTypes.POST_MOTHER_DELETE, asyncPostMotherDelete);
 
 }

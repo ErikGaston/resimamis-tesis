@@ -9,8 +9,9 @@ import insumo from "../../../assets/home/carousel-work/insumo-home.png";
 
 import styled from "@emotion/styled";
 import CarouselWork from "../../molecules/carouselWork/CarouselWork";
+import { isCoordinadoraSession } from "../../../utils/coordinadoraRole";
 
-const DATA_TRABAJO = [
+const DATA_TRABAJO_BASE = [
     {
         name: "Madres",
         image: mama,
@@ -36,12 +37,19 @@ const DATA_TRABAJO = [
 const VolutariasDisponible = () => {
 
     const TITLE = 'Panel de trabajo';
+    const dataTrabajo = React.useMemo(() => {
+        if (!isCoordinadoraSession()) return DATA_TRABAJO_BASE;
+        return [
+            ...DATA_TRABAJO_BASE,
+            { name: 'Coordinación', image: voluntaria, url: '/coordinacion' },
+        ];
+    }, []);
 
     return (
         <StyledVolutariasDisponible>
             <Typography className="title-voluntarias" >{TITLE}</Typography>
             <CarouselWork
-                data={DATA_TRABAJO}
+                data={dataTrabajo}
             />
         </StyledVolutariasDisponible>
     );

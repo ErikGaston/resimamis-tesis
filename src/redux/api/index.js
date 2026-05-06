@@ -552,4 +552,202 @@ export const postSupplyCreate = async (body) => {
       throw error;
     });
 };
+
+export const getSupplyById = async (idInsumo) => {
+  return AxiosInstance
+    .get(`${getSuppliesURL}/id/${idInsumo}`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const putSupplyById = async (idInsumo, body) => {
+  return AxiosInstance
+    .put(`${getSuppliesURL}/id/${idInsumo}/`, body)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+/** OpenAPI: POST `/api/Insumo/delete` query `idInsumo`. */
+export const postSupplyDelete = async (idInsumo) => {
+  return AxiosInstance
+    .post(`${getSuppliesURL}/delete`, null, { params: { idInsumo } })
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+//#endregion
+
+//#region - ASSIGNMENT EXTRA
+const asignacionBase = '/asignacion';
+
+/** OpenAPI: PUT `/api/Asignacion/id/{idAsignacion}` body `ASIGNACION`. */
+export const putAssignmentById = async (idAsignacion, body) => {
+  return AxiosInstance
+    .put(`${asignacionBase}/id/${idAsignacion}/`, body)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const deleteAssignmentById = async (idAsignacion) => {
+  return AxiosInstance
+    .delete(`${asignacionBase}/id/${idAsignacion}/`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const postResetAbrazosColgados = async () => {
+  return AxiosInstance
+    .post(`${asignacionBase}/resetearAbrazosColgados`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+//#endregion
+
+//#region - ASISTENCIA EXTRA
+/** Query opcional: `fechaInicio`, `fechaFin` (ISO date-time). */
+export const getAssistanceReporte = async (params = {}) => {
+  return AxiosInstance
+    .get('/asistencia/reporte', { params })
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const postAssistanceDelete = async (idAsistencia) => {
+  return AxiosInstance
+    .post('/asistencia/delete', null, { params: { idAsistencia } })
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+//#endregion
+
+//#region - BEBE EXTRA
+export const getBabyByDni = async (dni) => {
+  const n = dni != null ? String(dni).replace(/\D/g, '') : '';
+  return AxiosInstance
+    .get(`${babyURL}id/${n}`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+/** OpenAPI alternativo a `abrazar`; mismo propósito según backend. */
+export const getBabysDisponiblesAbrazo = async () => {
+  return AxiosInstance
+    .get(`${babyURL}disponibles-abrazo`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const postBabyDelete = async (idBebe) => {
+  return AxiosInstance
+    .post(`${babyURL}delete`, null, { params: { idBebe } })
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+//#endregion
+
+//#region - MADRE EXTRA
+export const postMotherDelete = async (idMadre) => {
+  return AxiosInstance
+    .post(`${postMotherURL}delete`, null, { params: { idMadre } })
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+//#endregion
+
+//#region - VOLUNTARIA EXTRA
+export const postVolunteerDelete = async (idVoluntaria) => {
+  return AxiosInstance
+    .post(`${postVolunteerURL}delete`, null, { params: { idVoluntaria } })
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+//#endregion
+
+//#region - USUARIO (admin)
+const usuarioBase = '/usuario';
+
+export const postUsuario = async (body) => {
+  return AxiosInstance
+    .post(`${usuarioBase}`, body)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const getUsuarioById = async (idUsuario) => {
+  return AxiosInstance
+    .get(`${usuarioBase}/id/${idUsuario}`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const putUsuarioById = async (idUsuario, body) => {
+  return AxiosInstance
+    .put(`${usuarioBase}/id/${idUsuario}/`, body)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const postUsuarioDelete = async (idUsuario) => {
+  return AxiosInstance
+    .post(`${usuarioBase}/delete`, null, { params: { idUsuario } })
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+//#endregion
+
+//#region - HORARIO
+const horarioDiasURL = '/horario/dias';
+const horarioURL = '/horario';
+
+export const getHorarioDias = async () => {
+  return AxiosInstance
+    .get(`${horarioDiasURL}`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+/** @param {Array<Record<string, unknown>>} body — `HorarioVoluntaria[]` */
+export const postHorario = async (body) => {
+  return AxiosInstance
+    .post(`${horarioURL}`, body)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
 //#endregion

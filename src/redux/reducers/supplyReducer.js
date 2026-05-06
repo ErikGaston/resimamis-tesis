@@ -7,6 +7,9 @@ const initialState = {
     getSupplyProviders: null,
     postSupplyRegisterMovement: null,
     postSupplyCreate: null,
+    getSupplyById: null,
+    putSupplyById: null,
+    postSupplyDelete: null,
     loading: false,
     error: null
 };
@@ -21,8 +24,12 @@ export default function supplyReducer(state = initialState, action) {
         [actionTypes.SUCCESS_GET_SUPPLY_PROVIDERS]: responseToReturn('getSupplyProviders'),
         [actionTypes.SUCCESS_POST_SUPPLY_REGISTER_MOVEMENT]: responseToReturn('postSupplyRegisterMovement'),
         [actionTypes.SUCCESS_POST_SUPPLY_CREATE]: responseToReturn('postSupplyCreate'),
+        [actionTypes.SUCCESS_GET_SUPPLY_BY_ID]: responseToReturn('getSupplyById'),
+        [actionTypes.SUCCESS_PUT_SUPPLY_BY_ID]: responseToReturn('putSupplyById'),
+        [actionTypes.SUCCESS_POST_SUPPLY_DELETE]: responseToReturn('postSupplyDelete'),
         [actionTypes.ERROR_SUPPLY]: responseToReturn('error'),
         [actionTypes.CLEAR_SUPPLY]: clearSupply(),
+        [actionTypes.CLEAR_SUPPLY_WRITES]: clearSupplyWrites(),
     };
 
     function responseToReturn(typeState) {
@@ -56,9 +63,24 @@ export default function supplyReducer(state = initialState, action) {
                 getSupplyProviders: null,
                 postSupplyRegisterMovement: null,
                 postSupplyCreate: null,
+                getSupplyById: null,
+                putSupplyById: null,
+                postSupplyDelete: null,
             };
         }
         return res;
+    }
+
+    function clearSupplyWrites() {
+        if (action.type === 'CLEAR_SUPPLY_WRITES') {
+            return {
+                ...state,
+                putSupplyById: null,
+                postSupplyDelete: null,
+                error: null,
+            };
+        }
+        return { ...state };
     }
 
     let receiveAction = DEFAULT;

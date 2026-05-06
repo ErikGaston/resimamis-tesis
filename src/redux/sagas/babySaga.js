@@ -41,12 +41,18 @@ function* asyncGetBabys() {
 
 function* asyncGetBabysFree() {
     try {
-        let response = yield call(API.getBabysFree);
-        if (response)
+        let response;
+        try {
+            response = yield call(API.getBabysDisponiblesAbrazo);
+        } catch {
+            response = yield call(API.getBabysFree);
+        }
+        if (response) {
             yield put({
                 type: actionTypes.SUCCESS_GET_BABYS_FREE,
                 response,
             });
+        }
     } catch (error) {
         yield* showApiErrorToast(error);
         yield put({
@@ -54,6 +60,30 @@ function* asyncGetBabysFree() {
             response: error,
             message: error.message,
         });
+    }
+}
+
+function* asyncGetBabyByDni({ payload }) {
+    try {
+        const response = yield call(API.getBabyByDni, payload);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_GET_BABY_BY_DNI, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_BABY, response: error });
+    }
+}
+
+function* asyncPostBabyDelete({ payload }) {
+    try {
+        const response = yield call(API.postBabyDelete, payload);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_POST_BABY_DELETE, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_BABY, response: error });
     }
 }
 
@@ -98,5 +128,7 @@ export default function* babySaga() {
     yield takeLatest(actionTypes.POST_BABY, asyncPostBaby);
     yield takeLatest(actionTypes.PUT_BABY, asyncPutBaby);
     yield takeLatest(actionTypes.GET_BABYS_FREE, asyncGetBabysFree);
+    yield takeLatest(actionTypes.GET_BABY_BY_DNI, asyncGetBabyByDni);
+    yield takeLatest(actionTypes.POST_BABY_DELETE, asyncPostBabyDelete);
     yield takeLatest(actionTypes.GET_BABY_SALAS, asyncGetBabySalas);
 }

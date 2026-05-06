@@ -64,7 +64,12 @@ export const TasksPage = () => {
     const [changeAssignedList, setChangeAssignedList] = React.useState(true)
     const pendingAssistanceRef = useRef(null);
     const pendingAssignmentDetailRef = useRef(null);
-    const [rawDataDialog, setRawDataDialog] = useState({ open: false, title: '', data: null });
+    const [rawDataDialog, setRawDataDialog] = useState({
+        open: false,
+        title: '',
+        data: null,
+        presentation: 'auto',
+    });
 
     const changeTask = (number) => e => {
         setValueTask(number)
@@ -266,12 +271,22 @@ export const TasksPage = () => {
         if (pendingAssistanceRef.current === 'today' && dataVolunteer?.getAssistanceToday != null) {
             pendingAssistanceRef.current = null;
             dispatch(showLoading(false));
-            setRawDataDialog({ open: true, title: 'Asistencias de hoy', data: dataVolunteer.getAssistanceToday });
+            setRawDataDialog({
+                open: true,
+                title: 'Asistencias de hoy',
+                data: dataVolunteer.getAssistanceToday,
+                presentation: 'assistance',
+            });
         }
         if (pendingAssistanceRef.current === 'historicas' && dataVolunteer?.getAssistanceHistoricas != null) {
             pendingAssistanceRef.current = null;
             dispatch(showLoading(false));
-            setRawDataDialog({ open: true, title: 'Mi histórico de asistencias', data: dataVolunteer.getAssistanceHistoricas });
+            setRawDataDialog({
+                open: true,
+                title: 'Mi histórico de asistencias',
+                data: dataVolunteer.getAssistanceHistoricas,
+                presentation: 'assistance',
+            });
         }
     }, [dataVolunteer?.getAssistanceToday, dataVolunteer?.getAssistanceHistoricas, dispatch]);
 
@@ -328,6 +343,7 @@ export const TasksPage = () => {
                 open: true,
                 title: `Detalle asignación #${expectedId}`,
                 data: dataAssignment.getAssignmentById,
+                presentation: 'assignment',
             });
         }
     }, [dataAssignment?.getAssignmentById, dispatch]);
@@ -450,6 +466,7 @@ export const TasksPage = () => {
                 open={rawDataDialog.open}
                 title={rawDataDialog.title}
                 data={rawDataDialog.data}
+                presentation={rawDataDialog.presentation ?? 'auto'}
                 volunteerFallback={assistanceVolunteerFallback}
                 onClose={() => setRawDataDialog((d) => ({ ...d, open: false }))}
             />

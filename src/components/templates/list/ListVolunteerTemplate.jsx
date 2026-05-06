@@ -25,7 +25,7 @@ function volunteerMatchesQuery(volunteer, rawQuery) {
 }
 
 const ListVolunteerTemplate = (props) => {
-  const { volunteers } = props;
+  const { volunteers, isCoordinator, onDeleteVolunteer } = props;
   const navigate = useNavigate();
   const [listVolunteers, setListVolunteers] = React.useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -128,6 +128,11 @@ const ListVolunteerTemplate = (props) => {
                 dni={item.dni}
                 whatsapp={item.whatsapp}
                 context="voluntaria"
+                onAdminDelete={
+                  isCoordinator && onDeleteVolunteer
+                    ? () => onDeleteVolunteer(item.idVoluntaria)
+                    : undefined
+                }
               />
             ))}
           </ListStack>

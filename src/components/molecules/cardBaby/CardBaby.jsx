@@ -1,15 +1,17 @@
 import styled from '@emotion/styled';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
 import ChildCareOutlined from '@mui/icons-material/ChildCareOutlined';
 import ChevronRight from '@mui/icons-material/ChevronRight';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 /**
  * @param {object} props
  * @param {object} props.baby — fila del listado (nombre, apellido, salaInternacion, idMadre, idBebe, etc.)
+ * @param {(idBebe: number) => void} [props.onAdminDelete]
  */
-const CardBaby = ({ baby }) => {
+const CardBaby = ({ baby, onAdminDelete }) => {
   const name =
     [baby?.nombre, baby?.apellido].filter(Boolean).join(' ').trim() || 'Sin nombre';
   const dniRaw = baby?.dni ?? baby?.Dni;
@@ -19,15 +21,18 @@ const CardBaby = ({ baby }) => {
       : 'Sin DNI indicado';
   const sala = baby?.salaInternacion?.trim() || 'Sin sala indicada';
   const idMadre = baby?.idMadre ?? baby?.id_madre;
+  const idBebe = baby?.idBebe ?? baby?.id;
   const to =
     idMadre != null && idMadre !== ''
       ? `/madre/perfil/${idMadre}`
       : '/madres';
 
   return (
+    <CardRow>
     <StyledLink
       to={to}
       aria-label={`Ver ficha de la madre del bebé ${name}, DNI ${dni}`}
+      style={{ flex: 1, minWidth: 0 }}
     >
       <CardOuter>
         <IconWrap>
@@ -74,10 +79,31 @@ const CardBaby = ({ baby }) => {
         <ChevronRight sx={{ color: 'rgba(95, 39, 148, 0.85)', flexShrink: 0 }} aria-hidden />
       </CardOuter>
     </StyledLink>
+    {typeof onAdminDelete === 'function' && idBebe != null && (
+      <IconButton
+        aria-label={`Dar de baja bebé ${name}`}
+        onClick={(e) => {
+          e.preventDefault();
+          onAdminDelete(Number(idBebe));
+        }}
+        sx={{ color: '#b71c1c', flexShrink: 0 }}
+      >
+        <DeleteOutlineIcon />
+      </IconButton>
+    )}
+    </CardRow>
   );
 };
 
 export default CardBaby;
+
+const CardRow = styled(Box)`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+`;
 
 const StyledLink = styled(Link)`
   text-decoration: none;
