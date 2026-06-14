@@ -13,7 +13,7 @@ export default function AppScreenLayout({ children }) {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'stretch',
-        backgroundColor: '#ffffff',
+        backgroundColor: { xs: '#ffffff', sm: '#ede8f5' },
         boxSizing: 'border-box',
       }}
     >
@@ -30,6 +30,8 @@ export default function AppScreenLayout({ children }) {
           boxSizing: 'border-box',
           position: 'relative',
           overflowX: 'hidden',
+          backgroundColor: '#ffffff',
+          boxShadow: { xs: 'none', sm: '0 0 0 1px rgba(143,0,255,0.08), 0 8px 40px rgba(0,0,0,0.12)' },
         }}
       >
         {children}

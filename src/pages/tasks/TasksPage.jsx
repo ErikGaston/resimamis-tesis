@@ -86,7 +86,7 @@ export const TasksPage = () => {
     }
 
     const selectVolunteersFree = () => {
-        const list = dataVolunteer?.getVolunteersFree?.listadoVoluntariasLibres ?? [];
+        const list = dataVolunteer?.getVolunteersFree?.data ?? [];
         const ids = list
             .map((v) => v.idVoluntaria)
             .filter((id) => id != null);
@@ -233,14 +233,10 @@ export const TasksPage = () => {
             if (pendingAssistanceRef.current) {
                 pendingAssistanceRef.current = null;
             }
-            setStateForm('ERROR')
-            setTimeout(() => {
-                setStateForm('');
-            }, 2500)
         }
         if (dataVolunteer?.postAssistance !== null) {
             dispatch(showLoading(false))
-            if (dataVolunteer?.postAssistance?.respuesta) {
+            if (dataVolunteer?.postAssistance?.data) {
                 setModel(null)
                 setStateForm('ASSISTENCE')
                 setCheckAssistance(true);
@@ -293,7 +289,7 @@ export const TasksPage = () => {
     useEffect(() => {
         if (dataVolunteer?.getAssistance !== null) {
             dispatch(showLoading(false))
-            if (dataVolunteer?.getAssistance?.resultado) {
+            if (dataVolunteer?.getAssistance?.data) {
                 setCheckAssistance(true);
                 dispatch(getAssignmentTodayById(idVolunteer))
             }
@@ -315,19 +311,6 @@ export const TasksPage = () => {
             if (pendingAssignmentDetailRef.current != null) {
                 pendingAssignmentDetailRef.current = null;
             }
-            const msg =
-                dataAssignment?.error?.mensaje ??
-                dataAssignment?.error?.message ??
-                dataAssignment?.error?.detail
-            if (msg) {
-                setStateForm('ERROR_ASIGNACION')
-                setError(typeof msg === 'string' ? msg : JSON.stringify(msg))
-            } else {
-                setStateForm('ERROR')
-            }
-            setTimeout(() => {
-                setStateForm('');
-            }, 2500)
         }
         if (dataAssignment?.getAssignmentTodayById !== null) {
             dispatch(showLoading(false))
@@ -350,7 +333,7 @@ export const TasksPage = () => {
 
     useEffect(() => {
         if (dataAssignment?.postStartHug !== null) {
-            if (dataAssignment?.postStartHug?.respuesta) {
+            if (dataAssignment?.postStartHug?.data) {
                 dispatch(showLoading(false))
                 dispatch(getAssignmentTodayById(idVolunteer))
                 setStateForm('INICIO_ABRAZO');
@@ -363,7 +346,7 @@ export const TasksPage = () => {
 
     useEffect(() => {
         if (dataAssignment?.postEndHug !== null) {
-            if (dataAssignment?.postEndHug?.respuesta) {
+            if (dataAssignment?.postEndHug?.data) {
                 dispatch(showLoading(false))
                 setModel(null)
                 setChangeInformationHug(false)
@@ -434,8 +417,8 @@ export const TasksPage = () => {
                 changeTask={changeTask}
                 valueTask={valueTask}
                 checkAssistance={checkAssistance}
-                assignmentVolunteer={dataAssignment?.getAssignmentTodayById?.listadoAsignaciones ?? null}
-                volunteersFree={dataVolunteer?.getVolunteersFree?.listadoVoluntariasLibres ?? null}
+                assignmentVolunteer={dataAssignment?.getAssignmentTodayById?.data ?? null}
+                volunteersFree={dataVolunteer?.getVolunteersFree?.data ?? null}
                 listBabysFree={babiesFreeList}
                 selectVolunteersFree={selectVolunteersFree}
                 selectedVolunteerIds={selectedVolunteerIds}
@@ -444,13 +427,13 @@ export const TasksPage = () => {
                 selectedBabyTareaIds={selectedBabyTareaIds}
                 toggleBabyTareaSelection={toggleBabyTareaSelection}
                 submitAssignmentTask={submitAssignmentTask}
-                listAssignment={dataAssignment?.postAssignmentGenerate?.listadoAsignaciones ?? null}
+                listAssignment={dataAssignment?.postAssignmentGenerate?.data ?? null}
                 submitStartHug={submitStartHug}
                 submitEndHug={submitEndHug}
                 changeStateInsumo={changeStateInsumo}
                 stateInsumo={stateInsumo}
                 setStateInsumo={setStateInsumo}
-                supplies={dataSupply?.getSupplies?.resultado ?? null}
+                supplies={dataSupply?.getSupplies?.data ?? null}
                 submitChangeSupplies={submitChangeSupplies}
                 changeInformationHug={changeInformationHug}
                 setChangeInformationHug={setChangeInformationHug}
@@ -508,14 +491,6 @@ export const TasksPage = () => {
                     open={stateForm === 'REGISTER_SUPPLY'}
                     setOpen={setStateForm}
                     message={'¡Insumos registrados con éxito!'}
-                />
-            }
-            {
-                stateForm === 'ERROR_ASIGNACION' &&
-                <DialogSuccess
-                    open={stateForm === 'ERROR_ASIGNACION'}
-                    setOpen={setStateForm}
-                    message={error}
                 />
             }
             {

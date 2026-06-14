@@ -7,17 +7,17 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
 const DialogInsumo = (props) => {
-    const { title, content, actions, open, setOpen, setModel, style, classes, widthPaper, ...other } = props;
+    const { title, content, actions, open, setOpen, setModel, style, classes, widthPaper, fullScreen = true, ...other } = props;
 
     return (
         <Dialog
-            fullScreen
+            fullScreen={fullScreen}
             open={open}
             PaperProps={{
                 style: {
                     minWidth: '260px',
-                    maxWidth: '800px',
-                    width: widthPaper
+                    maxWidth: fullScreen ? undefined : '444px',
+                    width: fullScreen ? widthPaper : '100%',
                 },
             }}
             classes={classes}
@@ -38,7 +38,7 @@ const DialogInsumo = (props) => {
                     <CloseIcon />
                 </IconButton>
             </DialogTitle> */}
-            <DialogTitle sx={{ m: 0, p: 2 }} >
+            <DialogTitle sx={{ m: 0, p: 0 }} >
                 {title}
             </DialogTitle>
             <DialogContent>

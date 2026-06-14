@@ -20,13 +20,12 @@ export const VolunteerPage = () => {
     const dataVolunteer = useSelector(state => state.volunteerReducer)
     const loading = useSelector(state => state.volunteerReducer?.loading)
     const [model, setModel] = useState({});
-    const [error, setError] = useState(null);
     const [stateForm, setStateForm] = useState(null);
     const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_VOLUNTEER_FIELD_ERRORS });
 
     const submitVolunteer = () => {
         const mdl = model || {};
-        const volunteers = dataVolunteer?.getVolunteers?.listadoVoluntaria ?? [];
+        const volunteers = dataVolunteer?.getVolunteers?.data ?? [];
         const { ok, errors } = validateVolunteerAlta(mdl, { volunteers });
         setFieldErrors(errors);
         if (!ok) return;
@@ -68,9 +67,7 @@ export const VolunteerPage = () => {
             <VolunteerTemplate
                 model={model}
                 setModel={setModel}
-                error={error}
-                setError={setError}
-                localities={localities?.localidades ?? null}
+                localities={localities?.data ?? null}
                 submitVolunteer={submitVolunteer}
                 fieldErrors={fieldErrors}
                 setFieldErrors={setFieldErrors}

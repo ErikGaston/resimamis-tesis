@@ -8,6 +8,8 @@ import assignmentReducer from "./assignmentReducer";
 import supplyReducer from "./supplyReducer";
 import toastReducer from "./toastReducer";
 import horarioReducer from "./horarioReducer";
+import tareaReducer from "./tareaReducer";
+import visitaReducer from "./visitaReducer";
 
 const rootReducer = combineReducers({
     userReducer: userReducer,
@@ -19,6 +21,8 @@ const rootReducer = combineReducers({
     supplyReducer: supplyReducer,
     toastReducer: toastReducer,
     horarioReducer: horarioReducer,
+    tareaReducer: tareaReducer,
+    visitaReducer: visitaReducer,
 });
 
 export default rootReducer;

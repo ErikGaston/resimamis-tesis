@@ -31,24 +31,9 @@ AxiosInstance.interceptors.response.use(
         let originalRequest = error.config;
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
-            localStorage.clear();
-            window.location.reload();
+            localStorage.removeItem('token');
+            localStorage.removeItem('voluntaria');
             window.location.href = '/login';
-
-            // const refreshToken = localStorage.getItem('refresh');
-            // return axios.post(`${url_DEV}/usuarios/api/token/refresh/`, { 'refresh': refreshToken })
-            //     .then(response => {
-            //         if (response.status === 200 || response.status === 201) {
-            //             localStorage.setItem('token', response.data.access);
-            //             localStorage.setItem('refresh', response.data.refresh);
-            //             originalRequest.headers['Authorization'] = `Bearer ${response.data.accessToken}`;
-            //             return axios(originalRequest);
-            //         }
-            //     })
-            //     .catch((error) => {
-            //         localStorage.clear();
-            //         window.location.reload();
-            //     })
         }
         return Promise.reject(error.response || error.message);
     })

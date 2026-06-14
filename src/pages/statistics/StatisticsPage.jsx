@@ -4,10 +4,9 @@ import { showLoading } from "../../redux/actions/loadingActions";
 import { clearMother, getStatisticsAgeMother, getStatisticsLocalities } from "../../redux/actions/motherActions";
 import { clearSupply, getStatisticsSupplies } from "../../redux/actions/supplyActions";
 import { clearAssignment, getStatisticsAssignmentMonth, getDurationHug } from "../../redux/actions/assignmentActions";
-import Loading from "../../components/atoms/loading/Loading";
-import Footer from "../../components/molecules/Footer";
 import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
 import StatisticsTemplate from "../../components/templates/statistics/StatisticsTemplate";
+import { PageWrapper } from "../../components/common/PageWrapper";
 import { getIdVolunteer } from '../../utils/localStorage';
 
 export const StatisticsPage = () => {
@@ -64,31 +63,18 @@ export const StatisticsPage = () => {
 
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
-            {loading &&
-                <Loading position={'absolute'} height={'100%'} zIndex={9999} />
-            }
+        <PageWrapper loading={loading}>
             <StatisticsTemplate
                 stateChart={stateChart}
                 setStateChart={setStateChart}
-
                 valueChart={valueChart}
                 generateChart={generateChart}
-                statisticsMonthMother={dataMother?.getStatisticsAgeMother?.resultado}
-                statisticsLocalities={dataMother?.getStatisticsLocalities?.resultado}
-                statisticsSupplies={dataSupply?.getStatisticsSupplies?.listadoInsumo}
-                statisticsAssignment={dataAssignment?.getStatisticsAssignmentMonth?.listadoAsignaciones}
+                statisticsMonthMother={dataMother?.getStatisticsAgeMother?.data}
+                statisticsLocalities={dataMother?.getStatisticsLocalities?.data}
+                statisticsSupplies={dataSupply?.getStatisticsSupplies?.data}
+                statisticsAssignment={dataAssignment?.getStatisticsAssignmentMonth?.data}
                 statisticsDurationHug={dataAssignment?.getDurationHug}
             />
-            {/* {
-                stateForm === 'ASSISTENCE' &&
-                <DialogSuccess
-                    open={stateForm === 'ASSISTENCE'}
-                    setOpen={setStateForm}
-                    message={'¡La asistencia se ha registrado con éxito!'}
-                />
-            } */}
-            <Footer />
-        </div>
+        </PageWrapper>
     )
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import Loading from '../../components/atoms/loading/Loading';
 import Footer from '../../components/molecules/Footer';
 import ListBabysTemplate from '../../components/templates/list/ListBabysTemplate';
@@ -12,7 +13,10 @@ export const ListBabysPage = () => {
   const loadingBaby = useSelector((state) => state.babyReducer?.loading);
   const dataBabys = useSelector((state) => state.babyReducer);
   const isCoordinator = isCoordinadoraSession();
-  const [dniApi, setDniApi] = useState('');
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
+  const openConfirm = (message, onConfirm) => setConfirmDialog({ open: true, message, onConfirm });
+  const handleConfirm = () => { confirmDialog.onConfirm?.(); setConfirmDialog({ open: false, message: '', onConfirm: null }); };
+  const handleCancelConfirm = () => setConfirmDialog({ open: false, message: '', onConfirm: null });
 
   useEffect(() => {
     dispatch(clearBaby());
@@ -41,17 +45,17 @@ export const ListBabysPage = () => {
     }
   }, [dataBabys?.postBabyDelete, dispatch]);
 
-  const handleConsultDni = () => {
-    const digits = String(dniApi || '').replace(/\D/g, '');
+  const handleConsultDni = (digits) => {
     if (!digits) return;
     dispatch(showLoading(true));
     dispatch(getBabyByDni(digits));
   };
 
   const handleDeleteBaby = (idBebe) => {
-    if (!window.confirm(`¿Dar de baja el bebé ${idBebe}?`)) return;
-    dispatch(showLoading(true));
-    dispatch(postBabyDelete(idBebe));
+    openConfirm(`¿Dar de baja el bebé #${idBebe}? Esta acción es irreversible.`, () => {
+      dispatch(showLoading(true));
+      dispatch(postBabyDelete(idBebe));
+    });
   };
 
   const showOverlay = loadingBaby;
@@ -60,15 +64,21 @@ export const ListBabysPage = () => {
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
       {showOverlay && <Loading position={'absolute'} height={'100%'} zIndex={9999} />}
       <ListBabysTemplate
-        babys={dataBabys?.getBabys?.listadoBebes ?? null}
+        babys={dataBabys?.getBabys?.data ?? null}
         isCoordinator={isCoordinator}
         onDeleteBaby={isCoordinator ? handleDeleteBaby : undefined}
-        dniApiSearch={dniApi}
-        onDniApiSearchChange={setDniApi}
         onConsultarDniApi={isCoordinator ? handleConsultDni : undefined}
         babyByDniPayload={dataBabys?.getBabyByDni ?? null}
       />
       <Footer />
+      <Dialog open={confirmDialog.open} onClose={handleCancelConfirm} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontWeight: 600, color: '#152C70' }}>Confirmar baja</DialogTitle>
+        <DialogContent><Typography>{confirmDialog.message}</Typography></DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelConfirm}>Cancelar</Button>
+          <Button onClick={handleConfirm} color="error" variant="contained">Dar de baja</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

@@ -6,6 +6,7 @@ export function listBabysFromAbrazarResponse(getBabysFreePayload) {
   if (!d) return [];
   if (Array.isArray(d)) return d;
   return (
+    d.data ??
     d.listadoBebes ??
     d.listadoBebesAbrazar ??
     d.bebesParaAbrazar ??

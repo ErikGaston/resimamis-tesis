@@ -7,6 +7,8 @@ import babySaga from "./babySaga";
 import assignmentSaga from "./assignmentSaga";
 import supplySaga from "./supplySaga";
 import horarioSaga from "./horarioSaga";
+import tareaSaga from "./tareaSaga";
+import visitaSaga from "./visitaSaga";
 
 export default function* rootSaga() {
     yield all([
@@ -18,5 +20,7 @@ export default function* rootSaga() {
         assignmentSaga(),
         supplySaga(),
         horarioSaga(),
+        tareaSaga(),
+        visitaSaga(),
     ]);
 }

@@ -42,6 +42,7 @@ const Footer = () => {
         maxWidth: APP_COLUMN_MAX_WIDTH_PX,
         alignContent: 'center',
         zIndex: 10,
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
       <BottomNavigationCustom tabs={tabs} />

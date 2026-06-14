@@ -35,7 +35,7 @@ export const MotherPage = () => {
 
     const submitMother = () => {
         dispatch(clearMotherApiError());
-        const mothers = dataMother?.getMother?.listadoMadres ?? [];
+        const mothers = dataMother?.getMother?.data ?? [];
         const { ok, errors } = validateMotherForm(model, {
             mothers,
             excludeMadreId: null,
@@ -91,9 +91,6 @@ export const MotherPage = () => {
             if (Object.keys(mapped).length > 0) {
                 setFieldErrors({ ...INITIAL_MOTHER_FIELD_ERRORS, ...mapped });
                 dispatch(clearMotherApiError());
-            } else {
-                setError(resolveApiErrorMessage({ data: dataMother.error }));
-                setStateForm('ERROR');
             }
         }
         if (dataMother?.postMother !== null) {
@@ -112,9 +109,7 @@ export const MotherPage = () => {
 
     useEffect(() => {
         if (dataBaby?.error !== null) {
-            setStateForm('ERROR')
             dispatch(showLoading(false))
-            setError(dataBaby?.error)
         }
         if (dataBaby?.postBaby !== null) {
             setType('El bebe')
@@ -139,8 +134,8 @@ export const MotherPage = () => {
                 error={error}
                 setError={setError}
 
-                localities={localities?.localidades ?? null}
-                mothers={dataMother?.getMother?.listadoMadres ?? null}
+                localities={localities?.data ?? null}
+                mothers={dataMother?.getMother?.data ?? null}
 
                 submitMother={submitMother}
                 submitConset={submitConset}

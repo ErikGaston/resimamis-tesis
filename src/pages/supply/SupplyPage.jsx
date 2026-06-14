@@ -8,7 +8,6 @@ import Footer from "../../components/molecules/Footer";
 import SupplyTemplate from "../../components/templates/supply/SupplyTemplate";
 import { getIdVolunteer } from "../../utils/localStorage";
 import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
-import { resolveApiErrorMessage } from "../../utils/apiErrorMessage";
 
 function rangeUltimos30DiasISO() {
     const hasta = new Date();
@@ -47,11 +46,7 @@ export const SupplyPage = () => {
     const [valueTask, setValueTask] = useState(1);
     const [stateForm, setStateForm] = useState(null);
     const [createSupplyCloseSignal, setCreateSupplyCloseSignal] = useState(0);
-
-    const movementsErrorMessage = useMemo(() => {
-        if (valueTask !== 2 || dataSupply?.error == null) return null;
-        return resolveApiErrorMessage({ data: dataSupply.error });
-    }, [valueTask, dataSupply?.error]);
+    const [movementCloseSignal, setMovementCloseSignal] = useState(0);
 
     const changeTask = (number) => e => {
         setValueTask(number)
@@ -100,6 +95,7 @@ export const SupplyPage = () => {
         if (dataSupply?.postSupplyRegisterMovement == null) return
         dispatch(showLoading(false))
         setStateForm('MOVIMIENTO_OK')
+        setMovementCloseSignal((s) => s + 1)
         dispatch(postSupplyConsultMovements(buildConsultaMovimientosPayload()))
         dispatch(getSupplies())
         setTimeout(() => setStateForm(null), 2200)
@@ -132,13 +128,13 @@ export const SupplyPage = () => {
             <SupplyTemplate
                 valueTask={valueTask}
                 changeTask={changeTask}
-                supplies={dataSupply?.getSupplies?.resultado ?? null}
+                supplies={dataSupply?.getSupplies?.data ?? null}
                 movementsData={dataSupply?.postSupplyConsultMovements}
-                movementsError={movementsErrorMessage}
                 providersData={dataSupply?.getSupplyProviders}
                 onRegisterSupplyMovement={registerMovement}
                 onCreateSupply={registerCreateSupply}
                 createSupplyCloseSignal={createSupplyCloseSignal}
+                movementCloseSignal={movementCloseSignal}
                 idVoluntariaDefault={safeIdVolunteer()}
             />
             {stateForm === 'MOVIMIENTO_OK' && (

@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Write(package-lock.json)",
+      "Write(pnpm-lock.yaml)",
+      "Write(bun.lockb)",
+      "Write(bun.lock)",
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)"
+    ],
+    "allow": [
+      "Bash(yarn install*)",
+      "Bash(yarn dev*)",
+      "Bash(yarn build*)",
+      "Bash(yarn test*)",
+      "Bash(yarn start*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(node .claude/hooks/*)",
+      "Bash(npx playwright*)",
+      "Bash(python3 .claude/skills/ui-ux-pro-max/scripts/search.py*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "node .claude/hooks/repo-guard.mjs" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "node .claude/hooks/stop-checklist.mjs" }
+        ]
+      }
+    ]
+  }
+}

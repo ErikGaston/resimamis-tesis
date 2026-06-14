@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import SearchIcon from '@mui/icons-material/Search';
-import { Fab, IconButton, InputAdornment, TextField, Typography, Box } from '@mui/material';
+import { Fab, InputAdornment, TextField, Typography, Box } from '@mui/material';
+import { PageHeader } from '../../common/PageHeader';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import CardIcon from '../../molecules/cardIcon/CardIcon';
 import { fabRightInsetInColumn } from '../../../helpers/const/appLayout';
 import { fabBottomAboveNav, listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
@@ -26,13 +26,8 @@ function volunteerMatchesQuery(volunteer, rawQuery) {
 
 const ListVolunteerTemplate = (props) => {
   const { volunteers, isCoordinator, onDeleteVolunteer } = props;
-  const navigate = useNavigate();
   const [listVolunteers, setListVolunteers] = React.useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-
-  const functionBack = () => {
-    navigate(-1);
-  };
 
   useEffect(() => {
     if (volunteers == null) {
@@ -68,35 +63,7 @@ const ListVolunteerTemplate = (props) => {
 
   return (
     <PageRoot>
-      <HeaderBar>
-        <IconButton
-          onClick={functionBack}
-          aria-label="Volver a la pantalla anterior"
-          sx={{
-            color: '#fff',
-            minWidth: 48,
-            minHeight: 48,
-            '&:hover': { backgroundColor: 'rgba(255,255,255,0.12)' },
-          }}
-        >
-          <ArrowBackIosNewIcon sx={{ fontSize: 22 }} />
-        </IconButton>
-        <Typography
-          component="h1"
-          id="list-volunteers-title"
-          sx={{
-            flex: 1,
-            textAlign: 'center',
-            color: '#fff',
-            fontWeight: 600,
-            fontSize: '1.15rem',
-            letterSpacing: '0.04em',
-            pr: '48px',
-          }}
-        >
-          Voluntarias
-        </Typography>
-      </HeaderBar>
+      <PageHeader title="Voluntarias" />
       <SearchWrap>
         <TextField
           fullWidth
@@ -180,13 +147,6 @@ const PageRoot = styled(Box)`
   overflow: hidden;
 `;
 
-const HeaderBar = styled(Box)`
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  background: linear-gradient(90deg, #8f00ff 0%, #a54dff 100%);
-  padding: 8px 4px 10px;
-`;
 
 const SearchWrap = styled('div')`
   flex-shrink: 0;

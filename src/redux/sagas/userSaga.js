@@ -13,7 +13,6 @@ function* asyncPostLogin({ payload }) {
                 response,
             });
     } catch (error) {
-        yield* showApiErrorToast(error);
         const message = resolveApiErrorMessage(error);
         yield put({
             type: actionTypes.ERROR_LOGIN,
@@ -63,10 +62,43 @@ function* asyncPostUsuarioDelete({ payload }) {
     }
 }
 
+function* asyncGetUsuarios() {
+    try {
+        const response = yield call(API.getUsuarios);
+        if (response) yield put({ type: actionTypes.SUCCESS_GET_USUARIOS, response });
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_USER, response: error });
+    }
+}
+
+function* asyncGetVoluntariasSinUsuario() {
+    try {
+        const response = yield call(API.getVoluntariasSinUsuario);
+        if (response) yield put({ type: actionTypes.SUCCESS_GET_VOLUNTARIAS_SIN_USUARIO, response });
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_USER, response: error });
+    }
+}
+
+function* asyncPutUsuarioContrasena({ payload }) {
+    try {
+        const response = yield call(API.putUsuarioContrasena, payload);
+        if (response) yield put({ type: actionTypes.SUCCESS_PUT_USUARIO_CONTRASENA, response });
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_USER, response: error });
+    }
+}
+
 export default function* userSaga() {
     yield takeLatest(actionTypes.POST_LOGIN, asyncPostLogin);
     yield takeLatest(actionTypes.POST_USUARIO, asyncPostUsuario);
     yield takeLatest(actionTypes.GET_USUARIO_BY_ID, asyncGetUsuarioById);
     yield takeLatest(actionTypes.PUT_USUARIO, asyncPutUsuario);
     yield takeLatest(actionTypes.POST_USUARIO_DELETE, asyncPostUsuarioDelete);
+    yield takeLatest(actionTypes.GET_USUARIOS, asyncGetUsuarios);
+    yield takeLatest(actionTypes.GET_VOLUNTARIAS_SIN_USUARIO, asyncGetVoluntariasSinUsuario);
+    yield takeLatest(actionTypes.PUT_USUARIO_CONTRASENA, asyncPutUsuarioContrasena);
 }

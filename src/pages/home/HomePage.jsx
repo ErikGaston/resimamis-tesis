@@ -44,7 +44,7 @@ export const HomePage = () => {
       }
       <HomeTemplate
         nameVolunteer={nameVolunteer}
-        volunteersFree={dataVolunteer?.getVolunteersFree?.listadoVoluntariasLibres ?? null}
+        volunteersFree={dataVolunteer?.getVolunteersFree?.data ?? null}
       />
       <Footer />
     </div>

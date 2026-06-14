@@ -15,6 +15,9 @@ import {
   INITIAL_VOLUNTEER_FIELD_ERRORS,
 } from '../../utils/volunteerFormValidation';
 import { VolunteerHorarioSection } from '../../components/molecules/volunteerHorario/VolunteerHorarioSection';
+import AccordionCustomized from '../../components/atoms/accordionCustomized/AccordionCustomized';
+import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 export const ProfileVolunteerPage = () => {
 
@@ -22,7 +25,6 @@ export const ProfileVolunteerPage = () => {
   const loading = useSelector(state => state.volunteerReducer?.loading)
   const dataVolunteer = useSelector(state => state.volunteerReducer)
   const [model, setModel] = useState(null);
-  const [error, setError] = useState(null);
   const [stateForm, setStateForm] = useState(null);
   const { id } = useParams();
   const [editForm, setEditForm] = React.useState(false);
@@ -31,7 +33,7 @@ export const ProfileVolunteerPage = () => {
 
   const submitVolunteer = () => {
     const mdl = model || {};
-    const volunteers = dataVolunteer?.getVolunteers?.listadoVoluntaria ?? [];
+    const volunteers = dataVolunteer?.getVolunteers?.data ?? [];
     const selfId =
       mdl?.idVoluntaria ??
       mdl?.id ??
@@ -62,8 +64,8 @@ export const ProfileVolunteerPage = () => {
   }, [])
 
   useEffect(() => {
-    if (getVolunteer?.voluntaria) {
-      const { voluntaria } = getVolunteer
+    if (getVolunteer?.data) {
+      const voluntaria = getVolunteer.data
       setModel({
         ...voluntaria,
         idVoluntaria: voluntaria.idVoluntaria ?? voluntaria.id,
@@ -76,7 +78,6 @@ export const ProfileVolunteerPage = () => {
   useEffect(() => {
     if (dataVolunteer?.error !== null) {
       dispatch(showLoading(false))
-      setError(dataVolunteer?.error)
     }
     if (dataVolunteer?.putVolunteer !== null) {
       setEditForm(state => !state)
@@ -117,7 +118,21 @@ export const ProfileVolunteerPage = () => {
           setFieldErrors={setFieldErrors}
         />
         {model?.idVoluntaria != null && (
-          <VolunteerHorarioSection idVoluntaria={Number(model.idVoluntaria)} />
+          <Box sx={{ px: 2.5, pt: 0.5, pb: 1 }}>
+            <AccordionCustomized
+              item="horario-voluntaria"
+              expandIcon={<ExpandCircleDownIcon style={{ color: '#8F00FF' }} />}
+              summary={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CalendarMonthIcon sx={{ color: '#8F00FF', fontSize: 20 }} />
+                  <span style={{ color: '#152C70', fontFamily: 'Roboto', fontSize: 19, fontWeight: 400, letterSpacing: '0.8px' }}>
+                    Disponibilidad horaria
+                  </span>
+                </Box>
+              }
+              details={<VolunteerHorarioSection idVoluntaria={Number(model.idVoluntaria)} />}
+            />
+          </Box>
         )}
       </PageScrollMain>
       {stateForm === 'SUCCESS' && (
@@ -125,13 +140,6 @@ export const ProfileVolunteerPage = () => {
           open={stateForm === 'SUCCESS'}
           setOpen={setStateForm}
           message={'La voluntaria se ha modificado con éxito'}
-        />
-      )}
-      {stateForm === 'ERROR' && (
-        <DialogSuccess
-          open={stateForm === 'ERROR'}
-          setOpen={setStateForm}
-          message={error}
         />
       )}
       <Footer />

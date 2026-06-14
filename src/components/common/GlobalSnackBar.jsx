@@ -13,6 +13,7 @@ export default function GlobalSnackBar() {
       message={message}
       error={severity === "error"}
       severity={severity}
+      variant={severity === "error" ? "filled" : "standard"}
       setAlert={() => dispatch(hideToast())}
     />
   );

@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react'
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import { Button, IconButton } from '@mui/material';
+import { Box, IconButton, Tab, Tabs, Tooltip } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import TitleText from '../../atoms/titleText/TitleText';
-import styled from '@emotion/styled';
+import TuneIcon from '@mui/icons-material/Tune';
+import { PageHeader } from '../../common/PageHeader';
 import ActivityTask from '../../organisms/activityTask/ActivityTask';
 import AssignmentTask from '../../organisms/assignmentTask/AssignmentTask';
 import AssignedList from '../../organisms/assignedList/AssignedList';
@@ -32,10 +31,6 @@ const TasksTemplate = (props) => {
     const [listSupplies, setListSupplies] = React.useState(null)
     const [selectedHug, setSelectedHug] = React.useState(null)
 
-    const functionBack = () => {
-        navigate(-1)
-    }
-
     const editHug = (hug) => {
         setSelectedHug(hug)
         setChangeInformationHug(true)
@@ -61,7 +56,6 @@ const TasksTemplate = (props) => {
         }
     }, [listAssignment]);
 
-
     useEffect(() => {
         if (supplies) {
             setListSupplies(supplies.map((item) => ({ ...item, cantidad: 0 })));
@@ -70,43 +64,43 @@ const TasksTemplate = (props) => {
 
     return (
         <div style={{ height: '100%' }}>
-            <div style={{ display: 'flex', backgroundColor: '#8F00FF', alignItems: 'center' }}>
-                <IconButton onClick={functionBack}>
-                    <HighlightOffIcon style={{ color: 'white' }} />
-                </IconButton>
-                <TitleText fontsize={'20px'} style={{ flex: 1, textAlign: 'center' }}>TAREAS</TitleText>
-                {canAccessAssignment && (
-                    <Button
-                        size="small"
-                        onClick={() => navigate('/coordinacion')}
-                        sx={{ color: '#fff', fontSize: '12px', mr: 0.5, whiteSpace: 'nowrap' }}
-                    >
-                        Coordinación
-                    </Button>
-                )}
-            </div>
-            <div style={{ display: 'flex', marginTop: '3px' }}>
-                <Button
-                    onClick={changeTask(1)}
-                    style={{
-                        backgroundColor: valueTask === 1 ? '#8F00FF' : '#D094FF',
-                        width: canAccessAssignment ? '50%' : '100%',
-                        height: '30px',
-                        textTransform: 'capitalize',
-                        borderRadius: '5px',
+            <PageHeader
+                title="Tareas"
+                rightAction={
+                    canAccessAssignment ? (
+                        <Tooltip title="Coordinación">
+                            <IconButton
+                                onClick={() => navigate('/coordinacion')}
+                                aria-label="Ir a coordinación"
+                                sx={{ color: '#fff' }}
+                            >
+                                <TuneIcon fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    ) : null
+                }
+            />
+            <Box sx={{ bgcolor: '#F3E5F5' }}>
+                <Tabs
+                    value={valueTask - 1}
+                    onChange={(_, v) => changeTask(v + 1)()}
+                    variant="fullWidth"
+                    sx={{
+                        '& .MuiTab-root': {
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            color: '#6A1B9A',
+                            minHeight: 44,
+                            fontSize: '0.95rem',
+                        },
+                        '& .Mui-selected': { color: '#8F00FF' },
+                        '& .MuiTabs-indicator': { backgroundColor: '#8F00FF', height: 3 },
                     }}
                 >
-                    <SubTitle>Actividades</SubTitle>
-                </Button>
-                {canAccessAssignment && (
-                    <Button
-                        onClick={changeTask(2)}
-                        style={{ backgroundColor: valueTask === 2 ? '#8F00FF' : '#D094FF', width: '50%', height: '30px', textTransform: 'capitalize', borderRadius: '5px' }}
-                    >
-                        <SubTitle>Asignación</SubTitle>
-                    </Button>
-                )}
-            </div>
+                    <Tab label="Actividades" />
+                    {canAccessAssignment && <Tab label="Asignación" />}
+                </Tabs>
+            </Box>
             {valueTask === 1 &&
                 (changeInformationHug ?
                     <InformationHug
@@ -167,16 +161,4 @@ const TasksTemplate = (props) => {
     )
 }
 
-
 export default TasksTemplate;
-
-const SubTitle = styled('h3')`
-    color: #FFF;
-    text-align: center;
-    font-family: Roboto;
-    font-size: 18px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    letter-spacing: 0.9px;
-`;

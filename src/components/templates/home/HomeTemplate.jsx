@@ -5,7 +5,6 @@ import imgPortada from '../../../assets/home/portada.png'
 import Modules from '../../organisms/homeCarousels/Modules';
 import VolutariasDisponible from '../../organisms/homeCarousels/VolutariasDisponible';
 import PanelTrabajo from '../../organisms/homeCarousels/PanelTrabajo';
-import imagePNG from "../../../assets/voluntarias/person1.png";
 import { APP_SCROLL_BOTTOM_PADDING } from '../../../helpers/const/appLayout';
 
 export const HomeTemplate = (props) => {
@@ -13,12 +12,14 @@ export const HomeTemplate = (props) => {
     const [listVolunteersFree, setListVolunteersFree] = React.useState(null)
 
     useEffect(() => {
-        if (volunteersFree) {
-            volunteersFree?.forEach((item) => {
-                item.url = imagePNG;
-                item.name = item.nombre + " " + item.apellido
-            })
-            setListVolunteersFree(volunteersFree)
+        if (volunteersFree?.length) {
+            const enriched = volunteersFree.map(item => ({
+                ...item,
+                name: `${item.nombre ?? ''} ${item.apellido ?? ''}`.trim(),
+            }));
+            setListVolunteersFree(enriched);
+        } else {
+            setListVolunteersFree(volunteersFree ?? null);
         }
     }, [volunteersFree])
 
@@ -42,11 +43,12 @@ export const HomeTemplate = (props) => {
 
 
 const StyledContainer = styled('div')`
-  height: 50%;
+  min-height: 100%;
   width: 100%;
   max-width: 100%;
-  background: linear-gradient(0deg, #FFF -54.68%, #FFF -3.39%, rgba(255, 255, 255, 0.00)), url(${(props) => props.img});
-  background-size: 100% 100%;
+  background: linear-gradient(0deg, #FFF 0%, #FFF 45%, rgba(255, 255, 255, 0.55) 75%, rgba(255, 255, 255, 0.00) 100%), url(${(props) => props.img});
+  background-size: cover;
+  background-position: center top;
   background-repeat: no-repeat;
- box-sizing: border-box;
+  box-sizing: border-box;
 `;

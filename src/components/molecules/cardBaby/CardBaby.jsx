@@ -23,7 +23,9 @@ const CardBaby = ({ baby, onAdminDelete }) => {
   const idMadre = baby?.idMadre ?? baby?.id_madre;
   const idBebe = baby?.idBebe ?? baby?.id;
   const to =
-    idMadre != null && idMadre !== ''
+    idBebe != null
+      ? `/bebe/perfil/${idBebe}`
+      : idMadre != null && idMadre !== ''
       ? `/madre/perfil/${idMadre}`
       : '/madres';
 
@@ -31,7 +33,7 @@ const CardBaby = ({ baby, onAdminDelete }) => {
     <CardRow>
     <StyledLink
       to={to}
-      aria-label={`Ver ficha de la madre del bebé ${name}, DNI ${dni}`}
+      aria-label={`Ver perfil del bebé ${name}, DNI ${dni}`}
       style={{ flex: 1, minWidth: 0 }}
     >
       <CardOuter>

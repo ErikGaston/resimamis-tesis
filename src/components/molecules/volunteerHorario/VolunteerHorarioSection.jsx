@@ -1,30 +1,44 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   Box,
   Button,
-  IconButton,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  InputLabel,
   MenuItem,
-  Paper,
-  TextField,
+  Select,
   Typography,
 } from '@mui/material';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { useDispatch, useSelector } from 'react-redux';
 import { getHorarioDias, postHorario, clearHorario } from '../../../redux/actions/horarioActions';
 import { showToast } from '../../../redux/actions/toastActions';
 
-/**
- * Carga días disponibles y permite armar arreglo `HorarioVoluntaria[]` para POST `/horario`.
- * @param {{ idVoluntaria: number }} props
- */
+const TURNOS = [
+  { value: 'Mañana', label: 'Mañana' },
+  { value: 'Tarde', label: 'Tarde' },
+  { value: 'Noche', label: 'Noche' },
+  { value: 'Jornada completa', label: 'Jornada completa' },
+];
+
 export function VolunteerHorarioSection({ idVoluntaria }) {
   const dispatch = useDispatch();
-  const { getHorarioDias: diasPayload, postHorario: postRes, error } = useSelector(
+  const { getHorarioDias: diasPayload, postHorario: postRes } = useSelector(
     (s) => s.horarioReducer,
   );
-  const [rows, setRows] = useState([{ idDia: '', idVoluntaria: String(idVoluntaria ?? ''), turno: '' }]);
+
+  const diasOptions = useMemo(() => {
+    const raw = diasPayload?.resultado ?? diasPayload?.listadoDias ?? diasPayload?.data ?? diasPayload;
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .map((d) => ({
+        value: d.idDia ?? d.id ?? d.value,
+        label: d.nombre ?? d.descripcion ?? d.label ?? `Día ${d.idDia ?? d.id}`,
+      }))
+      .filter((o) => o.value != null);
+  }, [diasPayload]);
+
+  const [seleccion, setSeleccion] = useState({});
 
   useEffect(() => {
     dispatch(getHorarioDias());
@@ -32,114 +46,140 @@ export function VolunteerHorarioSection({ idVoluntaria }) {
   }, [dispatch]);
 
   useEffect(() => {
-    setRows((r) =>
-      r.map((row) => ({
-        ...row,
-        idVoluntaria: String(idVoluntaria ?? row.idVoluntaria ?? ''),
-      })),
-    );
-  }, [idVoluntaria]);
-
-  useEffect(() => {
     if (postRes != null) {
-      dispatch(showToast({ message: 'Horario guardado.', severity: 'success' }));
+      dispatch(showToast({ message: 'Disponibilidad guardada correctamente.', severity: 'success' }));
       dispatch(clearHorario());
+      setSeleccion({});
     }
   }, [postRes, dispatch]);
 
-  const diasOptions = useMemo(() => {
-    const raw = diasPayload?.resultado ?? diasPayload?.listadoDias ?? diasPayload?.data ?? diasPayload;
-    if (!Array.isArray(raw)) return [];
-    return raw.map((d) => ({
-      value: d.idDia ?? d.id ?? d.value,
-      label: d.nombre ?? d.descripcion ?? d.label ?? `Día ${d.idDia ?? d.id}`,
-    })).filter((o) => o.value != null);
-  }, [diasPayload]);
+  const toggleDia = (idDia) => {
+    setSeleccion((prev) => {
+      if (prev[idDia]) {
+        const next = { ...prev };
+        delete next[idDia];
+        return next;
+      }
+      return { ...prev, [idDia]: { turno: 'Mañana' } };
+    });
+  };
+
+  const setTurno = (idDia, turno) => {
+    setSeleccion((prev) => ({ ...prev, [idDia]: { turno } }));
+  };
 
   const submit = () => {
-    const body = rows
-      .map((r) => ({
-        idDia: r.idDia === '' ? null : Number(r.idDia),
-        idVoluntaria: Number(r.idVoluntaria || idVoluntaria),
-        turno: r.turno === '' ? null : String(r.turno),
+    const body = Object.entries(seleccion)
+      .map(([idDia, { turno }]) => ({
+        idDia: Number(idDia),
+        idVoluntaria: Number(idVoluntaria),
+        turno: turno || null,
       }))
       .filter((r) => Number.isFinite(r.idDia) && Number.isFinite(r.idVoluntaria));
+
     if (!body.length) {
-      dispatch(showToast({ message: 'Agregá al menos una fila con idDia válido.', severity: 'warning' }));
+      dispatch(showToast({ message: 'Seleccioná al menos un día.', severity: 'warning' }));
       return;
     }
     dispatch(postHorario(body));
   };
 
+  const diasSeleccionados = Object.keys(seleccion).length;
+
   return (
-    <Paper variant="outlined" sx={{ p: 2, mt: 2, borderRadius: 2 }}>
-      <Typography variant="subtitle1" sx={{ color: '#152C70', fontWeight: 600 }}>
-        Horarios de voluntaria
+    <Box sx={{ pt: 0.5, pb: 1 }}>
+      <Typography sx={{ color: 'rgba(21,44,112,0.55)', fontSize: '0.82rem', mb: 2 }}>
+        Marcá los días que asiste y el turno correspondiente.
       </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-        Elegí día (desde el catálogo del servidor), turno libre y guardá el arreglo completo.
-      </Typography>
-      {error != null && (
-        <Alert severity="error" sx={{ mb: 1 }}>
-          Error al cargar o guardar horarios.
-        </Alert>
-      )}
-      {rows.map((row, idx) => (
-        <Box key={idx} sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1, flexWrap: 'wrap' }}>
-          <TextField
-            select
-            label="Día"
-            size="small"
-            sx={{ minWidth: 140 }}
-            value={row.idDia}
-            onChange={(e) => {
-              const v = e.target.value;
-              setRows((rs) => rs.map((x, i) => (i === idx ? { ...x, idDia: v } : x)));
-            }}
-          >
-            <MenuItem value="">—</MenuItem>
-            {diasOptions.map((o) => (
-              <MenuItem key={String(o.value)} value={String(o.value)}>
-                {o.label}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            label="Turno"
-            size="small"
-            value={row.turno}
-            onChange={(e) => {
-              const v = e.target.value;
-              setRows((rs) => rs.map((x, i) => (i === idx ? { ...x, turno: v } : x)));
-            }}
-            sx={{ flex: 1, minWidth: 100 }}
-          />
-          <IconButton
-            aria-label="Quitar fila"
-            onClick={() => setRows((rs) => rs.filter((_, i) => i !== idx))}
-            disabled={rows.length <= 1}
-          >
-            <DeleteOutlineIcon />
-          </IconButton>
+
+      {diasOptions.length === 0 ? (
+        <Typography sx={{ color: 'rgba(21,44,112,0.4)', fontSize: '0.85rem', fontStyle: 'italic' }}>
+          Cargando días disponibles…
+        </Typography>
+      ) : (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+          {diasOptions.map((dia) => {
+            const checked = Boolean(seleccion[dia.value]);
+            return (
+              <Box
+                key={dia.value}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  py: 1,
+                  px: 1.5,
+                  borderRadius: '12px',
+                  border: checked
+                    ? '1.5px solid rgba(143,0,255,0.4)'
+                    : '1.5px solid rgba(21,44,112,0.08)',
+                  bgcolor: checked ? 'rgba(143,0,255,0.04)' : '#fafafa',
+                  transition: 'all 0.15s',
+                }}
+              >
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={checked}
+                      onChange={() => toggleDia(dia.value)}
+                      sx={{
+                        color: 'rgba(21,44,112,0.3)',
+                        '&.Mui-checked': { color: '#8F00FF' },
+                        p: 0.5,
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography sx={{ fontWeight: checked ? 600 : 400, color: '#152C70', fontSize: '0.92rem' }}>
+                      {dia.label}
+                    </Typography>
+                  }
+                  sx={{ m: 0, flex: 1 }}
+                />
+                {checked && (
+                  <FormControl size="small" sx={{ minWidth: 148 }}>
+                    <InputLabel id={`turno-label-${dia.value}`}>Turno</InputLabel>
+                    <Select
+                      labelId={`turno-label-${dia.value}`}
+                      label="Turno"
+                      value={seleccion[dia.value]?.turno ?? 'Mañana'}
+                      onChange={(e) => setTurno(dia.value, e.target.value)}
+                      sx={{ borderRadius: '8px' }}
+                    >
+                      {TURNOS.map((t) => (
+                        <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              </Box>
+            );
+          })}
         </Box>
-      ))}
+      )}
+
       <Button
-        startIcon={<AddCircleOutlineIcon />}
-        size="small"
-        onClick={() =>
-          setRows((rs) => [
-            ...rs,
-            { idDia: '', idVoluntaria: String(idVoluntaria ?? ''), turno: '' },
-          ])
-        }
-        sx={{ mb: 1 }}
+        variant="contained"
+        fullWidth
+        onClick={submit}
+        disabled={diasSeleccionados === 0}
+        sx={{
+          mt: 2.5,
+          textTransform: 'none',
+          fontWeight: 700,
+          fontSize: '0.95rem',
+          minHeight: 44,
+          borderRadius: '10px',
+          background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
+          boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
+          '&.Mui-disabled': { opacity: 0.4, boxShadow: 'none' },
+        }}
       >
-        Agregar fila
+        {diasSeleccionados === 0
+          ? 'Seleccioná al menos un día'
+          : `Guardar disponibilidad (${diasSeleccionados} día${diasSeleccionados !== 1 ? 's' : ''})`}
       </Button>
-      <Button variant="contained" fullWidth onClick={submit}>
-        Guardar horarios
-      </Button>
-    </Paper>
+    </Box>
   );
 }
 

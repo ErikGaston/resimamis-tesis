@@ -1,165 +1,145 @@
-import React, { useEffect } from 'react'
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import { Box, Button, IconButton, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import TitleText from '../../atoms/titleText/TitleText';
-import styled from '@emotion/styled';
+import React from 'react'
 import AddchartIcon from '@mui/icons-material/Addchart';
-import ButtonCustomized from '../../atoms/button/ButtonCustomized';
-import DialogInsumo from '../../organisms/dialogInsumo/DialogInsumo';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CloseIcon from '@mui/icons-material/Close';
+import {
+    Box,
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    Typography,
+} from '@mui/material';
+import styled from '@emotion/styled';
+import { PageHeader } from '../../common/PageHeader';
 import { ChartHugMonth } from '../../organisms/statistics/ChartHugMonth';
 import { ChartLocalitiesMother } from '../../organisms/statistics/ChartLocalitiesMother';
 import { ChartSupplies } from '../../organisms/statistics/ChartSupplies';
 import { ChartAssignmentMonth } from '../../organisms/statistics/ChartAssignmentMonth';
 
+const CHART_OPTIONS = [
+    { id: 1, label: 'Edades de las madres', icon: AddchartIcon },
+    { id: 2, label: 'Localidades de las madres', icon: AddchartIcon },
+    { id: 3, label: 'Insumos más utilizados', icon: AddchartIcon },
+    { id: 4, label: 'Abrazos por mes', icon: AddchartIcon },
+    { id: 5, label: 'Duración de abrazos', icon: AccessTimeIcon },
+];
+
 const StatisticsTemplate = (props) => {
-    const { stateChart, setStateChart, generateChart, valueChart, statisticsMonthMother, statisticsLocalities, statisticsSupplies, statisticsAssignment, statisticsDurationHug } = props;
-    const navigate = useNavigate();
-    const [listBabysFree, setListBabysFree] = React.useState(null)
+    const {
+        stateChart,
+        setStateChart,
+        generateChart,
+        valueChart,
+        statisticsMonthMother,
+        statisticsLocalities,
+        statisticsSupplies,
+        statisticsAssignment,
+        statisticsDurationHug,
+    } = props;
 
-
-    const functionBack = () => {
-        navigate(-1)
-    }
+    const durationRows = React.useMemo(() => {
+        if (statisticsDurationHug == null) return null;
+        const raw = statisticsDurationHug?.data ?? statisticsDurationHug;
+        if (Array.isArray(raw)) return raw;
+        const nested = raw?.listadoAbrazos ?? raw?.abrazos ?? raw?.duraciones;
+        return Array.isArray(nested) ? nested : [];
+    }, [statisticsDurationHug]);
 
     return (
         <div style={{ height: '100%' }}>
-            <div style={{ display: 'flex', backgroundColor: '#8F00FF' }}>
-                <IconButton onClick={functionBack}>
-                    <HighlightOffIcon style={{ color: 'white' }} />
-                </IconButton>
-                <TitleText fontsize={'20px'} style={{ width: '85%' }}>ESTADÍSTICAS</TitleText>
-            </div>
+            <PageHeader title="Estadísticas" />
             <ContainerButtons>
-                <Button
-                    style={{ textTransform: 'inherit', border: '1px solid #8F00FF', margin: '10px 0' }}
-                    onClick={() => generateChart(1)}
-                >
-                    <AddchartIcon style={{ color: '#8F00FF', marginRight: '10px' }} />
-                    <Title>
-                        Gráfico de edades de las madres
-                    </Title>
-                </Button>
-
-                <Button
-                    style={{ textTransform: 'inherit', border: '1px solid #8F00FF', margin: '10px 0' }}
-                    onClick={() => generateChart(2)}
-                >
-                    <AddchartIcon style={{ color: '#8F00FF', marginRight: '10px' }} />
-                    <Title>
-                        Gráfico de localidades de las madres
-                    </Title>
-                </Button>
-
-                <Button
-                    style={{ textTransform: 'inherit', border: '1px solid #8F00FF', margin: '10px 0' }}
-                    onClick={() => generateChart(3)}
-                >
-                    <AddchartIcon style={{ color: '#8F00FF', marginRight: '10px' }} />
-                    <Title>
-                        Gráfico de insumos más utilizados
-                    </Title>
-                </Button>
-
-                <Button
-                    style={{ textTransform: 'inherit', border: '1px solid #8F00FF', margin: '10px 0' }}
-                    onClick={() => generateChart(4)}
-                >
-                    <AddchartIcon style={{ color: '#8F00FF', marginRight: '10px' }} />
-                    <Title>
-                        Gráfico de abrazos por mes
-                    </Title>
-                </Button>
-
-                <Button
-                    style={{ textTransform: 'inherit', border: '1px solid #8F00FF', margin: '10px 0' }}
-                    onClick={() => generateChart(5)}
-                >
-                    <AddchartIcon style={{ color: '#8F00FF', marginRight: '10px' }} />
-                    <Title>
-                        Datos de duración de abrazos (API)
-                    </Title>
-                </Button>
+                {CHART_OPTIONS.map(({ id, label, icon: Icon }) => (
+                    <Button
+                        key={id}
+                        fullWidth
+                        onClick={() => generateChart(id)}
+                        sx={{
+                            textTransform: 'none',
+                            border: '1.5px solid rgba(143,0,255,0.25)',
+                            borderRadius: '12px',
+                            py: 1.5,
+                            px: 2,
+                            mb: 1.25,
+                            justifyContent: 'flex-start',
+                            gap: 1.5,
+                            bgcolor: '#fff',
+                            boxShadow: '0 2px 8px rgba(21,44,112,0.06)',
+                            '&:hover': { bgcolor: 'rgba(143,0,255,0.04)', borderColor: '#8F00FF' },
+                        }}
+                    >
+                        <Icon sx={{ color: '#8F00FF', fontSize: 22, flexShrink: 0 }} />
+                        <Typography sx={{ color: '#152C70', fontSize: '0.95rem', fontWeight: 500, textAlign: 'left' }}>
+                            {label}
+                        </Typography>
+                    </Button>
+                ))}
             </ContainerButtons>
-            {stateChart === 'OPEN' &&
-                <DialogInsumo
-                    open={stateChart === 'OPEN'}
-                    setOpen={setStateChart}
-                    title={
-                        <div style={{ display: 'flex', backgroundColor: '#8F00FF' }}>
-                            <IconButton onClick={() => setStateChart('')}>
-                                <HighlightOffIcon style={{ color: 'white' }} />
-                            </IconButton>
-                            <TitleText fontsize={'20px'} style={{ width: '85%' }}>ESTADÍSTICAS</TitleText>
-                        </div>
-                    }
-                    content={
-                        <>
-                            {valueChart === 1
-                                &&
-                                <ChartHugMonth
-                                    title={'Estadistica de edades de madres'}
-                                    statisticsMonthMother={statisticsMonthMother}
-                                />
-                            }
-                            {
-                                valueChart === 2
-                                &&
-                                <ChartLocalitiesMother
-                                    title={'Estadistica de localidades de madres'}
-                                    statisticsLocalities={statisticsLocalities}
-                                />
-                            }
-                            {valueChart === 3 &&
-                                <ChartSupplies
-                                    title={'Estadistica de cantidad de insumos'}
-                                    statisticsSupplies={statisticsSupplies}
-                                />
-                            }
-                            {valueChart === 4 &&
-                                <ChartAssignmentMonth
-                                    title={'Estadistica de cantidad de asignaciones'}
-                                    statisticsAssignment={statisticsAssignment}
-                                />
-                            }
-                            {valueChart === 5 &&
-                                <Box sx={{ p: 2, maxHeight: '70vh', overflow: 'auto' }}>
-                                    <Typography variant="subtitle1" sx={{ color: '#152C70', fontWeight: 600, mb: 1 }}>
-                                        Respuesta GET /asignacion/duracionAbrazos
-                                    </Typography>
-                                    <Typography component="pre" sx={{ fontSize: 12, whiteSpace: 'pre-wrap', color: '#3d4f7a' }}>
-                                        {statisticsDurationHug != null
-                                            ? JSON.stringify(statisticsDurationHug, null, 2)
-                                            : 'Sin datos'}
-                                    </Typography>
-                                </Box>
-                            }
-                        </>
-                    }
-                />
-            }
-        </div >
-    )
-}
 
+            <Dialog
+                open={stateChart === 'OPEN'}
+                onClose={() => setStateChart('')}
+                fullWidth
+                maxWidth="sm"
+                PaperProps={{ sx: { borderRadius: '16px', m: 2 } }}
+            >
+                <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1.5, px: 2 }}>
+                    <Typography sx={{ fontWeight: 700, color: '#152C70', fontSize: '1rem' }}>
+                        {CHART_OPTIONS.find((o) => o.id === valueChart)?.label ?? 'Estadística'}
+                    </Typography>
+                    <IconButton onClick={() => setStateChart('')} aria-label="Cerrar" size="small">
+                        <CloseIcon fontSize="small" />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent sx={{ px: 2, pt: 0.5, pb: 3 }}>
+                    {valueChart === 1 && <ChartHugMonth statisticsMonthMother={statisticsMonthMother} />}
+                    {valueChart === 2 && <ChartLocalitiesMother statisticsLocalities={statisticsLocalities} />}
+                    {valueChart === 3 && <ChartSupplies statisticsSupplies={statisticsSupplies} />}
+                    {valueChart === 4 && <ChartAssignmentMonth statisticsAssignment={statisticsAssignment} />}
+                    {valueChart === 5 && (
+                        <Box sx={{ pt: 1 }}>
+                            {durationRows === null ? (
+                                <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                                    <CircularProgress sx={{ color: '#8F00FF' }} />
+                                </Box>
+                            ) : durationRows.length === 0 ? (
+                                <Typography sx={{ color: 'rgba(21,44,112,0.55)', textAlign: 'center', py: 3, fontSize: '0.9rem' }}>
+                                    Sin datos de duración disponibles.
+                                </Typography>
+                            ) : (
+                                durationRows.map((row, i) => {
+                                    const mins = row.duracionMinutos ?? row.minutos ?? row.duracion;
+                                    const id = row.idAsignacion ?? row.id ?? i + 1;
+                                    return (
+                                        <Box
+                                            key={id}
+                                            sx={{ display: 'flex', justifyContent: 'space-between', py: 0.75, borderBottom: '1px solid rgba(21,44,112,0.07)' }}
+                                        >
+                                            <Typography sx={{ fontSize: '0.88rem', color: '#152C70', fontWeight: 500 }}>
+                                                Abrazo #{id}
+                                            </Typography>
+                                            <Typography sx={{ fontSize: '0.88rem', color: '#7A659B', fontWeight: 600 }}>
+                                                {mins != null ? `${Number(mins).toFixed(0)} min` : '—'}
+                                            </Typography>
+                                        </Box>
+                                    );
+                                })
+                            )}
+                        </Box>
+                    )}
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
+};
 
 export default StatisticsTemplate;
 
-const Title = styled('h3')`
-    color: #152C70;
-    font-family: Roboto;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    letter-spacing: 0.8px;
-    text-align:left;
-    width:80%;
-`;
-
 const ContainerButtons = styled('div')`
-   padding:30px;
-   display:flex;
-   flex-direction:column;
-   align-content:center;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
 `;

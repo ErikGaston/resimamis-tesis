@@ -106,6 +106,15 @@ export function resolveApiErrorMessage(err) {
       if (parts.length) return parts.join(' ');
     }
 
+    // Backend Resimamis: errors como array de strings ["mensaje"]
+    if (Array.isArray(data.errors) && data.errors.length > 0) {
+      const parts = data.errors
+        .filter((m) => m != null && String(m).trim())
+        .map((m) => stripValidationIndexPrefix(typeof m === 'string' ? m : String(m)))
+        .filter(Boolean);
+      if (parts.length) return parts[0];
+    }
+
     if (typeof data.message === 'string' && data.message.trim()) {
       return stripValidationIndexPrefix(data.message);
     }

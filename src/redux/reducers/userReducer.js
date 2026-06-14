@@ -8,6 +8,9 @@ const initialState = {
     getUsuarioById: null,
     putUsuario: null,
     postUsuarioDelete: null,
+    getUsuarios: null,
+    getVoluntariasSinUsuario: null,
+    putUsuarioContrasena: null,
     userAdminError: null,
 };
 
@@ -22,6 +25,9 @@ export default function userReducer(state = initialState, action) {
         [actionTypes.SUCCESS_GET_USUARIO_BY_ID]: responseToReturn('getUsuarioById'),
         [actionTypes.SUCCESS_PUT_USUARIO]: responseToReturn('putUsuario'),
         [actionTypes.SUCCESS_POST_USUARIO_DELETE]: responseToReturn('postUsuarioDelete'),
+        [actionTypes.SUCCESS_GET_USUARIOS]: responseToReturn('getUsuarios'),
+        [actionTypes.SUCCESS_GET_VOLUNTARIAS_SIN_USUARIO]: responseToReturn('getVoluntariasSinUsuario'),
+        [actionTypes.SUCCESS_PUT_USUARIO_CONTRASENA]: responseToReturn('putUsuarioContrasena'),
         [actionTypes.ERROR_USER]: userAdminError(),
         [actionTypes.CLEAR_USER_ADMIN]: clearUserAdmin(),
     };
@@ -32,7 +38,7 @@ export default function userReducer(state = initialState, action) {
             const payload = action.response.data;
             if (typeState === 'postLogin') {
                 res = { ...state, postLogin: payload, error: null, loading: false };
-            } else if (['postUsuario', 'getUsuarioById', 'putUsuario', 'postUsuarioDelete'].includes(typeState)) {
+            } else if (['postUsuario', 'getUsuarioById', 'putUsuario', 'postUsuarioDelete', 'getUsuarios', 'getVoluntariasSinUsuario', 'putUsuarioContrasena'].includes(typeState)) {
                 res = {
                     ...state,
                     [typeState]: payload,
@@ -61,6 +67,9 @@ export default function userReducer(state = initialState, action) {
                 getUsuarioById: null,
                 putUsuario: null,
                 postUsuarioDelete: null,
+                getUsuarios: null,
+                getVoluntariasSinUsuario: null,
+                putUsuarioContrasena: null,
                 userAdminError: null,
             };
         }

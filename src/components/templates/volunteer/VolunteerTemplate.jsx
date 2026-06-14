@@ -1,9 +1,6 @@
 import React, { useEffect } from 'react'
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import { IconButton } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import TitlePurple from '../../atoms/titlePurple/TitlePurple';
 import VolunteerForm from '../../molecules/volunteerForm/VolunteerForm';
+import { PageHeader } from '../../common/PageHeader';
 
 const listTurnos = [
     {
@@ -21,13 +18,8 @@ const listTurnos = [
 ]
 
 const VolunteerTemplate = ({ model, setModel, localities, submitVolunteer, error, setError, fieldErrors, setFieldErrors }) => {
-    const navigate = useNavigate();
     const [listLocalities, setListLocalities] = React.useState(null)
     const [listMothers, setListMothers] = React.useState(null)
-
-    const functionBack = () => {
-        navigate(-1)
-    }
 
     useEffect(() => {
         if (localities) {
@@ -41,12 +33,7 @@ const VolunteerTemplate = ({ model, setModel, localities, submitVolunteer, error
 
     return (
         <div style={{ height: '100%' }}>
-            <div style={{ display: 'flex' }}>
-                <IconButton onClick={functionBack}>
-                    <HighlightOffIcon style={{ color: '#8F00FF' }} />
-                </IconButton>
-                <TitlePurple>Formulario voluntaria</TitlePurple>
-            </div>
+            <PageHeader title="Nueva voluntaria" />
             <div style={{ padding: '20px 20px 75px 20px', }}>
                 <VolunteerForm
                     model={model}

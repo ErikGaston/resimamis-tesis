@@ -69,21 +69,26 @@ const MotherAccordionForm = (props) => {
                                         fieldErrors={fieldErrors}
                                         setFieldErrors={setFieldErrors}
                                     />
-                                    {typeForm === "ALTA" && <div style={{ textAlign: 'right' }}>
-                                        <ButtonCustomized
-                                            variant={'container'}
-                                            colorText={'#FFF'}
-                                            sx={{
-                                                fontSize: '16px',
-                                                background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
-                                                boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)'
-                                            }}
-                                            onClick={submitMother}
-                                        >
-                                            GUARDAR
-                                        </ButtonCustomized>
-                                    </div>
-                                    }
+                                    {typeForm === "ALTA" && (
+                                        <Box sx={{ mt: 2 }}>
+                                            <Button
+                                                variant="contained"
+                                                fullWidth
+                                                onClick={submitMother}
+                                                sx={{
+                                                    textTransform: 'none',
+                                                    fontWeight: 700,
+                                                    fontSize: '1rem',
+                                                    minHeight: 44,
+                                                    borderRadius: '10px',
+                                                    background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
+                                                    boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
+                                                }}
+                                            >
+                                                Guardar madre
+                                            </Button>
+                                        </Box>
+                                    )}
                                 </>
                             }
                         </>
@@ -153,26 +158,6 @@ const MotherAccordionForm = (props) => {
                             </TitleAccordion>}
                         details={
                             <>
-                                {canEditBaby && (
-                                    <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
-                                        <Button
-                                            size="small"
-                                            variant="contained"
-                                            onClick={() => handleSaveBaby(index)}
-                                            sx={{ textTransform: 'none' }}
-                                        >
-                                            Guardar en servidor
-                                        </Button>
-                                        <Button
-                                            size="small"
-                                            variant="text"
-                                            onClick={handleCancelBabyEdits}
-                                            sx={{ textTransform: 'none' }}
-                                        >
-                                            Cancelar
-                                        </Button>
-                                    </Box>
-                                )}
                                 <BabyForm
                                     model={item}
                                     setModel={(nextBaby) => {
@@ -190,6 +175,40 @@ const MotherAccordionForm = (props) => {
                                     madreDisplayName={madreNombreCompleto}
                                     salaOptions={profileBabyExtras?.babySalasOptions ?? null}
                                 />
+                                {canEditBaby && (
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
+                                        <Button
+                                            variant="contained"
+                                            fullWidth
+                                            onClick={() => handleSaveBaby(index)}
+                                            sx={{
+                                                textTransform: 'none',
+                                                fontWeight: 700,
+                                                minHeight: 44,
+                                                borderRadius: '10px',
+                                                background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
+                                                boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
+                                            }}
+                                        >
+                                            Guardar bebé
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            fullWidth
+                                            onClick={handleCancelBabyEdits}
+                                            sx={{
+                                                textTransform: 'none',
+                                                fontWeight: 600,
+                                                minHeight: 44,
+                                                borderRadius: '10px',
+                                                borderColor: 'rgba(21,44,112,0.25)',
+                                                color: '#152C70',
+                                            }}
+                                        >
+                                            Descartar cambios
+                                        </Button>
+                                    </Box>
+                                )}
                             </>
                         }
                     />

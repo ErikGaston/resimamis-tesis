@@ -336,14 +336,15 @@ export const postAssignmentGenerateLegacy = async () => {
     });
 };
 
-/** Body OpenAPI `RequestAsignacionTareas`: idVoluntarias (int[]), idTareas (int[]|null). */
+/**
+ * Body `RequestAsignacionTareas`: `idVoluntarias` (int[]), `idTareas` (int[]).
+ * El backend hace `.Contains()` sobre `idTareas` sin null-check — nunca enviar null,
+ * usar array vacío si no hay tareas seleccionadas (el backend responderá "No se encontraron tareas válidas").
+ */
 export const postAssignmentGenerateTareas = async (body) => {
   const payload = {
     idVoluntarias: Array.isArray(body?.idVoluntarias) ? body.idVoluntarias.map((n) => Number(n)) : [],
-    idTareas:
-      Array.isArray(body?.idTareas) && body.idTareas.length > 0
-        ? body.idTareas.map((n) => Number(n))
-        : null,
+    idTareas: Array.isArray(body?.idTareas) ? body.idTareas.map((n) => Number(n)) : [],
   };
   return AxiosInstance
     .post(`${postAssignmentGenerateTareasURL}`, payload)
@@ -615,7 +616,11 @@ export const postResetAbrazosColgados = async () => {
 //#endregion
 
 //#region - ASISTENCIA EXTRA
-/** Query opcional: `fechaInicio`, `fechaFin` (ISO date-time). */
+/**
+ * Reporte de asistencia por período.
+ * `fechaInicio` y `fechaFin` son **requeridos** por el backend (`DateTime` no-nullable).
+ * Pasar siempre ambos: `{ fechaInicio: '2026-01-01', fechaFin: '2026-01-31' }`.
+ */
 export const getAssistanceReporte = async (params = {}) => {
   return AxiosInstance
     .get('/asistencia/reporte', { params })
@@ -726,6 +731,34 @@ export const postUsuarioDelete = async (idUsuario) => {
       throw e;
     });
 };
+
+export const getUsuarios = async () => {
+  return AxiosInstance
+    .get(`${usuarioBase}`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const getVoluntariasSinUsuario = async () => {
+  return AxiosInstance
+    .get(`${usuarioBase}/voluntarias-sin-usuario`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+/** Body `RequestCambiarContrasena`: `ContrasenaActual` (string), `ContrasenaNueva` (string). */
+export const putUsuarioContrasena = async (body) => {
+  return AxiosInstance
+    .put(`${usuarioBase}/contrasena`, body)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
 //#endregion
 
 //#region - HORARIO
@@ -745,6 +778,144 @@ export const getHorarioDias = async () => {
 export const postHorario = async (body) => {
   return AxiosInstance
     .post(`${horarioURL}`, body)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+//#endregion
+
+//#region - TAREA
+const tareaBase = '/tarea';
+
+export const getTareas = async () => {
+  return AxiosInstance
+    .get(`${tareaBase}`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+/** Tareas disponibles para asignar hoy (respeta flag `esUnica`: si ya hay una asignación activa, no aparece). */
+export const getTareasDisponibles = async () => {
+  return AxiosInstance
+    .get(`${tareaBase}/disponibles`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const getTareaById = async (idTarea) => {
+  return AxiosInstance
+    .get(`${tareaBase}/id/${idTarea}`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+/** Body `TAREA`: `nombre` (string), `Estado` (bool activa), `esUnica` (bool). */
+export const postTarea = async (body) => {
+  return AxiosInstance
+    .post(`${tareaBase}`, body)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const putTareaById = async (idTarea, body) => {
+  return AxiosInstance
+    .put(`${tareaBase}/id/${idTarea}`, body)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const postTareaDelete = async (idTarea) => {
+  return AxiosInstance
+    .post(`${tareaBase}/delete`, null, { params: { idTarea } })
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+//#endregion
+
+//#region - VISITA
+const visitaBase = '/visita';
+
+export const getVisitas = async () => {
+  return AxiosInstance
+    .get(`${visitaBase}`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const getVisitasByBebe = async (idBebe) => {
+  return AxiosInstance
+    .get(`${visitaBase}/bebe/${idBebe}`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const getVisitaById = async (idVisita) => {
+  return AxiosInstance
+    .get(`${visitaBase}/id/${idVisita}`)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+/**
+ * Normaliza el body al contrato `VISITA` del backend:
+ * - `documentoVisitante` → `int?` (7-8 dígitos). Enviar como número o null.
+ * - `telefonoVisitante` → `long?` (10-13 dígitos). Enviar como número o null.
+ * - `observacion` → `string?` (max 500 chars). Opcional.
+ * - `fechaRegistro` y `Activa` los setea el backend; no hace falta enviarlos.
+ */
+const normalizeVisitaBody = (body) => ({
+  ...body,
+  idBebe: body?.idBebe != null ? Number(body.idBebe) : body?.idBebe,
+  documentoVisitante:
+    body?.documentoVisitante != null && body.documentoVisitante !== ''
+      ? Number(body.documentoVisitante)
+      : null,
+  telefonoVisitante:
+    body?.telefonoVisitante != null && body.telefonoVisitante !== ''
+      ? Number(body.telefonoVisitante)
+      : null,
+});
+
+export const postVisita = async (body) => {
+  return AxiosInstance
+    .post(`${visitaBase}`, normalizeVisitaBody(body))
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const putVisitaById = async (idVisita, body) => {
+  return AxiosInstance
+    .put(`${visitaBase}/id/${idVisita}`, normalizeVisitaBody(body))
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
+export const postVisitaDelete = async (idVisita) => {
+  return AxiosInstance
+    .post(`${visitaBase}/delete`, null, { params: { idVisita } })
     .then((r) => r)
     .catch((e) => {
       throw e;

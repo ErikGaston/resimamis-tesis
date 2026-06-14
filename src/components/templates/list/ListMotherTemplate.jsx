@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import SearchIcon from '@mui/icons-material/Search';
-import { IconButton, InputAdornment, TextField, Typography, Box } from '@mui/material';
+import { InputAdornment, TextField, Typography, Box } from '@mui/material';
+import { PageHeader } from '../../common/PageHeader';
 import styled from '@emotion/styled';
 import CardIcon from '../../molecules/cardIcon/CardIcon';
-import { useNavigate } from 'react-router-dom';
 import { listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
 
 function motherMatchesQuery(mother, rawQuery) {
@@ -24,13 +23,8 @@ function motherMatchesQuery(mother, rawQuery) {
 
 const ListMotherTemplate = (props) => {
   const { mothers, isCoordinator, onDeleteMother } = props;
-  const navigate = useNavigate();
   const [listMothers, setListMothers] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-
-  const functionBack = () => {
-    navigate(-1);
-  };
 
   useEffect(() => {
     if (!mothers?.length) {
@@ -58,35 +52,7 @@ const ListMotherTemplate = (props) => {
 
   return (
     <PageRoot>
-      <HeaderBar>
-        <IconButton
-          onClick={functionBack}
-          aria-label="Volver a la pantalla anterior"
-          sx={{
-            color: '#fff',
-            minWidth: 48,
-            minHeight: 48,
-            '&:hover': { backgroundColor: 'rgba(255,255,255,0.12)' },
-          }}
-        >
-          <ArrowBackIosNewIcon sx={{ fontSize: 22 }} />
-        </IconButton>
-        <Typography
-          component="h1"
-          id="list-mothers-title"
-          sx={{
-            flex: 1,
-            textAlign: 'center',
-            color: '#fff',
-            fontWeight: 600,
-            fontSize: '1.15rem',
-            letterSpacing: '0.04em',
-            pr: '48px',
-          }}
-        >
-          Madres
-        </Typography>
-      </HeaderBar>
+      <PageHeader title="Madres" />
       <SearchWrap>
         <TextField
           fullWidth
@@ -146,13 +112,6 @@ const PageRoot = styled(Box)`
   overflow: hidden;
 `;
 
-const HeaderBar = styled(Box)`
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  background: linear-gradient(90deg, #8f00ff 0%, #a54dff 100%);
-  padding: 8px 4px 10px;
-`;
 
 const SearchWrap = styled('div')`
   flex-shrink: 0;

@@ -71,14 +71,14 @@ html {
 
 .error {
   font-family: "Roboto", sans-serif;
-  color: #ee005f;
+  color: #C53814;
 }
 
 .errorInput {
   .MuiInput-underline::before {
-      border-bottom-color: #ee005f !important;
+      border-bottom-color: #C53814 !important;
   }
   .MuiOutlinedInput-notchedOutline {
-      border-color: #ee005f !important;
+      border-color: #C53814 !important;
   }
 }

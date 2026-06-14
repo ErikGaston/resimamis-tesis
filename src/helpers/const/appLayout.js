@@ -5,7 +5,7 @@
 export const APP_COLUMN_MAX_WIDTH_PX = 444;
 
 /** Padding inferior al hacer scroll para no tapar campos bajo el BottomNavigation fijo (~3.75rem + margen visible). */
-export const APP_SCROLL_BOTTOM_PADDING = 'calc(3.75rem + 40px)';
+export const APP_SCROLL_BOTTOM_PADDING = 'calc(3.75rem + env(safe-area-inset-bottom, 0px) + 40px)';
 
 /**
  * Inset derecho para FABs `position: fixed` alineados al borde interno de la columna centrada.

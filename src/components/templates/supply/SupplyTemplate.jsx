@@ -1,17 +1,19 @@
 import React, { useEffect } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
+import { PageHeader } from '../../common/PageHeader';
 import {
-  Alert,
   Box,
   Button,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Fab,
   FormControl,
-  IconButton,
   InputLabel,
   MenuItem,
   Paper,
@@ -19,10 +21,30 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import styled from '@emotion/styled';
 import CardSupply from '../../molecules/cardSupply/CardSupply';
 import { fabBottomAboveNav } from '../../../utils/listScreenAccessibility';
+
+const BTN_GRADIENT = 'linear-gradient(135deg, #7F00FF 0%, #8F00FF 100%)';
+const BTN_GRADIENT_HOVER = 'linear-gradient(135deg, #6A00D6 0%, #7800D6 100%)';
+const BTN_SX = {
+  textTransform: 'none',
+  fontWeight: 700,
+  minHeight: 44,
+  borderRadius: 2,
+  color: '#fff',
+  background: BTN_GRADIENT,
+  boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
+  '&:hover': { background: BTN_GRADIENT_HOVER, boxShadow: '0 6px 18px rgba(127,0,255,0.38)' },
+  '&.Mui-disabled': { opacity: 0.45, boxShadow: 'none', color: '#fff' },
+};
+const BTN_CANCEL_SX = {
+  textTransform: 'none',
+  fontWeight: 600,
+  minHeight: 44,
+  borderRadius: 2,
+  color: '#4A148C',
+  '&:hover': { bgcolor: 'rgba(74,20,140,0.06)' },
+};
 
 function listSupplyMovementsFromResponse(raw) {
   if (raw == null) return null;
@@ -35,44 +57,23 @@ function listSupplyMovementsFromResponse(raw) {
   return null;
 }
 
-function summarizeSupplyMovementRow(row) {
-  if (row == null || typeof row !== 'object') {
-    return row != null ? String(row) : '';
-  }
-  const nombre = row.nombreInsumo ?? row.insumoNombre ?? row.nombre;
-  const bits = [
-    row.idMovimiento != null && `Mov. #${row.idMovimiento}`,
-    nombre && String(nombre),
-    row.idInsumo != null && !nombre && `Insumo #${row.idInsumo}`,
-    row.cantidad != null && `${row.cantidad} u.`,
-    row.fechaMovimiento && new Date(row.fechaMovimiento).toLocaleString(),
-    row.esEntrada != null && `Tipo: ${row.esEntrada}`,
-    row.observacion && `Obs.: ${row.observacion}`,
-  ].filter(Boolean);
-  return bits.length ? bits.join(' · ') : JSON.stringify(row);
-}
-
 const SupplyTemplate = (props) => {
   const {
     valueTask,
     changeTask,
     supplies,
     movementsData,
-    movementsError,
     providersData,
     onRegisterSupplyMovement,
     onCreateSupply,
     createSupplyCloseSignal,
+    movementCloseSignal,
     idVoluntariaDefault,
   } = props;
-  const navigate = useNavigate();
+
   const [listSupplies, setListSupplies] = React.useState(null);
-  const [movIdInsumo, setMovIdInsumo] = React.useState('');
-  const [movCantidad, setMovCantidad] = React.useState('');
-  const [movEsEntrada, setMovEsEntrada] = React.useState('S');
-  const [movIdProveedor, setMovIdProveedor] = React.useState('__none__');
-  const [movObservacion, setMovObservacion] = React.useState('');
-  const [movIdBebe, setMovIdBebe] = React.useState('');
+
+  // Estado dialog nuevo insumo
   const [registerDialogOpen, setRegisterDialogOpen] = React.useState(false);
   const [newNombre, setNewNombre] = React.useState('');
   const [newDescripcion, setNewDescripcion] = React.useState('');
@@ -80,18 +81,24 @@ const SupplyTemplate = (props) => {
   const [newStockMax, setNewStockMax] = React.useState('1000');
   const [newStockActual, setNewStockActual] = React.useState('0');
 
-  const functionBack = () => {
-    navigate(-1);
-  };
+  // Estado dialog nuevo movimiento
+  const [movDialogOpen, setMovDialogOpen] = React.useState(false);
+  const [movIdInsumo, setMovIdInsumo] = React.useState('');
+  const [movCantidad, setMovCantidad] = React.useState('');
+  const [movEsEntrada, setMovEsEntrada] = React.useState('S');
+  const [movIdProveedor, setMovIdProveedor] = React.useState('__none__');
+  const [movObservacion, setMovObservacion] = React.useState('');
+  const [movIdBebe, setMovIdBebe] = React.useState('');
 
   useEffect(() => {
-    if (supplies) {
-      setListSupplies(supplies);
-    }
+    if (supplies) setListSupplies(supplies);
   }, [supplies]);
 
-  const providerRows = Array.isArray(providersData?.resultado) ? providersData.resultado : [];
+  const providerRows = Array.isArray(providersData?.data?.listadoDeProveedores)
+    ? providersData.data.listadoDeProveedores
+    : [];
 
+  // Cerrar dialog de insumo al éxito
   useEffect(() => {
     if (createSupplyCloseSignal > 0) {
       setRegisterDialogOpen(false);
@@ -103,7 +110,22 @@ const SupplyTemplate = (props) => {
     }
   }, [createSupplyCloseSignal]);
 
-  const openRegisterSupplyDialog = () => setRegisterDialogOpen(true);
+  // Cerrar dialog de movimiento al éxito
+  useEffect(() => {
+    if (movementCloseSignal > 0) {
+      closeMovDialog();
+    }
+  }, [movementCloseSignal]);
+
+  const closeMovDialog = () => {
+    setMovDialogOpen(false);
+    setMovIdInsumo('');
+    setMovCantidad('');
+    setMovEsEntrada('S');
+    setMovIdProveedor('__none__');
+    setMovObservacion('');
+    setMovIdBebe('');
+  };
 
   const submitNewSupply = () => {
     if (typeof onCreateSupply !== 'function') return;
@@ -126,10 +148,8 @@ const SupplyTemplate = (props) => {
     if (typeof onRegisterSupplyMovement !== 'function') return;
     const idInsumo = movIdInsumo === '' ? null : Number(movIdInsumo);
     const cantidad = movCantidad === '' ? null : Number(movCantidad);
-    if (idInsumo == null || Number.isNaN(idInsumo) || cantidad == null || Number.isNaN(cantidad)) {
-      return;
-    }
-    const body = {
+    if (idInsumo == null || Number.isNaN(idInsumo) || cantidad == null || Number.isNaN(cantidad)) return;
+    onRegisterSupplyMovement({
       idInsumo,
       cantidad,
       esEntrada: movEsEntrada || null,
@@ -138,127 +158,83 @@ const SupplyTemplate = (props) => {
         movIdProveedor === '' || movIdProveedor === '__none__' ? null : Number(movIdProveedor),
       idVoluntaria: idVoluntariaDefault != null ? Number(idVoluntariaDefault) : null,
       idBebe: movIdBebe === '' ? null : Number(movIdBebe),
-    };
-    onRegisterSupplyMovement(body);
+    });
   };
+
+  const movFormValid =
+    movIdInsumo !== '' &&
+    movCantidad !== '' &&
+    !Number.isNaN(Number(movCantidad)) &&
+    Number(movCantidad) > 0;
 
   return (
     <div style={{ height: '100%' }}>
-      <HeaderBar>
-        <IconButton
-          onClick={functionBack}
-          aria-label="Volver a la pantalla anterior"
-          sx={{
-            color: '#fff',
-            minWidth: 48,
-            minHeight: 48,
-            '&:hover': { backgroundColor: 'rgba(255,255,255,0.12)' },
-          }}
-        >
-          <ArrowBackIosNewIcon sx={{ fontSize: 22 }} />
-        </IconButton>
-        <Typography
-          component="h1"
-          id="supply-screen-title"
-          sx={{
-            flex: 1,
-            textAlign: 'center',
-            color: '#fff',
-            fontWeight: 600,
-            fontSize: '1.15rem',
-            letterSpacing: '0.04em',
-            pr: '48px',
-          }}
-        >
-          Insumos
-        </Typography>
-      </HeaderBar>
+      <PageHeader title="Insumos" />
 
+      {/* Tab bar */}
       <Box
-        sx={{
-          display: 'flex',
-          gap: 1,
-          px: 1.5,
-          py: 1,
-          bgcolor: '#F3E5F5',
-        }}
+        sx={{ display: 'flex', gap: 1, px: 1.5, py: 1, bgcolor: '#F3E5F5' }}
         role="tablist"
         aria-label="Tipo de vista de insumos"
       >
-        <Button
-          role="tab"
-          aria-selected={valueTask === 1}
-          id="tab-supply-list"
-          aria-controls="panel-supply-list"
-          onClick={changeTask(1)}
-          fullWidth
-          sx={{
-            textTransform: 'none',
-            fontWeight: 600,
-            minHeight: 44,
-            borderRadius: 2,
-            bgcolor: valueTask === 1 ? '#8F00FF' : '#fff',
-            color: valueTask === 1 ? '#fff' : '#4A148C',
-            border: '2px solid',
-            borderColor: valueTask === 1 ? '#6A1B9A' : '#9575CD',
-            boxShadow: valueTask === 1 ? '0 2px 8px rgba(106, 27, 154, 0.35)' : 'none',
-            '&:focus-visible': { outline: '3px solid #FFEB3B', outlineOffset: 2 },
-          }}
-        >
-          Lista de insumos
-        </Button>
-        <Button
-          role="tab"
-          aria-selected={valueTask === 2}
-          id="tab-supply-movements"
-          aria-controls="panel-supply-movements"
-          onClick={changeTask(2)}
-          fullWidth
-          sx={{
-            textTransform: 'none',
-            fontWeight: 600,
-            minHeight: 44,
-            borderRadius: 2,
-            bgcolor: valueTask === 2 ? '#8F00FF' : '#fff',
-            color: valueTask === 2 ? '#fff' : '#4A148C',
-            border: '2px solid',
-            borderColor: valueTask === 2 ? '#6A1B9A' : '#9575CD',
-            boxShadow: valueTask === 2 ? '0 2px 8px rgba(106, 27, 154, 0.35)' : 'none',
-            '&:focus-visible': { outline: '3px solid #FFEB3B', outlineOffset: 2 },
-          }}
-        >
-          Movimientos
-        </Button>
+        {[
+          { value: 1, label: 'Lista de insumos', id: 'tab-supply-list', controls: 'panel-supply-list' },
+          { value: 2, label: 'Movimientos', id: 'tab-supply-movements', controls: 'panel-supply-movements' },
+        ].map((tab) => (
+          <Button
+            key={tab.value}
+            role="tab"
+            aria-selected={valueTask === tab.value}
+            id={tab.id}
+            aria-controls={tab.controls}
+            onClick={changeTask(tab.value)}
+            fullWidth
+            sx={{
+              textTransform: 'none',
+              fontWeight: 600,
+              minHeight: 44,
+              borderRadius: 2,
+              bgcolor: valueTask === tab.value ? '#8F00FF' : '#fff',
+              color: valueTask === tab.value ? '#fff' : '#4A148C',
+              border: '2px solid',
+              borderColor: valueTask === tab.value ? '#6A1B9A' : '#9575CD',
+              boxShadow: valueTask === tab.value ? '0 2px 8px rgba(106,27,154,0.35)' : 'none',
+              '&:focus-visible': { outline: '3px solid #FFEB3B', outlineOffset: 2 },
+            }}
+          >
+            {tab.label}
+          </Button>
+        ))}
       </Box>
 
+      {/* ── Tab 1: Lista de insumos ── */}
       {valueTask === 1 && (
         <Box
           id="panel-supply-list"
           role="tabpanel"
           aria-labelledby="tab-supply-list"
-          sx={{ pb: 14 }}
+          sx={{ pb: 14, px: 2 }}
         >
           {listSupplies &&
             listSupplies.map((item) => (
               <Box
                 key={item.idInsumo}
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  mt: 1.25,
-                }}
+                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 1.25 }}
               >
                 <CardSupply
                   first={item.nombre}
                   second={`Stock: ${item.stockActual} U`}
                   textColor={item.stockActual <= item.stockMinimo ? '#C2185B' : '#152C70'}
+                  stockActual={item.stockActual}
+                  stockMinimo={item.stockMinimo}
+                  stockMaximo={item.stockMaximo}
                 />
               </Box>
             ))}
+
           <Fab
             aria-label="Agregar insumo al catálogo"
-            onClick={openRegisterSupplyDialog}
+            onClick={() => setRegisterDialogOpen(true)}
             sx={{
               position: 'fixed',
               left: '50%',
@@ -267,13 +243,15 @@ const SupplyTemplate = (props) => {
               zIndex: 9,
               width: 56,
               height: 56,
-              background: 'linear-gradient(135deg, #A54DFF 0%, #8F00FF 100%)',
-              boxShadow: '0 6px 20px rgba(143, 0, 255, 0.35)',
+              background: BTN_GRADIENT,
+              boxShadow: '0 6px 20px rgba(143,0,255,0.35)',
               '&:focus-visible': { outline: '3px solid #FFEB3B', outlineOffset: 2 },
             }}
           >
             <AddCircleIcon sx={{ fontSize: 32, color: '#fff' }} />
           </Fab>
+
+          {/* Dialog: Nuevo insumo */}
           <Dialog
             open={registerDialogOpen}
             onClose={() => setRegisterDialogOpen(false)}
@@ -285,9 +263,8 @@ const SupplyTemplate = (props) => {
               Nuevo insumo
             </DialogTitle>
             <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-              <Typography variant="body2" sx={{ color: 'rgba(21, 44, 112, 0.75)' }}>
-                Registrá un ítem en el catálogo (aparecerá como tarjeta en esta lista). Para entradas o salidas de
-                stock existente usá la pestaña Movimientos.
+              <Typography variant="body2" sx={{ color: 'rgba(21,44,112,0.7)' }}>
+                Registrá un ítem en el catálogo. Para entradas/salidas de stock usá la pestaña Movimientos.
               </Typography>
               <TextField
                 autoFocus
@@ -335,8 +312,8 @@ const SupplyTemplate = (props) => {
                 inputProps={{ min: 0 }}
               />
             </DialogContent>
-            <DialogActions sx={{ px: 3, pb: 2 }}>
-              <Button onClick={() => setRegisterDialogOpen(false)} color="inherit">
+            <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+              <Button onClick={() => setRegisterDialogOpen(false)} sx={BTN_CANCEL_SX}>
                 Cancelar
               </Button>
               <Button
@@ -352,10 +329,7 @@ const SupplyTemplate = (props) => {
                   Number(newStockActual) < 0 ||
                   Number(newStockMax) < Number(newStockMin)
                 }
-                sx={{
-                  textTransform: 'none',
-                  background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
-                }}
+                sx={BTN_SX}
               >
                 Guardar insumo
               </Button>
@@ -363,85 +337,192 @@ const SupplyTemplate = (props) => {
           </Dialog>
         </Box>
       )}
-           {valueTask === 2 && (
+
+      {/* ── Tab 2: Movimientos ── */}
+      {valueTask === 2 && (
         <Box
           id="panel-supply-movements"
           role="tabpanel"
           aria-labelledby="tab-supply-movements"
-          sx={{ px: 2, py: 2, pb: 14 }}
+          sx={{ px: 2, pt: 2, pb: 14 }}
         >
-          <Typography sx={{ color: '#152C70', fontWeight: 600, mb: 1, fontSize: '0.95rem' }}>
-            Movimientos (últimos 30 días)
+          <Typography
+            sx={{
+              color: 'rgba(21,44,112,0.45)',
+              fontWeight: 700,
+              fontSize: '0.68rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.09em',
+              mb: 1.5,
+            }}
+          >
+            Últimos movimientos
           </Typography>
-          {movementsError != null && movementsError !== '' && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {movementsError}
-            </Alert>
-          )}
+
           {(() => {
             const rows = listSupplyMovementsFromResponse(movementsData);
-            if (movementsError != null && movementsError !== '') {
-              return null;
-            }
             if (!rows?.length) {
               return (
-                <Typography sx={{ color: 'rgba(21, 44, 112, 0.75)', textAlign: 'center', py: 3 }}>
-                  {movementsData == null
-                    ? 'Cargando…'
-                    : 'No hay movimientos en este período o el servidor devolvió un formato distinto.'}
-                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 6, gap: 1.5 }}>
+                  <SwapVertIcon sx={{ fontSize: 48, color: 'rgba(143,0,255,0.18)' }} />
+                  <Typography sx={{ color: 'rgba(21,44,112,0.5)', fontSize: '0.9rem', textAlign: 'center' }}>
+                    {movementsData == null ? 'Cargando movimientos…' : 'Sin movimientos en este período'}
+                  </Typography>
+                </Box>
               );
             }
-            return rows.map((row, idx) => (
-              <Paper
-                key={row.idMovimiento ?? row.id ?? idx}
-                elevation={0}
-                sx={{
-                  p: 1.5,
-                  mb: 1.25,
-                  borderRadius: 2,
-                  border: '1px solid rgba(143, 0, 255, 0.12)',
-                  bgcolor: '#fff',
-                }}
-              >
-                <Typography sx={{ fontSize: '0.9rem', color: '#152C70', fontWeight: 500 }}>
-                  {summarizeSupplyMovementRow(row)}
-                </Typography>
-              </Paper>
-            ));
+            return rows.map((row, idx) => {
+              const isEntrada = row.esEntrada === true || row.esEntrada === 'S';
+              const nombre =
+                row.nombreInsumo ?? row.insumoNombre ?? row.nombre ?? `Insumo #${row.idInsumo ?? idx}`;
+              const fecha = row.fechaMovimiento
+                ? new Date(row.fechaMovimiento).toLocaleString('es-AR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : null;
+              return (
+                <Paper
+                  key={row.idMovimiento ?? row.id ?? idx}
+                  elevation={0}
+                  sx={{
+                    display: 'flex',
+                    gap: 1.5,
+                    p: 1.75,
+                    mb: 1.25,
+                    borderRadius: '16px',
+                    border: '1px solid rgba(143,0,255,0.08)',
+                    boxShadow: '0 2px 12px rgba(21,44,112,0.07)',
+                    bgcolor: '#fff',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      flexShrink: 0,
+                      width: 40,
+                      height: 40,
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: isEntrada ? 'rgba(0,168,107,0.1)' : 'rgba(197,56,20,0.09)',
+                    }}
+                  >
+                    {isEntrada ? (
+                      <ArrowDownwardIcon sx={{ fontSize: 22, color: '#00A86B' }} />
+                    ) : (
+                      <ArrowUpwardIcon sx={{ fontSize: 22, color: '#C53814' }} />
+                    )}
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 1,
+                        mb: 0.4,
+                      }}
+                    >
+                      <Typography
+                        sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#152C70', lineHeight: 1.3 }}
+                        noWrap
+                      >
+                        {nombre}
+                      </Typography>
+                      <Chip
+                        label={isEntrada ? 'Entrada' : 'Salida'}
+                        size="small"
+                        sx={{
+                          bgcolor: isEntrada ? 'rgba(0,168,107,0.12)' : 'rgba(197,56,20,0.1)',
+                          color: isEntrada ? '#007A4D' : '#C53814',
+                          fontWeight: 700,
+                          fontSize: '0.68rem',
+                          height: 20,
+                          flexShrink: 0,
+                          '& .MuiChip-label': { px: 1 },
+                        }}
+                      />
+                    </Box>
+                    <Typography
+                      sx={{ fontSize: '0.82rem', color: 'rgba(21,44,112,0.7)', fontWeight: 500, lineHeight: 1.4 }}
+                    >
+                      {row.cantidad != null ? `${row.cantidad} u.` : '—'}
+                      {fecha ? ` · ${fecha}` : ''}
+                    </Typography>
+                    {row.observacion && (
+                      <Typography
+                        sx={{
+                          fontSize: '0.78rem',
+                          color: 'rgba(21,44,112,0.48)',
+                          mt: 0.3,
+                          fontStyle: 'italic',
+                          lineHeight: 1.35,
+                        }}
+                      >
+                        {row.observacion}
+                      </Typography>
+                    )}
+                  </Box>
+                </Paper>
+              );
+            });
           })()}
+
+          {/* FAB: Registrar movimiento */}
           {typeof onRegisterSupplyMovement === 'function' && (
-            <Paper
-              id="supply-register-movement"
-              elevation={0}
+            <Fab
+              aria-label="Registrar movimiento de stock"
+              onClick={() => setMovDialogOpen(true)}
               sx={{
-                p: 2,
-                mb: 2,
-                borderRadius: 2,
-                border: '1px solid rgba(143, 0, 255, 0.2)',
-                bgcolor: 'rgba(243, 229, 245, 0.35)',
-                scrollMarginTop: 16,
+                position: 'fixed',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                bottom: fabBottomAboveNav,
+                zIndex: 9,
+                width: 56,
+                height: 56,
+                background: BTN_GRADIENT,
+                boxShadow: '0 6px 20px rgba(143,0,255,0.35)',
+                '&:focus-visible': { outline: '3px solid #FFEB3B', outlineOffset: 2 },
               }}
             >
-              <Typography sx={{ fontWeight: 600, color: '#152C70', mb: 1.5, fontSize: '0.9rem' }}>
-                Registrar movimiento de stock
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="mov-insumo-label">Insumo</InputLabel>
-                  <Select
-                    labelId="mov-insumo-label"
-                    label="Insumo"
-                    value={movIdInsumo}
-                    onChange={(e) => setMovIdInsumo(e.target.value)}
-                  >
-                    {(listSupplies ?? supplies ?? []).map((s) => (
-                      <MenuItem key={s.idInsumo} value={String(s.idInsumo)}>
-                        {s.nombre ?? `Insumo #${s.idInsumo}`}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+              <SwapVertIcon sx={{ fontSize: 28, color: '#fff' }} />
+            </Fab>
+          )}
+
+          {/* Dialog: Registrar movimiento */}
+          <Dialog
+            open={movDialogOpen}
+            onClose={closeMovDialog}
+            fullWidth
+            maxWidth="sm"
+            aria-labelledby="mov-dialog-title"
+          >
+            <DialogTitle id="mov-dialog-title" sx={{ color: '#4A148C', fontWeight: 700 }}>
+              Registrar movimiento
+            </DialogTitle>
+            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="mov-insumo-label">Insumo</InputLabel>
+                <Select
+                  labelId="mov-insumo-label"
+                  label="Insumo"
+                  value={movIdInsumo}
+                  onChange={(e) => setMovIdInsumo(e.target.value)}
+                >
+                  {(listSupplies ?? supplies ?? []).map((s) => (
+                    <MenuItem key={s.idInsumo} value={String(s.idInsumo)}>
+                      {s.nombre ?? `Insumo #${s.idInsumo}`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <Box sx={{ display: 'flex', gap: 1.5 }}>
                 <TextField
                   size="small"
                   fullWidth
@@ -452,10 +533,10 @@ const SupplyTemplate = (props) => {
                   inputProps={{ min: 1 }}
                 />
                 <FormControl fullWidth size="small">
-                  <InputLabel id="mov-tipo-label">Entrada / salida</InputLabel>
+                  <InputLabel id="mov-tipo-label">Tipo</InputLabel>
                   <Select
                     labelId="mov-tipo-label"
-                    label="Entrada / salida"
+                    label="Tipo"
                     value={movEsEntrada}
                     onChange={(e) => setMovEsEntrada(e.target.value)}
                   >
@@ -463,67 +544,62 @@ const SupplyTemplate = (props) => {
                     <MenuItem value="N">Salida</MenuItem>
                   </Select>
                 </FormControl>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="mov-prov-label">Proveedor (opcional)</InputLabel>
-                  <Select
-                    labelId="mov-prov-label"
-                    label="Proveedor (opcional)"
-                    value={movIdProveedor}
-                    onChange={(e) => setMovIdProveedor(e.target.value)}
-                  >
-                    <MenuItem value="__none__">—</MenuItem>
-                    {providerRows.map((p) => {
-                      const pid = p.idProveedor ?? p.id;
-                      if (pid == null) return null;
-                      return (
-                        <MenuItem key={pid} value={String(pid)}>
-                          {p.nombre ?? p.razonSocial ?? `Proveedor #${pid}`}
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
-                <TextField
-                  size="small"
-                  fullWidth
-                  type="number"
-                  label="Id bebé (opcional)"
-                  value={movIdBebe}
-                  onChange={(e) => setMovIdBebe(e.target.value)}
-                />
-                <TextField
-                  size="small"
-                  fullWidth
-                  label="Observación (opcional)"
-                  value={movObservacion}
-                  onChange={(e) => setMovObservacion(e.target.value)}
-                  multiline
-                  minRows={2}
-                />
-                <Button
-                  variant="contained"
-                  onClick={submitMovement}
-                  disabled={
-                    movIdInsumo === '' ||
-                    movCantidad === '' ||
-                    Number.isNaN(Number(movCantidad)) ||
-                    Number(movCantidad) === 0
-                  }
-                  sx={{
-                    textTransform: 'none',
-                    background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
-                  }}
-                >
-                  Registrar movimiento
-                </Button>
               </Box>
-            </Paper>
-          )}
-          {providerRows.length > 0 && (
-            <Typography sx={{ color: 'rgba(21, 44, 112, 0.6)', fontSize: '0.8rem', mt: 2 }}>
-              Proveedores disponibles: {providerRows.length}
-            </Typography>
-          )}
+
+              <FormControl fullWidth size="small">
+                <InputLabel id="mov-prov-label">Proveedor (opcional)</InputLabel>
+                <Select
+                  labelId="mov-prov-label"
+                  label="Proveedor (opcional)"
+                  value={movIdProveedor}
+                  onChange={(e) => setMovIdProveedor(e.target.value)}
+                >
+                  <MenuItem value="__none__">—</MenuItem>
+                  {providerRows.map((p) => {
+                    const pid = p.idProveedor ?? p.id;
+                    if (pid == null) return null;
+                    return (
+                      <MenuItem key={pid} value={String(pid)}>
+                        {p.nombre ?? p.razonSocial ?? `Proveedor #${pid}`}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+
+              <TextField
+                size="small"
+                fullWidth
+                label="Observación (opcional)"
+                value={movObservacion}
+                onChange={(e) => setMovObservacion(e.target.value)}
+                multiline
+                minRows={2}
+              />
+
+              <TextField
+                size="small"
+                fullWidth
+                type="number"
+                label="Id bebé (opcional)"
+                value={movIdBebe}
+                onChange={(e) => setMovIdBebe(e.target.value)}
+              />
+            </DialogContent>
+            <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+              <Button onClick={closeMovDialog} sx={BTN_CANCEL_SX}>
+                Cancelar
+              </Button>
+              <Button
+                variant="contained"
+                onClick={submitMovement}
+                disabled={!movFormValid}
+                sx={BTN_SX}
+              >
+                Registrar
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       )}
     </div>
@@ -531,10 +607,3 @@ const SupplyTemplate = (props) => {
 };
 
 export default SupplyTemplate;
-
-const HeaderBar = styled(Box)`
-  display: flex;
-  align-items: center;
-  background: linear-gradient(90deg, #8f00ff 0%, #a54dff 100%);
-  padding: 8px 4px 10px;
-`;

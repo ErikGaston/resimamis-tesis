@@ -47,9 +47,9 @@ export const LoginPage = () => {
           : GENERIC_API_ERROR;
       setError(msg);
     }
-    if (dataLogin?.postLogin !== null) {
-      let token = dataLogin?.postLogin?.token;
-      const vol = dataLogin?.postLogin?.voluntaria ?? {};
+    if (dataLogin?.postLogin?.data?.token) {
+      let token = dataLogin?.postLogin?.data?.token;
+      const vol = dataLogin?.postLogin?.data?.voluntaria ?? {};
       const idRol = vol.idRol ?? vol.IdRol ?? null;
       const rol = vol.rol ?? vol.Rol ?? null;
       localStorage.setItem("voluntaria", JSON.stringify({
@@ -80,7 +80,7 @@ export const LoginPage = () => {
         model={model}
         setModel={setModel}
         handleLogin={handleLogin}
-
+        loading={loading}
         error={error}
       />
     </>

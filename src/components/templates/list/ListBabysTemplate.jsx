@@ -1,11 +1,12 @@
 import styled from '@emotion/styled';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ChildCareOutlined from '@mui/icons-material/ChildCareOutlined';
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import SearchIcon from '@mui/icons-material/Search';
-import { Box, Fab, IconButton, InputAdornment, TextField, Typography, Button, Alert } from '@mui/material';
+import { Alert, Box, Button, Fab, InputAdornment, TextField, Typography } from '@mui/material';
+import { PageHeader } from '../../common/PageHeader';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { fabRightInsetInColumn } from '../../../helpers/const/appLayout';
 import { fabBottomAboveNav, listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
 import CardBaby from '../../molecules/cardBaby/CardBaby';
@@ -31,18 +32,12 @@ const ListBabysTemplate = (props) => {
     babys,
     isCoordinator,
     onDeleteBaby,
-    dniApiSearch,
-    onDniApiSearchChange,
     onConsultarDniApi,
     babyByDniPayload,
   } = props;
-  const navigate = useNavigate();
   const [listBabys, setListBabys] = React.useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-
-  const functionBack = () => {
-    navigate(-1);
-  };
+  const [dniResultDismissed, setDniResultDismissed] = useState(true);
 
   useEffect(() => {
     if (!babys || !Array.isArray(babys)) {
@@ -57,10 +52,31 @@ const ListBabysTemplate = (props) => {
     setListBabys(sorted);
   }, [babys]);
 
+  useEffect(() => {
+    setDniResultDismissed(true);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (babyByDniPayload != null) setDniResultDismissed(false);
+  }, [babyByDniPayload]);
+
   const filteredBabys = useMemo(() => {
     if (!listBabys?.length) return null;
     return listBabys.filter((b) => babyMatchesQuery(b, searchQuery));
   }, [listBabys, searchQuery]);
+
+  const isCoordinatorDniQuery =
+    Boolean(isCoordinator && onConsultarDniApi) &&
+    /^\d{6,}$/.test(searchQuery.trim());
+
+  const handleConsultarDni = () => {
+    const digits = searchQuery.trim().replace(/\D/g, '');
+    if (digits) onConsultarDniApi?.(digits);
+  };
+
+  const dniResultBaby = babyByDniPayload?.data;
+  const dniResultSuccess = babyByDniPayload?.success !== false;
+  const showDniResult = babyByDniPayload != null && !dniResultDismissed;
 
   const listadoCargado = babys != null;
   const sinResultados = listadoCargado && Array.isArray(babys) && babys.length === 0;
@@ -69,35 +85,7 @@ const ListBabysTemplate = (props) => {
 
   return (
     <PageWrap>
-      <HeaderBar>
-        <IconButton
-          onClick={functionBack}
-          aria-label="Volver a la pantalla anterior"
-          sx={{
-            color: '#fff',
-            minWidth: 48,
-            minHeight: 48,
-            '&:hover': { backgroundColor: 'rgba(255,255,255,0.12)' },
-          }}
-        >
-          <ArrowBackIosNewIcon sx={{ fontSize: 22 }} />
-        </IconButton>
-        <Typography
-          component="h1"
-          sx={{
-            flex: 1,
-            textAlign: 'center',
-            color: '#fff',
-            fontWeight: 600,
-            fontSize: '1.05rem',
-            letterSpacing: '0.04em',
-            pr: '48px',
-            textShadow: '0 2px 8px rgba(0,0,0,0.2)',
-          }}
-        >
-          Bebés
-        </Typography>
-      </HeaderBar>
+      <PageHeader title="Bebés" />
 
       <SearchWrap>
         <TextField
@@ -106,6 +94,9 @@ const ListBabysTemplate = (props) => {
           placeholder="Buscar por nombre, apellido o DNI"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && isCoordinatorDniQuery) handleConsultarDni();
+          }}
           aria-label="Buscar bebé"
           InputProps={{
             startAdornment: (
@@ -120,42 +111,61 @@ const ListBabysTemplate = (props) => {
             ...listSearchTextFieldSx,
           }}
         />
+
+        {isCoordinatorDniQuery && (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              maxWidth: 560,
+              width: '100%',
+              mx: 'auto',
+              pt: 0.5,
+            }}
+          >
+            <Button
+              size="small"
+              variant="text"
+              endIcon={<ManageSearchIcon sx={{ fontSize: '15px !important' }} />}
+              onClick={handleConsultarDni}
+              sx={{
+                fontSize: '0.72rem',
+                color: '#7A659B',
+                textTransform: 'none',
+                py: 0,
+                px: 0.5,
+                minHeight: 'unset',
+                '&:hover': { bgcolor: 'rgba(122, 101, 155, 0.08)' },
+              }}
+            >
+              Consultar en el sistema
+            </Button>
+          </Box>
+        )}
       </SearchWrap>
 
-      {isCoordinator && (
-        <Box
-          sx={{
-            maxWidth: 560,
-            margin: '0 auto',
-            px: 2,
-            pb: 1,
-            display: 'flex',
-            gap: 1,
-            alignItems: 'center',
-            flexWrap: 'wrap',
-          }}
-        >
-          <TextField
-            size="small"
-            label="DNI (consulta API)"
-            value={dniApiSearch ?? ''}
-            onChange={(e) => onDniApiSearchChange?.(e.target.value)}
-            sx={{ flex: 1, minWidth: 140 }}
-            inputProps={{ inputMode: 'numeric' }}
-          />
-          <Button variant="outlined" size="small" onClick={() => onConsultarDniApi?.()}>
-            Consultar
-          </Button>
-        </Box>
-      )}
-
-      {babyByDniPayload != null && (
-        <Box sx={{ maxWidth: 560, margin: '0 auto', px: 2, pb: 1 }}>
-          <Alert severity="info" sx={{ '& pre': { m: 0, fontSize: 11, overflow: 'auto', maxHeight: 200 } }}>
-            <Typography variant="caption" component="div" sx={{ fontWeight: 600, mb: 0.5 }}>
-              Respuesta GET /bebe/id/…
-            </Typography>
-            <pre>{JSON.stringify(babyByDniPayload, null, 2)}</pre>
+      {showDniResult && (
+        <Box sx={{ maxWidth: 560, mx: 'auto', px: 2, pb: 1.5 }}>
+          <Alert
+            severity={dniResultSuccess && dniResultBaby ? 'success' : 'warning'}
+            onClose={() => setDniResultDismissed(true)}
+            sx={{ fontSize: '0.82rem', alignItems: 'flex-start' }}
+          >
+            {dniResultSuccess && dniResultBaby ? (
+              <>
+                <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.4 }}>
+                  {[dniResultBaby.nombre, dniResultBaby.apellido].filter(Boolean).join(' ') || '—'}
+                </Typography>
+                <Typography variant="caption" component="div" sx={{ opacity: 0.85 }}>
+                  DNI {dniResultBaby.Dni ?? dniResultBaby.dni ?? '—'}
+                  {dniResultBaby.IdSala ? ` · Sala ${dniResultBaby.IdSala}` : ''}
+                </Typography>
+              </>
+            ) : (
+              <Typography variant="body2">
+                {babyByDniPayload?.message ?? 'No se encontró ningún bebé con ese DNI.'}
+              </Typography>
+            )}
           </Alert>
         </Box>
       )}
@@ -255,21 +265,14 @@ const PageWrap = styled(Box)`
   background: linear-gradient(180deg, #f3f0ff 0%, #faf8fc 32%, #ffffff 100%);
 `;
 
-const HeaderBar = styled(Box)`
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  background: linear-gradient(90deg, #8f00ff 0%, #a54dff 55%, #c18aff 100%);
-  padding: 8px 4px 10px;
-  z-index: 10;
-  box-shadow: 0 4px 14px rgba(143, 0, 255, 0.22);
-`;
 
 const SearchWrap = styled(Box)`
   flex-shrink: 0;
   padding: 12px 16px 8px;
   background: linear-gradient(180deg, rgba(143, 0, 255, 0.06) 0%, transparent 100%);
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: center;
 `;
 
