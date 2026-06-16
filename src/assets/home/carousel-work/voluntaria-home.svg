@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 125" width="110" height="125">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5FFF8"/>
+      <stop offset="100%" stop-color="#E8F5EC"/>
+    </linearGradient>
+    <linearGradient id="lbl" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#9500FF"/>
+      <stop offset="100%" stop-color="#7900E0"/>
+    </linearGradient>
+    <linearGradient id="body-g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+    <linearGradient id="head-g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#FCD34D"/>
+    </linearGradient>
+    <linearGradient id="hair-g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#92400E"/>
+      <stop offset="100%" stop-color="#6B2E0B"/>
+    </linearGradient>
+    <linearGradient id="badge-g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#5B21B6"/>
+    </linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="3.5" flood-color="#6D28D9" flood-opacity="0.25"/>
+    </filter>
+    <filter id="sh2" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2.5" flood-color="#6D28D9" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Card background -->
+  <rect width="110" height="125" rx="14" fill="url(#bg)"/>
+
+  <!-- Hanging decoration left (green tint) -->
+  <line x1="18" y1="0" x2="18" y2="16" stroke="#A7F3D0" stroke-width="0.9" opacity="0.6"/>
+  <circle cx="18" cy="21" r="5" fill="#D1FAE5" opacity="0.65"/>
+  <circle cx="18" cy="21" r="2.5" fill="#ECFDF5" opacity="0.85"/>
+
+  <!-- Hanging decoration right -->
+  <line x1="90" y1="0" x2="90" y2="20" stroke="#C4B5FD" stroke-width="0.9" opacity="0.5"/>
+  <ellipse cx="90" cy="25" rx="3" ry="4" fill="#DDD6FE" opacity="0.6"/>
+  <ellipse cx="90" cy="25" rx="1.5" ry="2" fill="#F5F3FF" opacity="0.8"/>
+
+  <!-- Stars (top-left for this card) -->
+  <polygon points="25,8 26.7,13.2 32.2,13.2 27.8,16.3 29.5,21.5 25,18.3 20.5,21.5 22.2,16.3 17.8,13.2 23.3,13.2" fill="#FACC15" opacity="0.85"/>
+  <polygon points="97,53 98.1,56.4 101.6,56.4 98.9,58.4 100,61.8 97,59.8 94,61.8 95.1,58.4 92.4,56.4 95.9,56.4" fill="#FACC15" opacity="0.6"/>
+  <polygon points="13,77 13.5,78.8 15.5,78.8 14,80 14.5,81.8 13,80.8 11.5,81.8 12,80 10.5,78.8 12.5,78.8" fill="#FACC15" opacity="0.5"/>
+
+  <!-- Soft decorative circles -->
+  <circle cx="96" cy="38" r="4" fill="#D1FAE5" opacity="0.55"/>
+  <circle cx="10" cy="42" r="3" fill="#EDE9FE" opacity="0.55"/>
+  <circle cx="100" cy="70" r="2.2" fill="#A7F3D0" opacity="0.45"/>
+
+  <!-- ===== MAIN ILLUSTRATION: VOLUNTEER PERSON ===== -->
+
+  <!-- Left arm (reaching/helping out) -->
+  <path d="M46,66 C38,62 29,63 24,69" stroke="url(#body-g)" stroke-width="8" fill="none" stroke-linecap="round" filter="url(#sh2)"/>
+  <!-- Right arm -->
+  <path d="M64,66 C72,62 81,63 86,69" stroke="url(#body-g)" stroke-width="8" fill="none" stroke-linecap="round" filter="url(#sh2)"/>
+
+  <!-- Body (trapezoid / dress) -->
+  <path d="M44,55 C44,55 40,60 40,80 C40,85 44,88 55,88 C66,88 70,85 70,80 C70,60 66,55 66,55 Z"
+        fill="url(#body-g)" filter="url(#sh)"/>
+  <!-- Body highlight -->
+  <path d="M49,57 C48,62 47,70 48,78" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.2"/>
+
+  <!-- Neck -->
+  <rect x="51" y="49" width="8" height="10" rx="4" fill="#FCD34D"/>
+
+  <!-- Head -->
+  <circle cx="55" cy="37" r="14" fill="url(#head-g)" filter="url(#sh)"/>
+  <!-- Head highlight -->
+  <circle cx="50" cy="32" r="4" fill="white" opacity="0.25"/>
+
+  <!-- Hair -->
+  <path d="M42,36 C42,26 50,23 55,23 C60,23 68,26 68,36 C68,30 64,25 55,25 C46,25 42,30 42,36 Z" fill="url(#hair-g)"/>
+  <!-- Hair sides -->
+  <ellipse cx="42" cy="38" rx="3.5" ry="5" fill="url(#hair-g)"/>
+  <ellipse cx="68" cy="38" rx="3.5" ry="5" fill="url(#hair-g)"/>
+
+  <!-- Eyes -->
+  <ellipse cx="50" cy="38" rx="2.2" ry="2.5" fill="#3B1F0A"/>
+  <ellipse cx="60" cy="38" rx="2.2" ry="2.5" fill="#3B1F0A"/>
+  <!-- Eye shine -->
+  <circle cx="51" cy="37" r="0.8" fill="white"/>
+  <circle cx="61" cy="37" r="0.8" fill="white"/>
+
+  <!-- Smile -->
+  <path d="M50,43 Q55,47 60,43" stroke="#3B1F0A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Star badge (top-right, volunteer symbol) -->
+  <circle cx="81" cy="29" r="12" fill="url(#badge-g)" filter="url(#sh2)"/>
+  <polygon points="81,22 82.8,27.3 88.4,27.3 84,30.6 85.8,35.9 81,32.6 76.2,35.9 78,30.6 73.6,27.3 79.2,27.3" fill="#FACC15"/>
+
+  <!-- Star badge glow dot -->
+  <circle cx="76" cy="24" r="2" fill="white" opacity="0.35"/>
+
+  <!-- ===== LABEL BAR ===== -->
+  <path d="M0,101 H110 V111 Q110,125 96,125 H14 Q0,125 0,111 Z" fill="url(#lbl)"/>
+  <text x="55" y="117" text-anchor="middle"
+        font-family="Roboto, Arial, sans-serif"
+        font-size="9.5" font-weight="700"
+        fill="white" letter-spacing="0.4">Voluntarias</text>
+</svg>

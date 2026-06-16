@@ -205,6 +205,9 @@ export function normalizeMotherPayload(model) {
   if (!model || typeof model !== 'object') return model;
   const p = { ...model };
   delete p.nombre_localidad;
+  delete p.estadoDetalle;
+  delete p.localidadDetalle;
+  delete p.bebe;
   if (typeof p.celular === 'string') {
     const digits = p.celular.replace(/\D/g, '');
     p.celular = digits ? Number(digits) : p.celular;

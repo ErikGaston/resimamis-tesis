@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 125" width="110" height="125">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F9F5FF"/>
+      <stop offset="100%" stop-color="#EDE3FA"/>
+    </linearGradient>
+    <linearGradient id="lbl" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#9500FF"/>
+      <stop offset="100%" stop-color="#7900E0"/>
+    </linearGradient>
+    <linearGradient id="cb" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#B07EFA"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F5F0FF"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9B4CF5"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="3.5" flood-color="#5B21B6" flood-opacity="0.28"/>
+    </filter>
+    <filter id="sh2" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#5B21B6" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+
+  <!-- Card background -->
+  <rect width="110" height="125" rx="14" fill="url(#bg)"/>
+
+  <!-- Hanging decorations top-left (como en otras cards) -->
+  <line x1="17" y1="0" x2="17" y2="16" stroke="#C4B5FD" stroke-width="0.9" opacity="0.55"/>
+  <circle cx="17" cy="21" r="5" fill="#DDD6FE" opacity="0.6"/>
+  <circle cx="17" cy="21" r="2.5" fill="#EDE9FE" opacity="0.85"/>
+
+  <!-- Hanging decoration top-right -->
+  <line x1="91" y1="0" x2="91" y2="22" stroke="#C4B5FD" stroke-width="0.9" opacity="0.5"/>
+  <ellipse cx="91" cy="27" rx="3.5" ry="4.5" fill="#EDE9FE" opacity="0.65"/>
+  <ellipse cx="91" cy="27" rx="1.8" ry="2.3" fill="#F3E8FF" opacity="0.8"/>
+
+  <!-- Estrellas amarillas (idénticas al estilo de las otras cards) -->
+  <!-- Estrella grande arriba-derecha -->
+  <polygon points="85,10 86.6,14.9 91.8,14.9 87.7,17.8 89.3,22.7 85,19.8 80.7,22.7 82.3,17.8 78.2,14.9 83.4,14.9" fill="#FACC15" opacity="0.9"/>
+  <!-- Estrella pequeña izquierda-centro -->
+  <polygon points="10,56 11,59 14,59 11.6,60.7 12.6,63.7 10,62 7.4,63.7 8.4,60.7 6,59 9,59" fill="#FACC15" opacity="0.65"/>
+  <!-- Estrella mini abajo-derecha -->
+  <polygon points="98,77 98.5,78.5 100.2,78.5 98.8,79.5 99.3,81 98,80 96.7,81 97.2,79.5 95.8,78.5 97.5,78.5" fill="#FACC15" opacity="0.5"/>
+
+  <!-- Círculos decorativos suaves -->
+  <circle cx="97" cy="42" r="4" fill="#EDE9FE" opacity="0.65"/>
+  <circle cx="11" cy="38" r="3" fill="#F3E8FF" opacity="0.55"/>
+  <circle cx="101" cy="68" r="2.2" fill="#DDD6FE" opacity="0.45"/>
+
+  <!-- ===== ILUSTRACIÓN PRINCIPAL: CLIPBOARD COORDINACIÓN ===== -->
+  <!-- Clipboard rotado levemente para efecto 3D (como las figuras de las otras cards) -->
+  <g transform="translate(55,55) rotate(-7)" filter="url(#sh)">
+    <!-- Cuerpo del clipboard -->
+    <rect x="-27" y="-33" width="54" height="62" rx="8" fill="url(#cb)"/>
+    <!-- Cara / papel del clipboard -->
+    <rect x="-23" y="-29" width="46" height="54" rx="6" fill="url(#paper)"/>
+    <!-- Clip superior -->
+    <rect x="-14" y="-43" width="28" height="18" rx="9" fill="#5B21B6"/>
+    <rect x="-10" y="-39" width="20" height="10" rx="5" fill="#A78BFA"/>
+    <!-- Agujero del clip -->
+    <circle cx="0" cy="-34" r="2.8" fill="#3B0764"/>
+  </g>
+
+  <!-- Líneas en el clipboard (dentro del transform para alinearse) -->
+  <g transform="translate(55,55) rotate(-7)">
+    <!-- Líneas de contenido -->
+    <line x1="-15" y1="-12" x2="13" y2="-12" stroke="#C4B5FD" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-15" y1="-2"  x2="10"  y2="-2"  stroke="#C4B5FD" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-15" y1="8"   x2="12"  y2="8"   stroke="#C4B5FD" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-15" y1="18"  x2="6"   y2="18"  stroke="#C4B5FD" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Checkmarks en líneas (ícono de "tarea completada") -->
+    <circle cx="-15" cy="-2" r="5" fill="#8B5CF6" filter="url(#sh2)"/>
+    <path d="M-17.5,-2 L-15,0.5 L-11.5,-4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+    <circle cx="-15" cy="8" r="5" fill="#8B5CF6" filter="url(#sh2)"/>
+    <path d="M-17.5,8 L-15,10.5 L-11.5,5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+    <!-- Badge de estrella dorada (símbolo coordinación) en esquina -->
+    <circle cx="13" cy="-13" r="11" fill="url(#badge)" filter="url(#sh2)"/>
+    <polygon points="13,-21 14.8,-16.2 19.9,-16.2 15.9,-13.2 17.5,-8.4 13,-11.4 8.5,-8.4 10.1,-13.2 6.1,-16.2 11.2,-16.2" fill="#FACC15"/>
+  </g>
+
+  <!-- ===== BARRA LABEL (igual que las otras cards) ===== -->
+  <path d="M0,101 H110 V111 Q110,125 96,125 H14 Q0,125 0,111 Z" fill="url(#lbl)"/>
+  <text
+    x="55" y="117"
+    text-anchor="middle"
+    font-family="Roboto, Arial, sans-serif"
+    font-size="9.5"
+    font-weight="700"
+    fill="white"
+    letter-spacing="0.4"
+  >Coordinaci&#xF3;n</text>
+</svg>

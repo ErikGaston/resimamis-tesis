@@ -56,6 +56,7 @@ export const TasksPage = () => {
     const [error, setError] = useState(null);
     const [stateForm, setStateForm] = useState(null);
     const [checkAssistance, setCheckAssistance] = useState(false);
+    const [salidaRegistrada, setSalidaRegistrada] = useState(false);
     let idVolunteer = getIdVolunteer();
     const [selectedVolunteerIds, setSelectedVolunteerIds] = useState([]);
     const [selectedBabyTareaIds, setSelectedBabyTareaIds] = useState([]);
@@ -240,6 +241,7 @@ export const TasksPage = () => {
                 setModel(null)
                 setStateForm('ASSISTENCE')
                 setCheckAssistance(true);
+                setSalidaRegistrada(false);
                 dispatch(getAssignmentTodayById(idVolunteer))
                 setTimeout(() => {
                     setStateForm(null);
@@ -250,6 +252,7 @@ export const TasksPage = () => {
             dispatch(showLoading(false))
             setStateForm('ASSISTENCE_SALIDA')
             setCheckAssistance(false)
+            setSalidaRegistrada(true);
             dispatch(getAssistance(idVolunteer))
             setTimeout(() => {
                 setStateForm(null)
@@ -417,6 +420,7 @@ export const TasksPage = () => {
                 changeTask={changeTask}
                 valueTask={valueTask}
                 checkAssistance={checkAssistance}
+                salidaRegistrada={salidaRegistrada}
                 assignmentVolunteer={dataAssignment?.getAssignmentTodayById?.data ?? null}
                 volunteersFree={dataVolunteer?.getVolunteersFree?.data ?? null}
                 listBabysFree={babiesFreeList}

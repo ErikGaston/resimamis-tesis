@@ -1,10 +1,15 @@
 import styled from '@emotion/styled';
 import React from 'react'
-import { Button, Typography, FormControl, InputLabel, MenuItem, Select, Box } from '@mui/material'
+import {
+    Button, Typography, FormControl, InputLabel, MenuItem, Select, Box,
+    Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Divider,
+} from '@mui/material'
 import ButtonTextCheck from '../../molecules/buttonTextCheck/ButtonTextCheck';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ButtonCustomized from '../../atoms/button/ButtonCustomized';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import FlashOnIcon from '@mui/icons-material/FlashOn';
+import CloseIcon from '@mui/icons-material/Close';
 import { resolveIdTareaForGenerarTareas, babyRowKey } from '../../../utils/assignmentSelection';
 
 const AssignmentTask = ({
@@ -21,18 +26,22 @@ const AssignmentTask = ({
     setChangeAssignedList,
     submitAssignmentQuick,
 }) => {
-
     const [quickVolId, setQuickVolId] = React.useState('');
     const [quickTareaId, setQuickTareaId] = React.useState('');
+    const [quickOpen, setQuickOpen] = React.useState(false);
 
-    const seeAssignedList = () => {
-        setChangeAssignedList(true);
-    }
+    const openQuick = () => setQuickOpen(true);
+    const closeQuick = () => {
+        setQuickOpen(false);
+        setQuickVolId('');
+        setQuickTareaId('');
+    };
 
     const runQuickAssign = () => {
         if (typeof submitAssignmentQuick !== 'function') return;
         if (quickVolId === '' || quickTareaId === '') return;
         submitAssignmentQuick({ idVoluntaria: Number(quickVolId), idTarea: Number(quickTareaId) });
+        closeQuick();
     };
 
     const volIds = listVolunteersFree?.map((v) => v.idVoluntaria).filter((id) => id != null) ?? [];
@@ -51,12 +60,18 @@ const AssignmentTask = ({
     const hasVolunteers = listVolunteersFree && listVolunteersFree.length > 0;
     const hasBabys = listBabysFree && listBabysFree.length > 0;
 
+    const submitLabel = canSubmit
+        ? `GENERAR ASIGNACIONES · ${selectedVolunteerIds.length}V – ${selectedBabyTareaIds.length}B`
+        : 'GENERAR ASIGNACIONES';
+
     return (
-        <div style={{ padding: '30px 20px' }}>
-            <Title>Voluntarias presentes</Title>
+        <Box sx={{ p: '20px 16px 12px' }}>
+
+            {/* ── Voluntarias presentes ── */}
+            <SectionTitle>Voluntarias presentes</SectionTitle>
             {hasVolunteers ? (
                 <>
-                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
                         {listVolunteersFree?.map((item) => {
                             const id = item.idVoluntaria;
                             const checked = id != null && selectedVolunteerIds.includes(id);
@@ -66,28 +81,29 @@ const AssignmentTask = ({
                                     check={checked}
                                     onClick={() => toggleVolunteerSelection(id)}
                                 >
-                                    {item.nombre + " " + item.apellido}
+                                    {item.nombre + ' ' + item.apellido}
                                 </ButtonTextCheck>
                             );
                         })}
-                    </div>
-                    <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
-                        <Button style={{ textTransform: 'inherit' }} onClick={selectVolunteersFree}>
-                            <TitleButton>Seleccionar todas las voluntarias</TitleButton>
-                            <CheckCircleIcon style={{ color: allVolSelected ? '#8F00FF' : '#CECECE', marginLeft: '10px' }} />
+                    </Box>
+                    <SelectAllRow>
+                        <Button sx={{ textTransform: 'inherit', py: '3px' }} onClick={selectVolunteersFree}>
+                            <TitleButton>Seleccionar todas</TitleButton>
+                            <CheckCircleIcon sx={{ color: allVolSelected ? '#8F00FF' : '#CECECE', ml: '8px', fontSize: 18 }} />
                         </Button>
-                    </div>
+                    </SelectAllRow>
                 </>
             ) : (
-                <StyledSectionEmpty style={{ marginBottom: '24px' }}>
-                    No se encontraron voluntarias con asistencia registrada en este momento.
-                </StyledSectionEmpty>
+                <EmptyText>No se encontraron voluntarias con asistencia registrada en este momento.</EmptyText>
             )}
 
-            <Title>Bebés disponibles para abrazar</Title>
+            <Divider sx={{ my: 2 }} />
+
+            {/* ── Bebés disponibles ── */}
+            <SectionTitle>Bebés disponibles para abrazar</SectionTitle>
             {hasBabys ? (
                 <>
-                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
                         {listBabysFree.map((item, index) => {
                             const tareaId = resolveIdTareaForGenerarTareas(item);
                             if (tareaId == null) return null;
@@ -103,141 +119,180 @@ const AssignmentTask = ({
                                 </ButtonTextCheck>
                             );
                         })}
-                    </div>
-                    <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
-                        <Button style={{ textTransform: 'inherit' }} onClick={selectAllBabysFree}>
-                            <TitleButton>Seleccionar todos los bebés</TitleButton>
-                            <CheckCircleIcon style={{ color: allBabysSelected ? '#8F00FF' : '#CECECE', marginLeft: '10px' }} />
+                    </Box>
+                    <SelectAllRow>
+                        <Button sx={{ textTransform: 'inherit', py: '3px' }} onClick={selectAllBabysFree}>
+                            <TitleButton>Seleccionar todos</TitleButton>
+                            <CheckCircleIcon sx={{ color: allBabysSelected ? '#8F00FF' : '#CECECE', ml: '8px', fontSize: 18 }} />
                         </Button>
-                    </div>
+                    </SelectAllRow>
                 </>
             ) : (
-                <StyledSectionEmpty style={{ marginBottom: '24px' }}>
-                    No hay bebés disponibles para abrazar en este momento.
-                </StyledSectionEmpty>
+                <EmptyText>No hay bebés disponibles para abrazar en este momento.</EmptyText>
             )}
 
-            {existAssigned && (
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button style={{ textTransform: 'inherit' }} onClick={seeAssignedList}>
+            <Divider sx={{ mt: 2, mb: 1.5 }} />
+
+            {/* ── Botones secundarios ── */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
+                {existAssigned ? (
+                    <Button sx={{ textTransform: 'inherit', py: '4px' }} onClick={() => setChangeAssignedList(true)}>
                         <TitleButton>Ver última asignación</TitleButton>
-                        <RemoveRedEyeIcon style={{ color: '#8F00FF', marginLeft: '10px' }} />
+                        <RemoveRedEyeIcon sx={{ color: '#8F00FF', ml: '8px', fontSize: 18 }} />
                     </Button>
-                </div>
-            )}
+                ) : <Box />}
 
-            {typeof submitAssignmentQuick === 'function' && (
-                <Box sx={{ mt: 3, p: 2, borderRadius: 2, border: '1px solid rgba(143, 0, 255, 0.25)', bgcolor: 'rgba(243, 229, 245, 0.5)' }}>
-                    <Title style={{ marginBottom: 16 }}>Asignación rápida (una voluntaria y un bebé)</Title>
-                    <Typography sx={{ fontSize: 14, color: 'rgba(21, 44, 112, 0.8)', mb: 2 }}>
-                        Usa el endpoint <strong>generarTarea</strong> sin pasar por la selección múltiple de abajo.
-                    </Typography>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                        <FormControl fullWidth size="small">
-                            <InputLabel id="quick-vol-label">Voluntaria</InputLabel>
-                            <Select
-                                labelId="quick-vol-label"
-                                label="Voluntaria"
-                                value={quickVolId}
-                                onChange={(e) => setQuickVolId(e.target.value)}
-                            >
-                                {(listVolunteersFree ?? []).map((v) => {
-                                    const id = v.idVoluntaria;
-                                    if (id == null) return null;
-                                    return (
-                                        <MenuItem key={id} value={String(id)}>
-                                            {[v.nombre, v.apellido].filter(Boolean).join(' ') || `Voluntaria #${id}`}
-                                        </MenuItem>
-                                    );
-                                })}
-                            </Select>
-                        </FormControl>
-                        <FormControl fullWidth size="small">
-                            <InputLabel id="quick-baby-label">Bebé / tarea</InputLabel>
-                            <Select
-                                labelId="quick-baby-label"
-                                label="Bebé / tarea"
-                                value={quickTareaId}
-                                onChange={(e) => setQuickTareaId(e.target.value)}
-                            >
-                                {listBabysFree.map((item, index) => {
-                                    const tid = resolveIdTareaForGenerarTareas(item);
-                                    if (tid == null) return null;
-                                    const label = [item.nombre, item.apellido].filter(Boolean).join(' ').trim() || `Tarea #${tid}`;
-                                    return (
-                                        <MenuItem key={babyRowKey(item, index)} value={String(tid)}>
-                                            {label}
-                                        </MenuItem>
-                                    );
-                                })}
-                            </Select>
-                        </FormControl>
-                        <ButtonCustomized
-                            variant={'container'}
-                            colorText={'#FFF'}
-                            sx={{
-                                fontSize: '15px',
-                                background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
-                                boxShadow: '2px 3px 4px 0px rgba(0, 0, 0, 0.2)',
-                            }}
-                            onClick={runQuickAssign}
-                            disabled={quickVolId === '' || quickTareaId === ''}
-                        >
-                            Generar esta asignación
-                        </ButtonCustomized>
-                    </div>
-                </Box>
-            )}
+                {typeof submitAssignmentQuick === 'function' && (
+                    <Button sx={{ textTransform: 'inherit', py: '4px' }} onClick={openQuick}>
+                        <TitleButton>Asignación rápida</TitleButton>
+                        <FlashOnIcon sx={{ color: '#8F00FF', ml: '8px', fontSize: 18 }} />
+                    </Button>
+                )}
+            </Box>
 
-            <div style={{ textAlign: 'center', marginTop: '32px' }}>
+            {/* ── Botón principal ── */}
+            <Box sx={{ mt: 2.5, mb: 1 }}>
                 <ButtonCustomized
                     variant={'container'}
                     colorText={'#FFF'}
                     sx={{
-                        fontSize: '16px',
-                        background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
-                        boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)'
+                        fontSize: '15px',
+                        width: '100%',
+                        background: canSubmit
+                            ? 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)'
+                            : undefined,
+                        boxShadow: canSubmit ? '3px 4px 4px 0px rgba(0,0,0,0.25)' : undefined,
+                        letterSpacing: '0.5px',
                     }}
                     onClick={submitAssignmentTask}
                     disabled={!canSubmit}
                 >
-                    GENERAR ASIGNACIONES
+                    {submitLabel}
                 </ButtonCustomized>
-            </div>
-        </div>
-    )
-}
+            </Box>
+
+            {/* ── Dialog asignación rápida ── */}
+            <Dialog open={quickOpen} onClose={closeQuick} fullWidth maxWidth="xs">
+                <DialogTitle sx={{
+                    color: '#152C70',
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    pb: 0.5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                }}>
+                    Asignación rápida
+                    <IconButton onClick={closeQuick} size="small" aria-label="Cerrar">
+                        <CloseIcon fontSize="small" />
+                    </IconButton>
+                </DialogTitle>
+
+                <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '12px !important' }}>
+                    <Typography sx={{ fontSize: '0.82rem', color: 'rgba(21,44,112,0.7)', mt: 0.5 }}>
+                        Asigná una sola voluntaria a un bebé sin pasar por la selección múltiple.
+                    </Typography>
+
+                    <FormControl fullWidth size="small">
+                        <InputLabel id="quick-vol-label">Voluntaria</InputLabel>
+                        <Select
+                            labelId="quick-vol-label"
+                            label="Voluntaria"
+                            value={quickVolId}
+                            onChange={(e) => setQuickVolId(e.target.value)}
+                        >
+                            {(listVolunteersFree ?? []).map((v) => {
+                                const id = v.idVoluntaria;
+                                if (id == null) return null;
+                                return (
+                                    <MenuItem key={id} value={String(id)}>
+                                        {[v.nombre, v.apellido].filter(Boolean).join(' ') || `Voluntaria #${id}`}
+                                    </MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl fullWidth size="small">
+                        <InputLabel id="quick-baby-label">Bebé / tarea</InputLabel>
+                        <Select
+                            labelId="quick-baby-label"
+                            label="Bebé / tarea"
+                            value={quickTareaId}
+                            onChange={(e) => setQuickTareaId(e.target.value)}
+                        >
+                            {listBabysFree.map((item, index) => {
+                                const tid = resolveIdTareaForGenerarTareas(item);
+                                if (tid == null) return null;
+                                const label = [item.nombre, item.apellido].filter(Boolean).join(' ').trim() || `Tarea #${tid}`;
+                                return (
+                                    <MenuItem key={babyRowKey(item, index)} value={String(tid)}>
+                                        {label}
+                                    </MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </FormControl>
+                </DialogContent>
+
+                <DialogActions sx={{ px: 3, pb: 2.5, pt: 0.5, gap: 1 }}>
+                    <Button
+                        onClick={closeQuick}
+                        sx={{ textTransform: 'none', color: '#666', fontWeight: 400 }}
+                    >
+                        Cancelar
+                    </Button>
+                    <ButtonCustomized
+                        variant={'container'}
+                        colorText={'#FFF'}
+                        sx={{
+                            fontSize: '14px',
+                            background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
+                            boxShadow: '2px 3px 4px 0px rgba(0,0,0,0.2)',
+                        }}
+                        onClick={runQuickAssign}
+                        disabled={quickVolId === '' || quickTareaId === ''}
+                    >
+                        Generar
+                    </ButtonCustomized>
+                </DialogActions>
+            </Dialog>
+        </Box>
+    );
+};
 
 export default AssignmentTask;
 
-const Title = styled('h3')`
+const SectionTitle = styled('h3')`
     color: #152C70;
     font-family: Roboto;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
-    line-height: normal;
-    letter-spacing: 0.8px;
-    margin: 0 0 12px 0;
+    letter-spacing: 0.5px;
+    margin: 0 0 10px 0;
 `;
 
 const TitleButton = styled('h3')`
     color: #8F00FF;
     font-family: Roboto;
-    font-size: 14px;
-    font-style: normal;
+    font-size: 13px;
     font-weight: 400;
-    line-height: normal;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.6px;
     margin: 0;
 `;
 
-const StyledSectionEmpty = styled(Typography)`
-    color: #152c70;
+const SelectAllRow = styled('div')`
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+`;
+
+const EmptyText = styled(Typography)`
+    color: rgba(21, 44, 112, 0.6);
     font-family: Roboto;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: 1.4;
-    letter-spacing: 0.5px;
-    padding: 12px 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    padding: 8px 0 4px;
 `;

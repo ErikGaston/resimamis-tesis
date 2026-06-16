@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 125" width="110" height="125">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF5FF"/>
+      <stop offset="100%" stop-color="#F3E8FA"/>
+    </linearGradient>
+    <linearGradient id="lbl" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#9500FF"/>
+      <stop offset="100%" stop-color="#7900E0"/>
+    </linearGradient>
+    <linearGradient id="heart-out" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F0ABFC"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+    <linearGradient id="heart-in" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FDF4FF"/>
+      <stop offset="100%" stop-color="#FAE8FF"/>
+    </linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="3.5" flood-color="#A855F7" flood-opacity="0.3"/>
+    </filter>
+    <filter id="sh2" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#A855F7" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Card background -->
+  <rect width="110" height="125" rx="14" fill="url(#bg)"/>
+
+  <!-- Hanging decoration left (pink tint) -->
+  <line x1="17" y1="0" x2="17" y2="18" stroke="#F5D0FE" stroke-width="0.9" opacity="0.65"/>
+  <circle cx="17" cy="23" r="5.5" fill="#F5D0FE" opacity="0.6"/>
+  <circle cx="17" cy="23" r="2.8" fill="#FDF4FF" opacity="0.85"/>
+
+  <!-- Hanging decoration right -->
+  <line x1="92" y1="0" x2="92" y2="16" stroke="#DDD6FE" stroke-width="0.9" opacity="0.5"/>
+  <circle cx="92" cy="21" r="4" fill="#F0ABFC" opacity="0.4"/>
+  <circle cx="92" cy="21" r="2" fill="#FDF4FF" opacity="0.7"/>
+
+  <!-- Small floating hearts -->
+  <path d="M96,44 C96,43 95.2,42 94,42 C92.4,42 91,43.4 91,45 C91,47 93,49 96,51 C99,49 101,47 101,45 C101,43.4 99.6,42 98,42 C96.8,42 96,43 96,44 Z" fill="#F0ABFC" opacity="0.45"/>
+  <path d="M11,70 C11,69 10.4,68 9.5,68 C8.3,68 7.2,69.1 7.2,70.3 C7.2,71.8 8.8,73.2 11,74.5 C13.2,73.2 14.8,71.8 14.8,70.3 C14.8,69.1 13.7,68 12.5,68 C11.6,68 11,69 11,70 Z" fill="#C084FC" opacity="0.4"/>
+
+  <!-- Stars -->
+  <polygon points="84,9 85.6,14 91,14 86.8,17 88.3,22 84,19 79.7,22 81.2,17 77,14 82.4,14" fill="#FACC15" opacity="0.9"/>
+  <polygon points="10,54 11,57.2 14.2,57.2 11.6,59 12.6,62.2 10,60.5 7.4,62.2 8.4,59 5.8,57.2 9,57.2" fill="#FACC15" opacity="0.65"/>
+  <polygon points="97,74 97.5,75.8 99.5,75.8 98,77 98.5,78.8 97,77.8 95.5,78.8 96,77 94.5,75.8 96.5,75.8" fill="#FACC15" opacity="0.5"/>
+
+  <!-- Soft circles -->
+  <circle cx="98" cy="57" r="3.5" fill="#F5D0FE" opacity="0.5"/>
+  <circle cx="10" cy="38" r="2.5" fill="#EDE9FE" opacity="0.5"/>
+
+  <!-- ===== MAIN ILLUSTRATION: NESTED HEARTS ===== -->
+  <!-- Outer heart (large, gradient pink-purple) -->
+  <path d="M55,38 C55,33 51,28 44,28 C34,28 26,38 26,50 C26,67 43,81 55,92 C67,81 84,67 84,50 C84,38 76,28 66,28 C59,28 55,33 55,38 Z"
+        fill="url(#heart-out)" filter="url(#sh)"/>
+
+  <!-- Inner heart (smaller, light pink/white) -->
+  <path d="M55,51 C55,48 52.5,45 49,45 C44.5,45 41,48.5 41,52.5 C41,59.5 48,65.5 55,70 C62,65.5 69,59.5 69,52.5 C69,48.5 65.5,45 62,45 C58.5,45 55,48 55,51 Z"
+        fill="url(#heart-in)" opacity="0.9" filter="url(#sh2)"/>
+
+  <!-- Golden star inside inner heart -->
+  <polygon points="55,55 56,57.8 59,57.8 56.8,59.5 57.6,62.3 55,60.7 52.4,62.3 53.2,59.5 51,57.8 54,57.8" fill="#FACC15" opacity="0.95"/>
+
+  <!-- ===== LABEL BAR ===== -->
+  <path d="M0,101 H110 V111 Q110,125 96,125 H14 Q0,125 0,111 Z" fill="url(#lbl)"/>
+  <text x="55" y="117" text-anchor="middle"
+        font-family="Roboto, Arial, sans-serif"
+        font-size="9.5" font-weight="700"
+        fill="white" letter-spacing="0.4">Mam&#xE1;s</text>
+</svg>

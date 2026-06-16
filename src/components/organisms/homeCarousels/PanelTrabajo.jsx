@@ -1,12 +1,12 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
-import bebe from "../../../assets/home/carousel-work/bebe-home.png";
-import mama from "../../../assets/home/carousel-work/mama-home.png";
-import voluntaria from "../../../assets/home/carousel-work/voluntaria-home.png";
-import insumo from "../../../assets/home/carousel-work/insumo-home.png";
+import bebe from "../../../assets/home/carousel-work/bebe-home.svg";
+import mama from "../../../assets/home/carousel-work/mama-home.svg";
+import voluntaria from "../../../assets/home/carousel-work/voluntaria-home.svg";
+import insumo from "../../../assets/home/carousel-work/insumo-home.svg";
+import coordinacion from "../../../assets/home/carousel-work/coordinacion-home.svg";
 
 import { isCoordinadoraSession } from "../../../utils/coordinadoraRole";
 
@@ -22,12 +22,12 @@ const ROW_GESTION_BASE = [
 
 const COORD_ITEM = {
     name: "Coordinación",
-    image: null,
+    image: coordinacion,
     url: "/coordinacion",
     special: true,
 };
 
-function WorkCard({ name, image, url, special }) {
+function WorkCard({ name, image, url }) {
     return (
         <Box
             component={Link}
@@ -44,28 +44,12 @@ function WorkCard({ name, image, url, special }) {
                 "&:active": { opacity: 0.7 },
             }}
         >
-            {image ? (
-                <Box
-                    component="img"
-                    src={image}
-                    alt={name}
-                    sx={{ width: "100%", maxWidth: 110, height: "auto", display: "block" }}
-                />
-            ) : (
-                <Box
-                    sx={{
-                        width: 100,
-                        height: 100,
-                        borderRadius: "18px",
-                        background: "linear-gradient(135deg, #A54DFF 0%, #8F00FF 100%)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}
-                >
-                    <AdminPanelSettingsIcon sx={{ fontSize: 48, color: "#fff" }} />
-                </Box>
-            )}
+            <Box
+                component="img"
+                src={image}
+                alt={name}
+                sx={{ width: "100%", maxWidth: 110, height: "auto", display: "block" }}
+            />
         </Box>
     );
 }

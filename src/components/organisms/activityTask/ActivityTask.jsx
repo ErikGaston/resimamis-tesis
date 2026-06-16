@@ -8,6 +8,7 @@ import { getIdVolunteer } from '../../../utils/localStorage';
 
 const ActivityTask = ({
     check,
+    salidaRegistrada,
     submitAssistence,
     submitAssistanceSalida,
     listAssignmentVolunteer,
@@ -40,7 +41,8 @@ const ActivityTask = ({
                     variant="outlined"
                     color="secondary"
                 >
-                    <Title>Registrar salida</Title>
+                    <Title>Registrar mi salida</Title>
+                    <CheckCircleIcon style={{ color: salidaRegistrada ? '#2E7D32' : '#CECECE', marginLeft: '10px' }} />
                 </Button>
             )}
             {(typeof onShowAssistanceToday === 'function' || typeof onShowAssistanceHistoricas === 'function') && (

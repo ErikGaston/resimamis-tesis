@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import CloseIcon from '@mui/icons-material/Close';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import { PageHeader } from '../../common/PageHeader';
 import {
@@ -12,14 +13,21 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   Fab,
   FormControl,
+  IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Paper,
   Select,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import CardSupply from '../../molecules/cardSupply/CardSupply';
 import { fabBottomAboveNav } from '../../../utils/listScreenAccessibility';
@@ -70,6 +78,9 @@ const SupplyTemplate = (props) => {
     movementCloseSignal,
     idVoluntariaDefault,
   } = props;
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [listSupplies, setListSupplies] = React.useState(null);
 
@@ -256,20 +267,43 @@ const SupplyTemplate = (props) => {
             open={registerDialogOpen}
             onClose={() => setRegisterDialogOpen(false)}
             fullWidth
+            fullScreen={fullScreen}
             maxWidth="sm"
             aria-labelledby="register-supply-dialog-title"
+            PaperProps={{ sx: { borderRadius: fullScreen ? 0 : 3, overflow: 'hidden' } }}
           >
-            <DialogTitle id="register-supply-dialog-title" sx={{ color: '#4A148C', fontWeight: 700 }}>
-              Nuevo insumo
+            <DialogTitle
+              id="register-supply-dialog-title"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                pr: 1,
+                py: 2,
+                background: 'linear-gradient(90deg, #7F00FF 0%, #8F00FF 100%)',
+                color: '#fff',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <AddCircleIcon sx={{ fontSize: 22 }} />
+                <Typography component="span" sx={{ fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.02em' }}>
+                  Nuevo insumo
+                </Typography>
+              </Box>
+              <IconButton aria-label="Cerrar" onClick={() => setRegisterDialogOpen(false)} size="small" sx={{ color: '#fff' }}>
+                <CloseIcon />
+              </IconButton>
             </DialogTitle>
-            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-              <Typography variant="body2" sx={{ color: 'rgba(21,44,112,0.7)' }}>
+
+            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 2.5, pb: 1, bgcolor: '#faf8fc', overflowY: 'auto' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(21,44,112,0.6)', fontSize: '0.85rem', lineHeight: 1.55 }}>
                 Registrá un ítem en el catálogo. Para entradas/salidas de stock usá la pestaña Movimientos.
               </Typography>
+
               <TextField
                 autoFocus
                 required
-                label="Nombre"
+                label="Nombre del insumo"
                 value={newNombre}
                 onChange={(e) => setNewNombre(e.target.value)}
                 fullWidth
@@ -284,35 +318,47 @@ const SupplyTemplate = (props) => {
                 multiline
                 minRows={2}
               />
-              <TextField
-                label="Stock inicial"
-                type="number"
-                value={newStockActual}
-                onChange={(e) => setNewStockActual(e.target.value)}
-                fullWidth
-                size="small"
-                inputProps={{ min: 0 }}
-              />
-              <TextField
-                label="Stock mínimo (alerta)"
-                type="number"
-                value={newStockMin}
-                onChange={(e) => setNewStockMin(e.target.value)}
-                fullWidth
-                size="small"
-                inputProps={{ min: 0 }}
-              />
-              <TextField
-                label="Stock máximo"
-                type="number"
-                value={newStockMax}
-                onChange={(e) => setNewStockMax(e.target.value)}
-                fullWidth
-                size="small"
-                inputProps={{ min: 0 }}
-              />
+
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, my: 0.5 }}>
+                <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
+                <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em', px: 1 }}>
+                  Niveles de stock
+                </Typography>
+                <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
+              </Box>
+
+              <Box sx={{ display: 'flex', gap: 1.5 }}>
+                <TextField
+                  label="Inicial"
+                  type="number"
+                  value={newStockActual}
+                  onChange={(e) => setNewStockActual(e.target.value)}
+                  fullWidth
+                  size="small"
+                  inputProps={{ min: 0 }}
+                />
+                <TextField
+                  label="Mínimo (alerta)"
+                  type="number"
+                  value={newStockMin}
+                  onChange={(e) => setNewStockMin(e.target.value)}
+                  fullWidth
+                  size="small"
+                  inputProps={{ min: 0 }}
+                />
+                <TextField
+                  label="Máximo"
+                  type="number"
+                  value={newStockMax}
+                  onChange={(e) => setNewStockMax(e.target.value)}
+                  fullWidth
+                  size="small"
+                  inputProps={{ min: 0 }}
+                />
+              </Box>
             </DialogContent>
-            <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+
+            <DialogActions sx={{ px: 3, py: 2, gap: 1, bgcolor: '#faf8fc', borderTop: '1px solid rgba(143,0,255,0.1)' }}>
               <Button onClick={() => setRegisterDialogOpen(false)} sx={BTN_CANCEL_SX}>
                 Cancelar
               </Button>
@@ -329,7 +375,7 @@ const SupplyTemplate = (props) => {
                   Number(newStockActual) < 0 ||
                   Number(newStockMax) < Number(newStockMin)
                 }
-                sx={BTN_SX}
+                sx={{ ...BTN_SX, flex: 1 }}
               >
                 Guardar insumo
               </Button>
@@ -499,30 +545,113 @@ const SupplyTemplate = (props) => {
             open={movDialogOpen}
             onClose={closeMovDialog}
             fullWidth
+            fullScreen={fullScreen}
             maxWidth="sm"
             aria-labelledby="mov-dialog-title"
+            PaperProps={{ sx: { borderRadius: fullScreen ? 0 : 3, overflow: 'hidden' } }}
           >
-            <DialogTitle id="mov-dialog-title" sx={{ color: '#4A148C', fontWeight: 700 }}>
-              Registrar movimiento
+            <DialogTitle
+              id="mov-dialog-title"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                pr: 1,
+                py: 2,
+                background: 'linear-gradient(90deg, #7F00FF 0%, #8F00FF 100%)',
+                color: '#fff',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <SwapVertIcon sx={{ fontSize: 22 }} />
+                <Typography component="span" sx={{ fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.02em' }}>
+                  Registrar movimiento
+                </Typography>
+              </Box>
+              <IconButton aria-label="Cerrar" onClick={closeMovDialog} size="small" sx={{ color: '#fff' }}>
+                <CloseIcon />
+              </IconButton>
             </DialogTitle>
-            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="mov-insumo-label">Insumo</InputLabel>
-                <Select
-                  labelId="mov-insumo-label"
-                  label="Insumo"
-                  value={movIdInsumo}
-                  onChange={(e) => setMovIdInsumo(e.target.value)}
-                >
-                  {(listSupplies ?? supplies ?? []).map((s) => (
-                    <MenuItem key={s.idInsumo} value={String(s.idInsumo)}>
-                      {s.nombre ?? `Insumo #${s.idInsumo}`}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
 
-              <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 2.5, pb: 1, bgcolor: '#faf8fc', overflowY: 'auto' }}>
+
+              {/* Toggle Entrada / Salida */}
+              <Box>
+                <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em', mb: 1.25 }}>
+                  Tipo de movimiento
+                </Typography>
+                <ToggleButtonGroup
+                  value={movEsEntrada}
+                  exclusive
+                  onChange={(_, v) => { if (v != null) setMovEsEntrada(v); }}
+                  fullWidth
+                  sx={{ gap: 1.5 }}
+                >
+                  <ToggleButton
+                    value="S"
+                    aria-label="Entrada de stock"
+                    sx={{
+                      flex: 1,
+                      py: 1.5,
+                      gap: 0.75,
+                      borderRadius: '10px !important',
+                      border: '1.5px solid rgba(46,125,50,0.3) !important',
+                      color: movEsEntrada === 'S' ? '#fff' : '#2E7D32',
+                      bgcolor: movEsEntrada === 'S' ? '#2E7D32 !important' : 'transparent',
+                      fontWeight: 700,
+                      fontSize: '0.95rem',
+                      textTransform: 'none',
+                      transition: 'all 0.18s',
+                      '&:hover': { bgcolor: movEsEntrada === 'S' ? '#2E7D32 !important' : 'rgba(46,125,50,0.07) !important' },
+                    }}
+                  >
+                    <ArrowUpwardIcon sx={{ fontSize: 20 }} />
+                    Entrada
+                  </ToggleButton>
+                  <ToggleButton
+                    value="N"
+                    aria-label="Salida de stock"
+                    sx={{
+                      flex: 1,
+                      py: 1.5,
+                      gap: 0.75,
+                      borderRadius: '10px !important',
+                      border: '1.5px solid rgba(194,56,20,0.3) !important',
+                      color: movEsEntrada === 'N' ? '#fff' : '#C23814',
+                      bgcolor: movEsEntrada === 'N' ? '#C23814 !important' : 'transparent',
+                      fontWeight: 700,
+                      fontSize: '0.95rem',
+                      textTransform: 'none',
+                      transition: 'all 0.18s',
+                      '&:hover': { bgcolor: movEsEntrada === 'N' ? '#C23814 !important' : 'rgba(194,56,20,0.07) !important' },
+                    }}
+                  >
+                    <ArrowDownwardIcon sx={{ fontSize: 20 }} />
+                    Salida
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+
+              {/* Obligatorios */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
+                  Requerido
+                </Typography>
+                <FormControl fullWidth size="small">
+                  <InputLabel id="mov-insumo-label">Insumo</InputLabel>
+                  <Select
+                    labelId="mov-insumo-label"
+                    label="Insumo"
+                    value={movIdInsumo}
+                    onChange={(e) => setMovIdInsumo(e.target.value)}
+                  >
+                    {(listSupplies ?? supplies ?? []).map((s) => (
+                      <MenuItem key={s.idInsumo} value={String(s.idInsumo)}>
+                        {s.nombre ?? `Insumo #${s.idInsumo}`}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <TextField
                   size="small"
                   fullWidth
@@ -531,62 +660,71 @@ const SupplyTemplate = (props) => {
                   value={movCantidad}
                   onChange={(e) => setMovCantidad(e.target.value)}
                   inputProps={{ min: 1 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        {movEsEntrada === 'S'
+                          ? <ArrowUpwardIcon sx={{ fontSize: 17, color: '#2E7D32' }} />
+                          : <ArrowDownwardIcon sx={{ fontSize: 17, color: '#C23814' }} />}
+                      </InputAdornment>
+                    ),
+                  }}
                 />
-                <FormControl fullWidth size="small">
-                  <InputLabel id="mov-tipo-label">Tipo</InputLabel>
-                  <Select
-                    labelId="mov-tipo-label"
-                    label="Tipo"
-                    value={movEsEntrada}
-                    onChange={(e) => setMovEsEntrada(e.target.value)}
-                  >
-                    <MenuItem value="S">Entrada</MenuItem>
-                    <MenuItem value="N">Salida</MenuItem>
-                  </Select>
-                </FormControl>
               </Box>
 
-              <FormControl fullWidth size="small">
-                <InputLabel id="mov-prov-label">Proveedor (opcional)</InputLabel>
-                <Select
-                  labelId="mov-prov-label"
-                  label="Proveedor (opcional)"
-                  value={movIdProveedor}
-                  onChange={(e) => setMovIdProveedor(e.target.value)}
-                >
-                  <MenuItem value="__none__">—</MenuItem>
-                  {providerRows.map((p) => {
-                    const pid = p.idProveedor ?? p.id;
-                    if (pid == null) return null;
-                    return (
-                      <MenuItem key={pid} value={String(pid)}>
-                        {p.nombre ?? p.razonSocial ?? `Proveedor #${pid}`}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
-
-              <TextField
-                size="small"
-                fullWidth
-                label="Observación (opcional)"
-                value={movObservacion}
-                onChange={(e) => setMovObservacion(e.target.value)}
-                multiline
-                minRows={2}
-              />
-
-              <TextField
-                size="small"
-                fullWidth
-                type="number"
-                label="Id bebé (opcional)"
-                value={movIdBebe}
-                onChange={(e) => setMovIdBebe(e.target.value)}
-              />
+              {/* Opcionales */}
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
+                  <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em', px: 1 }}>
+                    Opcional
+                  </Typography>
+                  <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel id="mov-prov-label">Proveedor</InputLabel>
+                    <Select
+                      labelId="mov-prov-label"
+                      label="Proveedor"
+                      value={movIdProveedor}
+                      onChange={(e) => setMovIdProveedor(e.target.value)}
+                    >
+                      <MenuItem value="__none__">—</MenuItem>
+                      {providerRows.map((p) => {
+                        const pid = p.idProveedor ?? p.id;
+                        if (pid == null) return null;
+                        return (
+                          <MenuItem key={pid} value={String(pid)}>
+                            {p.nombre ?? p.razonSocial ?? `Proveedor #${pid}`}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    label="Observación"
+                    value={movObservacion}
+                    onChange={(e) => setMovObservacion(e.target.value)}
+                    multiline
+                    minRows={2}
+                  />
+                  <TextField
+                    size="small"
+                    fullWidth
+                    type="number"
+                    label="ID bebé relacionado"
+                    value={movIdBebe}
+                    onChange={(e) => setMovIdBebe(e.target.value)}
+                    inputProps={{ min: 1 }}
+                  />
+                </Box>
+              </Box>
             </DialogContent>
-            <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+
+            <DialogActions sx={{ px: 3, py: 2, gap: 1, bgcolor: '#faf8fc', borderTop: '1px solid rgba(143,0,255,0.1)' }}>
               <Button onClick={closeMovDialog} sx={BTN_CANCEL_SX}>
                 Cancelar
               </Button>
@@ -594,7 +732,7 @@ const SupplyTemplate = (props) => {
                 variant="contained"
                 onClick={submitMovement}
                 disabled={!movFormValid}
-                sx={BTN_SX}
+                sx={{ ...BTN_SX, flex: 1 }}
               >
                 Registrar
               </Button>

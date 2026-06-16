@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 125" width="110" height="125">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFAF5"/>
+      <stop offset="100%" stop-color="#FAF0E6"/>
+    </linearGradient>
+    <linearGradient id="lbl" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#9500FF"/>
+      <stop offset="100%" stop-color="#7900E0"/>
+    </linearGradient>
+    <linearGradient id="bag-main" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FED7AA"/>
+      <stop offset="100%" stop-color="#F97316"/>
+    </linearGradient>
+    <linearGradient id="bag-handle" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FDBA74"/>
+      <stop offset="100%" stop-color="#EA6A0A"/>
+    </linearGradient>
+    <linearGradient id="badge-g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#5B21B6"/>
+    </linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="3.5" flood-color="#EA580C" flood-opacity="0.28"/>
+    </filter>
+    <filter id="sh2" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#EA580C" flood-opacity="0.2"/>
+    </filter>
+    <filter id="sh3" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#5B21B6" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Card background -->
+  <rect width="110" height="125" rx="14" fill="url(#bg)"/>
+
+  <!-- Hanging decoration left (orange tint) -->
+  <line x1="19" y1="0" x2="19" y2="18" stroke="#FDBA74" stroke-width="0.9" opacity="0.6"/>
+  <circle cx="19" cy="23" r="5" fill="#FED7AA" opacity="0.65"/>
+  <circle cx="19" cy="23" r="2.5" fill="#FFF7ED" opacity="0.85"/>
+
+  <!-- Hanging decoration right -->
+  <line x1="89" y1="0" x2="89" y2="20" stroke="#DDD6FE" stroke-width="0.9" opacity="0.5"/>
+  <ellipse cx="89" cy="25" rx="3.5" ry="4.5" fill="#EDE9FE" opacity="0.6"/>
+  <ellipse cx="89" cy="25" rx="1.8" ry="2.3" fill="#F5F3FF" opacity="0.8"/>
+
+  <!-- Stars -->
+  <polygon points="83,9 84.6,14.2 90,14.2 85.8,17.3 87.3,22.5 83,19.3 78.7,22.5 80.2,17.3 76,14.2 81.4,14.2" fill="#FACC15" opacity="0.9"/>
+  <polygon points="9,56 10,59.2 13.2,59.2 10.6,61 11.6,64.2 9,62.5 6.4,64.2 7.4,61 4.8,59.2 8,59.2" fill="#FACC15" opacity="0.65"/>
+  <polygon points="97,76 97.5,77.8 99.5,77.8 98,79 98.5,80.8 97,79.8 95.5,80.8 96,79 94.5,77.8 96.5,77.8" fill="#FACC15" opacity="0.5"/>
+
+  <!-- Soft decorative circles -->
+  <circle cx="97" cy="42" r="4" fill="#FED7AA" opacity="0.55"/>
+  <circle cx="10" cy="38" r="3" fill="#EDE9FE" opacity="0.55"/>
+  <circle cx="100" cy="66" r="2.2" fill="#FDBA74" opacity="0.45"/>
+
+  <!-- ===== MAIN ILLUSTRATION: SUPPLY BAG / FIRST-AID KIT ===== -->
+
+  <!-- Handles (drawn first, bag on top covers bottom) -->
+  <rect x="30" y="22" width="16" height="24" rx="8" fill="url(#bag-handle)" filter="url(#sh2)"/>
+  <rect x="64" y="22" width="16" height="24" rx="8" fill="url(#bag-handle)" filter="url(#sh2)"/>
+  <!-- Handle inner cutout (lighter center) -->
+  <rect x="34" y="26" width="8" height="14" rx="4" fill="#FFF7ED" opacity="0.5"/>
+  <rect x="68" y="26" width="8" height="14" rx="4" fill="#FFF7ED" opacity="0.5"/>
+
+  <!-- Bag main body -->
+  <rect x="20" y="36" width="70" height="54" rx="12" fill="url(#bag-main)" filter="url(#sh)"/>
+
+  <!-- Bag body highlight -->
+  <ellipse cx="38" cy="48" rx="8" ry="5" fill="white" opacity="0.18"/>
+
+  <!-- Cross symbol (first-aid / supplies) -->
+  <!-- Vertical bar -->
+  <rect x="51" y="47" width="8" height="28" rx="3" fill="white" opacity="0.92"/>
+  <!-- Horizontal bar -->
+  <rect x="41" y="57" width="28" height="8" rx="3" fill="white" opacity="0.92"/>
+
+  <!-- Star badge (top-right corner) -->
+  <circle cx="84" cy="30" r="12" fill="url(#badge-g)" filter="url(#sh3)"/>
+  <polygon points="84,23 85.8,28.3 91.4,28.3 87,31.6 88.8,36.9 84,33.6 79.2,36.9 81,31.6 76.6,28.3 82.2,28.3" fill="#FACC15"/>
+  <!-- Badge highlight -->
+  <circle cx="79.5" cy="25" r="2" fill="white" opacity="0.3"/>
+
+  <!-- ===== LABEL BAR ===== -->
+  <path d="M0,101 H110 V111 Q110,125 96,125 H14 Q0,125 0,111 Z" fill="url(#lbl)"/>
+  <text x="55" y="117" text-anchor="middle"
+        font-family="Roboto, Arial, sans-serif"
+        font-size="9.5" font-weight="700"
+        fill="white" letter-spacing="0.4">Insumos</text>
+</svg>

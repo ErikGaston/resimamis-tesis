@@ -16,6 +16,8 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -261,6 +263,9 @@ const AssistanceDataDialog = ({
   volunteerFallback = null,
   presentation = 'auto',
 }) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   const rows = useMemo(() => {
     const extracted = extractAssistanceRows(data);
     return extracted.map(normalizeAssistanceRow);
@@ -278,12 +283,13 @@ const AssistanceDataDialog = ({
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth="md"
+      fullScreen={fullScreen}
+      maxWidth="sm"
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: fullScreen ? 0 : 3,
           overflow: 'hidden',
-          border: `1px solid ${PALETTE.border}`,
+          border: fullScreen ? 'none' : `1px solid ${PALETTE.border}`,
         },
       }}
     >
@@ -333,7 +339,7 @@ const AssistanceDataDialog = ({
                 borderRadius: 2,
                 border: `1px solid ${PALETTE.border}`,
                 overflow: 'auto',
-                maxHeight: '62vh',
+                maxHeight: fullScreen ? 'calc(100vh - 130px)' : '62vh',
                 bgcolor: '#fff',
               }}
             >
@@ -449,12 +455,6 @@ const AssistanceDataDialog = ({
                 </TableBody>
               </Table>
             </TableContainer>
-            <Typography
-              variant="caption"
-              sx={{ display: 'block', mt: 1.5, color: 'rgba(21, 44, 112, 0.55)', px: 0.5 }}
-            >
-              Horarios según el servidor (UTC convertidos por el navegador).
-            </Typography>
           </Box>
         ) : (
           <Box sx={{ p: 2 }}>

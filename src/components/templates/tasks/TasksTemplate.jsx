@@ -7,10 +7,11 @@ import ActivityTask from '../../organisms/activityTask/ActivityTask';
 import AssignmentTask from '../../organisms/assignmentTask/AssignmentTask';
 import AssignedList from '../../organisms/assignedList/AssignedList';
 import InformationHug from '../../organisms/informationHug/InformationHug';
+import { APP_SCROLL_BOTTOM_PADDING } from '../../../helpers/const/appLayout';
 
 const TasksTemplate = (props) => {
     const { model, setModel, assignmentVolunteer, valueTask,
-        changeTask, submitAssistence, submitAssistanceSalida, checkAssistance, volunteersFree, listBabysFree, selectVolunteersFree, selectedVolunteerIds, toggleVolunteerSelection,
+        changeTask, submitAssistence, submitAssistanceSalida, checkAssistance, salidaRegistrada, volunteersFree, listBabysFree, selectVolunteersFree, selectedVolunteerIds, toggleVolunteerSelection,
         selectAllBabysFree, selectedBabyTareaIds, toggleBabyTareaSelection, submitAssignmentTask,
         listAssignment,
         submitStartHug, submitEndHug,
@@ -63,7 +64,7 @@ const TasksTemplate = (props) => {
     }, [supplies]);
 
     return (
-        <div style={{ height: '100%' }}>
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <PageHeader
                 title="Tareas"
                 rightAction={
@@ -80,7 +81,7 @@ const TasksTemplate = (props) => {
                     ) : null
                 }
             />
-            <Box sx={{ bgcolor: '#F3E5F5' }}>
+            <Box sx={{ bgcolor: '#F3E5F5', flexShrink: 0 }}>
                 <Tabs
                     value={valueTask - 1}
                     onChange={(_, v) => changeTask(v + 1)()}
@@ -101,63 +102,67 @@ const TasksTemplate = (props) => {
                     {canAccessAssignment && <Tab label="Asignación" />}
                 </Tabs>
             </Box>
-            {valueTask === 1 &&
-                (changeInformationHug ?
-                    <InformationHug
-                        model={model}
-                        setModel={setModel}
-                        submitEndHug={submitEndHug}
-                        hug={selectedHug}
 
-                        stateInsumo={stateInsumo}
-                        setStateInsumo={setStateInsumo}
-                        changeStateInsumo={changeStateInsumo}
+            <Box sx={{ flex: 1, overflowY: 'auto', pb: APP_SCROLL_BOTTOM_PADDING }}>
+                {valueTask === 1 &&
+                    (changeInformationHug ?
+                        <InformationHug
+                            model={model}
+                            setModel={setModel}
+                            submitEndHug={submitEndHug}
+                            hug={selectedHug}
 
-                        listSupplies={listSupplies}
-                        setListSupplies={setListSupplies}
-                        submitChangeSupplies={submitChangeSupplies}
+                            stateInsumo={stateInsumo}
+                            setStateInsumo={setStateInsumo}
+                            changeStateInsumo={changeStateInsumo}
 
-                        setChangeInformationHug={setChangeInformationHug}
-                    />
-                    :
-                    <ActivityTask
-                        submitAssistence={submitAssistence}
-                        submitAssistanceSalida={submitAssistanceSalida}
-                        check={checkAssistance}
-                        listAssignmentVolunteer={listAssignmentVolunteer}
-                        editHug={editHug}
+                            listSupplies={listSupplies}
+                            setListSupplies={setListSupplies}
+                            submitChangeSupplies={submitChangeSupplies}
 
-                        submitStartHug={submitStartHug}
-                        onShowAssistanceToday={onShowAssistanceToday}
-                        onShowAssistanceHistoricas={onShowAssistanceHistoricas}
-                        onAssignmentDetail={onAssignmentDetail}
-                    />)
-            }
-            {canAccessAssignment && valueTask === 2 &&
-                ((listAssignedVolunteer && changeAssignedList) ?
-                    <AssignedList
-                        listAssignedVolunteer={listAssignedVolunteer}
-                        setChangeAssignedList={setChangeAssignedList}
-                    />
-                    :
-                    <AssignmentTask
-                        listVolunteersFree={listVolunteersFree}
-                        selectedVolunteerIds={selectedVolunteerIds}
-                        toggleVolunteerSelection={toggleVolunteerSelection}
-                        selectVolunteersFree={selectVolunteersFree}
-                        listBabysFree={listBabysFree}
-                        selectedBabyTareaIds={selectedBabyTareaIds}
-                        toggleBabyTareaSelection={toggleBabyTareaSelection}
-                        selectAllBabysFree={selectAllBabysFree}
-                        submitAssignmentTask={submitAssignmentTask}
-                        submitAssignmentQuick={submitAssignmentQuick}
+                            setChangeInformationHug={setChangeInformationHug}
+                        />
+                        :
+                        <ActivityTask
+                            submitAssistence={submitAssistence}
+                            submitAssistanceSalida={submitAssistanceSalida}
+                            check={checkAssistance}
+                            salidaRegistrada={salidaRegistrada}
+                            listAssignmentVolunteer={listAssignmentVolunteer}
+                            editHug={editHug}
 
-                        existAssigned={listAssignedVolunteer}
-                        setChangeAssignedList={setChangeAssignedList}
-                    />
-                )
-            }
-        </div>
+                            submitStartHug={submitStartHug}
+                            onShowAssistanceToday={onShowAssistanceToday}
+                            onShowAssistanceHistoricas={onShowAssistanceHistoricas}
+                            onAssignmentDetail={onAssignmentDetail}
+                        />)
+                }
+                {canAccessAssignment && valueTask === 2 &&
+                    ((listAssignedVolunteer && changeAssignedList) ?
+                        <AssignedList
+                            listAssignedVolunteer={listAssignedVolunteer}
+                            setChangeAssignedList={setChangeAssignedList}
+                        />
+                        :
+                        <AssignmentTask
+                            listVolunteersFree={listVolunteersFree}
+                            selectedVolunteerIds={selectedVolunteerIds}
+                            toggleVolunteerSelection={toggleVolunteerSelection}
+                            selectVolunteersFree={selectVolunteersFree}
+                            listBabysFree={listBabysFree}
+                            selectedBabyTareaIds={selectedBabyTareaIds}
+                            toggleBabyTareaSelection={toggleBabyTareaSelection}
+                            selectAllBabysFree={selectAllBabysFree}
+                            submitAssignmentTask={submitAssignmentTask}
+                            submitAssignmentQuick={submitAssignmentQuick}
+
+                            existAssigned={listAssignedVolunteer}
+                            setChangeAssignedList={setChangeAssignedList}
+                        />
+                    )
+                }
+            </Box>
+        </Box>
     )
 }
 
