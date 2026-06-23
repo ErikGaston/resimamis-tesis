@@ -19,6 +19,7 @@ const MotherForm = ({
     model,
     setModel,
     listLocalities,
+    listEstadosCiviles,
     editForm,
     typeForm,
     fieldErrors = {},
@@ -27,9 +28,14 @@ const MotherForm = ({
 
     const m = model || {}
 
+    const apiEstadoCivilOptions = useMemo(() => {
+        if (!listEstadosCiviles) return null;
+        return listEstadosCiviles.map((e) => ({ label: e.nombre, value: e.id }));
+    }, [listEstadosCiviles]);
+
     const estadoCivilOptions = useMemo(
-        () => getMotherEstadoCivilOptionsForSelect(m?.estadoCivil),
-        [m?.estadoCivil],
+        () => getMotherEstadoCivilOptionsForSelect(m?.estadoCivil, apiEstadoCivilOptions),
+        [m?.estadoCivil, apiEstadoCivilOptions],
     )
 
     const clearField = (name) => {
@@ -112,22 +118,21 @@ const MotherForm = ({
     };
 
     const searchLocality = () => {
-        if (m?.localidad) {
-            const idBuscado = m?.localidad;
-            const localidadEncontrada = listLocalities.find(loc => loc.idLocalidad === idBuscado);
-            return localidadEncontrada?.nombre ?? m?.nombre_localidad;
+        if (!listLocalities) return null;
+        if (m?.localidad != null) {
+            return listLocalities.find(
+                (loc) => (loc.value ?? loc.idLocalidad) === m.localidad,
+            ) ?? null;
         }
-        return m?.nombre_localidad;
+        if (m?.nombre_localidad) {
+            return listLocalities.find((loc) => loc.label === m.nombre_localidad) ?? null;
+        }
+        return null;
     };
 
     const searchEstadoCivil = () => {
-        if (m?.estadoCivil === '' || m?.estadoCivil === undefined || m?.estadoCivil === null) {
-            return '';
-        }
-        const opt = estadoCivilOptions.find(
-            (o) => o.value === Number(m.estadoCivil),
-        );
-        return opt?.label ?? '';
+        if (m?.estadoCivil == null || m?.estadoCivil === '') return null;
+        return estadoCivilOptions.find((o) => o.value === Number(m.estadoCivil)) ?? null;
     };
 
     const minBirthDate = dayjs().subtract(MOTHER_DATE_MIN_YEARS_BACK, 'year').startOf('day')

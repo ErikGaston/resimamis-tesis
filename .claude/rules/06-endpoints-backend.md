@@ -29,6 +29,7 @@
 | Método | Path | Función API |
 |--------|------|-------------|
 | GET | `/genericos/localidades` | `getLocalities` |
+| GET | `/genericos/estadosCiviles` | `getEstadosCiviles` | Catálogo estático `[{ id, nombre }]` — no requiere tabla en DB |
 
 ---
 

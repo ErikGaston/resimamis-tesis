@@ -21,6 +21,25 @@ function* asyncGetLocalities() {
     }
 }
 
+function* asyncGetEstadosCiviles() {
+    try {
+        const response = yield call(API.getEstadosCiviles);
+        if (response)
+            yield put({
+                type: actionTypes.SUCCESS_GET_ESTADOS_CIVILES,
+                response,
+            });
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({
+            type: actionTypes.ERROR_ESTADOS_CIVILES,
+            response: error,
+            message: error.message,
+        });
+    }
+}
+
 export default function* genericsSaga() {
     yield takeLatest(actionTypes.GET_LOCALITIES, asyncGetLocalities);
+    yield takeLatest(actionTypes.GET_ESTADOS_CIVILES, asyncGetEstadosCiviles);
 }

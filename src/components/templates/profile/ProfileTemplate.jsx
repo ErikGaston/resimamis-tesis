@@ -16,6 +16,7 @@ export const ProfileTemplate = ({
   setEditForm,
   type,
   localities,
+  estadosCiviles,
   mothers,
   typeForm,
   fieldErrors,
@@ -33,13 +34,15 @@ export const ProfileTemplate = ({
       <PageHeader
         title={headerTitle}
         rightAction={
-          <IconButton
-            onClick={editForm ? submit : changeEditForm}
-            aria-label={editForm ? 'Guardar cambios' : 'Editar perfil'}
-            sx={{ color: '#fff', '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' } }}
-          >
-            {editForm ? <CheckIcon /> : <EditIcon />}
-          </IconButton>
+          type === "VOLUNTEER" ? (
+            <IconButton
+              onClick={editForm ? submit : changeEditForm}
+              aria-label={editForm ? 'Guardar cambios' : 'Editar perfil'}
+              sx={{ color: '#fff', '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' } }}
+            >
+              {editForm ? <CheckIcon /> : <EditIcon />}
+            </IconButton>
+          ) : null
         }
       />
       {type === "MOTHER" && (
@@ -49,6 +52,7 @@ export const ProfileTemplate = ({
             setModel={setModel}
             error={error}
             localities={localities}
+            estadosCiviles={estadosCiviles}
             mothers={mothers}
             withTitle={false}
             edit={editForm}
@@ -56,6 +60,8 @@ export const ProfileTemplate = ({
             fieldErrors={fieldErrors}
             setFieldErrors={setFieldErrors}
             profileBabyExtras={profileBabyExtras}
+            submitMother={submit}
+            setEditForm={setEditForm}
           />
         </Box>
       )}

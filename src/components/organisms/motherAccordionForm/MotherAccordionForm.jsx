@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import AccordionCustomized from '../../atoms/accordionCustomized/AccordionCustomized'
 import styled from '@emotion/styled'
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
@@ -8,12 +8,48 @@ import BabyForm from '../../molecules/motherForm/BabyForm';
 import { Box, Button } from '@mui/material';
 import { normalizeBabyApiPayload } from '../../../utils/babyPayload';
 
+const GRADIENT = 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)';
+
+const btnSave = {
+    textTransform: 'none',
+    fontWeight: 700,
+    fontSize: '1rem',
+    minHeight: 44,
+    borderRadius: '10px',
+    background: GRADIENT,
+    boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
+    color: '#fff',
+};
+
+const btnCancel = {
+    textTransform: 'none',
+    fontWeight: 600,
+    minHeight: 44,
+    borderRadius: '10px',
+    borderColor: 'rgba(21,44,112,0.25)',
+    color: '#152C70',
+};
+
+const btnEdit = {
+    textTransform: 'none',
+    fontWeight: 600,
+    minHeight: 44,
+    borderRadius: '10px',
+    background: GRADIENT,
+    boxShadow: '0 4px 14px rgba(127,0,255,0.18)',
+    color: '#fff',
+};
+
+const listAccordion = [
+    'Datos de la madre',
+];
+
 const MotherAccordionForm = (props) => {
     const {
-        listAccordion,
         model,
         setModel,
         listLocalities,
+        listEstadosCiviles,
         submitMother,
         error,
         setError,
@@ -22,11 +58,14 @@ const MotherAccordionForm = (props) => {
         submitBaby,
         expandedMother = false,
         editForm,
+        setEditForm,
         typeForm,
         fieldErrors,
         setFieldErrors,
         profileBabyExtras,
     } = props;
+
+    const [editingBabyIndex, setEditingBabyIndex] = useState(null);
 
     const madreNombreCompleto = [model?.nombre, model?.apellido].filter(Boolean).join(' ').trim();
     const tituloMadre = `Datos de la madre: ${madreNombreCompleto || 'Sin nombre'}`;
@@ -36,9 +75,11 @@ const MotherAccordionForm = (props) => {
         if (!row || !profileBabyExtras?.onPutBaby) return;
         const payload = normalizeBabyApiPayload(row, model?.idMadre);
         profileBabyExtras.onPutBaby(payload);
+        setEditingBabyIndex(null);
     };
 
     const handleCancelBabyEdits = () => {
+        setEditingBabyIndex(null);
         if (typeof profileBabyExtras?.onReloadMother === 'function') {
             profileBabyExtras.onReloadMother();
         }
@@ -64,29 +105,57 @@ const MotherAccordionForm = (props) => {
                                         model={model}
                                         setModel={setModel}
                                         listLocalities={listLocalities}
+                                        listEstadosCiviles={listEstadosCiviles}
                                         editForm={editForm}
                                         typeForm={typeForm}
                                         fieldErrors={fieldErrors}
                                         setFieldErrors={setFieldErrors}
                                     />
+
                                     {typeForm === "ALTA" && (
                                         <Box sx={{ mt: 2 }}>
                                             <Button
                                                 variant="contained"
                                                 fullWidth
                                                 onClick={submitMother}
-                                                sx={{
-                                                    textTransform: 'none',
-                                                    fontWeight: 700,
-                                                    fontSize: '1rem',
-                                                    minHeight: 44,
-                                                    borderRadius: '10px',
-                                                    background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
-                                                    boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
-                                                }}
+                                                sx={btnSave}
                                             >
                                                 Guardar madre
                                             </Button>
+                                        </Box>
+                                    )}
+
+                                    {typeForm === "EDITAR" && setEditForm && (
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
+                                            {!editForm ? (
+                                                <Button
+                                                    variant="contained"
+                                                    fullWidth
+                                                    onClick={() => setEditForm(true)}
+                                                    sx={btnEdit}
+                                                >
+                                                    Editar madre
+                                                </Button>
+                                            ) : (
+                                                <>
+                                                    <Button
+                                                        variant="contained"
+                                                        fullWidth
+                                                        onClick={submitMother}
+                                                        sx={btnSave}
+                                                    >
+                                                        Guardar cambios
+                                                    </Button>
+                                                    <Button
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        onClick={() => setEditForm(false)}
+                                                        sx={btnCancel}
+                                                    >
+                                                        Cancelar
+                                                    </Button>
+                                                </>
+                                            )}
                                         </Box>
                                     )}
                                 </>
@@ -122,20 +191,16 @@ const MotherAccordionForm = (props) => {
                                     listMothers={listMothers}
                                     salaOptions={profileBabyExtras?.babySalasOptions ?? null}
                                 />
-                                <div style={{ textAlign: 'right', marginTop: 12 }}>
-                                    <ButtonCustomized
-                                        variant={'container'}
-                                        colorText={'#FFF'}
-                                        sx={{
-                                            fontSize: '16px',
-                                            background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
-                                            boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)',
-                                        }}
+                                <Box sx={{ mt: 2 }}>
+                                    <Button
+                                        variant="contained"
+                                        fullWidth
                                         onClick={submitBaby}
+                                        sx={btnSave}
                                     >
-                                        REGISTRAR BEBÉ
-                                    </ButtonCustomized>
-                                </div>
+                                        Registrar bebé
+                                    </Button>
+                                </Box>
                             </>
                         }
                     />
@@ -144,7 +209,8 @@ const MotherAccordionForm = (props) => {
             {model?.bebe?.map((item, index) => {
                 const panelId = `bebe-${item?.id ?? item?.idBebe ?? index}`;
                 const tituloBebe = `Datos del bebé: ${[item?.nombre, item?.apellido].filter(Boolean).join(' ').trim() || 'Sin nombre'}`;
-                const canEditBaby = typeForm === 'EDITAR' && editForm && profileBabyExtras?.onPutBaby;
+                const isEditingThisBaby = editingBabyIndex === index;
+                const canEditBaby = typeForm === 'EDITAR' && isEditingThisBaby && profileBabyExtras?.onPutBaby;
                 const readOnlyBaby = !canEditBaby;
 
                 return (
@@ -175,38 +241,38 @@ const MotherAccordionForm = (props) => {
                                     madreDisplayName={madreNombreCompleto}
                                     salaOptions={profileBabyExtras?.babySalasOptions ?? null}
                                 />
-                                {canEditBaby && (
+
+                                {typeForm === 'EDITAR' && profileBabyExtras?.onPutBaby && (
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
-                                        <Button
-                                            variant="contained"
-                                            fullWidth
-                                            onClick={() => handleSaveBaby(index)}
-                                            sx={{
-                                                textTransform: 'none',
-                                                fontWeight: 700,
-                                                minHeight: 44,
-                                                borderRadius: '10px',
-                                                background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
-                                                boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
-                                            }}
-                                        >
-                                            Guardar bebé
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            fullWidth
-                                            onClick={handleCancelBabyEdits}
-                                            sx={{
-                                                textTransform: 'none',
-                                                fontWeight: 600,
-                                                minHeight: 44,
-                                                borderRadius: '10px',
-                                                borderColor: 'rgba(21,44,112,0.25)',
-                                                color: '#152C70',
-                                            }}
-                                        >
-                                            Descartar cambios
-                                        </Button>
+                                        {!isEditingThisBaby ? (
+                                            <Button
+                                                variant="contained"
+                                                fullWidth
+                                                onClick={() => setEditingBabyIndex(index)}
+                                                sx={btnEdit}
+                                            >
+                                                Editar bebé
+                                            </Button>
+                                        ) : (
+                                            <>
+                                                <Button
+                                                    variant="contained"
+                                                    fullWidth
+                                                    onClick={() => handleSaveBaby(index)}
+                                                    sx={btnSave}
+                                                >
+                                                    Guardar bebé
+                                                </Button>
+                                                <Button
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    onClick={handleCancelBabyEdits}
+                                                    sx={btnCancel}
+                                                >
+                                                    Descartar cambios
+                                                </Button>
+                                            </>
+                                        )}
                                     </Box>
                                 )}
                             </>

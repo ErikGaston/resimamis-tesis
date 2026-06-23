@@ -6,7 +6,7 @@ import { showLoading } from "../../redux/actions/loadingActions";
 import Loading from "../../components/atoms/loading/Loading";
 import MotherTemplate from "../../components/templates/mother/MotherTemplate";
 import Footer from "../../components/molecules/Footer";
-import { getLocalities } from "../../redux/actions/genericsActions";
+import { getLocalities, getEstadosCiviles } from "../../redux/actions/genericsActions";
 import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
 import { useNavigate } from "react-router-dom";
 import {
@@ -23,6 +23,7 @@ import {
 export const MotherPage = () => {
     const dispatch = useDispatch();
     const localities = useSelector(state => state.genericsReducer?.getLocalities)
+    const estadosCiviles = useSelector(state => state.genericsReducer?.getEstadosCiviles)
     const dataMother = useSelector(state => state.motherReducer)
     const dataBaby = useSelector(state => state.babyReducer)
     const loading = useSelector(state => state.motherReducer?.loading)
@@ -77,6 +78,7 @@ export const MotherPage = () => {
         dispatch(clearMother())
         dispatch(clearBaby())
         dispatch(getLocalities())
+        dispatch(getEstadosCiviles())
         dispatch(getMother())
         return () => {
             dispatch(clearMother())
@@ -135,6 +137,7 @@ export const MotherPage = () => {
                 setError={setError}
 
                 localities={localities?.data ?? null}
+                estadosCiviles={estadosCiviles?.data ?? null}
                 mothers={dataMother?.getMother?.data ?? null}
 
                 submitMother={submitMother}

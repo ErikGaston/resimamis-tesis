@@ -6,7 +6,7 @@ const listAccordion = [
     'Datos de la madre',
 ];
 
-const MotherTemplate = ({ model, setModel, localities, submitMother, submitConset, error, setError, mothers, submitBaby, typeForm, edit, fieldErrors, setFieldErrors, profileBabyExtras }) => {
+const MotherTemplate = ({ model, setModel, localities, estadosCiviles, submitMother, submitConset, error, setError, mothers, submitBaby, typeForm, edit, fieldErrors, setFieldErrors, profileBabyExtras, setEditForm }) => {
     const [listLocalities, setListLocalities] = React.useState(null)
     const [listMothers, setListMothers] = React.useState(null)
     const [listAccordionBaby, setListAccordionBaby] = React.useState(['Datos del bebé']);
@@ -47,6 +47,7 @@ const MotherTemplate = ({ model, setModel, localities, submitMother, submitConse
                     submitConset={submitConset}
 
                     listLocalities={listLocalities}
+                    listEstadosCiviles={estadosCiviles ?? null}
 
                     listMothers={listMothers}
 
@@ -59,6 +60,7 @@ const MotherTemplate = ({ model, setModel, localities, submitMother, submitConse
                     fieldErrors={fieldErrors}
                     setFieldErrors={setFieldErrors}
                     profileBabyExtras={profileBabyExtras}
+                    setEditForm={setEditForm}
                 />
             </div>
         </>

@@ -2,6 +2,7 @@ import * as actionTypes from '../consts/actionTypes';
 
 const initialState = {
     getLocalities: null,
+    getEstadosCiviles: null,
     loading: false,
     error: null
 };
@@ -12,6 +13,8 @@ export default function genericsReducer(state = initialState, action) {
         [actionTypes.SHOW_LOADING]: showLoading(),
         [actionTypes.SUCCESS_GET_LOCALITIES]: responseToReturn('getLocalities'),
         [actionTypes.ERROR_LOCALITIES]: responseToReturn('error'),
+        [actionTypes.SUCCESS_GET_ESTADOS_CIVILES]: responseToReturn('getEstadosCiviles'),
+        [actionTypes.ERROR_ESTADOS_CIVILES]: responseToReturn('error'),
     };
 
     function responseToReturn(typeState) {

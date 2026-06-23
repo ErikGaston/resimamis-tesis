@@ -13,6 +13,19 @@ export const getLocalities = async () => {
       throw error;
     });
 };
+
+const getEstadosCivilesURL = '/genericos/estadosCiviles';
+
+export const getEstadosCiviles = async () => {
+  return AxiosInstance
+    .get(`${getEstadosCivilesURL}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
 //#endregion
 
 //#region - USER

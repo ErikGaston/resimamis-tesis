@@ -39,16 +39,19 @@ export function resolveListadoMadreId(m) {
 }
 
 /**
- * Opciones para el autocomplete de estado civil: catálogo fijo + entrada dinámica si el registro trae un código no listado (datos legacy / backend).
+ * Opciones para el autocomplete de estado civil.
+ * Si se pasa `dynamicOptions` (del API), se usa como base; si no, usa la lista estática.
+ * En ambos casos agrega una entrada legacy si el valor actual no está en la lista.
  * @param {unknown} currentEstadoCivil — valor actual del modelo
+ * @param {Array<{ label: string, value: number }> | null} dynamicOptions — opciones del API (ya en formato {label, value})
  * @returns {Array<{ label: string, value: number }>}
  */
-export function getMotherEstadoCivilOptionsForSelect(currentEstadoCivil) {
+export function getMotherEstadoCivilOptionsForSelect(currentEstadoCivil, dynamicOptions = null) {
   const n =
     currentEstadoCivil === '' || currentEstadoCivil === undefined || currentEstadoCivil === null
       ? null
       : Number(currentEstadoCivil);
-  const base = [...MOTHER_ESTADO_CIVIL_OPTIONS];
+  const base = dynamicOptions ? [...dynamicOptions] : [...MOTHER_ESTADO_CIVIL_OPTIONS];
   if (n != null && !Number.isNaN(n) && !base.some((o) => o.value === n)) {
     base.unshift({
       label: `Código ${n} (registrado en el sistema)`,

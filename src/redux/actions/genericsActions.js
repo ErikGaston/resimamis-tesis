@@ -5,3 +5,9 @@ export function getLocalities() {
         type: actionTypes.GET_LOCALITIES,
     };
 }
+
+export function getEstadosCiviles() {
+    return {
+        type: actionTypes.GET_ESTADOS_CIVILES,
+    };
+}

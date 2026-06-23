@@ -8,7 +8,7 @@ import { useParams } from 'react-router-dom';
 import Footer from '../../components/molecules/Footer';
 import PageScrollMain from '../../components/common/PageScrollMain';
 import { showLoading } from '../../redux/actions/loadingActions';
-import { getLocalities } from '../../redux/actions/genericsActions';
+import { getLocalities, getEstadosCiviles } from '../../redux/actions/genericsActions';
 import DialogSuccess from '../../components/atoms/dialogSuccess/DialogSuccess';
 import {
   validateMotherForm,
@@ -22,6 +22,7 @@ export const ProfileMotherPage = () => {
 
   const dispatch = useDispatch();
   const localities = useSelector(state => state.genericsReducer?.getLocalities)
+  const estadosCiviles = useSelector(state => state.genericsReducer?.getEstadosCiviles)
   const loading = useSelector(state => state.motherReducer?.loading)
   const dataMother = useSelector(state => state.motherReducer)
   const dataBaby = useSelector(state => state.babyReducer)
@@ -77,11 +78,17 @@ export const ProfileMotherPage = () => {
   );
 
   useEffect(() => {
+    if (editForm && dataMother?.getMother == null) {
+      dispatch(getMother());
+    }
+  }, [editForm]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     dispatch(showLoading(true))
     dispatch(clearMother())
     dispatch(getMotherId(id))
     dispatch(getLocalities())
-    dispatch(getMother())
+    dispatch(getEstadosCiviles())
     dispatch(getBabySalas())
 
     return () => {
@@ -161,6 +168,7 @@ export const ProfileMotherPage = () => {
           setModel={setModel}
           submit={submitMother}
           localities={localities?.data ?? null}
+          estadosCiviles={estadosCiviles?.data ?? null}
           mothers={dataMother?.getMother?.data ?? null}
           editForm={editForm}
           setEditForm={setEditForm}
