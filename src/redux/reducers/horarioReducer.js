@@ -13,6 +13,7 @@ export default function horarioReducer(state = initialState, action) {
     [actionTypes.SHOW_LOADING]: showLoading(),
     [actionTypes.SUCCESS_GET_HORARIO_DIAS]: responseToReturn('getHorarioDias'),
     [actionTypes.SUCCESS_POST_HORARIO]: responseToReturn('postHorario'),
+    [actionTypes.SUCCESS_PUT_HORARIO]: responseToReturn('postHorario'),
     [actionTypes.ERROR_HORARIO]: responseToReturn('error'),
     [actionTypes.CLEAR_HORARIO]: clearHorario(),
   };

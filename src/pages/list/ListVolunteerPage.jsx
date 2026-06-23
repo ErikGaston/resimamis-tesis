@@ -3,14 +3,12 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography }
 import Footer from '../../components/molecules/Footer';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearVolunteer, clearVolunteerWrites, getVolunteers, postVolunteerDelete } from '../../redux/actions/volunteerActions';
-import Loading from '../../components/atoms/loading/Loading';
 import { showLoading } from '../../redux/actions/loadingActions';
 import ListVolunteerTemplate from '../../components/templates/list/ListVolunteerTemplate';
 import { isCoordinadoraSession } from '../../utils/coordinadoraRole';
 
 export const ListVolunteerPage = () => {
   const dispatch = useDispatch();
-  const loading = useSelector((state) => state.volunteerReducer.loading);
   const dataVolunteer = useSelector((state) => state.volunteerReducer);
   const isCoordinator = isCoordinadoraSession();
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
@@ -35,6 +33,9 @@ export const ListVolunteerPage = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    if (dataVolunteer?.error != null) {
+      dispatch(showLoading(false));
+    }
     if (dataVolunteer?.getVolunteers != null) {
       dispatch(showLoading(false));
     }
@@ -43,11 +44,10 @@ export const ListVolunteerPage = () => {
       dispatch(getVolunteers());
       dispatch(clearVolunteerWrites());
     }
-  }, [dataVolunteer?.getVolunteers, dataVolunteer?.postVolunteerDelete, dispatch]);
+  }, [dataVolunteer?.error, dataVolunteer?.getVolunteers, dataVolunteer?.postVolunteerDelete, dispatch]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
-      {loading && <Loading position={'absolute'} height={'100%'} zIndex={9999} />}
       <ListVolunteerTemplate
         volunteers={dataVolunteer?.getVolunteers?.data ?? null}
         isCoordinator={isCoordinator}

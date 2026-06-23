@@ -18,10 +18,9 @@ export const HomePage = () => {
   let nameVolunteer = getNameVolunteer();
 
   useEffect(() => {
+    dispatch(clearVolunteer())
     dispatch(showLoading(true))
     dispatch(getVolunteersFree())
-
-    dispatch(clearVolunteer())
     return () => {
       dispatch(clearVolunteer())
     }

@@ -796,6 +796,20 @@ export const postHorario = async (body) => {
       throw e;
     });
 };
+
+/**
+ * Reemplaza TODOS los horarios de la voluntaria con la lista recibida.
+ * @param {number} idVoluntaria
+ * @param {Array<{idDia: number, idVoluntaria: number, turno: string}>} body
+ */
+export const putHorario = async (idVoluntaria, body) => {
+  return AxiosInstance
+    .put(`${horarioURL}/${idVoluntaria}`, body)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
 //#endregion
 
 //#region - TAREA

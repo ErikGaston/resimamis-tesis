@@ -1,13 +1,14 @@
-import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { clearSupply, getSupplies, postSupplyConsultMovements, getSupplyProviders, postSupplyRegisterMovement, postSupplyCreate } from "../../redux/actions/supplyActions";
+import { clearSupply, getSupplies, postSupplyConsultMovements, getSupplyProviders, postSupplyRegisterMovement, postSupplyCreate, putSupplyById, postSupplyDelete, clearSupplyWrites } from "../../redux/actions/supplyActions";
+import { getBabys } from "../../redux/actions/babyActions";
 import { showLoading } from "../../redux/actions/loadingActions";
-import { hideToast } from "../../redux/actions/toastActions";
+import { hideToast, showToast } from "../../redux/actions/toastActions";
 import Loading from "../../components/atoms/loading/Loading";
 import Footer from "../../components/molecules/Footer";
 import SupplyTemplate from "../../components/templates/supply/SupplyTemplate";
 import { getIdVolunteer } from "../../utils/localStorage";
-import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
+import { isCoordinadoraSession } from "../../utils/coordinadoraRole";
 
 function rangeUltimos30DiasISO() {
     const hasta = new Date();
@@ -42,11 +43,14 @@ function safeIdVolunteer() {
 export const SupplyPage = () => {
     const dispatch = useDispatch();
     const dataSupply = useSelector(state => state.supplyReducer)
+    const dataBaby = useSelector(state => state.babyReducer)
     const loading = useSelector(state => state.supplyReducer?.loading)
+    const isCoord = isCoordinadoraSession();
     const [valueTask, setValueTask] = useState(1);
-    const [stateForm, setStateForm] = useState(null);
     const [createSupplyCloseSignal, setCreateSupplyCloseSignal] = useState(0);
     const [movementCloseSignal, setMovementCloseSignal] = useState(0);
+    const [editCloseSignal, setEditCloseSignal] = useState(0);
+    const [deleteCloseSignal, setDeleteCloseSignal] = useState(0);
 
     const changeTask = (number) => e => {
         setValueTask(number)
@@ -55,6 +59,7 @@ export const SupplyPage = () => {
     useLayoutEffect(() => {
         dispatch(clearSupply());
         dispatch(hideToast());
+        dispatch(getBabys());
     }, [dispatch]);
 
     useEffect(() => {
@@ -94,21 +99,37 @@ export const SupplyPage = () => {
     useEffect(() => {
         if (dataSupply?.postSupplyRegisterMovement == null) return
         dispatch(showLoading(false))
-        setStateForm('MOVIMIENTO_OK')
         setMovementCloseSignal((s) => s + 1)
         dispatch(postSupplyConsultMovements(buildConsultaMovimientosPayload()))
         dispatch(getSupplies())
-        setTimeout(() => setStateForm(null), 2200)
+        dispatch(showToast({ message: 'Movimiento registrado.', severity: 'success' }))
     }, [dataSupply?.postSupplyRegisterMovement, dispatch])
 
     useEffect(() => {
         if (dataSupply?.postSupplyCreate == null) return
         dispatch(showLoading(false))
-        setStateForm('INSUMO_OK')
         setCreateSupplyCloseSignal((s) => s + 1)
         dispatch(getSupplies())
-        setTimeout(() => setStateForm(null), 2200)
+        dispatch(showToast({ message: 'Insumo registrado.', severity: 'success' }))
     }, [dataSupply?.postSupplyCreate, dispatch])
+
+    useEffect(() => {
+        if (dataSupply?.putSupplyById == null) return
+        dispatch(showLoading(false))
+        setEditCloseSignal((s) => s + 1)
+        dispatch(getSupplies())
+        dispatch(clearSupplyWrites())
+        dispatch(showToast({ message: 'Insumo actualizado.', severity: 'success' }))
+    }, [dataSupply?.putSupplyById, dispatch])
+
+    useEffect(() => {
+        if (dataSupply?.postSupplyDelete == null) return
+        dispatch(showLoading(false))
+        setDeleteCloseSignal((s) => s + 1)
+        dispatch(getSupplies())
+        dispatch(clearSupplyWrites())
+        dispatch(showToast({ message: 'Insumo eliminado.', severity: 'success' }))
+    }, [dataSupply?.postSupplyDelete, dispatch])
 
     const registerMovement = (body) => {
         dispatch(showLoading(true))
@@ -118,6 +139,16 @@ export const SupplyPage = () => {
     const registerCreateSupply = (body) => {
         dispatch(showLoading(true))
         dispatch(postSupplyCreate(body))
+    }
+
+    const editSupply = (id, body) => {
+        dispatch(showLoading(true))
+        dispatch(putSupplyById(id, body))
+    }
+
+    const deleteSupply = (id) => {
+        dispatch(showLoading(true))
+        dispatch(postSupplyDelete(id))
     }
 
     return (
@@ -136,21 +167,13 @@ export const SupplyPage = () => {
                 createSupplyCloseSignal={createSupplyCloseSignal}
                 movementCloseSignal={movementCloseSignal}
                 idVoluntariaDefault={safeIdVolunteer()}
+                babies={dataBaby?.getBabys?.data ?? null}
+                isCoord={isCoord}
+                onEditSupply={editSupply}
+                onDeleteSupply={deleteSupply}
+                editCloseSignal={editCloseSignal}
+                deleteCloseSignal={deleteCloseSignal}
             />
-            {stateForm === 'MOVIMIENTO_OK' && (
-                <DialogSuccess
-                    open={stateForm === 'MOVIMIENTO_OK'}
-                    setOpen={setStateForm}
-                    message="Movimiento registrado."
-                />
-            )}
-            {stateForm === 'INSUMO_OK' && (
-                <DialogSuccess
-                    open={stateForm === 'INSUMO_OK'}
-                    setOpen={setStateForm}
-                    message="Insumo registrado."
-                />
-            )}
             <Footer />
         </div>
     )

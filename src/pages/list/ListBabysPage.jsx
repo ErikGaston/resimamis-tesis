@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
-import Loading from '../../components/atoms/loading/Loading';
 import Footer from '../../components/molecules/Footer';
 import ListBabysTemplate from '../../components/templates/list/ListBabysTemplate';
 import { clearBaby, getBabyByDni, getBabys, postBabyDelete, clearBabyWrites } from '../../redux/actions/babyActions';
@@ -10,7 +9,6 @@ import { isCoordinadoraSession } from '../../utils/coordinadoraRole';
 
 export const ListBabysPage = () => {
   const dispatch = useDispatch();
-  const loadingBaby = useSelector((state) => state.babyReducer?.loading);
   const dataBabys = useSelector((state) => state.babyReducer);
   const isCoordinator = isCoordinadoraSession();
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
@@ -58,11 +56,8 @@ export const ListBabysPage = () => {
     });
   };
 
-  const showOverlay = loadingBaby;
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
-      {showOverlay && <Loading position={'absolute'} height={'100%'} zIndex={9999} />}
       <ListBabysTemplate
         babys={dataBabys?.getBabys?.data ?? null}
         isCoordinator={isCoordinator}

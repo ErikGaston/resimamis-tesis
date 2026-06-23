@@ -3,7 +3,23 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ChildCareOutlined from '@mui/icons-material/ChildCareOutlined';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import SearchIcon from '@mui/icons-material/Search';
-import { Alert, Box, Button, Fab, InputAdornment, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Fab, InputAdornment, Skeleton, TextField, Typography } from '@mui/material';
+
+const SkeletonCard = () => (
+  <Box sx={{
+    display: 'flex', alignItems: 'center', gap: 2, p: 2,
+    borderRadius: 2, bgcolor: '#fff',
+    boxShadow: '0 2px 12px rgba(21,44,112,0.06)',
+    border: '1px solid rgba(143,0,255,0.06)',
+  }}>
+    <Skeleton variant="circular" width={48} height={48} sx={{ flexShrink: 0 }} />
+    <Box sx={{ flex: 1 }}>
+      <Skeleton variant="text" width="52%" height={20} />
+      <Skeleton variant="text" width="35%" height={16} sx={{ mt: 0.5 }} />
+    </Box>
+    <Skeleton variant="circular" width={24} height={24} sx={{ flexShrink: 0 }} />
+  </Box>
+);
 import { PageHeader } from '../../common/PageHeader';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -171,7 +187,11 @@ const ListBabysTemplate = (props) => {
       )}
 
       <ContentScroll>
-        {filteredBabys?.length ? (
+        {!listadoCargado ? (
+          <ListStack>
+            {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+          </ListStack>
+        ) : filteredBabys?.length ? (
           <ListStack>
             {filteredBabys.map((item, index) => (
               <CardBaby

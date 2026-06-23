@@ -3,7 +3,10 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditIcon from '@mui/icons-material/Edit';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { PageHeader } from '../../common/PageHeader';
 import {
   Box,
@@ -19,6 +22,7 @@ import {
   IconButton,
   InputAdornment,
   InputLabel,
+  LinearProgress,
   MenuItem,
   Paper,
   Select,
@@ -26,12 +30,11 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from '@mui/material';
-import CardSupply from '../../molecules/cardSupply/CardSupply';
+import LabelInput from '../../molecules/labelInput/LabelInput';
 import { fabBottomAboveNav } from '../../../utils/listScreenAccessibility';
 
+// Constantes de estilos compartidos
 const BTN_GRADIENT = 'linear-gradient(135deg, #7F00FF 0%, #8F00FF 100%)';
 const BTN_GRADIENT_HOVER = 'linear-gradient(135deg, #6A00D6 0%, #7800D6 100%)';
 const BTN_SX = {
@@ -51,8 +54,56 @@ const BTN_CANCEL_SX = {
   minHeight: 44,
   borderRadius: 2,
   color: '#4A148C',
-  '&:hover': { bgcolor: 'rgba(74,20,140,0.06)' },
+  border: '1.5px solid rgba(21,44,112,0.22)',
+  '&:hover': { bgcolor: 'rgba(21,44,112,0.04)', borderColor: 'rgba(21,44,112,0.35)' },
 };
+
+// Paper del bottom-sheet (Dialog configurado como drawer desde abajo)
+const BOTTOM_SHEET_PAPER_SX = {
+  maxWidth: 444,
+  width: '100%',
+  mx: 'auto',
+  mb: 0,
+  mt: 'auto',
+  borderRadius: '20px 20px 0 0',
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+  maxHeight: '100dvh',
+};
+
+// sx del Dialog container para alinear hacia abajo
+const BOTTOM_SHEET_DIALOG_SX = {
+  '& .MuiDialog-container': {
+    alignItems: 'flex-end',
+  },
+};
+
+// Paper de Dialog full-height: columna 444px
+const DIALOG_FULL_SX = {
+  maxWidth: 444,
+  width: '100%',
+  mx: 'auto',
+  height: '100dvh',
+  maxHeight: '100dvh',
+  m: 0,
+  borderRadius: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+};
+
+// Paper de Dialog pequeño (confirmación)
+const DIALOG_SMALL_SX = {
+  maxWidth: 444,
+  width: '100%',
+  mx: 'auto',
+  borderRadius: 3,
+};
+
+const LABEL_COLOR = '#152C70';
+const INPUT_COLOR = '#152C70';
+const LABEL_STYLE = { fontSize: '16px' };
 
 function listSupplyMovementsFromResponse(raw) {
   if (raw == null) return null;
@@ -77,20 +128,36 @@ const SupplyTemplate = (props) => {
     createSupplyCloseSignal,
     movementCloseSignal,
     idVoluntariaDefault,
+    babies,
+    isCoord,
+    onEditSupply,
+    onDeleteSupply,
+    editCloseSignal,
+    deleteCloseSignal,
   } = props;
-
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [listSupplies, setListSupplies] = React.useState(null);
 
-  // Estado dialog nuevo insumo
-  const [registerDialogOpen, setRegisterDialogOpen] = React.useState(false);
+  // Estado drawer nuevo insumo
+  const [registerDrawerOpen, setRegisterDrawerOpen] = React.useState(false);
   const [newNombre, setNewNombre] = React.useState('');
   const [newDescripcion, setNewDescripcion] = React.useState('');
   const [newStockMin, setNewStockMin] = React.useState('0');
   const [newStockMax, setNewStockMax] = React.useState('1000');
   const [newStockActual, setNewStockActual] = React.useState('0');
+
+  // Estado dialog editar insumo (solo coordinadora)
+  const [editDialogOpen, setEditDialogOpen] = React.useState(false);
+  const [editingSupply, setEditingSupply] = React.useState(null);
+  const [editNombre, setEditNombre] = React.useState('');
+  const [editDescripcion, setEditDescripcion] = React.useState('');
+  const [editStockMin, setEditStockMin] = React.useState('0');
+  const [editStockMax, setEditStockMax] = React.useState('1000');
+  const [editStockActual, setEditStockActual] = React.useState('0');
+
+  // Estado dialog confirmar eliminación
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
+  const [deleteTarget, setDeleteTarget] = React.useState(null);
 
   // Estado dialog nuevo movimiento
   const [movDialogOpen, setMovDialogOpen] = React.useState(false);
@@ -109,23 +176,52 @@ const SupplyTemplate = (props) => {
     ? providersData.data.listadoDeProveedores
     : [];
 
-  // Cerrar dialog de insumo al éxito
-  useEffect(() => {
-    if (createSupplyCloseSignal > 0) {
-      setRegisterDialogOpen(false);
-      setNewNombre('');
-      setNewDescripcion('');
-      setNewStockMin('0');
-      setNewStockMax('1000');
-      setNewStockActual('0');
-    }
-  }, [createSupplyCloseSignal]);
+  // ── Helpers formulario nuevo insumo ──
+  const resetSupplyForm = () => {
+    setNewNombre('');
+    setNewDescripcion('');
+    setNewStockMin('0');
+    setNewStockMax('1000');
+    setNewStockActual('0');
+  };
 
-  // Cerrar dialog de movimiento al éxito
+  const closeSupplyDrawer = () => {
+    setRegisterDrawerOpen(false);
+    resetSupplyForm();
+  };
+
+  const onChangeStockNumber = (setter) => (e) => {
+    const v = e.target.value;
+    if (/^$|^[0-9]+$/.test(v)) setter(v);
+  };
+
+  const canSubmitNewSupply =
+    newNombre.trim() !== '' &&
+    !Number.isNaN(Number(newStockMin)) &&
+    !Number.isNaN(Number(newStockMax)) &&
+    !Number.isNaN(Number(newStockActual)) &&
+    Number(newStockMin) >= 0 &&
+    Number(newStockMax) >= 0 &&
+    Number(newStockActual) >= 0 &&
+    Number(newStockMax) >= Number(newStockMin);
+
   useEffect(() => {
-    if (movementCloseSignal > 0) {
-      closeMovDialog();
+    if (createSupplyCloseSignal > 0) closeSupplyDrawer();
+  }, [createSupplyCloseSignal]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (editCloseSignal > 0) {
+      setEditDialogOpen(false);
+      setEditingSupply(null);
     }
+  }, [editCloseSignal]);
+
+  useEffect(() => {
+    if (deleteCloseSignal > 0) setDeleteTarget(null);
+  }, [deleteCloseSignal]);
+
+  useEffect(() => {
+    if (movementCloseSignal > 0) closeMovDialog();
   }, [movementCloseSignal]);
 
   const closeMovDialog = () => {
@@ -136,6 +232,21 @@ const SupplyTemplate = (props) => {
     setMovIdProveedor('__none__');
     setMovObservacion('');
     setMovIdBebe('');
+  };
+
+  const handleOpenEdit = (item) => {
+    setEditingSupply(item);
+    setEditNombre(item.nombre ?? '');
+    setEditDescripcion(item.descripcion ?? '');
+    setEditStockMin(String(item.stockMinimo ?? 0));
+    setEditStockMax(String(item.stockMaximo ?? 1000));
+    setEditStockActual(String(item.stockActual ?? 0));
+    setEditDialogOpen(true);
+  };
+
+  const handleOpenDelete = (item) => {
+    setDeleteTarget(item);
+    setDeleteConfirmOpen(true);
   };
 
   const submitNewSupply = () => {
@@ -153,6 +264,30 @@ const SupplyTemplate = (props) => {
       stockMaximo: Math.floor(smax),
       stockActual: Math.floor(sact),
     });
+  };
+
+  const submitEditSupply = () => {
+    if (!editingSupply || typeof onEditSupply !== 'function') return;
+    const nombre = editNombre.trim();
+    const smin = Number(editStockMin);
+    const smax = Number(editStockMax);
+    const sact = Number(editStockActual);
+    if (!nombre || [smin, smax, sact].some((n) => Number.isNaN(n) || n < 0)) return;
+    if (smax < smin) return;
+    onEditSupply(editingSupply.idInsumo, {
+      nombre,
+      descripcion: editDescripcion.trim() || null,
+      stockMinimo: Math.floor(smin),
+      stockMaximo: Math.floor(smax),
+      stockActual: Math.floor(sact),
+    });
+  };
+
+  const confirmDelete = () => {
+    if (typeof onDeleteSupply === 'function' && deleteTarget != null) {
+      onDeleteSupply(deleteTarget.idInsumo);
+    }
+    setDeleteConfirmOpen(false);
   };
 
   const submitMovement = () => {
@@ -177,6 +312,16 @@ const SupplyTemplate = (props) => {
     movCantidad !== '' &&
     !Number.isNaN(Number(movCantidad)) &&
     Number(movCantidad) > 0;
+
+  const editFormValid =
+    editNombre.trim() !== '' &&
+    !Number.isNaN(Number(editStockMin)) &&
+    !Number.isNaN(Number(editStockMax)) &&
+    !Number.isNaN(Number(editStockActual)) &&
+    Number(editStockMin) >= 0 &&
+    Number(editStockMax) >= 0 &&
+    Number(editStockActual) >= 0 &&
+    Number(editStockMax) >= Number(editStockMin);
 
   return (
     <div style={{ height: '100%' }}>
@@ -224,28 +369,114 @@ const SupplyTemplate = (props) => {
           id="panel-supply-list"
           role="tabpanel"
           aria-labelledby="tab-supply-list"
-          sx={{ pb: 14, px: 2 }}
+          sx={{ pb: 14, px: 2, pt: 1.5, overflow: 'hidden' }}
         >
           {listSupplies &&
-            listSupplies.map((item) => (
-              <Box
-                key={item.idInsumo}
-                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 1.25 }}
-              >
-                <CardSupply
-                  first={item.nombre}
-                  second={`Stock: ${item.stockActual} U`}
-                  textColor={item.stockActual <= item.stockMinimo ? '#C2185B' : '#152C70'}
-                  stockActual={item.stockActual}
-                  stockMinimo={item.stockMinimo}
-                  stockMaximo={item.stockMaximo}
-                />
-              </Box>
-            ))}
+            listSupplies.map((item) => {
+              const isLow =
+                item.stockActual != null &&
+                item.stockMinimo != null &&
+                Number(item.stockActual) <= Number(item.stockMinimo);
+              const progress =
+                item.stockActual != null &&
+                item.stockMaximo != null &&
+                Number(item.stockMaximo) > 0
+                  ? Math.min(100, Math.round((Number(item.stockActual) / Number(item.stockMaximo)) * 100))
+                  : null;
+              return (
+                <Paper
+                  key={item.idInsumo}
+                  elevation={0}
+                  sx={{
+                    mt: 1.25,
+                    p: '12px 14px 12px 16px',
+                    borderRadius: '14px',
+                    border: isLow
+                      ? '1.5px solid rgba(194,24,91,0.35)'
+                      : '1.5px solid rgba(143,0,255,0.10)',
+                    bgcolor: isLow ? 'rgba(194,24,91,0.03)' : '#fff',
+                    boxShadow: '0 2px 10px rgba(21,44,112,0.06)',
+                    overflow: 'hidden',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  {/* Fila: nombre + stock + (acciones si coord) */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: progress != null ? 0.75 : 0 }}>
+                    <Typography
+                      sx={{ fontWeight: 600, fontSize: '0.88rem', color: '#152C70', flex: 1, minWidth: 0 }}
+                      noWrap
+                    >
+                      {item.nombre}
+                    </Typography>
+                    {isLow && (
+                      <WarningAmberIcon sx={{ fontSize: 15, color: '#C2185B', flexShrink: 0 }} />
+                    )}
+                    <Typography
+                      sx={{
+                        fontSize: '0.82rem',
+                        fontWeight: 700,
+                        color: isLow ? '#C2185B' : '#152C70',
+                        flexShrink: 0,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {item.stockActual} U
+                    </Typography>
+                    {isCoord && (
+                      <>
+                        <IconButton
+                          size="small"
+                          aria-label={`Editar ${item.nombre}`}
+                          onClick={() => handleOpenEdit(item)}
+                          sx={{
+                            color: '#7F00FF',
+                            p: 0.75,
+                            flexShrink: 0,
+                            '&:hover': { bgcolor: 'rgba(127,0,255,0.08)' },
+                          }}
+                        >
+                          <EditIcon sx={{ fontSize: 17 }} />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          aria-label={`Eliminar ${item.nombre}`}
+                          onClick={() => handleOpenDelete(item)}
+                          sx={{
+                            color: '#C23814',
+                            p: 0.75,
+                            flexShrink: 0,
+                            '&:hover': { bgcolor: 'rgba(194,56,20,0.08)' },
+                          }}
+                        >
+                          <DeleteOutlineIcon sx={{ fontSize: 17 }} />
+                        </IconButton>
+                      </>
+                    )}
+                  </Box>
+                  {/* Barra de stock */}
+                  {progress != null && (
+                    <LinearProgress
+                      variant="determinate"
+                      value={progress}
+                      sx={{
+                        height: 5,
+                        borderRadius: 3,
+                        bgcolor: 'rgba(21,44,112,0.08)',
+                        '& .MuiLinearProgress-bar': {
+                          bgcolor: isLow ? '#C2185B' : '#8F00FF',
+                          borderRadius: 3,
+                        },
+                      }}
+                    />
+                  )}
+                </Paper>
+              );
+            })}
 
           <Fab
             aria-label="Agregar insumo al catálogo"
-            onClick={() => setRegisterDialogOpen(true)}
+            onClick={() => setRegisterDrawerOpen(true)}
             sx={{
               position: 'fixed',
               left: '50%',
@@ -262,125 +493,334 @@ const SupplyTemplate = (props) => {
             <AddCircleIcon sx={{ fontSize: 32, color: '#fff' }} />
           </Fab>
 
-          {/* Dialog: Nuevo insumo */}
+          {/* ── Bottom sheet: Nuevo insumo ── */}
           <Dialog
-            open={registerDialogOpen}
-            onClose={() => setRegisterDialogOpen(false)}
+            open={registerDrawerOpen}
+            onClose={closeSupplyDrawer}
             fullWidth
-            fullScreen={fullScreen}
-            maxWidth="sm"
-            aria-labelledby="register-supply-dialog-title"
-            PaperProps={{ sx: { borderRadius: fullScreen ? 0 : 3, overflow: 'hidden' } }}
+            maxWidth={false}
+            PaperProps={{ sx: BOTTOM_SHEET_PAPER_SX }}
+            sx={BOTTOM_SHEET_DIALOG_SX}
+            aria-labelledby="new-supply-drawer-title"
           >
-            <DialogTitle
-              id="register-supply-dialog-title"
+            {/* Header */}
+            <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                pr: 1,
+                px: 2.5,
                 py: 2,
                 background: 'linear-gradient(90deg, #7F00FF 0%, #8F00FF 100%)',
                 color: '#fff',
+                flexShrink: 0,
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <AddCircleIcon sx={{ fontSize: 22 }} />
-                <Typography component="span" sx={{ fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.02em' }}>
+                <Typography
+                  id="new-supply-drawer-title"
+                  component="span"
+                  sx={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '0.02em' }}
+                >
                   Nuevo insumo
                 </Typography>
               </Box>
-              <IconButton aria-label="Cerrar" onClick={() => setRegisterDialogOpen(false)} size="small" sx={{ color: '#fff' }}>
+              <IconButton
+                aria-label="Cerrar"
+                onClick={closeSupplyDrawer}
+                sx={{ color: '#fff', minWidth: 44, minHeight: 44 }}
+              >
                 <CloseIcon />
               </IconButton>
-            </DialogTitle>
+            </Box>
 
-            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 2.5, pb: 1, bgcolor: '#faf8fc', overflowY: 'auto' }}>
-              <Typography variant="body2" sx={{ color: 'rgba(21,44,112,0.6)', fontSize: '0.85rem', lineHeight: 1.55 }}>
+            {/* Contenido scrollable */}
+            <Box sx={{ flex: 1, overflowY: 'auto', px: 2.5, pt: 2, pb: 1 }}>
+              <Typography
+                variant="body2"
+                sx={{ color: 'rgba(21,44,112,0.55)', fontSize: '0.85rem', lineHeight: 1.6, mb: 1 }}
+              >
                 Registrá un ítem en el catálogo. Para entradas/salidas de stock usá la pestaña Movimientos.
               </Typography>
 
-              <TextField
-                autoFocus
-                required
+              <LabelInput
+                name="nombre"
                 label="Nombre del insumo"
                 value={newNombre}
                 onChange={(e) => setNewNombre(e.target.value)}
-                fullWidth
-                size="small"
+                labelColor={LABEL_COLOR}
+                inputColor={INPUT_COLOR}
+                styleLabel={LABEL_STYLE}
+                required
               />
-              <TextField
+              <LabelInput
+                name="descripcion"
                 label="Descripción (opcional)"
                 value={newDescripcion}
                 onChange={(e) => setNewDescripcion(e.target.value)}
-                fullWidth
-                size="small"
+                labelColor={LABEL_COLOR}
+                inputColor={INPUT_COLOR}
+                styleLabel={LABEL_STYLE}
                 multiline
-                minRows={2}
+                rows={3}
               />
 
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, my: 0.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, mb: 0.5 }}>
                 <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
-                <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em', px: 1 }}>
+                <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(21,44,112,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em', px: 1 }}>
                   Niveles de stock
                 </Typography>
                 <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
               </Box>
 
-              <Box sx={{ display: 'flex', gap: 1.5 }}>
-                <TextField
-                  label="Inicial"
-                  type="number"
-                  value={newStockActual}
-                  onChange={(e) => setNewStockActual(e.target.value)}
-                  fullWidth
-                  size="small"
-                  inputProps={{ min: 0 }}
-                />
-                <TextField
-                  label="Mínimo (alerta)"
-                  type="number"
-                  value={newStockMin}
-                  onChange={(e) => setNewStockMin(e.target.value)}
-                  fullWidth
-                  size="small"
-                  inputProps={{ min: 0 }}
-                />
-                <TextField
-                  label="Máximo"
-                  type="number"
-                  value={newStockMax}
-                  onChange={(e) => setNewStockMax(e.target.value)}
-                  fullWidth
-                  size="small"
-                  inputProps={{ min: 0 }}
-                />
-              </Box>
-            </DialogContent>
+              <LabelInput
+                name="stockActual"
+                label="Stock inicial"
+                value={newStockActual}
+                onChange={onChangeStockNumber(setNewStockActual)}
+                labelColor={LABEL_COLOR}
+                inputColor={INPUT_COLOR}
+                styleLabel={LABEL_STYLE}
+                inputProps={{ inputMode: 'numeric', min: 0 }}
+              />
+              <LabelInput
+                name="stockMin"
+                label="Stock mínimo (alerta)"
+                value={newStockMin}
+                onChange={onChangeStockNumber(setNewStockMin)}
+                labelColor={LABEL_COLOR}
+                inputColor={INPUT_COLOR}
+                styleLabel={LABEL_STYLE}
+                inputProps={{ inputMode: 'numeric', min: 0 }}
+              />
+              <LabelInput
+                name="stockMax"
+                label="Stock máximo"
+                value={newStockMax}
+                onChange={onChangeStockNumber(setNewStockMax)}
+                labelColor={LABEL_COLOR}
+                inputColor={INPUT_COLOR}
+                styleLabel={LABEL_STYLE}
+                inputProps={{ inputMode: 'numeric', min: 0 }}
+              />
+            </Box>
 
-            <DialogActions sx={{ px: 3, py: 2, gap: 1, bgcolor: '#faf8fc', borderTop: '1px solid rgba(143,0,255,0.1)' }}>
-              <Button onClick={() => setRegisterDialogOpen(false)} sx={BTN_CANCEL_SX}>
-                Cancelar
-              </Button>
+            {/* Footer fijo */}
+            <Box
+              sx={{
+                px: 2.5,
+                py: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1.25,
+                borderTop: '1px solid rgba(143,0,255,0.1)',
+                bgcolor: '#faf8fc',
+                flexShrink: 0,
+              }}
+            >
               <Button
                 variant="contained"
+                fullWidth
                 onClick={submitNewSupply}
-                disabled={
-                  !newNombre.trim() ||
-                  Number.isNaN(Number(newStockMin)) ||
-                  Number.isNaN(Number(newStockMax)) ||
-                  Number.isNaN(Number(newStockActual)) ||
-                  Number(newStockMin) < 0 ||
-                  Number(newStockMax) < 0 ||
-                  Number(newStockActual) < 0 ||
-                  Number(newStockMax) < Number(newStockMin)
-                }
-                sx={{ ...BTN_SX, flex: 1 }}
+                disabled={!canSubmitNewSupply}
+                sx={BTN_SX}
               >
                 Guardar insumo
               </Button>
-            </DialogActions>
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={closeSupplyDrawer}
+                sx={BTN_CANCEL_SX}
+              >
+                Cancelar
+              </Button>
+            </Box>
           </Dialog>
+
+          {/* ── Dialog: Editar insumo (solo coordinadora) ── */}
+          {isCoord && (
+            <Dialog
+              open={editDialogOpen}
+              onClose={() => setEditDialogOpen(false)}
+              fullWidth
+              maxWidth={false}
+              PaperProps={{ sx: DIALOG_FULL_SX }}
+              aria-labelledby="edit-supply-dialog-title"
+            >
+              {/* Header */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  px: 2.5,
+                  py: 2,
+                  background: 'linear-gradient(90deg, #7F00FF 0%, #8F00FF 100%)',
+                  color: '#fff',
+                  flexShrink: 0,
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <EditIcon sx={{ fontSize: 22 }} />
+                  <Typography
+                    id="edit-supply-dialog-title"
+                    component="span"
+                    sx={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '0.02em' }}
+                  >
+                    Editar insumo
+                  </Typography>
+                </Box>
+                <IconButton
+                  aria-label="Cerrar"
+                  onClick={() => setEditDialogOpen(false)}
+                  sx={{ color: '#fff', minWidth: 44, minHeight: 44 }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+
+              {/* Contenido scrollable */}
+              <Box sx={{ flex: 1, overflowY: 'auto', px: 2.5, pt: 2, pb: 1 }}>
+                <LabelInput
+                  name="editNombre"
+                  label="Nombre del insumo"
+                  value={editNombre}
+                  onChange={(e) => setEditNombre(e.target.value)}
+                  labelColor={LABEL_COLOR}
+                  inputColor={INPUT_COLOR}
+                  styleLabel={LABEL_STYLE}
+                  required
+                />
+                <LabelInput
+                  name="editDescripcion"
+                  label="Descripción (opcional)"
+                  value={editDescripcion}
+                  onChange={(e) => setEditDescripcion(e.target.value)}
+                  labelColor={LABEL_COLOR}
+                  inputColor={INPUT_COLOR}
+                  styleLabel={LABEL_STYLE}
+                  multiline
+                  rows={3}
+                />
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, mb: 0.5 }}>
+                  <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
+                  <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(21,44,112,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em', px: 1 }}>
+                    Niveles de stock
+                  </Typography>
+                  <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
+                </Box>
+
+                <LabelInput
+                  name="editStockActual"
+                  label="Stock actual"
+                  value={editStockActual}
+                  onChange={onChangeStockNumber(setEditStockActual)}
+                  labelColor={LABEL_COLOR}
+                  inputColor={INPUT_COLOR}
+                  styleLabel={LABEL_STYLE}
+                  inputProps={{ inputMode: 'numeric', min: 0 }}
+                />
+                <LabelInput
+                  name="editStockMin"
+                  label="Stock mínimo (alerta)"
+                  value={editStockMin}
+                  onChange={onChangeStockNumber(setEditStockMin)}
+                  labelColor={LABEL_COLOR}
+                  inputColor={INPUT_COLOR}
+                  styleLabel={LABEL_STYLE}
+                  inputProps={{ inputMode: 'numeric', min: 0 }}
+                />
+                <LabelInput
+                  name="editStockMax"
+                  label="Stock máximo"
+                  value={editStockMax}
+                  onChange={onChangeStockNumber(setEditStockMax)}
+                  labelColor={LABEL_COLOR}
+                  inputColor={INPUT_COLOR}
+                  styleLabel={LABEL_STYLE}
+                  inputProps={{ inputMode: 'numeric', min: 0 }}
+                />
+              </Box>
+
+              {/* Footer fijo */}
+              <Box
+                sx={{
+                  px: 2.5,
+                  py: 2,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1.25,
+                  borderTop: '1px solid rgba(143,0,255,0.1)',
+                  bgcolor: '#faf8fc',
+                  flexShrink: 0,
+                }}
+              >
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={submitEditSupply}
+                  disabled={!editFormValid}
+                  sx={BTN_SX}
+                >
+                  Guardar cambios
+                </Button>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => setEditDialogOpen(false)}
+                  sx={BTN_CANCEL_SX}
+                >
+                  Cancelar
+                </Button>
+              </Box>
+            </Dialog>
+          )}
+
+          {/* ── Dialog: Confirmar eliminación ── */}
+          {isCoord && (
+            <Dialog
+              open={deleteConfirmOpen}
+              onClose={() => setDeleteConfirmOpen(false)}
+              maxWidth={false}
+              fullWidth
+              PaperProps={{ sx: DIALOG_SMALL_SX }}
+            >
+              <DialogTitle sx={{ fontWeight: 700, color: '#C23814', pb: 1 }}>
+                ¿Eliminar insumo?
+              </DialogTitle>
+              <DialogContent>
+                <Typography sx={{ color: '#152C70', fontSize: '0.95rem' }}>
+                  Se dará de baja{' '}
+                  <strong>{deleteTarget?.nombre ?? `Insumo #${deleteTarget?.idInsumo}`}</strong>.
+                  Esta acción no se puede deshacer.
+                </Typography>
+              </DialogContent>
+              <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
+                <Button onClick={() => setDeleteConfirmOpen(false)} sx={BTN_CANCEL_SX}>
+                  Cancelar
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={confirmDelete}
+                  sx={{
+                    ...BTN_SX,
+                    background: 'linear-gradient(135deg, #C23814 0%, #E53935 100%)',
+                    boxShadow: '0 4px 14px rgba(194,56,20,0.3)',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #A52E10 0%, #C62828 100%)',
+                      boxShadow: '0 6px 18px rgba(194,56,20,0.4)',
+                    },
+                    flex: 1,
+                  }}
+                >
+                  Eliminar
+                </Button>
+              </DialogActions>
+            </Dialog>
+          )}
         </Box>
       )}
 
@@ -540,43 +980,52 @@ const SupplyTemplate = (props) => {
             </Fab>
           )}
 
-          {/* Dialog: Registrar movimiento */}
+          {/* ── Dialog: Registrar movimiento ── */}
           <Dialog
             open={movDialogOpen}
             onClose={closeMovDialog}
             fullWidth
-            fullScreen={fullScreen}
-            maxWidth="sm"
+            maxWidth={false}
+            PaperProps={{ sx: DIALOG_FULL_SX }}
             aria-labelledby="mov-dialog-title"
-            PaperProps={{ sx: { borderRadius: fullScreen ? 0 : 3, overflow: 'hidden' } }}
           >
-            <DialogTitle
-              id="mov-dialog-title"
+            {/* Header */}
+            <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                pr: 1,
+                px: 2.5,
                 py: 2,
                 background: 'linear-gradient(90deg, #7F00FF 0%, #8F00FF 100%)',
                 color: '#fff',
+                flexShrink: 0,
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <SwapVertIcon sx={{ fontSize: 22 }} />
-                <Typography component="span" sx={{ fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.02em' }}>
+                <Typography
+                  id="mov-dialog-title"
+                  component="span"
+                  sx={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '0.02em' }}
+                >
                   Registrar movimiento
                 </Typography>
               </Box>
-              <IconButton aria-label="Cerrar" onClick={closeMovDialog} size="small" sx={{ color: '#fff' }}>
+              <IconButton
+                aria-label="Cerrar"
+                onClick={closeMovDialog}
+                sx={{ color: '#fff', minWidth: 44, minHeight: 44 }}
+              >
                 <CloseIcon />
               </IconButton>
-            </DialogTitle>
+            </Box>
 
-            <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 2.5, pb: 1, bgcolor: '#faf8fc', overflowY: 'auto' }}>
+            {/* Contenido scrollable */}
+            <Box sx={{ flex: 1, overflowY: 'auto', px: 2.5, pt: 2.5, pb: 1 }}>
 
               {/* Toggle Entrada / Salida */}
-              <Box>
+              <Box sx={{ mb: 2.5 }}>
                 <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em', mb: 1.25 }}>
                   Tipo de movimiento
                 </Typography>
@@ -633,7 +1082,7 @@ const SupplyTemplate = (props) => {
               </Box>
 
               {/* Obligatorios */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
                 <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
                   Requerido
                 </Typography>
@@ -711,32 +1160,59 @@ const SupplyTemplate = (props) => {
                     multiline
                     minRows={2}
                   />
-                  <TextField
-                    size="small"
-                    fullWidth
-                    type="number"
-                    label="ID bebé relacionado"
-                    value={movIdBebe}
-                    onChange={(e) => setMovIdBebe(e.target.value)}
-                    inputProps={{ min: 1 }}
-                  />
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Bebé relacionado (opcional)</InputLabel>
+                    <Select
+                      value={movIdBebe}
+                      label="Bebé relacionado (opcional)"
+                      onChange={(e) => setMovIdBebe(e.target.value)}
+                    >
+                      <MenuItem value="">—</MenuItem>
+                      {Array.isArray(babies) && babies.map((b) => {
+                        const id = b.ID ?? b.id;
+                        return (
+                          <MenuItem key={id} value={String(id)}>
+                            {`${b.nombre ?? ''} ${b.apellido ?? ''}`.trim()}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
                 </Box>
               </Box>
-            </DialogContent>
+            </Box>
 
-            <DialogActions sx={{ px: 3, py: 2, gap: 1, bgcolor: '#faf8fc', borderTop: '1px solid rgba(143,0,255,0.1)' }}>
-              <Button onClick={closeMovDialog} sx={BTN_CANCEL_SX}>
-                Cancelar
-              </Button>
+            {/* Footer fijo */}
+            <Box
+              sx={{
+                px: 2.5,
+                py: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1.25,
+                borderTop: '1px solid rgba(143,0,255,0.1)',
+                bgcolor: '#faf8fc',
+                flexShrink: 0,
+              }}
+            >
               <Button
                 variant="contained"
+                fullWidth
                 onClick={submitMovement}
                 disabled={!movFormValid}
-                sx={{ ...BTN_SX, flex: 1 }}
+                sx={BTN_SX}
               >
                 Registrar
               </Button>
-            </DialogActions>
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={closeMovDialog}
+                sx={BTN_CANCEL_SX}
+              >
+                Cancelar
+              </Button>
+            </Box>
           </Dialog>
         </Box>
       )}

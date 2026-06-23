@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { getHorarioDias, postHorario, clearHorario } from '../../../redux/actions/horarioActions';
+import { getHorarioDias, putHorario, clearHorario } from '../../../redux/actions/horarioActions';
 import { showToast } from '../../../redux/actions/toastActions';
 
 const TURNOS = [
@@ -21,7 +21,7 @@ const TURNOS = [
   { value: 'Jornada completa', label: 'Jornada completa' },
 ];
 
-export function VolunteerHorarioSection({ idVoluntaria }) {
+export function VolunteerHorarioSection({ idVoluntaria, horarios }) {
   const dispatch = useDispatch();
   const { getHorarioDias: diasPayload, postHorario: postRes } = useSelector(
     (s) => s.horarioReducer,
@@ -45,11 +45,25 @@ export function VolunteerHorarioSection({ idVoluntaria }) {
     return () => dispatch(clearHorario());
   }, [dispatch]);
 
+  // Pre-carga los horarios activos de la voluntaria al montar o cuando cambian
+  useEffect(() => {
+    if (!Array.isArray(horarios) || horarios.length === 0) return;
+    const initial = {};
+    horarios
+      .filter((h) => h.activa !== false && h.idDia != null)
+      .forEach((h) => {
+        // Si ya hay un horario para ese día, se conserva el primero
+        if (!initial[h.idDia]) {
+          initial[h.idDia] = { turno: h.turno ?? 'Mañana' };
+        }
+      });
+    setSeleccion(initial);
+  }, [horarios]);
+
   useEffect(() => {
     if (postRes != null) {
       dispatch(showToast({ message: 'Disponibilidad guardada correctamente.', severity: 'success' }));
       dispatch(clearHorario());
-      setSeleccion({});
     }
   }, [postRes, dispatch]);
 
@@ -81,7 +95,7 @@ export function VolunteerHorarioSection({ idVoluntaria }) {
       dispatch(showToast({ message: 'Seleccioná al menos un día.', severity: 'warning' }));
       return;
     }
-    dispatch(postHorario(body));
+    dispatch(putHorario(Number(idVoluntaria), body));
   };
 
   const diasSeleccionados = Object.keys(seleccion).length;
@@ -172,6 +186,7 @@ export function VolunteerHorarioSection({ idVoluntaria }) {
           borderRadius: '10px',
           background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
           boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
+          color: '#fff',
           '&.Mui-disabled': { opacity: 0.4, boxShadow: 'none' },
         }}
       >

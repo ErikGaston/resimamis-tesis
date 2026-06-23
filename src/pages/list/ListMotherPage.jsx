@@ -3,14 +3,12 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography }
 import Footer from '../../components/molecules/Footer';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearMother, clearMotherWrites, getMother, postMotherDelete } from '../../redux/actions/motherActions';
-import Loading from '../../components/atoms/loading/Loading';
 import { showLoading } from '../../redux/actions/loadingActions';
 import ListMotherTemplate from '../../components/templates/list/ListMotherTemplate';
 import { isCoordinadoraSession } from '../../utils/coordinadoraRole';
 
 export const ListMotherPage = () => {
   const dispatch = useDispatch();
-  const loading = useSelector((state) => state.motherReducer.loading);
   const dataMothers = useSelector((state) => state.motherReducer);
   const isCoordinator = isCoordinadoraSession();
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
@@ -35,6 +33,9 @@ export const ListMotherPage = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    if (dataMothers?.error != null) {
+      dispatch(showLoading(false));
+    }
     if (dataMothers?.getMother != null) {
       dispatch(showLoading(false));
     }
@@ -43,11 +44,10 @@ export const ListMotherPage = () => {
       dispatch(getMother());
       dispatch(clearMotherWrites());
     }
-  }, [dataMothers?.getMother, dataMothers?.postMotherDelete, dispatch]);
+  }, [dataMothers?.error, dataMothers?.getMother, dataMothers?.postMotherDelete, dispatch]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
-      {loading && <Loading position={'absolute'} height={'100%'} zIndex={9999} />}
       <ListMotherTemplate
         mothers={dataMothers?.getMother?.data ?? null}
         isCoordinator={isCoordinator}

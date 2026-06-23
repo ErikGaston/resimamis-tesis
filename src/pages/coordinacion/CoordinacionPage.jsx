@@ -50,7 +50,7 @@ import {
   putUsuarioContrasena,
 } from '../../redux/actions/userActions';
 import { postMotherDelete, clearMotherWrites } from '../../redux/actions/motherActions';
-import { postBabyDelete, clearBabyWrites } from '../../redux/actions/babyActions';
+import { postBabyDelete, clearBabyWrites, getBabys } from '../../redux/actions/babyActions';
 import {
   getSupplyById,
   putSupplyById,
@@ -74,6 +74,8 @@ import {
   clearVisitaWrites,
 } from '../../redux/actions/visitaActions';
 import { showToast } from '../../redux/actions/toastActions';
+import Loading from '../../components/atoms/loading/Loading';
+import { showLoading } from '../../redux/actions/loadingActions';
 
 function TabPanel({ children, value, index }) {
   if (value !== index) return null;
@@ -127,6 +129,7 @@ export const CoordinacionPage = () => {
   const supply = useSelector((s) => s.supplyReducer);
   const tarea = useSelector((s) => s.tareaReducer);
   const visita = useSelector((s) => s.visitaReducer);
+  const loading = useSelector((s) => s.assignmentReducer?.loading);
 
   const [tab, setTab] = useState(0);
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
@@ -179,24 +182,28 @@ export const CoordinacionPage = () => {
   };
   const handleCancelConfirm = () => setConfirmDialog({ open: false, message: '', onConfirm: null });
 
+  // ── Dismiss loading on individual GET results ──
   useEffect(() => {
     if (user?.getUsuarioById != null) {
+      dispatch(showLoading(false));
       setUsuarioJsonEdit(JSON.stringify(user.getUsuarioById, null, 2));
     }
-  }, [user?.getUsuarioById]);
+  }, [user?.getUsuarioById, dispatch]);
 
   useEffect(() => {
     if (supply?.getSupplyById != null) {
+      dispatch(showLoading(false));
       try {
         setInsumoJson(JSON.stringify(supply.getSupplyById, null, 2));
       } catch {
         setInsumoJson('{}');
       }
     }
-  }, [supply?.getSupplyById]);
+  }, [supply?.getSupplyById, dispatch]);
 
   useEffect(() => {
     if (tarea?.getTareaById != null) {
+      dispatch(showLoading(false));
       const t = tarea.getTareaById;
       setTareaEditForm({
         nombre: t?.nombre ?? '',
@@ -204,20 +211,23 @@ export const CoordinacionPage = () => {
         esUnica: t?.esUnica ?? false,
       });
     }
-  }, [tarea?.getTareaById]);
+  }, [tarea?.getTareaById, dispatch]);
 
   useEffect(() => {
     if (visita?.getVisitaById != null) {
+      dispatch(showLoading(false));
       try {
         setVisitaEditJson(JSON.stringify(visita.getVisitaById, null, 2));
       } catch {
         setVisitaEditJson('{}');
       }
     }
-  }, [visita?.getVisitaById]);
+  }, [visita?.getVisitaById, dispatch]);
 
+  // ── Success effects (write operations) ──
   useEffect(() => {
     if (assignment?.postResetAbrazosColgados != null) {
+      dispatch(showLoading(false));
       toastOk('Operación de asignación ejecutada.');
       dispatch(clearAssignmentWrites());
     }
@@ -225,6 +235,7 @@ export const CoordinacionPage = () => {
 
   useEffect(() => {
     if (assignment?.putAssignmentById != null || assignment?.deleteAssignmentById != null) {
+      dispatch(showLoading(false));
       toastOk('Asignación actualizada.');
       dispatch(clearAssignmentWrites());
     }
@@ -232,6 +243,7 @@ export const CoordinacionPage = () => {
 
   useEffect(() => {
     if (volunteer?.postAssistanceDelete != null || volunteer?.postVolunteerDelete != null) {
+      dispatch(showLoading(false));
       toastOk('Baja registrada.');
       dispatch(clearVolunteerWrites());
     }
@@ -239,6 +251,7 @@ export const CoordinacionPage = () => {
 
   useEffect(() => {
     if (user?.postUsuario != null || user?.putUsuario != null || user?.postUsuarioDelete != null) {
+      dispatch(showLoading(false));
       toastOk('Usuario: operación OK.');
       dispatch(clearUserAdmin());
     }
@@ -246,6 +259,7 @@ export const CoordinacionPage = () => {
 
   useEffect(() => {
     if (user?.putUsuarioContrasena != null) {
+      dispatch(showLoading(false));
       toastOk('Contraseña actualizada.');
       setContrasenaForm({ ContrasenaActual: '', ContrasenaNueva: '' });
       dispatch(clearUserAdmin());
@@ -254,6 +268,7 @@ export const CoordinacionPage = () => {
 
   useEffect(() => {
     if (mother?.postMotherDelete != null) {
+      dispatch(showLoading(false));
       toastOk('Madre dada de baja.');
       dispatch(clearMotherWrites());
     }
@@ -261,6 +276,7 @@ export const CoordinacionPage = () => {
 
   useEffect(() => {
     if (baby?.postBabyDelete != null) {
+      dispatch(showLoading(false));
       toastOk('Bebé dado de baja.');
       dispatch(clearBabyWrites());
     }
@@ -268,6 +284,7 @@ export const CoordinacionPage = () => {
 
   useEffect(() => {
     if (supply?.putSupplyById != null || supply?.postSupplyDelete != null) {
+      dispatch(showLoading(false));
       toastOk('Insumo actualizado.');
       dispatch(clearSupplyWrites());
     }
@@ -275,6 +292,7 @@ export const CoordinacionPage = () => {
 
   useEffect(() => {
     if (tarea?.postTarea != null || tarea?.putTarea != null || tarea?.postTareaDelete != null) {
+      dispatch(showLoading(false));
       toastOk('Tarea: operación OK.');
       dispatch(clearTareaWrites());
       dispatch(getTareas());
@@ -283,11 +301,59 @@ export const CoordinacionPage = () => {
 
   useEffect(() => {
     if (visita?.postVisita != null || visita?.putVisita != null || visita?.postVisitaDelete != null) {
+      dispatch(showLoading(false));
       toastOk('Visita: operación OK.');
       dispatch(clearVisitaWrites());
       if (visitaBebeId) dispatch(getVisitasByBebe(Number(visitaBebeId)));
     }
   }, [visita?.postVisita, visita?.putVisita, visita?.postVisitaDelete, dispatch, toastOk, visitaBebeId]);
+
+  // ── Dismiss loading on list-type GET results and errors ──
+  useEffect(() => {
+    const anyResult = [
+      user?.getUsuarios,
+      user?.getVoluntariasSinUsuario,
+      volunteer?.getAssistanceReporte,
+      tarea?.getTareas,
+      visita?.getVisitasByBebe,
+    ].some((r) => r != null);
+    const anyError = [
+      assignment?.error,
+      volunteer?.error,
+      user?.error,
+      mother?.error,
+      supply?.error,
+      tarea?.error,
+      visita?.error,
+    ].some((e) => e != null);
+    if (anyResult || anyError) dispatch(showLoading(false));
+  }, [
+    user?.getUsuarios,
+    user?.getVoluntariasSinUsuario,
+    volunteer?.getAssistanceReporte,
+    tarea?.getTareas,
+    visita?.getVisitasByBebe,
+    assignment?.error,
+    volunteer?.error,
+    user?.error,
+    mother?.error,
+    supply?.error,
+    tarea?.error,
+    visita?.error,
+    dispatch,
+  ]);
+
+  // ── Initial load ──
+  useEffect(() => {
+    dispatch(showLoading(true));
+    dispatch(getBabys());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (baby?.getBabys != null || baby?.error != null) {
+      dispatch(showLoading(false));
+    }
+  }, [baby?.getBabys, baby?.error, dispatch]);
 
   if (!isCoord) {
     return (
@@ -308,6 +374,13 @@ export const CoordinacionPage = () => {
   const usuariosList = normalizarLista(user?.getUsuarios);
   const volsSinUsuario = normalizarLista(user?.getVoluntariasSinUsuario);
 
+  const babyOptions = Array.isArray(baby?.getBabys?.data)
+    ? baby.getBabys.data.map((b) => ({
+        id: b.ID ?? b.id,
+        label: `${b.nombre ?? ''} ${b.apellido ?? ''}`.trim(),
+      }))
+    : [];
+
   const asistenciaReporteRows = (() => {
     const raw = volunteer?.getAssistanceReporte;
     if (!raw) return null;
@@ -317,7 +390,8 @@ export const CoordinacionPage = () => {
   })();
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', position: 'relative' }}>
+      {loading && <Loading position="absolute" height="100%" />}
       <PageHeader title="Coordinación" />
       <PageScrollMain>
         <Paper elevation={0} sx={{ p: 2, mx: 1, mb: 2, borderRadius: 2 }}>
@@ -351,7 +425,7 @@ export const CoordinacionPage = () => {
               onClick={() =>
                 openConfirm(
                   '¿Resetear abrazos colgados en el servidor?',
-                  () => dispatch(postResetAbrazosColgados()),
+                  () => { dispatch(showLoading(true)); dispatch(postResetAbrazosColgados()); },
                 )
               }
             >
@@ -382,6 +456,7 @@ export const CoordinacionPage = () => {
                   const id = Number(asigId);
                   const body = safeJsonParse(asigJson, {});
                   if (!Number.isFinite(id)) return;
+                  dispatch(showLoading(true));
                   dispatch(putAssignmentById(id, body));
                 }}
               >
@@ -393,7 +468,7 @@ export const CoordinacionPage = () => {
                 onClick={() => {
                   const id = Number(asigId);
                   if (!Number.isFinite(id)) return;
-                  openConfirm(`¿Eliminar asignación ${id}?`, () => dispatch(deleteAssignmentById(id)));
+                  openConfirm(`¿Eliminar asignación ${id}?`, () => { dispatch(showLoading(true)); dispatch(deleteAssignmentById(id)); });
                 }}
               >
                 Eliminar
@@ -425,14 +500,15 @@ export const CoordinacionPage = () => {
             />
             <Button
               variant="contained"
-              onClick={() =>
+              onClick={() => {
+                dispatch(showLoading(true));
                 dispatch(
                   getAssistanceReporte({
                     fechaInicio: new Date(repIni).toISOString(),
                     fechaFin: new Date(repFin).toISOString(),
                   }),
-                )
-              }
+                );
+              }}
             >
               Ver reporte
             </Button>
@@ -481,7 +557,7 @@ export const CoordinacionPage = () => {
               onClick={() => {
                 const id = Number(idAsistenciaDel);
                 if (!Number.isFinite(id)) return;
-                openConfirm(`¿Eliminar asistencia ${id}?`, () => dispatch(postAssistanceDelete(id)));
+                openConfirm(`¿Eliminar asistencia ${id}?`, () => { dispatch(showLoading(true)); dispatch(postAssistanceDelete(id)); });
               }}
             >
               Eliminar asistencia
@@ -491,10 +567,10 @@ export const CoordinacionPage = () => {
           {/* ── 2: Usuarios ── */}
           <TabPanel value={tab} index={2}>
             <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
-              <Button variant="outlined" size="small" onClick={() => dispatch(getUsuarios())}>
+              <Button variant="outlined" size="small" onClick={() => { dispatch(showLoading(true)); dispatch(getUsuarios()); }}>
                 Ver todos los usuarios
               </Button>
-              <Button variant="outlined" size="small" onClick={() => dispatch(getVoluntariasSinUsuario())}>
+              <Button variant="outlined" size="small" onClick={() => { dispatch(showLoading(true)); dispatch(getVoluntariasSinUsuario()); }}>
                 Voluntarias sin usuario
               </Button>
             </Box>
@@ -589,6 +665,7 @@ export const CoordinacionPage = () => {
             <Button
               variant="contained"
               onClick={() => {
+                dispatch(showLoading(true));
                 dispatch(
                   postUsuario({
                     dni: Number(usuarioForm.dni),
@@ -613,7 +690,7 @@ export const CoordinacionPage = () => {
               sx={{ mb: 1 }}
               inputProps={{ inputMode: 'numeric' }}
             />
-            <Button variant="outlined" onClick={() => dispatch(getUsuarioById(Number(usuarioIdBuscar)))}>
+            <Button variant="outlined" onClick={() => { dispatch(showLoading(true)); dispatch(getUsuarioById(Number(usuarioIdBuscar))); }}>
               Buscar usuario
             </Button>
             <TextField
@@ -633,6 +710,7 @@ export const CoordinacionPage = () => {
                   const id = Number(usuarioIdBuscar);
                   const body = safeJsonParse(usuarioJsonEdit, {});
                   if (!Number.isFinite(id)) return;
+                  dispatch(showLoading(true));
                   dispatch(putUsuario(id, body));
                 }}
               >
@@ -656,7 +734,7 @@ export const CoordinacionPage = () => {
               onClick={() => {
                 const id = Number(idUsuarioDel);
                 if (!Number.isFinite(id)) return;
-                openConfirm(`¿Eliminar usuario ${id}?`, () => dispatch(postUsuarioDelete(id)));
+                openConfirm(`¿Eliminar usuario ${id}?`, () => { dispatch(showLoading(true)); dispatch(postUsuarioDelete(id)); });
               }}
             >
               Eliminar usuario
@@ -687,7 +765,7 @@ export const CoordinacionPage = () => {
             <Button
               variant="contained"
               disabled={!contrasenaForm.ContrasenaActual || !contrasenaForm.ContrasenaNueva}
-              onClick={() => dispatch(putUsuarioContrasena(contrasenaForm))}
+              onClick={() => { dispatch(showLoading(true)); dispatch(putUsuarioContrasena(contrasenaForm)); }}
             >
               Cambiar contraseña
             </Button>
@@ -712,7 +790,7 @@ export const CoordinacionPage = () => {
               onClick={() => {
                 const id = Number(idMadreDel);
                 if (!Number.isFinite(id)) return;
-                openConfirm(`¿Dar de baja madre ${id}?`, () => dispatch(postMotherDelete(id)));
+                openConfirm(`¿Dar de baja madre ${id}?`, () => { dispatch(showLoading(true)); dispatch(postMotherDelete(id)); });
               }}
             >
               Baja madre
@@ -734,28 +812,33 @@ export const CoordinacionPage = () => {
               onClick={() => {
                 const id = Number(idVolDel);
                 if (!Number.isFinite(id)) return;
-                openConfirm(`¿Dar de baja voluntaria ${id}?`, () => dispatch(postVolunteerDelete(id)));
+                openConfirm(`¿Dar de baja voluntaria ${id}?`, () => { dispatch(showLoading(true)); dispatch(postVolunteerDelete(id)); });
               }}
             >
               Baja voluntaria
             </Button>
-            <TextField
-              label="ID del bebé"
-              value={idBebeDel}
-              onChange={(e) => setIdBebeDel(e.target.value)}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              inputProps={{ inputMode: 'numeric' }}
-            />
+            <FormControl fullWidth size="small" sx={{ mb: 1 }}>
+              <InputLabel>Bebé</InputLabel>
+              <Select
+                value={idBebeDel}
+                label="Bebé"
+                onChange={(e) => setIdBebeDel(e.target.value)}
+              >
+                {babyOptions.map((b) => (
+                  <MenuItem key={b.id} value={String(b.id)}>
+                    {b.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Button
               color="error"
               variant="outlined"
               fullWidth
               onClick={() => {
                 const id = Number(idBebeDel);
-                if (!Number.isFinite(id)) return;
-                openConfirm(`¿Dar de baja bebé ${id}?`, () => dispatch(postBabyDelete(id)));
+                if (!Number.isInteger(id) || id <= 0) return;
+                openConfirm(`¿Dar de baja bebé ${id}?`, () => { dispatch(showLoading(true)); dispatch(postBabyDelete(id)); });
               }}
             >
               Baja bebé
@@ -773,7 +856,10 @@ export const CoordinacionPage = () => {
               sx={{ mb: 1 }}
               inputProps={{ inputMode: 'numeric' }}
             />
-            <Button variant="outlined" onClick={() => dispatch(getSupplyById(Number(idInsumo)))}>
+            <Button
+              variant="outlined"
+              onClick={() => { dispatch(showLoading(true)); dispatch(getSupplyById(Number(idInsumo))); }}
+            >
               Cargar insumo
             </Button>
             <TextField
@@ -793,6 +879,7 @@ export const CoordinacionPage = () => {
                   const id = Number(idInsumo);
                   const body = safeJsonParse(insumoJson, {});
                   if (!Number.isFinite(id)) return;
+                  dispatch(showLoading(true));
                   dispatch(putSupplyById(id, body));
                 }}
               >
@@ -804,7 +891,7 @@ export const CoordinacionPage = () => {
                 onClick={() => {
                   const id = Number(idInsumo);
                   if (!Number.isFinite(id)) return;
-                  openConfirm(`¿Eliminar insumo ${id}?`, () => dispatch(postSupplyDelete(id)));
+                  openConfirm(`¿Eliminar insumo ${id}?`, () => { dispatch(showLoading(true)); dispatch(postSupplyDelete(id)); });
                 }}
               >
                 Eliminar
@@ -814,7 +901,7 @@ export const CoordinacionPage = () => {
 
           {/* ── 5: Tareas ── */}
           <TabPanel value={tab} index={5}>
-            <Button variant="outlined" fullWidth sx={{ mb: 2 }} onClick={() => dispatch(getTareas())}>
+            <Button variant="outlined" fullWidth sx={{ mb: 2 }} onClick={() => { dispatch(showLoading(true)); dispatch(getTareas()); }}>
               Cargar lista de tareas
             </Button>
             {Array.isArray(tareasList) && tareasList.length > 0 && (
@@ -842,6 +929,7 @@ export const CoordinacionPage = () => {
                       size="small"
                       onClick={() => {
                         setTareaEditId(String(t.idTarea));
+                        dispatch(showLoading(true));
                         dispatch(getTareaById(t.idTarea));
                       }}
                     >
@@ -893,6 +981,7 @@ export const CoordinacionPage = () => {
               variant="contained"
               disabled={!tareaForm.nombre.trim()}
               onClick={() => {
+                dispatch(showLoading(true));
                 dispatch(
                   postTarea({
                     nombre: tareaForm.nombre.trim(),
@@ -924,6 +1013,7 @@ export const CoordinacionPage = () => {
                 onClick={() => {
                   const id = Number(tareaEditId);
                   if (!Number.isFinite(id)) return;
+                  dispatch(showLoading(true));
                   dispatch(getTareaById(id));
                 }}
               >
@@ -971,6 +1061,7 @@ export const CoordinacionPage = () => {
                 onClick={() => {
                   const id = Number(tareaEditId);
                   if (!Number.isFinite(id)) return;
+                  dispatch(showLoading(true));
                   dispatch(
                     putTarea(id, {
                       nombre: tareaEditForm.nombre.trim(),
@@ -989,7 +1080,7 @@ export const CoordinacionPage = () => {
                 onClick={() => {
                   const id = Number(tareaEditId);
                   if (!Number.isFinite(id)) return;
-                  openConfirm(`¿Eliminar tarea ${id}?`, () => dispatch(postTareaDelete(id)));
+                  openConfirm(`¿Eliminar tarea ${id}?`, () => { dispatch(showLoading(true)); dispatch(postTareaDelete(id)); });
                 }}
               >
                 Eliminar
@@ -1003,19 +1094,26 @@ export const CoordinacionPage = () => {
               Visitas por bebé
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-              <TextField
-                label="ID del bebé"
-                value={visitaBebeId}
-                onChange={(e) => setVisitaBebeId(e.target.value)}
-                size="small"
-                sx={{ flex: 1 }}
-                inputProps={{ inputMode: 'numeric' }}
-              />
+              <FormControl size="small" sx={{ flex: 1 }}>
+                <InputLabel>Bebé</InputLabel>
+                <Select
+                  value={visitaBebeId}
+                  label="Bebé"
+                  onChange={(e) => setVisitaBebeId(e.target.value)}
+                >
+                  {babyOptions.map((b) => (
+                    <MenuItem key={b.id} value={String(b.id)}>
+                      {b.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <Button
                 variant="outlined"
                 onClick={() => {
                   const id = Number(visitaBebeId);
-                  if (!Number.isFinite(id)) return;
+                  if (!Number.isInteger(id) || id <= 0) return;
+                  dispatch(showLoading(true));
                   dispatch(getVisitasByBebe(id));
                 }}
               >
@@ -1051,15 +1149,20 @@ export const CoordinacionPage = () => {
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
               Registrar visita
             </Typography>
-            <TextField
-              label="ID del bebé"
-              value={visitaForm.idBebe}
-              onChange={(e) => setVisitaForm((f) => ({ ...f, idBebe: e.target.value }))}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              inputProps={{ inputMode: 'numeric' }}
-            />
+            <FormControl fullWidth size="small" sx={{ mb: 1 }}>
+              <InputLabel>Bebé</InputLabel>
+              <Select
+                value={visitaForm.idBebe}
+                label="Bebé"
+                onChange={(e) => setVisitaForm((f) => ({ ...f, idBebe: e.target.value }))}
+              >
+                {babyOptions.map((b) => (
+                  <MenuItem key={b.id} value={String(b.id)}>
+                    {b.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField
               label="Nombre del visitante"
               value={visitaForm.nombreVisitante}
@@ -1114,6 +1217,7 @@ export const CoordinacionPage = () => {
                 !visitaForm.fechaHoraVisita
               }
               onClick={() => {
+                dispatch(showLoading(true));
                 dispatch(
                   postVisita({
                     idBebe: Number(visitaForm.idBebe),
@@ -1150,6 +1254,7 @@ export const CoordinacionPage = () => {
                 onClick={() => {
                   const id = Number(visitaEditId);
                   if (!Number.isFinite(id)) return;
+                  dispatch(showLoading(true));
                   dispatch(getVisitaById(id));
                 }}
               >
@@ -1174,6 +1279,7 @@ export const CoordinacionPage = () => {
                   const id = Number(visitaEditId);
                   const body = safeJsonParse(visitaEditJson, {});
                   if (!Number.isFinite(id)) return;
+                  dispatch(showLoading(true));
                   dispatch(putVisita(id, body));
                 }}
               >
@@ -1186,7 +1292,7 @@ export const CoordinacionPage = () => {
                 onClick={() => {
                   const id = Number(visitaEditId);
                   if (!Number.isFinite(id)) return;
-                  openConfirm(`¿Eliminar visita ${id}?`, () => dispatch(postVisitaDelete(id)));
+                  openConfirm(`¿Eliminar visita ${id}?`, () => { dispatch(showLoading(true)); dispatch(postVisitaDelete(id)); });
                 }}
               >
                 Eliminar

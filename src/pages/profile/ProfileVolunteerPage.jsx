@@ -130,7 +130,12 @@ export const ProfileVolunteerPage = () => {
                   </span>
                 </Box>
               }
-              details={<VolunteerHorarioSection idVoluntaria={Number(model.idVoluntaria)} />}
+              details={
+                <VolunteerHorarioSection
+                  idVoluntaria={Number(model.idVoluntaria)}
+                  horarios={model?.horarios ?? []}
+                />
+              }
             />
           </Box>
         )}

@@ -59,6 +59,7 @@ export default function motherReducer(state = initialState, action) {
         if (action.type === 'CLEAR_MOTHER') {
             res = {
                 ...state, postMother: null, error: null, getMother: null,
+                getMotherId: null,
                 getStatisticsLocalities: null, getStatisticsAgeMother: null, putMother: null,
                 postMotherDelete: null,
             };

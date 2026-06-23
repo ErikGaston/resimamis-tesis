@@ -15,7 +15,7 @@ const AutocompleteCustomized = (props) => {
             inputValue={inputValue}
             onChange={(e, newValue) => onChange(e, newValue)}
             onInputChange={onInputChange}
-            options={options?.map((option) => option)}
+            options={(options ?? []).map((option) => option)}
             noOptionsText={noOptionsText}
             filterSelectedOptions
             inputColor={inputColor}

@@ -1,12 +1,18 @@
 import { Backdrop, CircularProgress } from '@mui/material'
 
-export const Loading = ({open}) => {
+export const Loading = ({ open }) => {
   return (
     <Backdrop
-        sx={{color: '#42DA6A', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={open}
-      >
-        <CircularProgress  sx={{mt:0}} color="inherit" />
+      sx={{
+        color: '#7A659B',
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.72)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+      }}
+      open={open}
+    >
+      <CircularProgress color="inherit" />
     </Backdrop>
   )
 }

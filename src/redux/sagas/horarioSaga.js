@@ -27,7 +27,20 @@ function* asyncPostHorario({ payload }) {
   }
 }
 
+function* asyncPutHorario({ payload }) {
+  try {
+    const response = yield call(API.putHorario, payload.idVoluntaria, payload.body);
+    if (response) {
+      yield put({ type: actionTypes.SUCCESS_PUT_HORARIO, response });
+    }
+  } catch (error) {
+    yield* showApiErrorToast(error);
+    yield put({ type: actionTypes.ERROR_HORARIO, response: error });
+  }
+}
+
 export default function* horarioSaga() {
   yield takeLatest(actionTypes.GET_HORARIO_DIAS, asyncGetHorarioDias);
   yield takeLatest(actionTypes.POST_HORARIO, asyncPostHorario);
+  yield takeLatest(actionTypes.PUT_HORARIO, asyncPutHorario);
 }

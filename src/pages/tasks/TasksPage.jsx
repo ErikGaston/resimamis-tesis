@@ -77,11 +77,13 @@ export const TasksPage = () => {
     }
 
     const submitAssistence = () => {
+        if (loading) return;
         dispatch(showLoading(true))
         dispatch(postAssistance(idVolunteer))
     }
 
     const submitAssistanceSalida = () => {
+        if (loading) return;
         dispatch(showLoading(true))
         dispatch(postAssistanceSalida(idVolunteer))
     }
@@ -162,11 +164,13 @@ export const TasksPage = () => {
     };
 
     const submitStartHug = (idAsignacion) => {
+        if (loading) return;
         dispatch(showLoading(true))
         dispatch(postStartHug(idAsignacion))
     }
 
     const submitEndHug = (idAsignacion) => {
+        if (loading) return;
         dispatch(showLoading(true))
         const raw = model?.comentario;
         const comentario =
@@ -336,8 +340,8 @@ export const TasksPage = () => {
 
     useEffect(() => {
         if (dataAssignment?.postStartHug !== null) {
+            dispatch(showLoading(false))
             if (dataAssignment?.postStartHug?.data) {
-                dispatch(showLoading(false))
                 dispatch(getAssignmentTodayById(idVolunteer))
                 setStateForm('INICIO_ABRAZO');
                 setTimeout(() => {
@@ -349,8 +353,8 @@ export const TasksPage = () => {
 
     useEffect(() => {
         if (dataAssignment?.postEndHug !== null) {
+            dispatch(showLoading(false))
             if (dataAssignment?.postEndHug?.data) {
-                dispatch(showLoading(false))
                 setModel(null)
                 setChangeInformationHug(false)
                 dispatch(getAssignmentTodayById(idVolunteer))

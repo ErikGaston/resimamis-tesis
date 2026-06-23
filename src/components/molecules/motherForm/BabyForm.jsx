@@ -9,9 +9,9 @@ import Loading from '../../atoms/loading/Loading';
 import { collectIdMadresForBaby } from '../../../utils/babyPayload';
 
 const listSexo = [
-    { value: 'Masculino', label: 'Masculino' },
-    { value: 'Femenino', label: 'Femenino' },
-    { value: 'Otros', label: 'Otros' },
+    { value: 'M', label: 'Masculino' },
+    { value: 'F', label: 'Femenino' },
+    { value: 'O', label: 'Otros' },
 ]
 
 const noop = () => { }
@@ -86,9 +86,7 @@ const BabyForm = ({
             : null
 
     const localidadLabel = () => {
-        if (model?.nombre_localidad) return model.nombre_localidad;
-        if (model?.nombreSala) return model.nombreSala;
-        return '';
+        return model?.nombre_localidad ?? '';
     };
 
     const sexoOption =
@@ -173,7 +171,7 @@ const BabyForm = ({
                     styleLabel={{ fontSize: '16px' }}
                     disabled
                 />
-            ) : listMothers !== null ? (
+            ) : listMothers != null ? (
                 <div style={{ margin: '10px 0' }}>
                     <Autocomplete
                         multiple
@@ -213,9 +211,7 @@ const BabyForm = ({
                         noOptionsText="No se encontraron madres"
                     />
                 </div>
-            ) : (
-                <Loading />
-            )}
+            ) : null}
             <LabelDate
                 label={'Fecha ingreso a NEO'}
                 inputFormat="DD/MM/YYYY"
@@ -225,7 +221,7 @@ const BabyForm = ({
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaIngresoNEO')}
                 disabled={readOnly}
             />
-            {listLocalities !== null ? (
+            {listLocalities != null ? (
                 <LabelAutocomplete
                     id='nombre_localidad'
                     options={listLocalities}
@@ -239,6 +235,19 @@ const BabyForm = ({
                     inputColor={'#152C70'}
                     disabled={readOnly}
                 />
+            ) : readOnly ? (
+                model?.nombre_localidad ? (
+                    <LabelInput
+                        name='nombre_localidad'
+                        label='Localidad'
+                        value={model.nombre_localidad}
+                        onChange={noop}
+                        labelColor={'#152C70'}
+                        inputColor={'#152C70'}
+                        styleLabel={{ fontSize: '16px' }}
+                        disabled
+                    />
+                ) : null
             ) : (
                 <Loading />
             )}
@@ -301,7 +310,7 @@ const BabyForm = ({
             />
             <LabelInput
                 name='diagnosticoEgreso'
-                label='Diagnostico al ingreso'
+                label='Diagnóstico al egreso'
                 value={model?.diagnosticoEgreso || ''}
                 onChange={onChangeText}
                 className={error && 'errorInput'}
