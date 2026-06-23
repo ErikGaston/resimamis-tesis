@@ -158,7 +158,7 @@ const ListBabysTemplate = (props) => {
                 </Typography>
                 <Typography variant="caption" component="div" sx={{ opacity: 0.85 }}>
                   DNI {dniResultBaby.Dni ?? dniResultBaby.dni ?? '—'}
-                  {dniResultBaby.IdSala ? ` · Sala ${dniResultBaby.IdSala}` : ''}
+                  {(dniResultBaby.sala?.nombre ?? dniResultBaby.nombreSala) ? ` · ${dniResultBaby.sala?.nombre ?? dniResultBaby.nombreSala}` : dniResultBaby.IdSala ? ` · Sala ${dniResultBaby.IdSala}` : ''}
                 </Typography>
               </>
             ) : (

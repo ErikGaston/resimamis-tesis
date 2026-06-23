@@ -1,11 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, TextField, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography } from '@mui/material';
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import AccordionCustomized from '../../components/atoms/accordionCustomized/AccordionCustomized';
 import BabyForm from '../../components/molecules/motherForm/BabyForm';
@@ -26,6 +24,7 @@ import {
 } from '../../redux/actions/visitaActions';
 import { showToast } from '../../redux/actions/toastActions';
 import { normalizeBabyApiPayload } from '../../utils/babyPayload';
+import VisitasBebe from '../../components/organisms/visitasBebe/VisitasBebe';
 
 function normalizarBabyList(raw) {
   if (!raw) return [];
@@ -47,18 +46,9 @@ function normalizarVisitas(raw) {
   return [];
 }
 
-const VISITA_FORM_INIT = {
-  nombreVisitante: '',
-  familiar: '',
-  fechaHoraVisita: '',
-  documentoVisitante: '',
-  telefonoVisitante: '',
-};
-
 export const ProfileBabyPage = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const babyState = useSelector((s) => s.babyReducer);
   const motherState = useSelector((s) => s.motherReducer);
@@ -69,13 +59,15 @@ export const ProfileBabyPage = () => {
   const [editMode, setEditMode] = useState(false);
   const [saveNotice, setSaveNotice] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
-  const openConfirm = (message, onConfirm) => setConfirmDialog({ open: true, message, onConfirm });
-  const handleConfirm = () => { confirmDialog.onConfirm?.(); setConfirmDialog({ open: false, message: '', onConfirm: null }); };
-  const handleCancelConfirm = () => setConfirmDialog({ open: false, message: '', onConfirm: null });
 
-  const [visitaForm, setVisitaForm] = useState(VISITA_FORM_INIT);
-  const [editingVisitaId, setEditingVisitaId] = useState(null);
-  const [editVisitaForm, setEditVisitaForm] = useState(VISITA_FORM_INIT);
+  const openConfirm = (message, onConfirm) =>
+    setConfirmDialog({ open: true, message, onConfirm });
+  const handleConfirm = () => {
+    confirmDialog.onConfirm?.();
+    setConfirmDialog({ open: false, message: '', onConfirm: null });
+  };
+  const handleCancelConfirm = () =>
+    setConfirmDialog({ open: false, message: '', onConfirm: null });
 
   useEffect(() => {
     dispatch(showLoading(true));
@@ -88,7 +80,6 @@ export const ProfileBabyPage = () => {
     };
   }, [id, dispatch]);
 
-  // Find baby in list and set model
   useEffect(() => {
     const list = normalizarBabyList(babyState?.getBabys);
     if (list.length > 0) {
@@ -96,7 +87,7 @@ export const ProfileBabyPage = () => {
       if (found) {
         setBabyModel((prev) => prev ?? found);
         dispatch(showLoading(false));
-        if (found.idMadre != null) {
+        if (found.idMadre != null && !found.madre) {
           dispatch(getMotherId(found.idMadre));
         }
       } else {
@@ -124,11 +115,9 @@ export const ProfileBabyPage = () => {
 
   useEffect(() => {
     if (visita?.postVisita != null || visita?.putVisita != null || visita?.postVisitaDelete != null) {
-      dispatch(showToast({ message: 'Visita: operación OK.', severity: 'success' }));
+      dispatch(showToast({ message: 'Visita: operación realizada con éxito.', severity: 'success' }));
       dispatch(clearVisitaWrites());
       dispatch(getVisitasByBebe(Number(id)));
-      setVisitaForm(VISITA_FORM_INIT);
-      setEditingVisitaId(null);
     }
   }, [visita?.postVisita, visita?.putVisita, visita?.postVisitaDelete, dispatch, id]);
 
@@ -144,7 +133,7 @@ export const ProfileBabyPage = () => {
       .filter((o) => o.value != null);
   }, [babyState?.getBabySalas]);
 
-  const madreData = motherState?.getMotherId?.data ?? null;
+  const madreData = babyModel?.madre ?? motherState?.getMotherId?.data ?? null;
   const madreNombre = madreData
     ? [madreData.nombre, madreData.apellido].filter(Boolean).join(' ').trim()
     : null;
@@ -157,45 +146,6 @@ export const ProfileBabyPage = () => {
     if (payload.id == null) return;
     dispatch(showLoading(true));
     dispatch(putBaby(payload));
-  };
-
-  const handleCrearVisita = () => {
-    if (!visitaForm.nombreVisitante || !visitaForm.familiar || !visitaForm.fechaHoraVisita) return;
-    dispatch(
-      postVisita({
-        idBebe: Number(id),
-        nombreVisitante: visitaForm.nombreVisitante,
-        familiar: visitaForm.familiar,
-        fechaHoraVisita: new Date(visitaForm.fechaHoraVisita).toISOString(),
-        documentoVisitante: visitaForm.documentoVisitante !== '' ? visitaForm.documentoVisitante : null,
-        telefonoVisitante: visitaForm.telefonoVisitante !== '' ? visitaForm.telefonoVisitante : null,
-      }),
-    );
-  };
-
-  const handleGuardarEditVisita = () => {
-    if (!editingVisitaId) return;
-    dispatch(
-      putVisita(Number(editingVisitaId), {
-        idBebe: Number(id),
-        nombreVisitante: editVisitaForm.nombreVisitante,
-        familiar: editVisitaForm.familiar,
-        fechaHoraVisita: new Date(editVisitaForm.fechaHoraVisita).toISOString(),
-        documentoVisitante: editVisitaForm.documentoVisitante !== '' ? editVisitaForm.documentoVisitante : null,
-        telefonoVisitante: editVisitaForm.telefonoVisitante !== '' ? editVisitaForm.telefonoVisitante : null,
-      }),
-    );
-  };
-
-  const startEditVisita = (v) => {
-    setEditingVisitaId(v.idVisita);
-    setEditVisitaForm({
-      nombreVisitante: v.nombreVisitante ?? '',
-      familiar: v.familiar ?? '',
-      fechaHoraVisita: v.fechaHoraVisita ? new Date(v.fechaHoraVisita).toISOString().slice(0, 16) : '',
-      documentoVisitante: v.documentoVisitante != null ? String(v.documentoVisitante) : '',
-      telefonoVisitante: v.telefonoVisitante != null ? String(v.telefonoVisitante) : '',
-    });
   };
 
   const babyNombre =
@@ -262,6 +212,7 @@ export const ProfileBabyPage = () => {
                     readOnly={!editMode}
                     salaOptions={babySalasOptions}
                     listMothers={null}
+                    listLocalities={null}
                     madreDisplayName={madreNombre ?? ''}
                   />
                 </>
@@ -321,69 +272,15 @@ export const ProfileBabyPage = () => {
             expandIcon={<ExpandCircleDownIcon style={{ color: '#8F00FF' }} />}
             summary={<TitleAccordion>Visitas registradas ({visitasList.length})</TitleAccordion>}
             details={
-              <Box>
-                {visitasList.length === 0 && (
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Sin visitas registradas para este bebé.
-                  </Typography>
-                )}
-
-                {visitasList.map((v) => (
-                  <Box key={v.idVisita}>
-                    {editingVisitaId === v.idVisita ? (
-                      <Box sx={{ py: 1 }}>
-                        <TextField label="Nombre del visitante" value={editVisitaForm.nombreVisitante} onChange={(e) => setEditVisitaForm((f) => ({ ...f, nombreVisitante: e.target.value }))} fullWidth size="small" sx={{ mb: 1 }} />
-                        <TextField label="Vínculo familiar" value={editVisitaForm.familiar} onChange={(e) => setEditVisitaForm((f) => ({ ...f, familiar: e.target.value }))} fullWidth size="small" sx={{ mb: 1 }} />
-                        <TextField label="Fecha y hora" type="datetime-local" value={editVisitaForm.fechaHoraVisita} onChange={(e) => setEditVisitaForm((f) => ({ ...f, fechaHoraVisita: e.target.value }))} fullWidth size="small" sx={{ mb: 1 }} InputLabelProps={{ shrink: true }} />
-                        <TextField label="Documento (opcional)" value={editVisitaForm.documentoVisitante} onChange={(e) => setEditVisitaForm((f) => ({ ...f, documentoVisitante: e.target.value }))} fullWidth size="small" sx={{ mb: 1 }} inputProps={{ inputMode: 'numeric' }} />
-                        <TextField label="Teléfono (opcional)" value={editVisitaForm.telefonoVisitante} onChange={(e) => setEditVisitaForm((f) => ({ ...f, telefonoVisitante: e.target.value }))} fullWidth size="small" sx={{ mb: 1 }} inputProps={{ inputMode: 'numeric' }} />
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          <Button variant="contained" size="small" onClick={handleGuardarEditVisita}>Guardar</Button>
-                          <Button size="small" onClick={() => setEditingVisitaId(null)}>Cancelar</Button>
-                        </Box>
-                      </Box>
-                    ) : (
-                      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', py: 1 }}>
-                        <Box>
-                          <Typography variant="body2" fontWeight={600}>{v.nombreVisitante}</Typography>
-                          <Typography variant="caption" display="block" color="text.secondary">{v.familiar}</Typography>
-                          <Typography variant="caption" display="block" color="text.secondary">
-                            {v.fechaHoraVisita ? new Date(v.fechaHoraVisita).toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' }) : '—'}
-                          </Typography>
-                          {v.documentoVisitante && <Typography variant="caption" display="block" color="text.secondary">Doc: {v.documentoVisitante}</Typography>}
-                          {v.telefonoVisitante && <Typography variant="caption" display="block" color="text.secondary">Tel: {v.telefonoVisitante}</Typography>}
-                        </Box>
-                        <Box sx={{ display: 'flex', flexShrink: 0 }}>
-                          <IconButton size="small" aria-label="Editar visita" onClick={() => startEditVisita(v)} sx={{ color: '#7A659B' }}>
-                            <EditOutlinedIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton size="small" aria-label="Eliminar visita" onClick={() => openConfirm('¿Eliminar esta visita?', () => dispatch(postVisitaDelete(v.idVisita)))} sx={{ color: '#b71c1c' }}>
-                            <DeleteOutlineIcon fontSize="small" />
-                          </IconButton>
-                        </Box>
-                      </Box>
-                    )}
-                    <Divider />
-                  </Box>
-                ))}
-
-                <Divider sx={{ my: 2 }} />
-                <Typography variant="subtitle2" sx={{ mb: 1, color: '#152C70' }}>Registrar nueva visita</Typography>
-                <TextField label="Nombre del visitante" value={visitaForm.nombreVisitante} onChange={(e) => setVisitaForm((f) => ({ ...f, nombreVisitante: e.target.value }))} fullWidth size="small" sx={{ mb: 1 }} />
-                <TextField label="Vínculo familiar" value={visitaForm.familiar} onChange={(e) => setVisitaForm((f) => ({ ...f, familiar: e.target.value }))} fullWidth size="small" sx={{ mb: 1 }} placeholder="Ej: Madre, Padre, Abuelos" />
-                <TextField label="Fecha y hora" type="datetime-local" value={visitaForm.fechaHoraVisita} onChange={(e) => setVisitaForm((f) => ({ ...f, fechaHoraVisita: e.target.value }))} fullWidth size="small" sx={{ mb: 1 }} InputLabelProps={{ shrink: true }} />
-                <TextField label="Documento visitante (opcional)" value={visitaForm.documentoVisitante} onChange={(e) => setVisitaForm((f) => ({ ...f, documentoVisitante: e.target.value }))} fullWidth size="small" sx={{ mb: 1 }} inputProps={{ inputMode: 'numeric' }} />
-                <TextField label="Teléfono (opcional)" value={visitaForm.telefonoVisitante} onChange={(e) => setVisitaForm((f) => ({ ...f, telefonoVisitante: e.target.value }))} fullWidth size="small" sx={{ mb: 1 }} inputProps={{ inputMode: 'numeric' }} />
-                <Button
-                  variant="contained"
-                  disabled={!visitaForm.nombreVisitante || !visitaForm.familiar || !visitaForm.fechaHoraVisita}
-                  onClick={handleCrearVisita}
-                  fullWidth
-                  sx={{ background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)' }}
-                >
-                  Registrar visita
-                </Button>
-              </Box>
+              <VisitasBebe
+                visitasList={visitasList}
+                idBebe={Number(id)}
+                onCrear={(payload) => dispatch(postVisita(payload))}
+                onEditar={(idVisita, payload) => dispatch(putVisita(idVisita, payload))}
+                onEliminar={(idVisita) =>
+                  openConfirm('¿Eliminar esta visita?', () => dispatch(postVisitaDelete(idVisita)))
+                }
+              />
             }
           />
 

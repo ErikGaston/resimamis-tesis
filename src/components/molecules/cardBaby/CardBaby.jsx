@@ -19,7 +19,7 @@ const CardBaby = ({ baby, onAdminDelete }) => {
     dniRaw != null && String(dniRaw).trim() !== ''
       ? String(dniRaw).trim()
       : 'Sin DNI indicado';
-  const sala = baby?.salaInternacion?.trim() || 'Sin sala indicada';
+  const sala = (baby?.sala?.nombre ?? baby?.nombreSala ?? baby?.salaInternacion ?? '').trim() || 'Sin sala indicada';
   const idMadre = baby?.idMadre ?? baby?.id_madre;
   const idBebe = baby?.idBebe ?? baby?.id;
   const to =
@@ -29,14 +29,18 @@ const CardBaby = ({ baby, onAdminDelete }) => {
       ? `/madre/perfil/${idMadre}`
       : '/madres';
 
+  const handleDelete = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onAdminDelete(Number(idBebe));
+  };
+
   return (
-    <CardRow>
-    <StyledLink
-      to={to}
-      aria-label={`Ver perfil del bebé ${name}, DNI ${dni}`}
-      style={{ flex: 1, minWidth: 0 }}
-    >
-      <CardOuter>
+    <CardOuter as="article" aria-label={`${name}, DNI ${dni}`}>
+      <StyledLink
+        to={to}
+        aria-label={`Ver perfil del bebé ${name}, DNI ${dni}`}
+      >
         <IconWrap>
           <ChildCareOutlined sx={{ fontSize: 28, color: '#7A659B' }} />
         </IconWrap>
@@ -78,43 +82,33 @@ const CardBaby = ({ baby, onAdminDelete }) => {
             Sala: {sala}
           </Typography>
         </TextBlock>
-        <ChevronRight sx={{ color: 'rgba(95, 39, 148, 0.85)', flexShrink: 0 }} aria-hidden />
-      </CardOuter>
-    </StyledLink>
-    {typeof onAdminDelete === 'function' && idBebe != null && (
-      <IconButton
-        aria-label={`Dar de baja bebé ${name}`}
-        onClick={(e) => {
-          e.preventDefault();
-          onAdminDelete(Number(idBebe));
-        }}
-        sx={{ color: '#b71c1c', flexShrink: 0 }}
-      >
-        <DeleteOutlineIcon />
-      </IconButton>
-    )}
-    </CardRow>
+      </StyledLink>
+      {typeof onAdminDelete === 'function' && idBebe != null && (
+        <IconButton
+          aria-label={`Dar de baja bebé ${name}`}
+          onClick={handleDelete}
+          sx={{ color: '#b71c1c', flexShrink: 0, p: 1, minWidth: 48, minHeight: 48 }}
+        >
+          <DeleteOutlineIcon />
+        </IconButton>
+      )}
+      <ChevronRight sx={{ color: 'rgba(95, 39, 148, 0.85)', flexShrink: 0 }} aria-hidden />
+    </CardOuter>
   );
 };
 
 export default CardBaby;
 
-const CardRow = styled(Box)`
+const StyledLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 4px;
-  width: 100%;
-`;
-
-const StyledLink = styled(Link)`
-  text-decoration: none;
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  color: inherit;
-  border-radius: 16px;
+  gap: 14px;
+  border-radius: 12px;
   outline: none;
   &:focus-visible {
     box-shadow: 0 0 0 3px rgba(143, 0, 255, 0.45);
