@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearMother, clearMotherApiError, getMother, postMother } from "../../redux/actions/motherActions";
-import { clearBaby, postBaby } from "../../redux/actions/babyActions";
+import { clearBaby, postBaby, getBabySalas } from "../../redux/actions/babyActions";
 import { showLoading } from "../../redux/actions/loadingActions";
 import Loading from "../../components/atoms/loading/Loading";
 import MotherTemplate from "../../components/templates/mother/MotherTemplate";
@@ -27,6 +27,14 @@ export const MotherPage = () => {
     const dataMother = useSelector(state => state.motherReducer)
     const dataBaby = useSelector(state => state.babyReducer)
     const loading = useSelector(state => state.motherReducer?.loading)
+    const salasRes = dataBaby?.getBabySalas
+    const babySalasOptions = useMemo(() => {
+        const raw = salasRes?.resultado ?? salasRes?.listadoSalas ?? salasRes?.data;
+        if (!Array.isArray(raw)) return null;
+        return raw
+            .map((s) => ({ label: s.nombre ?? `Sala ${s.idSala ?? ''}`, value: s.idSala ?? s.id }))
+            .filter((o) => o.value != null);
+    }, [salasRes])
     const [model, setModel] = useState({ bebe: [{}] });
     const [error, setError] = useState(null);
     const [stateForm, setStateForm] = useState(null);
@@ -80,6 +88,7 @@ export const MotherPage = () => {
         dispatch(getLocalities())
         dispatch(getEstadosCiviles())
         dispatch(getMother())
+        dispatch(getBabySalas())
         return () => {
             dispatch(clearMother())
             dispatch(clearBaby())
@@ -146,6 +155,7 @@ export const MotherPage = () => {
                 typeForm={"ALTA"}
                 fieldErrors={fieldErrors}
                 setFieldErrors={setFieldErrors}
+                profileBabyExtras={{ babySalasOptions }}
             />
             {
                 stateForm === 'SUCCESS' &&
