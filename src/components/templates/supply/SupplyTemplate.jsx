@@ -2,9 +2,12 @@ import React, { useEffect } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import BabyChangingStationIcon from '@mui/icons-material/BabyChangingStation';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { PageHeader } from '../../common/PageHeader';
@@ -18,19 +21,15 @@ import {
   DialogTitle,
   Divider,
   Fab,
-  FormControl,
   IconButton,
   InputAdornment,
-  InputLabel,
   LinearProgress,
-  MenuItem,
   Paper,
-  Select,
-  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
+import LabelSelect from '../../molecules/labelSelect/LabelSelect';
 import LabelInput from '../../molecules/labelInput/LabelInput';
 import { fabBottomAboveNav } from '../../../utils/listScreenAccessibility';
 
@@ -105,6 +104,19 @@ const LABEL_COLOR = '#152C70';
 const INPUT_COLOR = '#152C70';
 const LABEL_STYLE = { fontSize: '16px' };
 
+function isMovimientoFromAbrazo(row) {
+  const obs = row?.observacion ?? '';
+  return /asignaci[oó]n\s*#?\d+/i.test(obs);
+}
+
+function formatFechaMovimiento(fechaStr) {
+  if (!fechaStr) return null;
+  return new Date(fechaStr).toLocaleString('es-AR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+}
+
 function listSupplyMovementsFromResponse(raw) {
   if (raw == null) return null;
   const d = raw?.resultado ?? raw?.data ?? raw;
@@ -158,6 +170,9 @@ const SupplyTemplate = (props) => {
   // Estado dialog confirmar eliminación
   const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
   const [deleteTarget, setDeleteTarget] = React.useState(null);
+
+  // Estado drawer detalle de movimiento
+  const [detailMovement, setDetailMovement] = React.useState(null);
 
   // Estado dialog nuevo movimiento
   const [movDialogOpen, setMovDialogOpen] = React.useState(false);
@@ -859,30 +874,31 @@ const SupplyTemplate = (props) => {
             }
             return rows.map((row, idx) => {
               const isEntrada = row.esEntrada === true || row.esEntrada === 'S';
+              const fromAbrazo = isMovimientoFromAbrazo(row);
               const nombre =
                 row.nombreInsumo ?? row.insumoNombre ?? row.nombre ?? `Insumo #${row.idInsumo ?? idx}`;
-              const fecha = row.fechaMovimiento
-                ? new Date(row.fechaMovimiento).toLocaleString('es-AR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
-                : null;
+              const fecha = formatFechaMovimiento(row.fechaMovimiento);
               return (
                 <Paper
                   key={row.idMovimiento ?? row.id ?? idx}
                   elevation={0}
+                  onClick={() => setDetailMovement(row)}
                   sx={{
                     display: 'flex',
+                    alignItems: 'center',
                     gap: 1.5,
                     p: 1.75,
                     mb: 1.25,
                     borderRadius: '16px',
-                    border: '1px solid rgba(143,0,255,0.08)',
+                    border: fromAbrazo
+                      ? '1px solid rgba(122,101,155,0.22)'
+                      : '1px solid rgba(143,0,255,0.08)',
                     boxShadow: '0 2px 12px rgba(21,44,112,0.07)',
-                    bgcolor: '#fff',
+                    bgcolor: fromAbrazo ? 'rgba(122,101,155,0.04)' : '#fff',
+                    cursor: 'pointer',
+                    transition: 'box-shadow 0.15s, transform 0.12s',
+                    '&:hover': { boxShadow: '0 4px 18px rgba(143,0,255,0.15)' },
+                    '&:active': { transform: 'scale(0.985)' },
                   }}
                 >
                   <Box
@@ -904,15 +920,7 @@ const SupplyTemplate = (props) => {
                     )}
                   </Box>
                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 1,
-                        mb: 0.4,
-                      }}
-                    >
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 0.4 }}>
                       <Typography
                         sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#152C70', lineHeight: 1.3 }}
                         noWrap
@@ -933,26 +941,29 @@ const SupplyTemplate = (props) => {
                         }}
                       />
                     </Box>
-                    <Typography
-                      sx={{ fontSize: '0.82rem', color: 'rgba(21,44,112,0.7)', fontWeight: 500, lineHeight: 1.4 }}
-                    >
+                    <Typography sx={{ fontSize: '0.82rem', color: 'rgba(21,44,112,0.7)', fontWeight: 500, lineHeight: 1.4 }}>
                       {row.cantidad != null ? `${row.cantidad} u.` : '—'}
                       {fecha ? ` · ${fecha}` : ''}
                     </Typography>
-                    {row.observacion && (
-                      <Typography
+                    {fromAbrazo && (
+                      <Chip
+                        icon={<BabyChangingStationIcon sx={{ fontSize: '13px !important' }} />}
+                        label="Uso en abrazo"
+                        size="small"
                         sx={{
-                          fontSize: '0.78rem',
-                          color: 'rgba(21,44,112,0.48)',
-                          mt: 0.3,
-                          fontStyle: 'italic',
-                          lineHeight: 1.35,
+                          mt: 0.5,
+                          bgcolor: 'rgba(122,101,155,0.12)',
+                          color: '#7A659B',
+                          fontWeight: 700,
+                          fontSize: '0.65rem',
+                          height: 18,
+                          '& .MuiChip-label': { px: 0.75 },
+                          '& .MuiChip-icon': { ml: 0.5 },
                         }}
-                      >
-                        {row.observacion}
-                      </Typography>
+                      />
                     )}
                   </Box>
+                  <ChevronRightIcon sx={{ flexShrink: 0, color: 'rgba(21,44,112,0.28)', fontSize: 20 }} />
                 </Paper>
               );
             });
@@ -979,6 +990,113 @@ const SupplyTemplate = (props) => {
               <SwapVertIcon sx={{ fontSize: 28, color: '#fff' }} />
             </Fab>
           )}
+
+          {/* ── Bottom sheet: Detalle de movimiento ── */}
+          {detailMovement !== null && (() => {
+            const dm = detailMovement;
+            const dmEntrada = dm.esEntrada === true || dm.esEntrada === 'S';
+            const dmFromAbrazo = isMovimientoFromAbrazo(dm);
+            const dmNombre = dm.nombreInsumo ?? dm.insumoNombre ?? dm.nombre ?? `Insumo #${dm.idInsumo}`;
+            const dmFecha = formatFechaMovimiento(dm.fechaMovimiento);
+            const dmBebe = [dm.nombreBebe, dm.apellidoBebe].filter(Boolean).join(' ') || null;
+            return (
+              <Dialog
+                open
+                onClose={() => setDetailMovement(null)}
+                fullWidth
+                maxWidth={false}
+                PaperProps={{ sx: BOTTOM_SHEET_PAPER_SX }}
+                sx={BOTTOM_SHEET_DIALOG_SX}
+                aria-labelledby="detail-mov-title"
+              >
+                {/* Header */}
+                <Box sx={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  px: 2.5, py: 2,
+                  background: dmEntrada
+                    ? 'linear-gradient(90deg, #1B5E20 0%, #2E7D32 100%)'
+                    : 'linear-gradient(90deg, #BF360C 0%, #C53814 100%)',
+                  color: '#fff', flexShrink: 0,
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    {dmEntrada
+                      ? <ArrowDownwardIcon sx={{ fontSize: 22 }} />
+                      : <ArrowUpwardIcon sx={{ fontSize: 22 }} />}
+                    <Typography id="detail-mov-title" component="span" sx={{ fontWeight: 700, fontSize: '1.05rem' }}>
+                      {dmNombre}
+                    </Typography>
+                  </Box>
+                  <IconButton aria-label="Cerrar" onClick={() => setDetailMovement(null)} sx={{ color: '#fff', minWidth: 44, minHeight: 44 }}>
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+
+                {/* Cuerpo */}
+                <Box sx={{ flex: 1, overflowY: 'auto', px: 2.5, pt: 2.5, pb: 3 }}>
+                  {/* Badges de tipo y origen */}
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2.5 }}>
+                    <Chip
+                      label={dmEntrada ? 'Entrada de stock' : 'Salida de stock'}
+                      sx={{
+                        bgcolor: dmEntrada ? 'rgba(0,168,107,0.12)' : 'rgba(197,56,20,0.1)',
+                        color: dmEntrada ? '#007A4D' : '#C53814',
+                        fontWeight: 700, fontSize: '0.78rem',
+                      }}
+                    />
+                    {dmFromAbrazo ? (
+                      <Chip
+                        icon={<BabyChangingStationIcon sx={{ fontSize: '15px !important' }} />}
+                        label="Uso en abrazo"
+                        sx={{ bgcolor: 'rgba(122,101,155,0.12)', color: '#7A659B', fontWeight: 700, fontSize: '0.78rem' }}
+                      />
+                    ) : (
+                      <Chip
+                        icon={<LocalShippingOutlinedIcon sx={{ fontSize: '15px !important' }} />}
+                        label="Registro manual"
+                        sx={{ bgcolor: 'rgba(21,44,112,0.08)', color: '#152C70', fontWeight: 700, fontSize: '0.78rem' }}
+                      />
+                    )}
+                  </Box>
+
+                  {/* Cantidad grande */}
+                  <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75, mb: 2.5 }}>
+                    <Typography sx={{ fontSize: '2.4rem', fontWeight: 800, color: dmEntrada ? '#00A86B' : '#C53814', lineHeight: 1 }}>
+                      {dm.cantidad ?? '—'}
+                    </Typography>
+                    <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: 'rgba(21,44,112,0.55)' }}>
+                      unidades
+                    </Typography>
+                  </Box>
+
+                  {/* Campos */}
+                  {[
+                    { label: 'Fecha', value: dmFecha },
+                    { label: 'Voluntaria', value: dm.nombreVoluntaria || null },
+                    { label: 'Bebé', value: dmBebe },
+                    { label: 'Proveedor', value: dm.nombreProveedor || null },
+                    { label: 'Observación', value: dm.observacion || null },
+                    { label: 'ID movimiento', value: dm.idMovimiento != null ? `#${dm.idMovimiento}` : null },
+                  ].filter(f => f.value != null).map(({ label, value }) => (
+                    <Box key={label} sx={{ display: 'flex', gap: 2, mb: 1.5, alignItems: 'flex-start' }}>
+                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(21,44,112,0.45)', textTransform: 'uppercase', letterSpacing: '0.07em', minWidth: 88, flexShrink: 0, pt: '2px' }}>
+                        {label}
+                      </Typography>
+                      <Typography sx={{ fontSize: '0.9rem', color: '#152C70', fontWeight: 500, lineHeight: 1.45, flex: 1, wordBreak: 'break-word' }}>
+                        {value}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+
+                {/* Footer */}
+                <Box sx={{ px: 2.5, py: 2, borderTop: '1px solid rgba(143,0,255,0.1)', bgcolor: '#faf8fc', flexShrink: 0 }}>
+                  <Button variant="outlined" fullWidth onClick={() => setDetailMovement(null)} sx={BTN_CANCEL_SX}>
+                    Cerrar
+                  </Button>
+                </Box>
+              </Dialog>
+            );
+          })()}
 
           {/* ── Dialog: Registrar movimiento ── */}
           <Dialog
@@ -1022,10 +1140,10 @@ const SupplyTemplate = (props) => {
             </Box>
 
             {/* Contenido scrollable */}
-            <Box sx={{ flex: 1, overflowY: 'auto', px: 2.5, pt: 2.5, pb: 1 }}>
+            <Box sx={{ flex: 1, overflowY: 'auto', px: 2.5, pt: 2, pb: 1 }}>
 
               {/* Toggle Entrada / Salida */}
-              <Box sx={{ mb: 2.5 }}>
+              <Box sx={{ mb: 0.5 }}>
                 <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em', mb: 1.25 }}>
                   Tipo de movimiento
                 </Typography>
@@ -1034,7 +1152,7 @@ const SupplyTemplate = (props) => {
                   exclusive
                   onChange={(_, v) => { if (v != null) setMovEsEntrada(v); }}
                   fullWidth
-                  sx={{ gap: 1.5 }}
+                  sx={{ gap: 1 }}
                 >
                   <ToggleButton
                     value="S"
@@ -1044,17 +1162,22 @@ const SupplyTemplate = (props) => {
                       py: 1.5,
                       gap: 0.75,
                       borderRadius: '10px !important',
-                      border: '1.5px solid rgba(46,125,50,0.3) !important',
+                      border: '1.5px solid rgba(46,125,50,0.35) !important',
                       color: movEsEntrada === 'S' ? '#fff' : '#2E7D32',
-                      bgcolor: movEsEntrada === 'S' ? '#2E7D32 !important' : 'transparent',
+                      bgcolor: movEsEntrada === 'S' ? '#2E7D32 !important' : 'rgba(46,125,50,0.04)',
                       fontWeight: 700,
-                      fontSize: '0.95rem',
+                      fontSize: '0.9rem',
                       textTransform: 'none',
                       transition: 'all 0.18s',
-                      '&:hover': { bgcolor: movEsEntrada === 'S' ? '#2E7D32 !important' : 'rgba(46,125,50,0.07) !important' },
+                      minHeight: 48,
+                      '&:hover': {
+                        bgcolor: movEsEntrada === 'S'
+                          ? '#256428 !important'
+                          : 'rgba(46,125,50,0.1) !important',
+                      },
                     }}
                   >
-                    <ArrowUpwardIcon sx={{ fontSize: 20 }} />
+                    <ArrowUpwardIcon sx={{ fontSize: 19 }} />
                     Entrada
                   </ToggleButton>
                   <ToggleButton
@@ -1065,121 +1188,118 @@ const SupplyTemplate = (props) => {
                       py: 1.5,
                       gap: 0.75,
                       borderRadius: '10px !important',
-                      border: '1.5px solid rgba(194,56,20,0.3) !important',
+                      border: '1.5px solid rgba(194,56,20,0.35) !important',
                       color: movEsEntrada === 'N' ? '#fff' : '#C23814',
-                      bgcolor: movEsEntrada === 'N' ? '#C23814 !important' : 'transparent',
+                      bgcolor: movEsEntrada === 'N' ? '#C23814 !important' : 'rgba(194,56,20,0.04)',
                       fontWeight: 700,
-                      fontSize: '0.95rem',
+                      fontSize: '0.9rem',
                       textTransform: 'none',
                       transition: 'all 0.18s',
-                      '&:hover': { bgcolor: movEsEntrada === 'N' ? '#C23814 !important' : 'rgba(194,56,20,0.07) !important' },
+                      minHeight: 48,
+                      '&:hover': {
+                        bgcolor: movEsEntrada === 'N'
+                          ? '#a52e10 !important'
+                          : 'rgba(194,56,20,0.1) !important',
+                      },
                     }}
                   >
-                    <ArrowDownwardIcon sx={{ fontSize: 20 }} />
+                    <ArrowDownwardIcon sx={{ fontSize: 19 }} />
                     Salida
                   </ToggleButton>
                 </ToggleButtonGroup>
               </Box>
 
-              {/* Obligatorios */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-                <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
-                  Requerido
+              {/* Insumo y Cantidad */}
+              <LabelSelect
+                label="Insumo"
+                labelId="mov-insumo-label"
+                value={movIdInsumo}
+                onChange={(e) => setMovIdInsumo(e.target.value)}
+                list={(listSupplies ?? supplies ?? []).map((s) => ({
+                  value: String(s.idInsumo),
+                  label: s.nombre ?? `Insumo #${s.idInsumo}`,
+                }))}
+                labelColor={LABEL_COLOR}
+                styleLabel={LABEL_STYLE}
+                required
+              />
+
+              <LabelInput
+                name="movCantidad"
+                label="Cantidad"
+                type="number"
+                value={movCantidad}
+                onChange={(e) => setMovCantidad(e.target.value)}
+                labelColor={LABEL_COLOR}
+                inputColor={INPUT_COLOR}
+                styleLabel={LABEL_STYLE}
+                inputProps={{ min: 1, inputMode: 'numeric' }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      {movEsEntrada === 'S'
+                        ? <ArrowUpwardIcon sx={{ fontSize: 17, color: '#2E7D32' }} />
+                        : <ArrowDownwardIcon sx={{ fontSize: 17, color: '#C23814' }} />}
+                    </InputAdornment>
+                  ),
+                }}
+                required
+              />
+
+              {/* Divisor opcional */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, mb: 0.5 }}>
+                <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.15)' }} />
+                <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(21,44,112,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', px: 1 }}>
+                  Opcional
                 </Typography>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="mov-insumo-label">Insumo</InputLabel>
-                  <Select
-                    labelId="mov-insumo-label"
-                    label="Insumo"
-                    value={movIdInsumo}
-                    onChange={(e) => setMovIdInsumo(e.target.value)}
-                  >
-                    {(listSupplies ?? supplies ?? []).map((s) => (
-                      <MenuItem key={s.idInsumo} value={String(s.idInsumo)}>
-                        {s.nombre ?? `Insumo #${s.idInsumo}`}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <TextField
-                  size="small"
-                  fullWidth
-                  type="number"
-                  label="Cantidad"
-                  value={movCantidad}
-                  onChange={(e) => setMovCantidad(e.target.value)}
-                  inputProps={{ min: 1 }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        {movEsEntrada === 'S'
-                          ? <ArrowUpwardIcon sx={{ fontSize: 17, color: '#2E7D32' }} />
-                          : <ArrowDownwardIcon sx={{ fontSize: 17, color: '#C23814' }} />}
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.15)' }} />
               </Box>
 
-              {/* Opcionales */}
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
-                  <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em', px: 1 }}>
-                    Opcional
-                  </Typography>
-                  <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
-                </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <FormControl fullWidth size="small">
-                    <InputLabel id="mov-prov-label">Proveedor</InputLabel>
-                    <Select
-                      labelId="mov-prov-label"
-                      label="Proveedor"
-                      value={movIdProveedor}
-                      onChange={(e) => setMovIdProveedor(e.target.value)}
-                    >
-                      <MenuItem value="__none__">—</MenuItem>
-                      {providerRows.map((p) => {
-                        const pid = p.idProveedor ?? p.id;
-                        if (pid == null) return null;
-                        return (
-                          <MenuItem key={pid} value={String(pid)}>
-                            {p.nombre ?? p.razonSocial ?? `Proveedor #${pid}`}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
-                  <TextField
-                    size="small"
-                    fullWidth
-                    label="Observación"
-                    value={movObservacion}
-                    onChange={(e) => setMovObservacion(e.target.value)}
-                    multiline
-                    minRows={2}
-                  />
-                  <FormControl fullWidth size="small">
-                    <InputLabel>Bebé relacionado (opcional)</InputLabel>
-                    <Select
-                      value={movIdBebe}
-                      label="Bebé relacionado (opcional)"
-                      onChange={(e) => setMovIdBebe(e.target.value)}
-                    >
-                      <MenuItem value="">—</MenuItem>
-                      {Array.isArray(babies) && babies.map((b) => {
-                        const id = b.ID ?? b.id;
-                        return (
-                          <MenuItem key={id} value={String(id)}>
-                            {`${b.nombre ?? ''} ${b.apellido ?? ''}`.trim()}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
-                </Box>
-              </Box>
+              <LabelSelect
+                label="Proveedor"
+                labelId="mov-prov-label"
+                value={movIdProveedor}
+                onChange={(e) => setMovIdProveedor(e.target.value)}
+                list={[
+                  { value: '__none__', label: '—' },
+                  ...providerRows
+                    .filter((p) => (p.idProveedor ?? p.id) != null)
+                    .map((p) => ({
+                      value: String(p.idProveedor ?? p.id),
+                      label: p.nombre ?? p.razonSocial ?? `Proveedor #${p.idProveedor ?? p.id}`,
+                    })),
+                ]}
+                labelColor={LABEL_COLOR}
+                styleLabel={LABEL_STYLE}
+              />
+
+              <LabelInput
+                name="movObservacion"
+                label="Observación"
+                value={movObservacion}
+                onChange={(e) => setMovObservacion(e.target.value)}
+                labelColor={LABEL_COLOR}
+                inputColor={INPUT_COLOR}
+                styleLabel={LABEL_STYLE}
+                multiline
+                rows={2}
+              />
+
+              <LabelSelect
+                label="Bebé relacionado"
+                labelId="mov-bebe-label"
+                value={movIdBebe}
+                onChange={(e) => setMovIdBebe(e.target.value)}
+                list={[
+                  { value: '', label: '—' },
+                  ...(Array.isArray(babies) ? babies : []).map((b) => ({
+                    value: String(b.ID ?? b.id),
+                    label: `${b.nombre ?? ''} ${b.apellido ?? ''}`.trim() || `Bebé #${b.ID ?? b.id}`,
+                  })),
+                ]}
+                labelColor={LABEL_COLOR}
+                styleLabel={LABEL_STYLE}
+              />
             </Box>
 
             {/* Footer fijo */}
