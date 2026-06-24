@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import AccordionCustomized from '../../atoms/accordionCustomized/AccordionCustomized'
 import styled from '@emotion/styled'
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
+import AddIcon from '@mui/icons-material/Add';
 import MotherForm from '../../molecules/motherForm/MotherForm';
-import ButtonCustomized from '../../atoms/button/ButtonCustomized';
 import BabyForm from '../../molecules/motherForm/BabyForm';
 import { Box, Button } from '@mui/material';
 import { normalizeBabyApiPayload } from '../../../utils/babyPayload';
@@ -54,7 +54,6 @@ const MotherAccordionForm = (props) => {
         error,
         setError,
         listMothers,
-        listAccordionBaby,
         submitBaby,
         expandedMother = false,
         editForm,
@@ -165,48 +164,71 @@ const MotherAccordionForm = (props) => {
                 />
             ))}
 
-            {typeForm === 'ALTA' &&
-                submitBaby &&
-                (listAccordionBaby ?? []).map((babyTitle, babyIdx) => (
-                    <AccordionCustomized
-                        key={`alta-bebe-${babyTitle}-${babyIdx}`}
-                        item={babyTitle}
-                        expandIcon={<ExpandCircleDownIcon style={{ color: '#8F00FF' }} />}
-                        summary={<TitleAccordion>{babyTitle}</TitleAccordion>}
-                        details={
-                            <>
-                                <BabyForm
-                                    model={model?.bebe?.[babyIdx] ?? {}}
-                                    setModel={(nextBaby) => {
-                                        setModel((m) => {
-                                            const prev = m?.bebe ?? [];
-                                            const next = [...prev];
-                                            while (next.length <= babyIdx) next.push({});
-                                            next[babyIdx] = { ...(next[babyIdx] ?? {}), ...nextBaby };
-                                            return { ...m, bebe: next };
-                                        });
-                                    }}
-                                    error={error}
-                                    listLocalities={listLocalities}
-                                    listMothers={listMothers}
-                                    salaOptions={profileBabyExtras?.babySalasOptions ?? null}
-                                />
-                                <Box sx={{ mt: 2 }}>
-                                    <Button
-                                        variant="contained"
-                                        fullWidth
-                                        onClick={submitBaby}
-                                        sx={btnSave}
-                                    >
-                                        Registrar bebé
-                                    </Button>
-                                </Box>
-                            </>
-                        }
-                    />
-                ))}
+            {typeForm === 'ALTA' && submitBaby &&
+                (model?.bebe ?? [{}]).map((_, babyIdx) => {
+                    const totalBebes = (model?.bebe ?? [{}]).length;
+                    const babyTitle = totalBebes > 1 ? `Bebé ${babyIdx + 1}` : 'Datos del bebé';
+                    return (
+                        <AccordionCustomized
+                            key={`alta-bebe-${babyIdx}`}
+                            item={`alta-bebe-${babyIdx}`}
+                            expandIcon={<ExpandCircleDownIcon style={{ color: '#8F00FF' }} />}
+                            summary={<TitleAccordion>{babyTitle}</TitleAccordion>}
+                            details={
+                                <>
+                                    <BabyForm
+                                        model={model?.bebe?.[babyIdx] ?? {}}
+                                        setModel={(nextBaby) => {
+                                            setModel((m) => {
+                                                const prev = m?.bebe ?? [];
+                                                const next = [...prev];
+                                                while (next.length <= babyIdx) next.push({});
+                                                next[babyIdx] = { ...(next[babyIdx] ?? {}), ...nextBaby };
+                                                return { ...m, bebe: next };
+                                            });
+                                        }}
+                                        error={error}
+                                        listLocalities={listLocalities}
+                                        listMothers={listMothers}
+                                        salaOptions={profileBabyExtras?.babySalasOptions ?? null}
+                                    />
+                                    <Box sx={{ mt: 2 }}>
+                                        <Button
+                                            variant="contained"
+                                            fullWidth
+                                            onClick={() => submitBaby(babyIdx)}
+                                            sx={btnSave}
+                                        >
+                                            Registrar bebé
+                                        </Button>
+                                    </Box>
+                                </>
+                            }
+                        />
+                    );
+                })}
 
-            {model?.bebe?.map((item, index) => {
+            {typeForm === 'ALTA' && submitBaby && (
+                <Button
+                    variant="outlined"
+                    fullWidth
+                    startIcon={<AddIcon />}
+                    onClick={() => setModel((m) => ({ ...m, bebe: [...(m?.bebe ?? [{}]), {}] }))}
+                    sx={{
+                        mt: 1,
+                        textTransform: 'none',
+                        borderRadius: '10px',
+                        borderColor: 'rgba(127,0,255,0.35)',
+                        color: '#7A659B',
+                        fontWeight: 600,
+                        minHeight: 44,
+                    }}
+                >
+                    + Agregar otro bebé
+                </Button>
+            )}
+
+            {typeForm !== 'ALTA' && model?.bebe?.map((item, index) => {
                 const panelId = `bebe-${item?.id ?? item?.idBebe ?? index}`;
                 const tituloBebe = `Datos del bebé: ${[item?.nombre, item?.apellido].filter(Boolean).join(' ').trim() || 'Sin nombre'}`;
                 const isEditingThisBaby = editingBabyIndex === index;

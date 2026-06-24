@@ -68,8 +68,8 @@ export const MotherPage = () => {
         }, [2500])
     }
 
-    const submitBaby = () => {
-        const row = model?.bebe?.[0];
+    const submitBaby = (babyIdx = 0) => {
+        const row = model?.bebe?.[babyIdx];
         if (!row) return;
         const idsMadre = collectIdMadresForBaby(row, model?.idMadre);
         if (idsMadre.length < 1) {
@@ -123,8 +123,8 @@ export const MotherPage = () => {
             dispatch(showLoading(false))
         }
         if (dataBaby?.postBaby !== null) {
-            setType('El bebe')
-            setModel({ bebe: [{}] })
+            setType('El bebé')
+            setModel((m) => ({ ...m, bebe: [{}] }))
             dispatch(showLoading(false))
             setStateForm('SUCCESS')
             setTimeout(() => {

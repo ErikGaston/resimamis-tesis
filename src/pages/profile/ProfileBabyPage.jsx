@@ -1,15 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography } from '@mui/material';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
-import CheckIcon from '@mui/icons-material/Check';
-import EditIcon from '@mui/icons-material/Edit';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import AccordionCustomized from '../../components/atoms/accordionCustomized/AccordionCustomized';
 import BabyForm from '../../components/molecules/motherForm/BabyForm';
 import { PageHeader } from '../../components/common/PageHeader';
 import Loading from '../../components/atoms/loading/Loading';
-import DialogSuccess from '../../components/atoms/dialogSuccess/DialogSuccess';
 import Footer from '../../components/molecules/Footer';
 import PageScrollMain from '../../components/common/PageScrollMain';
 import { showLoading } from '../../redux/actions/loadingActions';
@@ -25,6 +22,36 @@ import {
 import { showToast } from '../../redux/actions/toastActions';
 import { normalizeBabyApiPayload } from '../../utils/babyPayload';
 import VisitasBebe from '../../components/organisms/visitasBebe/VisitasBebe';
+
+const GRADIENT = 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)';
+const btnSave = {
+  textTransform: 'none',
+  fontWeight: 700,
+  fontSize: '1rem',
+  minHeight: 44,
+  borderRadius: '10px',
+  background: GRADIENT,
+  boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
+  color: '#fff',
+  '&.Mui-disabled': { opacity: 0.45, boxShadow: 'none', color: '#fff' },
+};
+const btnCancel = {
+  textTransform: 'none',
+  fontWeight: 600,
+  minHeight: 44,
+  borderRadius: '10px',
+  borderColor: 'rgba(21,44,112,0.25)',
+  color: '#152C70',
+};
+const btnEdit = {
+  textTransform: 'none',
+  fontWeight: 600,
+  minHeight: 44,
+  borderRadius: '10px',
+  background: GRADIENT,
+  boxShadow: '0 4px 14px rgba(127,0,255,0.18)',
+  color: '#fff',
+};
 
 function normalizarBabyList(raw) {
   if (!raw) return [];
@@ -57,8 +84,9 @@ export const ProfileBabyPage = () => {
 
   const [babyModel, setBabyModel] = useState(null);
   const [editMode, setEditMode] = useState(false);
-  const [saveNotice, setSaveNotice] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
+  // Used to know whether the next getBabys refresh should update the model
+  const pendingModelRefresh = useRef(false);
 
   const openConfirm = (message, onConfirm) =>
     setConfirmDialog({ open: true, message, onConfirm });
@@ -83,16 +111,24 @@ export const ProfileBabyPage = () => {
   useEffect(() => {
     const list = normalizarBabyList(babyState?.getBabys);
     if (list.length > 0) {
-      const found = list.find((b) => String(b.id ?? b.idBebe) === String(id));
+      dispatch(showLoading(false));
+      const found = list.find((b) => String(b.id ?? b.ID ?? b.idBebe) === String(id));
       if (found) {
-        setBabyModel((prev) => prev ?? found);
-        dispatch(showLoading(false));
+        if (pendingModelRefresh.current) {
+          // After a successful save, update with server data
+          setBabyModel(found);
+          pendingModelRefresh.current = false;
+        } else {
+          // Initial load: only set if not already set
+          setBabyModel((prev) => prev ?? found);
+        }
         if (found.idMadre != null && !found.madre) {
           dispatch(getMotherId(found.idMadre));
         }
-      } else {
-        dispatch(showLoading(false));
       }
+    } else if (babyState?.getBabys != null) {
+      // List loaded but empty or unexpected format
+      dispatch(showLoading(false));
     }
   }, [babyState?.getBabys, id, dispatch]);
 
@@ -100,10 +136,16 @@ export const ProfileBabyPage = () => {
     if (babyState?.putBaby != null) {
       dispatch(showLoading(false));
       setEditMode(false);
-      setSaveNotice('SUCCESS');
+      // Try to update model from response data directly
+      const freshBaby = babyState.putBaby?.data;
+      if (freshBaby != null) {
+        setBabyModel(freshBaby);
+      } else {
+        pendingModelRefresh.current = true;
+      }
+      dispatch(showToast({ message: 'Datos del bebé actualizados correctamente.', severity: 'success' }));
       dispatch(clearBabyWrites());
       dispatch(getBabys());
-      setTimeout(() => setSaveNotice(null), 2500);
     }
   }, [babyState?.putBaby, dispatch]);
 
@@ -143,9 +185,20 @@ export const ProfileBabyPage = () => {
   const handleSaveBaby = () => {
     if (!babyModel) return;
     const payload = normalizeBabyApiPayload(babyModel, babyModel?.idMadre);
-    if (payload.id == null) return;
+    if (payload.id == null) {
+      dispatch(showToast({ message: 'No se pudo identificar el bebé. Recargá la página e intentá de nuevo.', severity: 'error' }));
+      return;
+    }
     dispatch(showLoading(true));
     dispatch(putBaby(payload));
+  };
+
+  const handleCancelEdit = () => {
+    setEditMode(false);
+    // Restore to server data
+    const list = normalizarBabyList(babyState?.getBabys);
+    const found = list.find((b) => String(b.id ?? b.ID ?? b.idBebe) === String(id));
+    if (found) setBabyModel(found);
   };
 
   const babyNombre =
@@ -156,18 +209,7 @@ export const ProfileBabyPage = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100dvh', maxHeight: '100dvh', minHeight: 0, overflow: 'hidden', position: 'relative' }}>
       {loading && <Loading position="absolute" height="100%" zIndex={9999} />}
-      <PageHeader
-        title="Perfil del bebé"
-        rightAction={
-          <IconButton
-            onClick={editMode ? handleSaveBaby : () => setEditMode(true)}
-            aria-label={editMode ? 'Guardar cambios' : 'Editar datos del bebé'}
-            sx={{ color: '#fff', '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' } }}
-          >
-            {editMode ? <CheckIcon /> : <EditIcon />}
-          </IconButton>
-        }
-      />
+      <PageHeader title="Perfil del bebé" />
 
       <PageScrollMain>
         <Box sx={{ px: 2.5, pt: 1, pb: 1 }}>
@@ -181,31 +223,6 @@ export const ProfileBabyPage = () => {
             details={
               babyModel ? (
                 <>
-                  {editMode && (
-                    <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        onClick={handleSaveBaby}
-                        sx={{ textTransform: 'none' }}
-                      >
-                        Guardar en servidor
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="text"
-                        onClick={() => {
-                          setEditMode(false);
-                          const list = normalizarBabyList(babyState?.getBabys);
-                          const found = list.find((b) => String(b.id ?? b.idBebe) === String(id));
-                          if (found) setBabyModel(found);
-                        }}
-                        sx={{ textTransform: 'none' }}
-                      >
-                        Cancelar
-                      </Button>
-                    </Box>
-                  )}
                   <BabyForm
                     model={babyModel}
                     setModel={setBabyModel}
@@ -215,6 +232,38 @@ export const ProfileBabyPage = () => {
                     listLocalities={null}
                     madreDisplayName={madreNombre ?? ''}
                   />
+
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
+                    {!editMode ? (
+                      <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={() => setEditMode(true)}
+                        sx={btnEdit}
+                      >
+                        Editar bebé
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          onClick={handleSaveBaby}
+                          sx={btnSave}
+                        >
+                          Guardar bebé
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          fullWidth
+                          onClick={handleCancelEdit}
+                          sx={btnCancel}
+                        >
+                          Descartar cambios
+                        </Button>
+                      </>
+                    )}
+                  </Box>
                 </>
               ) : (
                 <Typography variant="body2" color="text.secondary">Cargando datos del bebé…</Typography>
@@ -287,13 +336,6 @@ export const ProfileBabyPage = () => {
         </Box>
       </PageScrollMain>
 
-      {saveNotice === 'SUCCESS' && (
-        <DialogSuccess
-          open={saveNotice === 'SUCCESS'}
-          setOpen={setSaveNotice}
-          message="Los datos del bebé se actualizaron correctamente"
-        />
-      )}
       <Dialog open={confirmDialog.open} onClose={handleCancelConfirm} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 600, color: '#152C70' }}>Confirmar</DialogTitle>
         <DialogContent><Typography>{confirmDialog.message}</Typography></DialogContent>

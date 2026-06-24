@@ -9,7 +9,7 @@ import Footer from '../../components/molecules/Footer';
 import PageScrollMain from '../../components/common/PageScrollMain';
 import { showLoading } from '../../redux/actions/loadingActions';
 import { getLocalities, getEstadosCiviles } from '../../redux/actions/genericsActions';
-import DialogSuccess from '../../components/atoms/dialogSuccess/DialogSuccess';
+import { showToast } from '../../redux/actions/toastActions';
 import {
   validateMotherForm,
   normalizeMotherPayload,
@@ -27,11 +27,9 @@ export const ProfileMotherPage = () => {
   const dataMother = useSelector(state => state.motherReducer)
   const dataBaby = useSelector(state => state.babyReducer)
   const [model, setModel] = useState(null);
-  const [stateForm, setStateForm] = useState(null);
   const { id } = useParams();
   const [editForm, setEditForm] = React.useState(false);
   const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_MOTHER_FIELD_ERRORS });
-  const [babySaveNotice, setBabySaveNotice] = useState(null);
 
   const submitMother = () => {
     dispatch(clearMotherApiError());
@@ -117,11 +115,8 @@ export const ProfileMotherPage = () => {
     if (dataMother?.putMother !== null) {
       setEditForm(state => !state)
       setFieldErrors({ ...INITIAL_MOTHER_FIELD_ERRORS });
-      dispatch(showLoading(false))
-      setStateForm('SUCCESS')
-      setTimeout(() => {
-        setStateForm(null);
-      }, [2500])
+      dispatch(showLoading(false));
+      dispatch(showToast({ message: 'La madre se ha modificado con éxito.', severity: 'success' }));
     }
   }, [dataMother?.error, dataMother?.putMother, dispatch])
 
@@ -134,9 +129,8 @@ export const ProfileMotherPage = () => {
   useEffect(() => {
     if (dataBaby?.putBaby != null) {
       dispatch(showLoading(false));
-      setBabySaveNotice('SUCCESS');
+      dispatch(showToast({ message: 'Los datos del bebé se actualizaron correctamente.', severity: 'success' }));
       dispatch(getMotherId(id));
-      setTimeout(() => setBabySaveNotice(null), 2500);
     }
   }, [dataBaby?.putBaby, dispatch, id]);
 
@@ -179,20 +173,6 @@ export const ProfileMotherPage = () => {
           profileBabyExtras={profileBabyExtras}
         />
       </PageScrollMain>
-      {stateForm === 'SUCCESS' && (
-        <DialogSuccess
-          open={stateForm === 'SUCCESS'}
-          setOpen={setStateForm}
-          message={'La madre se ha modificado con éxito'}
-        />
-      )}
-      {babySaveNotice === 'SUCCESS' && (
-        <DialogSuccess
-          open={babySaveNotice === 'SUCCESS'}
-          setOpen={setBabySaveNotice}
-          message={'Los datos del bebé se actualizaron correctamente'}
-        />
-      )}
       <Footer />
     </Box>
   )

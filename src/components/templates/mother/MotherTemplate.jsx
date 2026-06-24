@@ -8,8 +8,7 @@ const listAccordion = [
 
 const MotherTemplate = ({ model, setModel, localities, estadosCiviles, submitMother, submitConset, error, setError, mothers, submitBaby, typeForm, edit, fieldErrors, setFieldErrors, profileBabyExtras, setEditForm }) => {
     const [listLocalities, setListLocalities] = React.useState(null)
-    const [listMothers, setListMothers] = React.useState(null)
-    const [listAccordionBaby, setListAccordionBaby] = React.useState(['Datos del bebé']);
+    const [listMothers, setListMothers] = React.useState(null);
 
     useEffect(() => {
         if (localities) {
@@ -53,7 +52,6 @@ const MotherTemplate = ({ model, setModel, localities, estadosCiviles, submitMot
 
                     submitBaby={submitBaby}
 
-                    listAccordionBaby={listAccordionBaby}
                     expandedMother={typeForm === 'ALTA'}
                     editForm={edit}
                     typeForm={typeForm}

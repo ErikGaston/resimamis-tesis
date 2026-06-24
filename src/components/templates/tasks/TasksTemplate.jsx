@@ -99,7 +99,7 @@ const TasksTemplate = (props) => {
                     }}
                 >
                     <Tab label="Actividades" />
-                    {canAccessAssignment && <Tab label="Asignación" />}
+                    {canAccessAssignment && <Tab label="Asignaciones" />}
                 </Tabs>
             </Box>
 
