@@ -16,8 +16,8 @@ export const ListMotherPage = () => {
   const handleConfirm = () => { confirmDialog.onConfirm?.(); setConfirmDialog({ open: false, message: '', onConfirm: null }); };
   const handleCancelConfirm = () => setConfirmDialog({ open: false, message: '', onConfirm: null });
 
-  const handleDeleteMother = (idMadre) => {
-    openConfirm(`¿Dar de baja la madre #${idMadre}? Esta acción es irreversible.`, () => {
+  const handleDeleteMother = (idMadre, nombre) => {
+    openConfirm(`¿Dar de baja a ${nombre}? Esta acción es irreversible.`, () => {
       dispatch(showLoading(true));
       dispatch(postMotherDelete(idMadre));
     });

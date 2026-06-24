@@ -49,8 +49,8 @@ export const ListBabysPage = () => {
     dispatch(getBabyByDni(digits));
   };
 
-  const handleDeleteBaby = (idBebe) => {
-    openConfirm(`¿Dar de baja el bebé #${idBebe}? Esta acción es irreversible.`, () => {
+  const handleDeleteBaby = (idBebe, nombre) => {
+    openConfirm(`¿Dar de baja al bebé ${nombre}? Esta acción es irreversible.`, () => {
       dispatch(showLoading(true));
       dispatch(postBabyDelete(idBebe));
     });
