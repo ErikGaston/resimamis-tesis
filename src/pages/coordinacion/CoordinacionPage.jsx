@@ -36,7 +36,6 @@ import {
 import {
   getAssistanceReporte,
   postAssistanceDelete,
-  postVolunteerDelete,
   clearVolunteerWrites,
 } from '../../redux/actions/volunteerActions';
 import {
@@ -49,8 +48,6 @@ import {
   getVoluntariasSinUsuario,
   putUsuarioContrasena,
 } from '../../redux/actions/userActions';
-import { postMotherDelete, clearMotherWrites } from '../../redux/actions/motherActions';
-import { postBabyDelete, clearBabyWrites, getBabys } from '../../redux/actions/babyActions';
 import {
   getSupplyById,
   putSupplyById,
@@ -106,8 +103,6 @@ export const CoordinacionPage = () => {
   const assignment = useSelector((s) => s.assignmentReducer);
   const volunteer = useSelector((s) => s.volunteerReducer);
   const user = useSelector((s) => s.userReducer);
-  const mother = useSelector((s) => s.motherReducer);
-  const baby = useSelector((s) => s.babyReducer);
   const supply = useSelector((s) => s.supplyReducer);
   const tarea = useSelector((s) => s.tareaReducer);
   const loading = useSelector((s) => s.assignmentReducer?.loading);
@@ -130,11 +125,6 @@ export const CoordinacionPage = () => {
   const [usuarioJsonEdit, setUsuarioJsonEdit] = useState('{}');
   const [idUsuarioDel, setIdUsuarioDel] = useState('');
   const [contrasenaForm, setContrasenaForm] = useState({ ContrasenaActual: '', ContrasenaNueva: '' });
-
-  // Bajas
-  const [idMadreDel, setIdMadreDel] = useState('');
-  const [idVolDel, setIdVolDel] = useState('');
-  const [idBebeDel, setIdBebeDel] = useState('');
 
   // Insumos
   const [idInsumo, setIdInsumo] = useState('');
@@ -206,12 +196,12 @@ export const CoordinacionPage = () => {
   }, [assignment?.putAssignmentById, assignment?.deleteAssignmentById, dispatch, toastOk]);
 
   useEffect(() => {
-    if (volunteer?.postAssistanceDelete != null || volunteer?.postVolunteerDelete != null) {
+    if (volunteer?.postAssistanceDelete != null) {
       dispatch(showLoading(false));
-      toastOk('Baja registrada.');
+      toastOk('Asistencia eliminada.');
       dispatch(clearVolunteerWrites());
     }
-  }, [volunteer?.postAssistanceDelete, volunteer?.postVolunteerDelete, dispatch, toastOk]);
+  }, [volunteer?.postAssistanceDelete, dispatch, toastOk]);
 
   useEffect(() => {
     if (user?.postUsuario != null || user?.putUsuario != null || user?.postUsuarioDelete != null) {
@@ -229,22 +219,6 @@ export const CoordinacionPage = () => {
       dispatch(clearUserAdmin());
     }
   }, [user?.putUsuarioContrasena, dispatch, toastOk]);
-
-  useEffect(() => {
-    if (mother?.postMotherDelete != null) {
-      dispatch(showLoading(false));
-      toastOk('Madre dada de baja.');
-      dispatch(clearMotherWrites());
-    }
-  }, [mother?.postMotherDelete, dispatch, toastOk]);
-
-  useEffect(() => {
-    if (baby?.postBabyDelete != null) {
-      dispatch(showLoading(false));
-      toastOk('Bebé dado de baja.');
-      dispatch(clearBabyWrites());
-    }
-  }, [baby?.postBabyDelete, dispatch, toastOk]);
 
   useEffect(() => {
     if (supply?.putSupplyById != null || supply?.postSupplyDelete != null) {
@@ -275,7 +249,6 @@ export const CoordinacionPage = () => {
       assignment?.error,
       volunteer?.error,
       user?.error,
-      mother?.error,
       supply?.error,
       tarea?.error,
     ].some((e) => e != null);
@@ -288,23 +261,10 @@ export const CoordinacionPage = () => {
     assignment?.error,
     volunteer?.error,
     user?.error,
-    mother?.error,
     supply?.error,
     tarea?.error,
     dispatch,
   ]);
-
-  // ── Initial load ──
-  useEffect(() => {
-    dispatch(showLoading(true));
-    dispatch(getBabys());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (baby?.getBabys != null || baby?.error != null) {
-      dispatch(showLoading(false));
-    }
-  }, [baby?.getBabys, baby?.error, dispatch]);
 
   if (!isCoord) {
     return (
@@ -323,13 +283,6 @@ export const CoordinacionPage = () => {
   const tareasList = normalizarLista(tarea?.getTareas);
   const usuariosList = normalizarLista(user?.getUsuarios);
   const volsSinUsuario = normalizarLista(user?.getVoluntariasSinUsuario);
-
-  const babyOptions = Array.isArray(baby?.getBabys?.data)
-    ? baby.getBabys.data.map((b) => ({
-        id: b.ID ?? b.id,
-        label: `${b.nombre ?? ''} ${b.apellido ?? ''}`.trim(),
-      }))
-    : [];
 
   const asistenciaReporteRows = (() => {
     const raw = volunteer?.getAssistanceReporte;
@@ -359,7 +312,6 @@ export const CoordinacionPage = () => {
             <Tab label="Asignación" />
             <Tab label="Asistencia" />
             <Tab label="Usuarios" />
-            <Tab label="Bajas" />
             <Tab label="Insumos" />
             <Tab label="Tareas" />
           </Tabs>
@@ -720,82 +672,8 @@ export const CoordinacionPage = () => {
             </Button>
           </TabPanel>
 
-          {/* ── 3: Bajas ── */}
+          {/* ── 3: Insumos ── */}
           <TabPanel value={tab} index={3}>
-            <TextField
-              label="ID de la madre"
-              value={idMadreDel}
-              onChange={(e) => setIdMadreDel(e.target.value)}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              inputProps={{ inputMode: 'numeric' }}
-            />
-            <Button
-              color="error"
-              variant="outlined"
-              fullWidth
-              sx={{ mb: 2 }}
-              onClick={() => {
-                const id = Number(idMadreDel);
-                if (!Number.isFinite(id)) return;
-                openConfirm(`¿Dar de baja madre ${id}?`, () => { dispatch(showLoading(true)); dispatch(postMotherDelete(id)); });
-              }}
-            >
-              Baja madre
-            </Button>
-            <TextField
-              label="ID de la voluntaria"
-              value={idVolDel}
-              onChange={(e) => setIdVolDel(e.target.value)}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              inputProps={{ inputMode: 'numeric' }}
-            />
-            <Button
-              color="error"
-              variant="outlined"
-              fullWidth
-              sx={{ mb: 2 }}
-              onClick={() => {
-                const id = Number(idVolDel);
-                if (!Number.isFinite(id)) return;
-                openConfirm(`¿Dar de baja voluntaria ${id}?`, () => { dispatch(showLoading(true)); dispatch(postVolunteerDelete(id)); });
-              }}
-            >
-              Baja voluntaria
-            </Button>
-            <FormControl fullWidth size="small" sx={{ mb: 1 }}>
-              <InputLabel>Bebé</InputLabel>
-              <Select
-                value={idBebeDel}
-                label="Bebé"
-                onChange={(e) => setIdBebeDel(e.target.value)}
-              >
-                {babyOptions.map((b) => (
-                  <MenuItem key={b.id} value={String(b.id)}>
-                    {b.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <Button
-              color="error"
-              variant="outlined"
-              fullWidth
-              onClick={() => {
-                const id = Number(idBebeDel);
-                if (!Number.isInteger(id) || id <= 0) return;
-                openConfirm(`¿Dar de baja bebé ${id}?`, () => { dispatch(showLoading(true)); dispatch(postBabyDelete(id)); });
-              }}
-            >
-              Baja bebé
-            </Button>
-          </TabPanel>
-
-          {/* ── 4: Insumos ── */}
-          <TabPanel value={tab} index={4}>
             <TextField
               label="ID del insumo"
               value={idInsumo}
@@ -848,8 +726,8 @@ export const CoordinacionPage = () => {
             </Box>
           </TabPanel>
 
-          {/* ── 5: Tareas ── */}
-          <TabPanel value={tab} index={5}>
+          {/* ── 4: Tareas ── */}
+          <TabPanel value={tab} index={4}>
             <Button variant="outlined" fullWidth sx={{ mb: 2 }} onClick={() => { dispatch(showLoading(true)); dispatch(getTareas()); }}>
               Cargar lista de tareas
             </Button>
