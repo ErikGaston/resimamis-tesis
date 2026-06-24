@@ -5,7 +5,6 @@ import LabelInput from '../labelInput/LabelInput';
 import LabelDate from '../labelDate/LabelDate';
 import LabelAutocomplete from '../labelAutocomplete/LabelAutocomplete';
 import { formattedDate } from '../../../utils/dateFormat';
-import Loading from '../../atoms/loading/Loading';
 import { collectIdMadresForBaby } from '../../../utils/babyPayload';
 
 const listSexo = [
@@ -27,6 +26,7 @@ const BabyForm = ({
     /** Opcional: salas desde GET `/bebe/listarSalas` como `{ label, value }` (value = idSala). */
     salaOptions = null,
 }) => {
+
     const safeSetModel = readOnly ? noop : setModel
 
     const onChangeText = (e) => {
@@ -135,6 +135,7 @@ const BabyForm = ({
                 value={birthValue}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
+                styleLabel={{ fontSize: '16px' }}
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaNacimiento')}
                 disabled={readOnly}
             />
@@ -158,6 +159,7 @@ const BabyForm = ({
                 required
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
+                styleLabel={{ fontSize: '16px' }}
                 disabled={readOnly}
             />
             {readOnly ? (
@@ -218,6 +220,7 @@ const BabyForm = ({
                 value={neoValue}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
+                styleLabel={{ fontSize: '16px' }}
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaIngresoNEO')}
                 disabled={readOnly}
             />
@@ -233,23 +236,20 @@ const BabyForm = ({
                     label={'Localidad'}
                     labelColor={'#152C70'}
                     inputColor={'#152C70'}
+                    styleLabel={{ fontSize: '16px' }}
                     disabled={readOnly}
                 />
-            ) : readOnly ? (
-                model?.nombre_localidad ? (
-                    <LabelInput
-                        name='nombre_localidad'
-                        label='Localidad'
-                        value={model.nombre_localidad}
-                        onChange={noop}
-                        labelColor={'#152C70'}
-                        inputColor={'#152C70'}
-                        styleLabel={{ fontSize: '16px' }}
-                        disabled
-                    />
-                ) : null
             ) : (
-                <Loading />
+                <LabelInput
+                    name='nombre_localidad'
+                    label='Localidad'
+                    value={model?.nombre_localidad ?? ''}
+                    onChange={readOnly ? noop : onChangeText}
+                    labelColor={'#152C70'}
+                    inputColor={'#152C70'}
+                    styleLabel={{ fontSize: '16px' }}
+                    disabled={readOnly}
+                />
             )}
             <LabelInput
                 name='pesoNacimiento'
@@ -286,7 +286,7 @@ const BabyForm = ({
             />
             <LabelInput
                 name='pesoDiaAbrazos'
-                label='Peso dia de abrazo'
+                label='Peso día de abrazo'
                 value={model?.pesoDiaAbrazos}
                 onChange={onChangeNumber}
                 className={error && 'errorInput'}
@@ -297,21 +297,8 @@ const BabyForm = ({
             />
             <LabelInput
                 name='diagnosticoIngreso'
-                label='Diagnostico al ingreso'
+                label='Diagnóstico al ingreso'
                 value={model?.diagnosticoIngreso || ''}
-                onChange={onChangeText}
-                className={error && 'errorInput'}
-                labelColor={'#152C70'}
-                inputColor={'#152C70'}
-                styleLabel={{ fontSize: '16px' }}
-                multiline={true}
-                rows={3}
-                disabled={readOnly}
-            />
-            <LabelInput
-                name='diagnosticoEgreso'
-                label='Diagnóstico al egreso'
-                value={model?.diagnosticoEgreso || ''}
                 onChange={onChangeText}
                 className={error && 'errorInput'}
                 labelColor={'#152C70'}
@@ -342,6 +329,7 @@ const BabyForm = ({
                     noOptionsText="No hay salas"
                     labelColor={'#152C70'}
                     inputColor={'#152C70'}
+                    styleLabel={{ fontSize: '16px' }}
                     disabled={readOnly}
                 />
             ) : (
