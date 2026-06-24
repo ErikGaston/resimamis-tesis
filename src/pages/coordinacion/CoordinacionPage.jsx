@@ -65,14 +65,6 @@ import {
   postTareaDelete,
   clearTareaWrites,
 } from '../../redux/actions/tareaActions';
-import {
-  getVisitasByBebe,
-  getVisitaById,
-  postVisita,
-  putVisita,
-  postVisitaDelete,
-  clearVisitaWrites,
-} from '../../redux/actions/visitaActions';
 import { showToast } from '../../redux/actions/toastActions';
 import Loading from '../../components/atoms/loading/Loading';
 import { showLoading } from '../../redux/actions/loadingActions';
@@ -97,7 +89,6 @@ function normalizarLista(raw) {
     raw.data,
     raw.listado,
     raw.listadoTareas,
-    raw.listadoVisitas,
     raw.listadoUsuarios,
     raw.listadoVoluntaria,
   ];
@@ -106,15 +97,6 @@ function normalizarLista(raw) {
   }
   return [];
 }
-
-const VISITA_FORM_INIT = {
-  idBebe: '',
-  nombreVisitante: '',
-  familiar: '',
-  fechaHoraVisita: '',
-  documentoVisitante: '',
-  telefonoVisitante: '',
-};
 
 export const CoordinacionPage = () => {
   const navigate = useNavigate();
@@ -128,7 +110,6 @@ export const CoordinacionPage = () => {
   const baby = useSelector((s) => s.babyReducer);
   const supply = useSelector((s) => s.supplyReducer);
   const tarea = useSelector((s) => s.tareaReducer);
-  const visita = useSelector((s) => s.visitaReducer);
   const loading = useSelector((s) => s.assignmentReducer?.loading);
 
   const [tab, setTab] = useState(0);
@@ -163,12 +144,6 @@ export const CoordinacionPage = () => {
   const [tareaForm, setTareaForm] = useState({ nombre: '', Estado: true, esUnica: false });
   const [tareaEditId, setTareaEditId] = useState('');
   const [tareaEditForm, setTareaEditForm] = useState({ nombre: '', Estado: true, esUnica: false });
-
-  // Visitas
-  const [visitaBebeId, setVisitaBebeId] = useState('');
-  const [visitaForm, setVisitaForm] = useState(VISITA_FORM_INIT);
-  const [visitaEditId, setVisitaEditId] = useState('');
-  const [visitaEditJson, setVisitaEditJson] = useState('{}');
 
   const toastOk = useCallback(
     (msg) => dispatch(showToast({ message: msg, severity: 'success' })),
@@ -212,17 +187,6 @@ export const CoordinacionPage = () => {
       });
     }
   }, [tarea?.getTareaById, dispatch]);
-
-  useEffect(() => {
-    if (visita?.getVisitaById != null) {
-      dispatch(showLoading(false));
-      try {
-        setVisitaEditJson(JSON.stringify(visita.getVisitaById, null, 2));
-      } catch {
-        setVisitaEditJson('{}');
-      }
-    }
-  }, [visita?.getVisitaById, dispatch]);
 
   // ── Success effects (write operations) ──
   useEffect(() => {
@@ -299,15 +263,6 @@ export const CoordinacionPage = () => {
     }
   }, [tarea?.postTarea, tarea?.putTarea, tarea?.postTareaDelete, dispatch, toastOk]);
 
-  useEffect(() => {
-    if (visita?.postVisita != null || visita?.putVisita != null || visita?.postVisitaDelete != null) {
-      dispatch(showLoading(false));
-      toastOk('Visita: operación OK.');
-      dispatch(clearVisitaWrites());
-      if (visitaBebeId) dispatch(getVisitasByBebe(Number(visitaBebeId)));
-    }
-  }, [visita?.postVisita, visita?.putVisita, visita?.postVisitaDelete, dispatch, toastOk, visitaBebeId]);
-
   // ── Dismiss loading on list-type GET results and errors ──
   useEffect(() => {
     const anyResult = [
@@ -315,7 +270,6 @@ export const CoordinacionPage = () => {
       user?.getVoluntariasSinUsuario,
       volunteer?.getAssistanceReporte,
       tarea?.getTareas,
-      visita?.getVisitasByBebe,
     ].some((r) => r != null);
     const anyError = [
       assignment?.error,
@@ -324,7 +278,6 @@ export const CoordinacionPage = () => {
       mother?.error,
       supply?.error,
       tarea?.error,
-      visita?.error,
     ].some((e) => e != null);
     if (anyResult || anyError) dispatch(showLoading(false));
   }, [
@@ -332,14 +285,12 @@ export const CoordinacionPage = () => {
     user?.getVoluntariasSinUsuario,
     volunteer?.getAssistanceReporte,
     tarea?.getTareas,
-    visita?.getVisitasByBebe,
     assignment?.error,
     volunteer?.error,
     user?.error,
     mother?.error,
     supply?.error,
     tarea?.error,
-    visita?.error,
     dispatch,
   ]);
 
@@ -370,7 +321,6 @@ export const CoordinacionPage = () => {
   }
 
   const tareasList = normalizarLista(tarea?.getTareas);
-  const visitasList = normalizarLista(visita?.getVisitasByBebe);
   const usuariosList = normalizarLista(user?.getUsuarios);
   const volsSinUsuario = normalizarLista(user?.getVoluntariasSinUsuario);
 
@@ -412,7 +362,6 @@ export const CoordinacionPage = () => {
             <Tab label="Bajas" />
             <Tab label="Insumos" />
             <Tab label="Tareas" />
-            <Tab label="Visitas" />
           </Tabs>
 
           {/* ── 0: Asignación ── */}
@@ -1088,217 +1037,6 @@ export const CoordinacionPage = () => {
             </Box>
           </TabPanel>
 
-          {/* ── 6: Visitas ── */}
-          <TabPanel value={tab} index={6}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Visitas por bebé
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-              <FormControl size="small" sx={{ flex: 1 }}>
-                <InputLabel>Bebé</InputLabel>
-                <Select
-                  value={visitaBebeId}
-                  label="Bebé"
-                  onChange={(e) => setVisitaBebeId(e.target.value)}
-                >
-                  {babyOptions.map((b) => (
-                    <MenuItem key={b.id} value={String(b.id)}>
-                      {b.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  const id = Number(visitaBebeId);
-                  if (!Number.isInteger(id) || id <= 0) return;
-                  dispatch(showLoading(true));
-                  dispatch(getVisitasByBebe(id));
-                }}
-              >
-                Buscar
-              </Button>
-            </Box>
-            {Array.isArray(visitasList) && visitasList.length > 0 && (
-              <Box sx={{ mb: 2 }}>
-                {visitasList.map((v) => (
-                  <Box key={v.idVisita} sx={{ py: 0.75, borderBottom: '1px solid #eee' }}>
-                    <Typography variant="body2" fontWeight={600}>
-                      {v.nombreVisitante}
-                    </Typography>
-                    <Typography variant="caption" display="block" color="text.secondary">
-                      {v.familiar} ·{' '}
-                      {v.fechaHoraVisita
-                        ? new Date(v.fechaHoraVisita).toLocaleString('es-AR')
-                        : '—'}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-            )}
-            {Array.isArray(visitasList) &&
-              visitasList.length === 0 &&
-              visita?.getVisitasByBebe != null && (
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  Sin visitas para ese bebé.
-                </Typography>
-              )}
-            <Divider sx={{ my: 2 }} />
-
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Registrar visita
-            </Typography>
-            <FormControl fullWidth size="small" sx={{ mb: 1 }}>
-              <InputLabel>Bebé</InputLabel>
-              <Select
-                value={visitaForm.idBebe}
-                label="Bebé"
-                onChange={(e) => setVisitaForm((f) => ({ ...f, idBebe: e.target.value }))}
-              >
-                {babyOptions.map((b) => (
-                  <MenuItem key={b.id} value={String(b.id)}>
-                    {b.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              label="Nombre del visitante"
-              value={visitaForm.nombreVisitante}
-              onChange={(e) => setVisitaForm((f) => ({ ...f, nombreVisitante: e.target.value }))}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-            />
-            <TextField
-              label="Vínculo familiar"
-              value={visitaForm.familiar}
-              onChange={(e) => setVisitaForm((f) => ({ ...f, familiar: e.target.value }))}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              placeholder="Ej: Madre, Padre, Abuelos"
-            />
-            <TextField
-              label="Fecha y hora"
-              type="datetime-local"
-              value={visitaForm.fechaHoraVisita}
-              onChange={(e) => setVisitaForm((f) => ({ ...f, fechaHoraVisita: e.target.value }))}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              label="Documento visitante (opcional)"
-              value={visitaForm.documentoVisitante}
-              onChange={(e) => setVisitaForm((f) => ({ ...f, documentoVisitante: e.target.value }))}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              inputProps={{ inputMode: 'numeric' }}
-            />
-            <TextField
-              label="Teléfono (opcional)"
-              value={visitaForm.telefonoVisitante}
-              onChange={(e) => setVisitaForm((f) => ({ ...f, telefonoVisitante: e.target.value }))}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              inputProps={{ inputMode: 'numeric' }}
-            />
-            <Button
-              variant="contained"
-              disabled={
-                !visitaForm.idBebe ||
-                !visitaForm.nombreVisitante ||
-                !visitaForm.familiar ||
-                !visitaForm.fechaHoraVisita
-              }
-              onClick={() => {
-                dispatch(showLoading(true));
-                dispatch(
-                  postVisita({
-                    idBebe: Number(visitaForm.idBebe),
-                    nombreVisitante: visitaForm.nombreVisitante,
-                    familiar: visitaForm.familiar,
-                    fechaHoraVisita: new Date(visitaForm.fechaHoraVisita).toISOString(),
-                    documentoVisitante:
-                      visitaForm.documentoVisitante !== '' ? visitaForm.documentoVisitante : null,
-                    telefonoVisitante:
-                      visitaForm.telefonoVisitante !== '' ? visitaForm.telefonoVisitante : null,
-                  }),
-                );
-                setVisitaForm(VISITA_FORM_INIT);
-              }}
-            >
-              Registrar visita
-            </Button>
-            <Divider sx={{ my: 2 }} />
-
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Editar / eliminar visita
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-              <TextField
-                label="ID de visita"
-                value={visitaEditId}
-                onChange={(e) => setVisitaEditId(e.target.value)}
-                size="small"
-                sx={{ flex: 1 }}
-                inputProps={{ inputMode: 'numeric' }}
-              />
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  const id = Number(visitaEditId);
-                  if (!Number.isFinite(id)) return;
-                  dispatch(showLoading(true));
-                  dispatch(getVisitaById(id));
-                }}
-              >
-                Cargar
-              </Button>
-            </Box>
-            <TextField
-              label="Datos de la visita (JSON)"
-              value={visitaEditJson}
-              onChange={(e) => setVisitaEditJson(e.target.value)}
-              fullWidth
-              multiline
-              minRows={5}
-              size="small"
-              sx={{ mb: 1 }}
-            />
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                variant="contained"
-                disabled={!visitaEditId}
-                onClick={() => {
-                  const id = Number(visitaEditId);
-                  const body = safeJsonParse(visitaEditJson, {});
-                  if (!Number.isFinite(id)) return;
-                  dispatch(showLoading(true));
-                  dispatch(putVisita(id, body));
-                }}
-              >
-                Guardar visita
-              </Button>
-              <Button
-                color="error"
-                variant="outlined"
-                disabled={!visitaEditId}
-                onClick={() => {
-                  const id = Number(visitaEditId);
-                  if (!Number.isFinite(id)) return;
-                  openConfirm(`¿Eliminar visita ${id}?`, () => { dispatch(showLoading(true)); dispatch(postVisitaDelete(id)); });
-                }}
-              >
-                Eliminar
-              </Button>
-            </Box>
-          </TabPanel>
         </Paper>
       </PageScrollMain>
 
