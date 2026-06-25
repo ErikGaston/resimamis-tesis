@@ -2,13 +2,12 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "re
 import { useDispatch, useSelector } from "react-redux";
 import { clearVolunteer, getAssistance, getAssistanceHistoricas, getAssistanceToday, getVolunteersFree, postAssistance, postAssistanceSalida } from "../../redux/actions/volunteerActions";
 import { clearBaby, getBabysFree } from "../../redux/actions/babyActions";
-import { clearAssignment, getAssignmentById, getAssignmentTodayById, postAssignmentGenerate, postAssignmentGenerateTarea, postDetailAssignment, postEndHug, postStartHug } from "../../redux/actions/assignmentActions";
+import { clearAssignment, getAssignmentById, getAssignmentToday, getAssignmentTodayById, postAssignmentGenerate, postAssignmentGenerateTarea, postDetailAssignment, postEndHug, postStartHug } from "../../redux/actions/assignmentActions";
 import { clearSupply, getSupplies } from "../../redux/actions/supplyActions";
 import { showLoading } from "../../redux/actions/loadingActions";
-import { hideToast } from "../../redux/actions/toastActions";
+import { hideToast, showToast } from "../../redux/actions/toastActions";
 import Loading from "../../components/atoms/loading/Loading";
 import Footer from "../../components/molecules/Footer";
-import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
 import TasksTemplate from "../../components/templates/tasks/TasksTemplate";
 import AssistanceDataDialog from "../../components/organisms/assistanceDialogs/AssistanceDataDialog";
 import { getIdVolunteer } from '../../utils/localStorage';
@@ -54,7 +53,6 @@ export const TasksPage = () => {
     const [valueTask, setValueTask] = useState(1);
     const [model, setModel] = useState(null);
     const [error, setError] = useState(null);
-    const [stateForm, setStateForm] = useState(null);
     const [checkAssistance, setCheckAssistance] = useState(false);
     const [salidaRegistrada, setSalidaRegistrada] = useState(false);
     let idVolunteer = getIdVolunteer();
@@ -62,7 +60,7 @@ export const TasksPage = () => {
     const [selectedBabyTareaIds, setSelectedBabyTareaIds] = useState([]);
     const [stateInsumo, setStateInsumo] = useState('');
     const [changeInformationHug, setChangeInformationHug] = React.useState(null)
-    const [changeAssignedList, setChangeAssignedList] = React.useState(true)
+    const [changeAssignedList, setChangeAssignedList] = React.useState(false)
     const pendingAssistanceRef = useRef(null);
     const pendingAssignmentDetailRef = useRef(null);
     const [rawDataDialog, setRawDataDialog] = useState({
@@ -229,6 +227,7 @@ export const TasksPage = () => {
             dispatch(showLoading(true))
             dispatch(getVolunteersFree())
             dispatch(getBabysFree())
+            dispatch(getAssignmentToday())
         }
     }, [valueTask, dispatch, idVolunteer, canAccessAssignment])
 
@@ -243,30 +242,21 @@ export const TasksPage = () => {
             dispatch(showLoading(false))
             if (dataVolunteer?.postAssistance?.data) {
                 setModel(null)
-                setStateForm('ASSISTENCE')
                 setCheckAssistance(true);
                 setSalidaRegistrada(false);
                 dispatch(getAssignmentTodayById(idVolunteer))
-                setTimeout(() => {
-                    setStateForm(null);
-                }, 2500)
+                dispatch(showToast({ message: '¡Asistencia registrada con éxito!', severity: 'success' }))
             }
         }
         if (dataVolunteer?.postAssistanceSalida !== null) {
             dispatch(showLoading(false))
-            setStateForm('ASSISTENCE_SALIDA')
             setCheckAssistance(false)
             setSalidaRegistrada(true);
             dispatch(getAssistance(idVolunteer))
-            setTimeout(() => {
-                setStateForm(null)
-            }, 2500)
+            dispatch(showToast({ message: '¡Salida registrada con éxito!', severity: 'success' }))
         }
         if (dataVolunteer?.getVolunteersFree !== null) {
             dispatch(showLoading(false))
-            setTimeout(() => {
-                setStateForm(null);
-            }, 2500)
         }
     }, [dataVolunteer?.error, dataVolunteer?.postAssistance, dataVolunteer?.postAssistanceSalida, dataVolunteer?.getVolunteersFree, dispatch, idVolunteer])
 
@@ -322,7 +312,10 @@ export const TasksPage = () => {
         if (dataAssignment?.getAssignmentTodayById !== null) {
             dispatch(showLoading(false))
         }
-    }, [dataAssignment?.error, dataAssignment?.getAssignmentTodayById, dispatch])
+        if (dataAssignment?.getAssignmentToday != null) {
+            dispatch(showLoading(false))
+        }
+    }, [dataAssignment?.error, dataAssignment?.getAssignmentTodayById, dataAssignment?.getAssignmentToday, dispatch])
 
     useEffect(() => {
         const expectedId = pendingAssignmentDetailRef.current;
@@ -343,10 +336,7 @@ export const TasksPage = () => {
             dispatch(showLoading(false))
             if (dataAssignment?.postStartHug?.data) {
                 dispatch(getAssignmentTodayById(idVolunteer))
-                setStateForm('INICIO_ABRAZO');
-                setTimeout(() => {
-                    setStateForm('');
-                }, 2500)
+                dispatch(showToast({ message: '¡Abrazo iniciado con éxito!', severity: 'success' }))
             }
         }
     }, [dataAssignment?.postStartHug, dispatch, idVolunteer])
@@ -358,10 +348,7 @@ export const TasksPage = () => {
                 setModel(null)
                 setChangeInformationHug(false)
                 dispatch(getAssignmentTodayById(idVolunteer))
-                setStateForm('FINALIZA_ABRAZO');
-                setTimeout(() => {
-                    setStateForm('');
-                }, 2500)
+                dispatch(showToast({ message: '¡Abrazo finalizado con éxito!', severity: 'success' }))
             }
         }
     }, [dataAssignment?.postEndHug, dispatch, idVolunteer])
@@ -374,6 +361,8 @@ export const TasksPage = () => {
             dispatch(showLoading(false))
             dispatch(getVolunteersFree())
             dispatch(getBabysFree())
+            dispatch(getAssignmentToday())
+            dispatch(showToast({ message: 'Asignaciones generadas con éxito.', severity: 'success' }))
         }
     }, [dataAssignment?.postAssignmentGenerate, dispatch])
 
@@ -384,10 +373,7 @@ export const TasksPage = () => {
             dispatch(getBabysFree());
             dispatch(getAssignmentTodayById(idVolunteer));
             setChangeAssignedList((s) => !s);
-            setStateForm('ASIGNACION_UNA');
-            setTimeout(() => {
-                setStateForm(null);
-            }, 2500);
+            dispatch(showToast({ message: 'Asignación generada con éxito.', severity: 'success' }))
         }
     }, [dataAssignment?.postAssignmentGenerateTarea, dispatch, idVolunteer]);
 
@@ -401,11 +387,8 @@ export const TasksPage = () => {
     useEffect(() => {
         if (dataAssignment?.postDetailAssignment !== null) {
             dispatch(showLoading(false))
-            setStateForm('REGISTER_SUPPLY')
-            setTimeout(() => {
-                setStateForm('')
-                setStateInsumo('');
-            }, 2500)
+            setStateInsumo('');
+            dispatch(showToast({ message: '¡Insumos registrados con éxito!', severity: 'success' }))
         }
     }, [dataAssignment?.postDetailAssignment, dispatch])
 
@@ -435,7 +418,7 @@ export const TasksPage = () => {
                 selectedBabyTareaIds={selectedBabyTareaIds}
                 toggleBabyTareaSelection={toggleBabyTareaSelection}
                 submitAssignmentTask={submitAssignmentTask}
-                listAssignment={dataAssignment?.postAssignmentGenerate?.data ?? null}
+                listAssignment={dataAssignment?.postAssignmentGenerate?.data ?? dataAssignment?.getAssignmentToday?.data ?? null}
                 submitStartHug={submitStartHug}
                 submitEndHug={submitEndHug}
                 changeStateInsumo={changeStateInsumo}
@@ -461,54 +444,6 @@ export const TasksPage = () => {
                 volunteerFallback={assistanceVolunteerFallback}
                 onClose={() => setRawDataDialog((d) => ({ ...d, open: false }))}
             />
-            {
-                stateForm === 'ASSISTENCE' &&
-                <DialogSuccess
-                    open={stateForm === 'ASSISTENCE'}
-                    setOpen={setStateForm}
-                    message={'¡La asistencia se ha registrado con éxito!'}
-                />
-            }
-            {
-                stateForm === 'ASSISTENCE_SALIDA' &&
-                <DialogSuccess
-                    open={stateForm === 'ASSISTENCE_SALIDA'}
-                    setOpen={setStateForm}
-                    message={'¡Salida de asistencia registrada con éxito!'}
-                />
-            }
-            {
-                stateForm === 'INICIO_ABRAZO' &&
-                <DialogSuccess
-                    open={stateForm === 'INICIO_ABRAZO'}
-                    setOpen={setStateForm}
-                    message={'¡Abrazo iniciado con éxito!'}
-                />
-            }
-            {
-                stateForm === 'FINALIZA_ABRAZO' &&
-                <DialogSuccess
-                    open={stateForm === 'FINALIZA_ABRAZO'}
-                    setOpen={setStateForm}
-                    message={'¡Abrazo finalizado con éxito!'}
-                />
-            }
-            {
-                stateForm === 'REGISTER_SUPPLY' &&
-                <DialogSuccess
-                    open={stateForm === 'REGISTER_SUPPLY'}
-                    setOpen={setStateForm}
-                    message={'¡Insumos registrados con éxito!'}
-                />
-            }
-            {
-                stateForm === 'ASIGNACION_UNA' &&
-                <DialogSuccess
-                    open={stateForm === 'ASIGNACION_UNA'}
-                    setOpen={setStateForm}
-                    message={'Asignación generada (una tarea).'}
-                />
-            }
             <Footer />
         </div>
     )
