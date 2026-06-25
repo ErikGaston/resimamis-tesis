@@ -363,20 +363,6 @@ export const CoordinacionPage = () => {
 
           {/* ── 0: Asignación ── */}
           <TabPanel value={tab} index={0}>
-            <Button
-              variant="contained"
-              color="secondary"
-              fullWidth
-              sx={{ mb: 2 }}
-              onClick={() =>
-                openConfirm(
-                  '¿Resetear abrazos colgados en el servidor?',
-                  () => { dispatch(showLoading(true)); dispatch(postResetAbrazosColgados()); },
-                )
-              }
-            >
-              Resetear abrazos colgados
-            </Button>
             <TextField
               label="ID de asignación"
               value={asigId}
@@ -420,6 +406,20 @@ export const CoordinacionPage = () => {
                 Eliminar
               </Button>
             </Box>
+            <Button
+              variant="outlined"
+              color="warning"
+              fullWidth
+              sx={{ mt: 2 }}
+              onClick={() =>
+                openConfirm(
+                  '¿Cerrar todos los abrazos sin finalizar de días anteriores?',
+                  () => { dispatch(showLoading(true)); dispatch(postResetAbrazosColgados()); },
+                )
+              }
+            >
+              Cerrar abrazos sin finalizar
+            </Button>
           </TabPanel>
 
           {/* ── 1: Asistencia ── */}
