@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -20,12 +21,16 @@ import {
   Typography,
 } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
+import TimerIcon from '@mui/icons-material/Timer';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -69,6 +74,20 @@ import { showLoading } from '../../redux/actions/loadingActions';
 
 const VIOLET = '#7A659B';
 const VIOLET_LIGHT = '#F3EEFF';
+const NAVY = '#152C70';
+
+const DIALOG_FULL_SX = {
+  maxWidth: 444,
+  width: '100%',
+  mx: 'auto',
+  height: '100dvh',
+  maxHeight: '100dvh',
+  m: 0,
+  borderRadius: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+};
 
 const MENU_ITEMS = [
   { label: 'Asignación', icon: <AssignmentIcon /> },
@@ -133,6 +152,7 @@ export const CoordinacionPage = () => {
   const [repIni, setRepIni] = useState(() => dayjs().startOf('month').format('YYYY-MM-DDTHH:mm'));
   const [repFin, setRepFin] = useState(() => dayjs().endOf('day').format('YYYY-MM-DDTHH:mm'));
   const [idAsistenciaDel, setIdAsistenciaDel] = useState('');
+  const [reporteOpen, setReporteOpen] = useState(false);
 
   // Usuarios
   const [usuarioForm, setUsuarioForm] = useState({ dni: '', contrasena: '', idVoluntaria: '' });
@@ -211,6 +231,12 @@ export const CoordinacionPage = () => {
       dispatch(getAssignmentToday());
     }
   }, [assignment?.putAssignmentById, assignment?.deleteAssignmentById, dispatch, toastOk]);
+
+  useEffect(() => {
+    if (volunteer?.getAssistanceReporte != null) {
+      setReporteOpen(true);
+    }
+  }, [volunteer?.getAssistanceReporte]);
 
   useEffect(() => {
     if (volunteer?.postAssistanceDelete != null) {
@@ -322,9 +348,22 @@ export const CoordinacionPage = () => {
   const asistenciaReporteRows = (() => {
     const raw = volunteer?.getAssistanceReporte;
     if (!raw) return null;
-    const d = raw?.data ?? raw;
-    if (Array.isArray(d)) return d;
+    const body = raw?.data ?? raw;
+    if (Array.isArray(body)) return body;
+    if (Array.isArray(body?.registros)) return body.registros;
+    if (Array.isArray(body?.data)) return body.data;
     return [];
+  })();
+
+  const asistenciaReporteMeta = (() => {
+    const raw = volunteer?.getAssistanceReporte;
+    if (!raw) return null;
+    const body = raw?.data ?? raw;
+    return {
+      fechaInicio: body?.fechaInicio ?? null,
+      fechaFin: body?.fechaFin ?? null,
+      total: body?.totalRegistros ?? asistenciaReporteRows?.length ?? 0,
+    };
   })();
 
   return (
@@ -496,6 +535,8 @@ export const CoordinacionPage = () => {
             />
             <Button
               variant="contained"
+              fullWidth
+              sx={{ bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
               onClick={() => {
                 dispatch(showLoading(true));
                 dispatch(
@@ -508,35 +549,6 @@ export const CoordinacionPage = () => {
             >
               Ver reporte
             </Button>
-            {asistenciaReporteRows !== null && (
-              <Box sx={{ mt: 2 }}>
-                {asistenciaReporteRows.length === 0 ? (
-                  <Typography variant="body2" color="text.secondary">
-                    Sin registros en el período.
-                  </Typography>
-                ) : (
-                  asistenciaReporteRows.map((r, i) => (
-                    <Box
-                      key={r.idAsistencia ?? i}
-                      sx={{ py: 0.75, borderBottom: '1px solid rgba(21,44,112,0.08)' }}
-                    >
-                      <Typography variant="body2" fontWeight={600}>
-                        {r.nombre ?? r.nombreVoluntaria ?? `Voluntaria #${r.idVoluntaria ?? i}`}{' '}
-                        {r.apellido ?? ''}
-                      </Typography>
-                      <Typography variant="caption" display="block" color="text.secondary">
-                        {r.fechaHoraIngreso
-                          ? `Entrada: ${new Date(r.fechaHoraIngreso).toLocaleString('es-AR')}`
-                          : '—'}
-                        {r.fechaHoraSalida
-                          ? ` · Salida: ${new Date(r.fechaHoraSalida).toLocaleString('es-AR')}`
-                          : ''}
-                      </Typography>
-                    </Box>
-                  ))
-                )}
-              </Box>
-            )}
             <Divider sx={{ my: 2 }} />
             <TextField
               label="ID de la asistencia"
@@ -1095,6 +1107,143 @@ export const CoordinacionPage = () => {
             Guardar
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Reporte de Asistencia Dialog */}
+      <Dialog
+        open={reporteOpen}
+        onClose={() => setReporteOpen(false)}
+        fullWidth
+        maxWidth={false}
+        PaperProps={{ sx: DIALOG_FULL_SX }}
+      >
+        {/* Header */}
+        <DialogTitle
+          sx={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            pr: 1, py: 1.75, px: 2.5,
+            background: 'linear-gradient(90deg, #7A659B 0%, #a54dff 100%)',
+            color: '#fff', flexShrink: 0,
+          }}
+        >
+          <Box>
+            <Typography component="span" sx={{ fontWeight: 700, fontSize: '1.05rem', display: 'block' }}>
+              Reporte de asistencia
+            </Typography>
+            {asistenciaReporteMeta && (
+              <Typography component="span" sx={{ fontSize: '0.75rem', opacity: 0.85, display: 'block' }}>
+                {asistenciaReporteMeta.fechaInicio && asistenciaReporteMeta.fechaFin
+                  ? `${asistenciaReporteMeta.fechaInicio} → ${asistenciaReporteMeta.fechaFin}`
+                  : ''}
+              </Typography>
+            )}
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {asistenciaReporteMeta?.total != null && (
+              <Chip
+                label={`${asistenciaReporteMeta.total} registros`}
+                size="small"
+                sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: '#fff', fontWeight: 700, fontSize: '0.72rem' }}
+              />
+            )}
+            <IconButton onClick={() => setReporteOpen(false)} sx={{ color: '#fff', minWidth: 44, minHeight: 44 }}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+
+        {/* Contenido scrollable */}
+        <DialogContent sx={{ flex: 1, overflowY: 'auto', p: 0, bgcolor: '#faf8fc' }}>
+          {!asistenciaReporteRows || asistenciaReporteRows.length === 0 ? (
+            <Box sx={{ p: 4, textAlign: 'center', pt: 8 }}>
+              <Typography sx={{ color: NAVY, fontWeight: 600, fontSize: '1rem' }}>
+                Sin registros en el período.
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ px: 2, pt: 2, pb: 4 }}>
+              {asistenciaReporteRows.map((r, i) => {
+                const nombre = [r.nombreVoluntaria ?? r.nombre, r.apellidoVoluntaria ?? r.apellido]
+                  .filter(Boolean).join(' ') || `Voluntaria #${r.idVoluntaria ?? i}`;
+                const ingreso = r.fechaHoraIngreso ? dayjs(r.fechaHoraIngreso).format('DD/MM/YYYY HH:mm') : null;
+                const salida = r.fechaHoraSalida ? dayjs(r.fechaHoraSalida).format('DD/MM/YYYY HH:mm') : null;
+                const enCentro = !!r.fechaHoraIngreso && !r.fechaHoraSalida;
+                const dur = r.duracionMinutos;
+                const durFmt = dur != null
+                  ? (dur < 60 ? `${Math.round(dur)} min` : `${Math.floor(dur / 60)} h ${Math.round(dur % 60)} min`)
+                  : null;
+
+                return (
+                  <Paper
+                    key={r.idAsistencia ?? i}
+                    elevation={0}
+                    sx={{
+                      p: 2, mb: 1.25, borderRadius: '14px',
+                      border: '1.5px solid rgba(122,101,155,0.14)',
+                      bgcolor: '#fff',
+                      boxShadow: '0 2px 10px rgba(21,44,112,0.06)',
+                    }}
+                  >
+                    {/* Nombre */}
+                    <Box sx={{ mb: 1.25 }}>
+                      <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: NAVY, lineHeight: 1.3 }}>
+                        {nombre}
+                      </Typography>
+                      {durFmt && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
+                          <TimerIcon sx={{ fontSize: 13, color: VIOLET }} />
+                          <Typography sx={{ fontSize: '0.75rem', color: VIOLET, fontWeight: 600 }}>
+                            {durFmt}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+
+                    {/* Ingreso / Salida */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ width: 28, height: 28, borderRadius: '8px', bgcolor: 'rgba(0,168,107,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <LoginIcon sx={{ fontSize: 15, color: '#00A86B' }} />
+                        </Box>
+                        <Box>
+                          <Typography sx={{ fontSize: '0.67rem', fontWeight: 700, color: 'rgba(21,44,112,0.42)', textTransform: 'uppercase', letterSpacing: '0.07em', lineHeight: 1 }}>
+                            Ingreso
+                          </Typography>
+                          <Typography sx={{ fontSize: '0.87rem', color: NAVY, fontWeight: 500, lineHeight: 1.3 }}>
+                            {ingreso ?? '—'}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ width: 28, height: 28, borderRadius: '8px', bgcolor: enCentro ? 'rgba(122,101,155,0.1)' : 'rgba(197,56,20,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <LogoutIcon sx={{ fontSize: 15, color: enCentro ? VIOLET : '#C53814' }} />
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box>
+                            <Typography sx={{ fontSize: '0.67rem', fontWeight: 700, color: 'rgba(21,44,112,0.42)', textTransform: 'uppercase', letterSpacing: '0.07em', lineHeight: 1 }}>
+                              Salida
+                            </Typography>
+                            <Typography sx={{ fontSize: '0.87rem', color: enCentro ? 'rgba(21,44,112,0.4)' : NAVY, fontStyle: enCentro ? 'italic' : 'normal', fontWeight: 500, lineHeight: 1.3 }}>
+                              {salida ?? 'Sin registrar'}
+                            </Typography>
+                          </Box>
+                          {enCentro && (
+                            <Chip
+                              label="En centro"
+                              size="small"
+                              sx={{ bgcolor: 'rgba(122,101,155,0.12)', color: VIOLET, fontWeight: 700, fontSize: '0.65rem', height: 20, '& .MuiChip-label': { px: 0.75 } }}
+                            />
+                          )}
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Paper>
+                );
+              })}
+            </Box>
+          )}
+        </DialogContent>
       </Dialog>
 
       {/* Edit Assignment Dialog */}
