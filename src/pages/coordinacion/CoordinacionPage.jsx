@@ -464,7 +464,16 @@ export const CoordinacionPage = () => {
               <Box sx={{ mb: 2 }}>
                 {asignacionesList.map((a) => {
                   const subject = a.nombreBebe ?? a.nombreTarea ?? `Asignación #${a.idAsignacion}`;
-                  const enProgreso = !!a.fechaHoraInicio && !a.fechaHoraFin;
+                  const estado = a.estadoAsignacion ?? (
+                    !a.fechaHoraInicio ? 'Creada'
+                    : !a.fechaHoraFin ? 'Iniciado'
+                    : 'Finalizado'
+                  );
+                  const estadoChip = {
+                    Creada:     { label: 'Creada',     bgcolor: 'rgba(0,0,0,0.06)',          color: '#666' },
+                    Iniciado:   { label: 'En curso',   bgcolor: 'rgba(255,152,0,0.13)',       color: '#E65100' },
+                    Finalizado: { label: 'Finalizado', bgcolor: 'rgba(0,168,107,0.1)',        color: '#00A86B' },
+                  }[estado] ?? { label: estado, bgcolor: 'rgba(0,0,0,0.06)', color: '#666' };
                   return (
                     <Box
                       key={a.idAsignacion}
@@ -478,17 +487,27 @@ export const CoordinacionPage = () => {
                       }}
                     >
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="body2" fontWeight={600} noWrap>
-                          {subject}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.25 }}>
+                          <Typography variant="body2" fontWeight={600} noWrap sx={{ flex: '0 1 auto', minWidth: 0 }}>
+                            {subject}
+                          </Typography>
+                          <Chip
+                            label={estadoChip.label}
+                            size="small"
+                            sx={{
+                              bgcolor: estadoChip.bgcolor,
+                              color: estadoChip.color,
+                              fontWeight: 600,
+                              fontSize: '0.62rem',
+                              height: 18,
+                              flexShrink: 0,
+                              '& .MuiChip-label': { px: 0.75 },
+                            }}
+                          />
+                        </Box>
                         <Typography variant="caption" color="text.secondary" display="block" noWrap>
                           {a.nombreVoluntaria ?? '—'}{a.nombreSala ? ` · ${a.nombreSala}` : ''}
                         </Typography>
-                        {enProgreso && (
-                          <Typography variant="caption" sx={{ color: '#00A86B', fontWeight: 600 }}>
-                            En progreso
-                          </Typography>
-                        )}
                       </Box>
                       <Box sx={{ display: 'flex', gap: 0.5 }}>
                         <IconButton
@@ -1024,11 +1043,11 @@ export const CoordinacionPage = () => {
                       ) : null}
                     </Box>
                     <Chip
-                      label={p.Activa ? 'Activo' : 'Inactivo'}
+                      label={(p.activa ?? p.Activa) ? 'Activo' : 'Inactivo'}
                       size="small"
                       sx={{
-                        bgcolor: p.Activa ? 'rgba(0,168,107,0.1)' : 'rgba(0,0,0,0.06)',
-                        color: p.Activa ? '#00A86B' : 'text.secondary',
+                        bgcolor: (p.activa ?? p.Activa) ? 'rgba(0,168,107,0.1)' : 'rgba(0,0,0,0.06)',
+                        color: (p.activa ?? p.Activa) ? '#00A86B' : 'text.secondary',
                         fontWeight: 600, fontSize: '0.65rem', height: 20,
                         '& .MuiChip-label': { px: 0.75 },
                       }}
@@ -1037,7 +1056,7 @@ export const CoordinacionPage = () => {
                       size="small"
                       onClick={() => {
                         setEditProveedor(p);
-                        setEditProveedorForm({ nombre: p.nombre ?? '', descripcion: p.descripcion ?? '', Activa: p.Activa ?? true });
+                        setEditProveedorForm({ nombre: p.nombre ?? '', descripcion: p.descripcion ?? '', Activa: p.activa ?? p.Activa ?? true });
                       }}
                     >
                       <EditOutlinedIcon fontSize="small" />
@@ -1113,11 +1132,11 @@ export const CoordinacionPage = () => {
                       {s.Nombre ?? s.nombre}
                     </Typography>
                     <Chip
-                      label={s.Activa ? 'Activa' : 'Inactiva'}
+                      label={(s.activa ?? s.Activa) ? 'Activa' : 'Inactiva'}
                       size="small"
                       sx={{
-                        bgcolor: s.Activa ? 'rgba(0,168,107,0.1)' : 'rgba(0,0,0,0.06)',
-                        color: s.Activa ? '#00A86B' : 'text.secondary',
+                        bgcolor: (s.activa ?? s.Activa) ? 'rgba(0,168,107,0.1)' : 'rgba(0,0,0,0.06)',
+                        color: (s.activa ?? s.Activa) ? '#00A86B' : 'text.secondary',
                         fontWeight: 600, fontSize: '0.65rem', height: 20,
                         '& .MuiChip-label': { px: 0.75 },
                       }}
@@ -1126,7 +1145,7 @@ export const CoordinacionPage = () => {
                       size="small"
                       onClick={() => {
                         setEditSala(s);
-                        setEditSalaForm({ Nombre: s.Nombre ?? s.nombre ?? '', Activa: s.Activa ?? true });
+                        setEditSalaForm({ Nombre: s.Nombre ?? s.nombre ?? '', Activa: s.activa ?? s.Activa ?? true });
                       }}
                     >
                       <EditOutlinedIcon fontSize="small" />
@@ -1403,19 +1422,19 @@ export const CoordinacionPage = () => {
         onClose={() => setEditAsig(null)}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0' } }}
+        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: '90dvh', display: 'flex', flexDirection: 'column' } }}
         sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25, flexShrink: 0 }}>
           <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'rgba(21,44,112,0.15)' }} />
         </Box>
-        <DialogTitle sx={{ fontWeight: 700, color: '#152C70', pb: 0.5 }}>
+        <DialogTitle sx={{ fontWeight: 700, color: '#152C70', pb: 0.5, flexShrink: 0 }}>
           Editar asignación #{editAsig?.idAsignacion}
           <Typography variant="body2" color="text.secondary" fontWeight={400}>
             {editAsig?.nombreBebe ?? editAsig?.nombreTarea ?? '—'} · {editAsig?.nombreVoluntaria ?? '—'}
           </Typography>
         </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
+        <DialogContent sx={{ pt: 2.5, overflowY: 'auto' }}>
           <TextField
             label="Comentario"
             value={editAsigComentario}
@@ -1494,7 +1513,7 @@ export const CoordinacionPage = () => {
         onClose={() => setEditProveedor(null)}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0' } }}
+        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: '90dvh', display: 'flex', flexDirection: 'column' } }}
         sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25 }}>
@@ -1503,7 +1522,7 @@ export const CoordinacionPage = () => {
         <DialogTitle sx={{ fontWeight: 700, color: NAVY, pb: 0.5 }}>
           Editar proveedor
         </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
+        <DialogContent sx={{ pt: 2.5 }}>
           <TextField
             label="Nombre *"
             value={editProveedorForm.nombre}
@@ -1558,7 +1577,7 @@ export const CoordinacionPage = () => {
         onClose={() => setEditSala(null)}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0' } }}
+        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: '90dvh', display: 'flex', flexDirection: 'column' } }}
         sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25 }}>
@@ -1567,7 +1586,7 @@ export const CoordinacionPage = () => {
         <DialogTitle sx={{ fontWeight: 700, color: NAVY, pb: 0.5 }}>
           Editar sala
         </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
+        <DialogContent sx={{ pt: 2.5 }}>
           <TextField
             label="Nombre *"
             value={editSalaForm.Nombre}

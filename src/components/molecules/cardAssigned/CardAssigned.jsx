@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Chip, Paper, Typography } from '@mui/material';
 import ChildCareIcon from '@mui/icons-material/ChildCare';
 import PersonIcon from '@mui/icons-material/Person';
 import RoomIcon from '@mui/icons-material/Room';
@@ -8,10 +8,22 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const NAVY = '#152C70';
 
+const ESTADO_CHIP = {
+    Creada:     { label: 'Creada',     bgcolor: 'rgba(0,0,0,0.07)',          color: '#666' },
+    Iniciado:   { label: 'En curso',   bgcolor: 'rgba(255,152,0,0.13)',       color: '#E65100' },
+    Finalizado: { label: 'Finalizado', bgcolor: 'rgba(0,168,107,0.1)',        color: '#00A86B' },
+};
+
 const CardAssigned = ({ item, onClick }) => {
     const isTask = !item.nombreBebe && !!item.nombreTarea;
     const subject = item.nombreBebe ?? item.nombreTarea ?? '—';
     const sala = item.nombreSala;
+    const estado = item.estadoAsignacion ?? (
+        !item.fechaHoraInicio ? 'Creada'
+        : !item.fechaHoraFin ? 'Iniciado'
+        : 'Finalizado'
+    );
+    const chip = ESTADO_CHIP[estado] ?? { label: estado, bgcolor: 'rgba(0,0,0,0.07)', color: '#666' };
 
     return (
         <Paper
@@ -42,6 +54,19 @@ const CardAssigned = ({ item, onClick }) => {
                 <Typography sx={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem', lineHeight: 1.3, flex: 1 }}>
                     {subject}
                 </Typography>
+                <Chip
+                    label={chip.label}
+                    size="small"
+                    sx={{
+                        bgcolor: 'rgba(255,255,255,0.22)',
+                        color: '#fff',
+                        fontWeight: 700,
+                        fontSize: '0.62rem',
+                        height: 20,
+                        flexShrink: 0,
+                        '& .MuiChip-label': { px: 0.75 },
+                    }}
+                />
                 <ChevronRightIcon sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 18, flexShrink: 0 }} />
             </Box>
 

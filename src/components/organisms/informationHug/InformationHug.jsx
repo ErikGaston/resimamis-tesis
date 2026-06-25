@@ -1,145 +1,197 @@
-import React from 'react'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import { IconButton, Button, Divider } from '@mui/material';
-import styled from '@emotion/styled';
+import React from 'react';
+import {
+    Box, Button, Chip, Dialog, DialogContent,
+    IconButton, TextField, Typography,
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import ChildCareIcon from '@mui/icons-material/ChildCare';
+import RoomIcon from '@mui/icons-material/Room';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import StopIcon from '@mui/icons-material/Stop';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import TitleText from '../../atoms/titleText/TitleText';
 import ButtonCustomized from '../../atoms/button/ButtonCustomized';
-import LabelInput from '../../molecules/labelInput/LabelInput';
-import DialogInsumo from '../../organisms/dialogInsumo/DialogInsumo';
+import DialogInsumo from '../dialogInsumo/DialogInsumo';
 import InsumoQuantity from '../../molecules/insumoQuantity/InsumoQuantity';
 
-const InformationHug = (props) => {
-    const { model, setModel, submitEndHug, hug, changeStateInsumo, stateInsumo, setStateInsumo, listSupplies, setListSupplies, submitChangeSupplies, setChangeInformationHug } = props;
+const NAVY = '#152C70';
+const PURPLE = '#7F00FF';
+const GRADIENT = 'linear-gradient(135deg, #7F00FF 0%, #E100FF 100%)';
 
-    const functionBack = () => {
-        setChangeInformationHug(false)
-    }
+const FULL_DIALOG_SX = {
+    maxWidth: 444,
+    width: '100%',
+    mx: 'auto',
+    height: '100dvh',
+    maxHeight: '100dvh',
+    m: 0,
+    borderRadius: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+};
+
+const InformationHug = (props) => {
+    const {
+        open, onClose,
+        model, setModel, submitEndHug, hug,
+        changeStateInsumo, stateInsumo, setStateInsumo,
+        listSupplies, setListSupplies, submitChangeSupplies,
+    } = props;
 
     const onChangeText = (e) => {
         const { name, value } = e.target;
-        setModel({ ...model, [name]: value })
-    }
+        setModel({ ...model, [name]: value });
+    };
+
+    const hasInsumos = Array.isArray(listSupplies) && listSupplies.some((i) => Number(i?.cantidad) > 0);
 
     return (
-        <div style={{ height: '100%' }}>
-            <div style={{ display: 'flex' }}>
-                <IconButton onClick={functionBack}>
-                    <ArrowBackIcon style={{ color: '#8F00FF' }} />
-                </IconButton>
-                <TitleText fontsize={'20px'} style={{ width: '85%', color: '#8F00FF' }}>ABRAZO</TitleText>
-            </div>
-            <div style={{ padding: '10px' }}>
-                <div style={{ padding: '10px 0' }}>
-                    <Title>
-                        Bebé
-                    </Title>
-                    <ContainerText>
-                        <Subtitle>
-                            {hug?.nombreBebe}
-                        </Subtitle>
-                        {/* <Button style={{ textTransform: 'inherit' }}
-                    // onClick={selectVolunteersFree}
+        <>
+            <Dialog
+                open={Boolean(open)}
+                onClose={onClose}
+                fullWidth
+                maxWidth={false}
+                PaperProps={{ sx: FULL_DIALOG_SX }}
+            >
+                {/* Gradient header */}
+                <Box sx={{
+                    background: GRADIENT,
+                    flexShrink: 0,
+                    px: 2.5, pt: 2, pb: 2,
+                    display: 'flex', alignItems: 'center', gap: 1.25,
+                }}>
+                    <Box sx={{
+                        width: 40, height: 40, borderRadius: '12px',
+                        bgcolor: 'rgba(255,255,255,0.2)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    }}>
+                        <ChildCareIcon sx={{ color: '#fff', fontSize: 20 }} />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: '1.05rem', color: '#fff', lineHeight: 1.2 }}>
+                            {hug?.nombreBebe ?? 'Abrazo'}
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.75)', mt: 0.2 }}>
+                            Finalizar abrazo
+                        </Typography>
+                    </Box>
+                    <IconButton onClick={onClose} sx={{ color: '#fff', minWidth: 44, minHeight: 44 }}>
+                        <CloseIcon />
+                    </IconButton>
+                </Box>
+
+                {/* Scrollable content */}
+                <DialogContent sx={{ flex: 1, overflowY: 'auto', px: 2.5, pt: 2.5, pb: 2, bgcolor: '#faf8fc' }}>
+
+                    {/* Sala */}
+                    {(hug?.nombreSala ?? hug?.sala) && (
+                        <Box sx={{
+                            display: 'flex', alignItems: 'center', gap: 1,
+                            mb: 2, px: 1.5, py: 1,
+                            bgcolor: '#fff', borderRadius: '10px',
+                            border: '1px solid rgba(127,0,255,0.1)',
+                        }}>
+                            <RoomIcon sx={{ fontSize: 16, color: PURPLE }} />
+                            <Typography sx={{ fontSize: '0.88rem', color: NAVY, fontWeight: 500 }}>
+                                Sala {hug.nombreSala ?? hug.sala}
+                            </Typography>
+                        </Box>
+                    )}
+
+                    {/* Comentario */}
+                    <TextField
+                        name="comentario"
+                        label="Comentario (opcional)"
+                        value={model?.comentario || ''}
+                        onChange={onChangeText}
+                        fullWidth
+                        multiline
+                        rows={3}
+                        sx={{ mb: 2.5, bgcolor: '#fff', borderRadius: '10px' }}
+                    />
+
+                    {/* Insumos ya registrados */}
+                    {hasInsumos && (
+                        <>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                <InventoryIcon sx={{ fontSize: 15, color: PURPLE }} />
+                                <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(21,44,112,0.42)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                                    Insumos registrados
+                                </Typography>
+                            </Box>
+                            <Box sx={{ mb: 2 }}>
+                                {listSupplies
+                                    .filter((i) => Number(i?.cantidad) > 0)
+                                    .map((i) => (
+                                        <Box key={i.idInsumo} sx={{
+                                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                            py: 0.6, px: 1.5, mb: 0.5,
+                                            borderRadius: '8px', bgcolor: 'rgba(127,0,255,0.05)',
+                                            border: '1px solid rgba(127,0,255,0.1)',
+                                        }}>
+                                            <Typography sx={{ fontSize: '0.85rem', color: NAVY, fontWeight: 500 }}>
+                                                {i.nombre}
+                                            </Typography>
+                                            <Chip
+                                                label={`×${Number(i.cantidad)}`}
+                                                size="small"
+                                                sx={{ bgcolor: 'rgba(127,0,255,0.12)', color: PURPLE, fontWeight: 700, fontSize: '0.72rem', height: 20, '& .MuiChip-label': { px: 0.75 } }}
+                                            />
+                                        </Box>
+                                    ))}
+                            </Box>
+                        </>
+                    )}
+
+                    {/* Agregar insumo */}
+                    <Button
+                        variant="outlined"
+                        fullWidth
+                        startIcon={<AddCircleOutlineIcon />}
+                        onClick={changeStateInsumo}
+                        sx={{
+                            borderColor: 'rgba(127,0,255,0.3)',
+                            color: PURPLE,
+                            minHeight: 44,
+                            borderRadius: '10px',
+                            fontWeight: 600,
+                            fontSize: '0.9rem',
+                            textTransform: 'none',
+                            '&:hover': { bgcolor: 'rgba(127,0,255,0.04)', borderColor: 'rgba(127,0,255,0.55)' },
+                        }}
                     >
-                        <TitleButton style={{ fontWeight: 600, margin: '0px' }}>
-                            Ver perfil
-                        </TitleButton>
-                    </Button> */}
-                    </ContainerText>
-                    <Divider />
-                </div>
-
-                <div style={{ padding: '10px 0' }}>
-                    <Title>
-                        Sala de internación
-                    </Title>
-                    <ContainerText>
-                        <Subtitle>
-                            {hug?.sala}
-                        </Subtitle>
-                    </ContainerText>
-                    <Divider />
-                </div>
-
-                {/* <div style={{ padding: '10px 0' }}>
-                    <Title>
-                        Mamá
-                    </Title>
-                    <ContainerText>
-                        <Subtitle>
-                            {hug?.idMadre}
-                        </Subtitle>
-                        <Button style={{ textTransform: 'inherit' }}
-                        // onClick={selectVolunteersFree}
-                        >
-                            <TitleButton style={{ fontWeight: 600, margin: '0px' }}>
-                                Ver perfil
-                            </TitleButton>
-                        </Button>
-                    </ContainerText>
-                    <Divider />
-                </div> */}
-
-            </div>
-            <div style={{ padding: '10px' }}>
-                <LabelInput
-                    name='comentario'
-                    label='Comentario'
-                    value={model?.comentario || ''}
-                    onChange={onChangeText}
-                    labelColor={'#152C70'}
-                    inputColor={'#152C70'}
-                    styleLabel={{ fontSize: '16px' }}
-                    multiline
-                    rows={3}
-                />
-            </div>
-            {Array.isArray(listSupplies) && listSupplies.some((i) => Number(i?.cantidad) > 0) && (
-                <div style={{ padding: '0 10px 10px' }}>
-                    <Title>Insumos registrados en este abrazo</Title>
-                    {listSupplies
-                        .filter((i) => Number(i?.cantidad) > 0)
-                        .map((i) => (
-                            <ContainerText key={i.idInsumo} style={{ marginTop: 6 }}>
-                                <Subtitle>
-                                    {i.nombre}
-                                </Subtitle>
-                                <Subtitle style={{ fontWeight: 600 }}>
-                                    {Number(i.cantidad)} u.
-                                </Subtitle>
-                            </ContainerText>
-                        ))}
-                    <Divider style={{ marginTop: 10 }} />
-                </div>
-            )}
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-                <Button style={{ textTransform: 'inherit' }}
-                    onClick={changeStateInsumo}
-                >
-                    <TitleButton>
                         Agregar insumo
-                    </TitleButton>
-                    <AddCircleOutlineIcon style={{ color: true ? '#8F00FF' : '#CECECE', marginLeft: '10px' }} />
-                </Button>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-                <ButtonCustomized
-                    variant={'container'}
-                    // colorButton={'#18A974'}
-                    colorText={'#FFF'}
-                    sx={{
-                        width: '70%',
-                        fontSize: '16px',
-                        background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
-                        boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)'
-                    }}
-                    onClick={() => submitEndHug(hug?.idAsignacion)}
-                >
-                    FINALIZAR ABRAZO
-                </ButtonCustomized>
-            </div>
-            {stateInsumo === 'OPEN' &&
+                    </Button>
+                </DialogContent>
+
+                {/* Fixed footer */}
+                <Box sx={{ px: 2.5, pb: 2.5, pt: 1.5, bgcolor: '#fff', flexShrink: 0 }}>
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        startIcon={<StopIcon />}
+                        onClick={() => submitEndHug(hug?.idAsignacion)}
+                        sx={{
+                            background: GRADIENT,
+                            minHeight: 50,
+                            borderRadius: '12px',
+                            fontWeight: 700,
+                            fontSize: '1rem',
+                            textTransform: 'none',
+                            boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
+                            '&:hover': { opacity: 0.88 },
+                        }}
+                    >
+                        Finalizar abrazo
+                    </Button>
+                </Box>
+            </Dialog>
+
+            {/* Nested: agregar insumo */}
+            {stateInsumo === 'OPEN' && (
                 <DialogInsumo
                     open={stateInsumo === 'OPEN'}
                     setOpen={setStateInsumo}
@@ -165,13 +217,12 @@ const InformationHug = (props) => {
                             <div style={{ textAlign: 'center', marginTop: '40px' }}>
                                 <ButtonCustomized
                                     variant={'container'}
-                                    // colorButton={'#18A974'}
                                     colorText={'#FFF'}
                                     sx={{
                                         width: '70%',
                                         fontSize: '16px',
                                         background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
-                                        boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)'
+                                        boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)',
                                     }}
                                     onClick={() => submitChangeSupplies(listSupplies, hug?.idAsignacion)}
                                 >
@@ -181,45 +232,9 @@ const InformationHug = (props) => {
                         </>
                     }
                 />
-            }
-        </div>
-    )
-}
+            )}
+        </>
+    );
+};
 
 export default InformationHug;
-
-const Title = styled('h3')`
-            color: #152C70;
-            font-family: Roboto;
-            font-size: 16px;
-            font-style: normal;
-            font-weight: bold;
-            line-height: normal;
-            letter-spacing: 0.8px;
-            margin-top:10px;
-            `;
-
-const ContainerText = styled('div')`
-            display:flex;
-            justify-content:space-between;
-            `;
-
-const Subtitle = styled('span')`
-            color: #152C70;
-            font-family: Roboto;
-            font-size: 14px;
-            font-style: normal;
-            line-height: normal;
-            letter-spacing: 0.8px;
-            padding-bottom: 5px;
-            `;
-
-const TitleButton = styled('h3')`
-            color: #8F00FF;
-            font-family: Roboto;
-            font-size: 16px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: normal;
-            letter-spacing: 0.8px;
-            `;

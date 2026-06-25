@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import CardAssigned from '../../molecules/cardAssigned/CardAssigned';
 import {
     Box,
+    Button,
     Chip,
     Dialog,
     DialogContent,
@@ -19,23 +20,31 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import CommentIcon from '@mui/icons-material/Comment';
 import dayjs from 'dayjs';
 import styled from '@emotion/styled';
 
 const NAVY = '#152C70';
 const PURPLE = '#7F00FF';
+const GRADIENT = 'linear-gradient(135deg, #7F00FF 0%, #E100FF 100%)';
 
-const BOTTOM_SHEET_SX = {
+const FULL_DIALOG_SX = {
     maxWidth: 444,
     width: '100%',
     mx: 'auto',
-    mb: 0,
-    mt: 'auto',
-    borderRadius: '20px 20px 0 0',
+    height: '100dvh',
+    maxHeight: '100dvh',
+    m: 0,
+    borderRadius: 0,
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-    maxHeight: '88dvh',
+};
+
+const ESTADO_CONFIG = {
+    Creada:     { label: 'Creada',     bg: 'rgba(0,0,0,0.07)',          color: '#666' },
+    Iniciado:   { label: 'En curso',   bg: 'rgba(255,152,0,0.13)',       color: '#E65100' },
+    Finalizado: { label: 'Finalizado', bg: 'rgba(0,168,107,0.1)',        color: '#00A86B' },
 };
 
 function fmt(iso) {
@@ -67,114 +76,102 @@ function DetailRow({ icon, label, value, valueColor }) {
     );
 }
 
-function AssignmentBottomSheet({ item, onClose }) {
+function AssignmentFullDialog({ item, onClose, onStartHug }) {
     if (!item) return null;
 
     const isTask = !item.nombreBebe && !!item.nombreTarea;
     const subject = item.nombreBebe ?? item.nombreTarea ?? '—';
+    const estado = item.estadoAsignacion ?? (
+        !item.fechaHoraInicio ? 'Creada' : !item.fechaHoraFin ? 'Iniciado' : 'Finalizado'
+    );
+    const estadoCfg = ESTADO_CONFIG[estado] ?? { label: estado, bg: 'rgba(0,0,0,0.07)', color: '#666' };
+
     const inicio = fmt(item.fechaHoraInicio);
     const fin = fmt(item.fechaHoraFin);
     const creada = fmt(item.fechaHoraAsignacion);
-    const enProgreso = !!item.fechaHoraInicio && !item.fechaHoraFin;
+    const canStart = estado === 'Creada' && typeof onStartHug === 'function';
 
     return (
         <Dialog
             open={Boolean(item)}
             onClose={onClose}
-            sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
             fullWidth
             maxWidth={false}
-            PaperProps={{ sx: BOTTOM_SHEET_SX }}
+            PaperProps={{ sx: FULL_DIALOG_SX }}
         >
-            {/* Handle bar */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25, bgcolor: '#fff', flexShrink: 0 }}>
-                <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'rgba(21,44,112,0.15)' }} />
-            </Box>
-
-            {/* Header */}
+            {/* Header gradient */}
             <Box sx={{
+                background: GRADIENT,
+                flexShrink: 0,
+                pt: 2, pb: 2, px: 2.5,
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                px: 2.5, py: 1.5, bgcolor: '#fff', flexShrink: 0,
             }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
                     <Box sx={{
-                        width: 36, height: 36, borderRadius: '10px',
-                        background: 'linear-gradient(135deg, #7F00FF 0%, #E100FF 100%)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        width: 40, height: 40, borderRadius: '12px',
+                        bgcolor: 'rgba(255,255,255,0.2)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                     }}>
                         {isTask
-                            ? <AssignmentIcon sx={{ fontSize: 18, color: '#fff' }} />
-                            : <ChildCareIcon sx={{ fontSize: 18, color: '#fff' }} />
+                            ? <AssignmentIcon sx={{ color: '#fff', fontSize: 20 }} />
+                            : <ChildCareIcon sx={{ color: '#fff', fontSize: 20 }} />
                         }
                     </Box>
                     <Box>
-                        <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: NAVY, lineHeight: 1.2 }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: '1.05rem', color: '#fff', lineHeight: 1.2 }}>
                             {subject}
                         </Typography>
-                        <Typography sx={{ fontSize: '0.72rem', color: 'rgba(21,44,112,0.45)', fontWeight: 500 }}>
-                            ID #{item.idAsignacion}
+                        <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.75)', mt: 0.2 }}>
+                            Asignación #{item.idAsignacion}
                         </Typography>
                     </Box>
                 </Box>
-                <IconButton onClick={onClose} size="small" sx={{ color: NAVY, minWidth: 36, minHeight: 36 }}>
-                    <CloseIcon fontSize="small" />
+                <IconButton onClick={onClose} sx={{ color: '#fff', minWidth: 44, minHeight: 44 }}>
+                    <CloseIcon />
                 </IconButton>
             </Box>
 
-            {/* Estado chip */}
-            <Box sx={{ px: 2.5, pb: 1.25, bgcolor: '#fff', flexShrink: 0, display: 'flex', gap: 1, alignItems: 'center' }}>
-                {enProgreso && (
-                    <Chip
-                        label="En progreso"
-                        size="small"
-                        sx={{ bgcolor: 'rgba(0,168,107,0.12)', color: '#00A86B', fontWeight: 700, fontSize: '0.7rem', height: 22 }}
-                    />
-                )}
-                {item.estadoAsignacion && (
-                    <Chip
-                        label={item.estadoAsignacion}
-                        size="small"
-                        sx={{ bgcolor: 'rgba(127,0,255,0.10)', color: PURPLE, fontWeight: 700, fontSize: '0.7rem', height: 22 }}
-                    />
-                )}
+            {/* Estado */}
+            <Box sx={{ px: 2.5, py: 1.25, bgcolor: '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Chip
+                    label={estadoCfg.label}
+                    size="small"
+                    sx={{ bgcolor: estadoCfg.bg, color: estadoCfg.color, fontWeight: 700, fontSize: '0.75rem', height: 24 }}
+                />
             </Box>
 
-            <Divider sx={{ mx: 2.5, borderColor: 'rgba(143,0,255,0.1)' }} />
+            <Divider sx={{ borderColor: 'rgba(143,0,255,0.1)' }} />
 
-            {/* Contenido scrollable */}
-            <DialogContent sx={{ px: 2.5, py: 1.5, overflowY: 'auto', flex: 1 }}>
-                <DetailRow
-                    icon={<PersonIcon />}
-                    label="Voluntaria"
-                    value={item.nombreVoluntaria}
-                />
+            {/* Contenido */}
+            <DialogContent sx={{ flex: 1, overflowY: 'auto', px: 2.5, py: 1.5, bgcolor: '#faf8fc' }}>
+                <DetailRow icon={<PersonIcon />} label="Voluntaria" value={item.nombreVoluntaria} />
                 {item.nombreSala && (
-                    <DetailRow
-                        icon={<RoomIcon />}
-                        label="Sala"
-                        value={item.nombreSala}
-                    />
+                    <DetailRow icon={<RoomIcon />} label="Sala" value={item.nombreSala} />
                 )}
+
                 <Divider sx={{ my: 0.75, borderColor: 'rgba(143,0,255,0.08)' }} />
-                <DetailRow
-                    icon={<AccessTimeIcon />}
-                    label="Asignada"
-                    value={creada}
-                />
+
+                <DetailRow icon={<AccessTimeIcon />} label="Asignada" value={creada} />
                 <DetailRow
                     icon={<PlayArrowIcon />}
                     label="Inicio abrazo"
-                    value={inicio ?? 'Pendiente'}
+                    value={inicio ?? '—'}
                     valueColor={inicio ? NAVY : 'rgba(21,44,112,0.4)'}
                 />
                 <DetailRow
                     icon={<StopIcon />}
                     label="Fin abrazo"
-                    value={fin ?? (enProgreso ? 'En progreso' : 'Sin finalizar')}
-                    valueColor={fin ? NAVY : (enProgreso ? '#00A86B' : 'rgba(21,44,112,0.4)')}
+                    value={fin ?? '—'}
+                    valueColor={fin ? NAVY : 'rgba(21,44,112,0.4)'}
                 />
 
-                {/* Insumos */}
+                {item.comentario && (
+                    <>
+                        <Divider sx={{ my: 0.75, borderColor: 'rgba(143,0,255,0.08)' }} />
+                        <DetailRow icon={<CommentIcon />} label="Comentario" value={item.comentario} />
+                    </>
+                )}
+
                 {item.detalles?.length > 0 && (
                     <>
                         <Divider sx={{ my: 1, borderColor: 'rgba(143,0,255,0.08)' }} />
@@ -204,11 +201,38 @@ function AssignmentBottomSheet({ item, onClose }) {
                     </>
                 )}
             </DialogContent>
+
+            {/* Acción iniciar abrazo */}
+            {canStart && (
+                <Box sx={{ px: 2.5, pb: 2.5, pt: 1.5, bgcolor: '#fff', flexShrink: 0 }}>
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        startIcon={<PlayArrowIcon />}
+                        sx={{
+                            background: GRADIENT,
+                            minHeight: 50,
+                            borderRadius: '12px',
+                            fontWeight: 700,
+                            fontSize: '1rem',
+                            textTransform: 'none',
+                            boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
+                            '&:hover': { background: 'linear-gradient(135deg, #6A00D6 0%, #C200CC 100%)' },
+                        }}
+                        onClick={() => {
+                            onStartHug(item.idAsignacion);
+                            onClose();
+                        }}
+                    >
+                        Iniciar abrazo
+                    </Button>
+                </Box>
+            )}
         </Dialog>
     );
 }
 
-const AssignedList = ({ listAssignedVolunteer, setChangeAssignedList }) => {
+const AssignedList = ({ listAssignedVolunteer, setChangeAssignedList, submitStartHug }) => {
     const [selectedItem, setSelectedItem] = useState(null);
 
     return (
@@ -230,9 +254,10 @@ const AssignedList = ({ listAssignedVolunteer, setChangeAssignedList }) => {
                 ))}
             </div>
 
-            <AssignmentBottomSheet
+            <AssignmentFullDialog
                 item={selectedItem}
                 onClose={() => setSelectedItem(null)}
+                onStartHug={submitStartHug}
             />
         </div>
     );

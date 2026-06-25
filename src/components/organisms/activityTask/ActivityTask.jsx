@@ -4,7 +4,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import styled from '@emotion/styled';
 import img from '../../../assets/tasks/asistencia-abrazo.png';
 import CardBabyHug from '../../molecules/cardBabyHug/CardBabyHug';
-import { getIdVolunteer } from '../../../utils/localStorage';
 
 const GRADIENT = 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)';
 
@@ -61,10 +60,7 @@ const ActivityTask = ({
     onShowAssistanceHistoricas,
     onAssignmentDetail,
 }) => {
-    const idVolunteer = getIdVolunteer();
-    const existAssigned = listAssignmentVolunteer?.find(
-        (item) => item.idVoluntaria === idVolunteer && item.fechaHoraFin === null,
-    );
+    const existAssigned = listAssignmentVolunteer?.length > 0;
 
     return (
         <Box sx={{ px: 2.5, pt: 2, pb: 2 }}>
@@ -126,20 +122,16 @@ const ActivityTask = ({
             {/* ── ABRAZOS DEL DÍA ── */}
             <SectionLabel>Abrazos del día</SectionLabel>
             {check ? (
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 1 }}>
-                    {listAssignmentVolunteer?.map((item) =>
-                        item.idVoluntaria === idVolunteer && item.fechaHoraFin === null ? (
-                            <CardBabyHug
-                                key={item.idAsignacion ?? item.id}
-                                item={item}
-                                name={item.nombreBebe}
-                                hall={item.sala}
-                                editHug={editHug}
-                                submitStartHug={submitStartHug}
-                                onAssignmentDetail={onAssignmentDetail}
-                            />
-                        ) : null,
-                    )}
+                <Box sx={{ display: 'flex', flexDirection: 'column', mt: 1 }}>
+                    {listAssignmentVolunteer?.map((item) => (
+                        <CardBabyHug
+                            key={item.idAsignacion ?? item.id}
+                            item={item}
+                            editHug={editHug}
+                            submitStartHug={submitStartHug}
+                            onAssignmentDetail={onAssignmentDetail}
+                        />
+                    ))}
                     {!existAssigned && (
                         <TextImage>No hay asignaciones para el día de hoy.</TextImage>
                     )}

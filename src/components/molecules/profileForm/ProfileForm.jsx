@@ -19,6 +19,7 @@ const ProfileForm = ({
     edit = false,
     fieldErrors = {},
     setFieldErrors,
+    myProfile = false,
 }) => {
     const m = model || {}
 
@@ -128,6 +129,7 @@ const ProfileForm = ({
                     disabled={!edit}
                     inputProps={{ maxLength: VOLUNTEER_NAME_MAX }}
                 />
+            {!myProfile && (
             <LabelInput
                 name='dni'
                 label='DNI'
@@ -142,6 +144,7 @@ const ProfileForm = ({
                 disabled={!edit}
                 inputProps={{ maxLength: VOLUNTEER_DNI_LEN, inputMode: 'numeric' }}
             />
+            )}
             <LabelInput
                 name='mail'
                 label='E-mail'
@@ -170,6 +173,8 @@ const ProfileForm = ({
                 disabled={!edit}
                 inputProps={{ maxLength: 16 }}
             />
+            {!myProfile && (
+            <>
             <LabelDate
                 label={'Fecha de nacimiento'}
                 inputFormat="DD/MM/YYYY"
@@ -212,6 +217,8 @@ const ProfileForm = ({
                 error={!!fieldErrors.fechaFin}
                 helperText={fieldErrors.fechaFin}
             />
+            </>
+            )}
         </div>
     )
 }

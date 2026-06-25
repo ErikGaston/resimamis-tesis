@@ -182,14 +182,20 @@ export const TasksPage = () => {
     }
 
     const submitChangeSupplies = (list, idAsignacion) => {
-        if (!list?.length) {
+        if (!idAsignacion) {
+            dispatch(showToast({ message: 'Error: no se pudo identificar la asignación.', severity: 'error' }));
+            return;
+        }
+        const activeItems = (list ?? []).filter((item) => Number(item?.cantidad) > 0);
+        if (!activeItems.length) {
+            dispatch(showToast({ message: 'Seleccioná al menos un insumo antes de registrar.', severity: 'info' }));
             return;
         }
         dispatch(showLoading(true));
-        const payload = list.map((item) => ({
-            idAsignacion,
+        const payload = activeItems.map((item) => ({
+            idAsignacion: Number(idAsignacion),
             idInsumo: item.idInsumo,
-            cantidadInsumo: item.cantidad,
+            cantidadInsumo: Number(item.cantidad),
         }));
         dispatch(postDetailAssignment(payload));
     }

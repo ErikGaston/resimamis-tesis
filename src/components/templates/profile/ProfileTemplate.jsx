@@ -54,12 +54,60 @@ export const ProfileTemplate = ({
   fieldErrors,
   setFieldErrors,
   profileBabyExtras,
+  disableAccordion = false,
+  myProfile = false,
+  hideHeader = false,
 }) => {
   const headerTitle = [model?.nombre, model?.apellido].filter(Boolean).join(' ').trim() || 'Perfil'
 
+  const volunteerFormContent = (
+    <>
+      <ProfileForm
+        model={model}
+        setModel={setModel}
+        error={error}
+        edit={editForm}
+        fieldErrors={fieldErrors}
+        setFieldErrors={setFieldErrors}
+        myProfile={myProfile}
+      />
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
+        {!editForm ? (
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={() => setEditForm(true)}
+            sx={btnEdit}
+          >
+            Editar voluntaria
+          </Button>
+        ) : (
+          <>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={submit}
+              sx={btnSave}
+            >
+              Guardar cambios
+            </Button>
+            <Button
+              variant="outlined"
+              fullWidth
+              onClick={() => setEditForm(false)}
+              sx={btnCancel}
+            >
+              Cancelar
+            </Button>
+          </>
+        )}
+      </Box>
+    </>
+  )
+
   return (
     <>
-      <PageHeader title={headerTitle} />
+      {!hideHeader && <PageHeader title={headerTitle} />}
 
       {type === "MOTHER" && (
         <Box sx={{ px: 2.5, pt: 1, pb: 1 }}>
@@ -84,59 +132,21 @@ export const ProfileTemplate = ({
 
       {type === "VOLUNTEER" && (
         <Box sx={{ px: 2.5, pt: 1, pb: 1 }}>
-          <AccordionCustomized
-            item="datos-voluntaria"
-            defaultExpanded={false}
-            expandIcon={<ExpandCircleDownIcon style={{ color: '#8F00FF' }} />}
-            summary={
-              <TitleAccordion>
-                {`Datos de la voluntaria: ${headerTitle}`}
-              </TitleAccordion>
-            }
-            details={
-              <>
-                <ProfileForm
-                  model={model}
-                  setModel={setModel}
-                  error={error}
-                  edit={editForm}
-                  fieldErrors={fieldErrors}
-                  setFieldErrors={setFieldErrors}
-                />
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
-                  {!editForm ? (
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      onClick={() => setEditForm(true)}
-                      sx={btnEdit}
-                    >
-                      Editar voluntaria
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        variant="contained"
-                        fullWidth
-                        onClick={submit}
-                        sx={btnSave}
-                      >
-                        Guardar cambios
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        fullWidth
-                        onClick={() => setEditForm(false)}
-                        sx={btnCancel}
-                      >
-                        Cancelar
-                      </Button>
-                    </>
-                  )}
-                </Box>
-              </>
-            }
-          />
+          {disableAccordion ? (
+            volunteerFormContent
+          ) : (
+            <AccordionCustomized
+              item="datos-voluntaria"
+              defaultExpanded={false}
+              expandIcon={<ExpandCircleDownIcon style={{ color: '#8F00FF' }} />}
+              summary={
+                <TitleAccordion>
+                  {`Datos de la voluntaria: ${headerTitle}`}
+                </TitleAccordion>
+              }
+              details={volunteerFormContent}
+            />
+          )}
         </Box>
       )}
     </>

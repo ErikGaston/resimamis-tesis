@@ -105,43 +105,26 @@ const TasksTemplate = (props) => {
 
             <Box sx={{ flex: 1, overflowY: 'auto', pb: APP_SCROLL_BOTTOM_PADDING }}>
                 {valueTask === 1 &&
-                    (changeInformationHug ?
-                        <InformationHug
-                            model={model}
-                            setModel={setModel}
-                            submitEndHug={submitEndHug}
-                            hug={selectedHug}
+                    <ActivityTask
+                        submitAssistence={submitAssistence}
+                        submitAssistanceSalida={submitAssistanceSalida}
+                        check={checkAssistance}
+                        salidaRegistrada={salidaRegistrada}
+                        listAssignmentVolunteer={listAssignmentVolunteer}
+                        editHug={editHug}
 
-                            stateInsumo={stateInsumo}
-                            setStateInsumo={setStateInsumo}
-                            changeStateInsumo={changeStateInsumo}
-
-                            listSupplies={listSupplies}
-                            setListSupplies={setListSupplies}
-                            submitChangeSupplies={submitChangeSupplies}
-
-                            setChangeInformationHug={setChangeInformationHug}
-                        />
-                        :
-                        <ActivityTask
-                            submitAssistence={submitAssistence}
-                            submitAssistanceSalida={submitAssistanceSalida}
-                            check={checkAssistance}
-                            salidaRegistrada={salidaRegistrada}
-                            listAssignmentVolunteer={listAssignmentVolunteer}
-                            editHug={editHug}
-
-                            submitStartHug={submitStartHug}
-                            onShowAssistanceToday={onShowAssistanceToday}
-                            onShowAssistanceHistoricas={onShowAssistanceHistoricas}
-                            onAssignmentDetail={onAssignmentDetail}
-                        />)
+                        submitStartHug={submitStartHug}
+                        onShowAssistanceToday={onShowAssistanceToday}
+                        onShowAssistanceHistoricas={onShowAssistanceHistoricas}
+                        onAssignmentDetail={onAssignmentDetail}
+                    />
                 }
                 {canAccessAssignment && valueTask === 2 &&
                     ((listAssignedVolunteer && changeAssignedList) ?
                         <AssignedList
                             listAssignedVolunteer={listAssignedVolunteer}
                             setChangeAssignedList={setChangeAssignedList}
+                            submitStartHug={submitStartHug}
                         />
                         :
                         <AssignmentTask
@@ -162,6 +145,21 @@ const TasksTemplate = (props) => {
                     )
                 }
             </Box>
+
+            <InformationHug
+                open={changeInformationHug}
+                onClose={() => setChangeInformationHug(false)}
+                model={model}
+                setModel={setModel}
+                submitEndHug={submitEndHug}
+                hug={selectedHug}
+                stateInsumo={stateInsumo}
+                setStateInsumo={setStateInsumo}
+                changeStateInsumo={changeStateInsumo}
+                listSupplies={listSupplies}
+                setListSupplies={setListSupplies}
+                submitChangeSupplies={submitChangeSupplies}
+            />
         </Box>
     )
 }

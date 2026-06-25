@@ -13,12 +13,8 @@ import {
   TableCell,
   TableContainer,
   TableRow,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import dayjs from 'dayjs';
@@ -218,32 +214,6 @@ function AssignmentReadableBlock({ data }) {
           </TableBody>
         </Table>
       </TableContainer>
-      <Accordion
-        disableGutters
-        elevation={0}
-        sx={{ border: `1px solid ${PALETTE.border}`, borderRadius: 2, '&:before': { display: 'none' } }}
-      >
-        <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: PALETTE.text }} />}>
-          <Typography sx={{ color: PALETTE.text, fontWeight: 600, fontSize: '0.9rem' }}>
-            JSON completo (depuración)
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails sx={{ pt: 0 }}>
-          <Box
-            component="pre"
-            sx={{
-              m: 0, p: 2, fontSize: 11, lineHeight: 1.5,
-              whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-              color: PALETTE.text, maxHeight: '40vh', overflow: 'auto',
-              bgcolor: '#fff', borderRadius: 1,
-              border: `1px solid ${PALETTE.border}`,
-              fontFamily: 'ui-monospace, monospace',
-            }}
-          >
-            {formatAssistancePayload(data)}
-          </Box>
-        </AccordionDetails>
-      </Accordion>
     </Box>
   );
 }

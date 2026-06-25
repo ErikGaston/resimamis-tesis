@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
+  Avatar, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
   Skeleton, TextField, Typography,
 } from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useDispatch, useSelector } from 'react-redux';
 import Footer from '../../components/molecules/Footer';
 import PageScrollMain from '../../components/common/PageScrollMain';
-import { PageHeader } from '../../components/common/PageHeader';
 import Loading from '../../components/atoms/loading/Loading';
 import { showLoading } from '../../redux/actions/loadingActions';
 import { showToast } from '../../redux/actions/toastActions';
@@ -21,6 +21,8 @@ import {
 import { getIdVolunteer } from '../../utils/localStorage';
 
 const VIOLET = '#7A659B';
+const NAVY = '#152C70';
+const GRADIENT = 'linear-gradient(135deg, #7F00FF 0%, #9B59B6 60%, #7A659B 100%)';
 
 const BOTTOM_SHEET_SX = {
   maxWidth: 444,
@@ -29,7 +31,26 @@ const BOTTOM_SHEET_SX = {
   mb: 0,
   mt: 'auto',
   borderRadius: '20px 20px 0 0',
+  maxHeight: '90dvh',
+  display: 'flex',
+  flexDirection: 'column',
 };
+
+function getInitials(nombre, apellido) {
+  const n = (nombre ?? '').trim();
+  const a = (apellido ?? '').trim();
+  return `${n[0] ?? ''}${a[0] ?? ''}`.toUpperCase();
+}
+
+function AvatarSkeleton() {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pt: 5, pb: 3 }}>
+      <Skeleton variant="circular" width={80} height={80} sx={{ mb: 1.5 }} />
+      <Skeleton variant="text" width={140} height={24} sx={{ mb: 0.5 }} />
+      <Skeleton variant="text" width={90} height={18} />
+    </Box>
+  );
+}
 
 function FieldSkeleton() {
   return (
@@ -61,7 +82,6 @@ export const MyProfilePage = () => {
   };
   const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_VOLUNTEER_FIELD_ERRORS });
 
-  // Cambio de contraseña
   const [pwdOpen, setPwdOpen] = useState(false);
   const [pwdActual, setPwdActual] = useState('');
   const [pwdNueva, setPwdNueva] = useState('');
@@ -80,7 +100,10 @@ export const MyProfilePage = () => {
     dispatch(showLoading(true));
     dispatch(getVolunteers());
     dispatch(getVolunteerById(id));
-    return () => { dispatch(clearVolunteer()); };
+    return () => {
+      dispatch(clearVolunteer());
+      dispatch(showLoading(false));
+    };
   }, []);
 
   useEffect(() => {
@@ -127,6 +150,7 @@ export const MyProfilePage = () => {
     const { ok, errors } = validateVolunteerProfile(mdl, {
       volunteers,
       excludeVolunteerId: Number.isFinite(selfId) ? selfId : null,
+      myProfile: true,
     });
     setFieldErrors(errors);
     if (!ok) return;
@@ -147,6 +171,10 @@ export const MyProfilePage = () => {
     dispatch(putUsuarioContrasena({ ContrasenaActual: pwdActual, ContrasenaNueva: pwdNueva }));
   };
 
+  const initials = model ? getInitials(model.nombre, model.apellido) : '';
+  const fullName = model ? [model.nombre, model.apellido].filter(Boolean).join(' ') : '';
+  const rol = model?.rol ?? '';
+
   return (
     <Box
       sx={{
@@ -158,38 +186,93 @@ export const MyProfilePage = () => {
       {loading && model !== null && (
         <Loading position="absolute" height="100%" zIndex={9999} />
       )}
+
       <PageScrollMain>
+        {/* Avatar header */}
         {model === null ? (
-          <>
-            <PageHeader title="Mi perfil" />
-            <Box sx={{ px: 2.5, pt: 2, pb: 4 }}>
-              <FieldSkeleton /><FieldSkeleton /><FieldSkeleton /><FieldSkeleton /><FieldSkeleton />
-            </Box>
-          </>
+          <AvatarSkeleton />
         ) : (
-          <ProfileTemplate
-            model={model}
-            setModel={setModel}
-            submit={submitVolunteer}
-            editForm={editForm}
-            setEditForm={setEditForm}
-            type="VOLUNTEER"
-            fieldErrors={fieldErrors}
-            setFieldErrors={setFieldErrors}
-          />
+          <Box
+            sx={{
+              background: GRADIENT,
+              pt: 5,
+              pb: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <Avatar
+              sx={{
+                width: 80,
+                height: 80,
+                bgcolor: 'rgba(255,255,255,0.22)',
+                border: '3px solid rgba(255,255,255,0.6)',
+                fontSize: '2rem',
+                fontWeight: 700,
+                color: '#fff',
+                mb: 1.5,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
+              }}
+            >
+              {initials}
+            </Avatar>
+            <Typography variant="h6" fontWeight={700} sx={{ color: '#fff', lineHeight: 1.2 }}>
+              {fullName}
+            </Typography>
+            {rol ? (
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', mt: 0.5 }}>
+                {rol}
+              </Typography>
+            ) : null}
+          </Box>
         )}
 
-        {/* Botón cambiar contraseña */}
-        <Box sx={{ px: 2.5, pt: 0.5, pb: 3 }}>
-          <Button
-            variant="outlined"
-            fullWidth
-            sx={{ borderColor: VIOLET, color: VIOLET, '&:hover': { bgcolor: '#F3EEFF', borderColor: VIOLET } }}
-            onClick={() => setPwdOpen(true)}
-          >
-            Cambiar contraseña
-          </Button>
-        </Box>
+        {/* Form */}
+        {model === null ? (
+          <Box sx={{ px: 2.5, pt: 2, pb: 4 }}>
+            <FieldSkeleton /><FieldSkeleton /><FieldSkeleton /><FieldSkeleton />
+          </Box>
+        ) : (
+          <div style={{ marginTop: '10px' }}>
+            <ProfileTemplate
+              model={model}
+              setModel={setModel}
+              submit={submitVolunteer}
+              editForm={editForm}
+              setEditForm={setEditForm}
+              type="VOLUNTEER"
+              fieldErrors={fieldErrors}
+              setFieldErrors={setFieldErrors}
+              disableAccordion
+              myProfile
+              hideHeader
+            />
+          </div>
+        )}
+
+        {/* Cambiar contraseña */}
+        {model !== null && (
+          <Box sx={{ px: 2.5, pt: 0, pb: 4 }}>
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<LockOutlinedIcon />}
+              sx={{
+                borderColor: VIOLET,
+                color: VIOLET,
+                minHeight: 44,
+                borderRadius: '10px',
+                fontWeight: 600,
+                textTransform: 'none',
+                '&:hover': { bgcolor: '#F3EEFF', borderColor: VIOLET },
+              }}
+              onClick={() => setPwdOpen(true)}
+            >
+              Cambiar contraseña
+            </Button>
+          </Box>
+        )}
       </PageScrollMain>
 
       {/* Bottom-sheet cambio de contraseña */}
@@ -204,10 +287,22 @@ export const MyProfilePage = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25 }}>
           <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'rgba(21,44,112,0.15)' }} />
         </Box>
-        <DialogTitle sx={{ fontWeight: 700, color: '#152C70', pb: 0.5 }}>
-          Cambiar contraseña
-        </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 3, pt: 1, pb: 0.5 }}>
+          <Box
+            sx={{
+              width: 36, height: 36, borderRadius: '50%',
+              background: GRADIENT,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <LockOutlinedIcon sx={{ color: '#fff', fontSize: 18 }} />
+          </Box>
+          <DialogTitle sx={{ p: 0, fontWeight: 700, color: NAVY, fontSize: '1.1rem' }}>
+            Cambiar contraseña
+          </DialogTitle>
+        </Box>
+        <DialogContent sx={{ pt: 2.5 }}>
           <TextField
             label="Contraseña actual"
             type="password"
@@ -238,18 +333,18 @@ export const MyProfilePage = () => {
             </Typography>
           )}
         </DialogContent>
-        <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
+        <DialogActions sx={{ px: 2, pb: 2.5, gap: 1 }}>
           <Button
             variant="outlined"
             onClick={closePwdDialog}
-            sx={{ flex: 1, borderColor: 'rgba(21,44,112,0.22)', color: VIOLET }}
+            sx={{ flex: 1, minHeight: 44, borderRadius: '10px', borderColor: 'rgba(21,44,112,0.22)', color: VIOLET, textTransform: 'none', fontWeight: 600 }}
           >
             Cancelar
           </Button>
           <Button
             variant="contained"
             disabled={!pwdActual || !pwdNueva || !pwdConfirm}
-            sx={{ flex: 1, bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
+            sx={{ flex: 1, minHeight: 44, borderRadius: '10px', background: GRADIENT, boxShadow: '0 4px 14px rgba(127,0,255,0.28)', textTransform: 'none', fontWeight: 700 }}
             onClick={submitContrasena}
           >
             Actualizar

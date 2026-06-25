@@ -211,6 +211,7 @@ export function validateVolunteerAlta(model, options = {}) {
 export function validateVolunteerProfile(model, options = {}) {
   const volunteers = options.volunteers ?? [];
   const excludeVolunteerId = options.excludeVolunteerId ?? null;
+  const myProfile = options.myProfile ?? false;
   const errors = { ...INITIAL_VOLUNTEER_FIELD_ERRORS };
   let ok = true;
 
@@ -243,27 +244,29 @@ export function validateVolunteerProfile(model, options = {}) {
     );
   }
 
-  const dniRaw = model?.dni;
-  const dniStr =
-    dniRaw === '' || dniRaw === undefined || dniRaw === null ? '' : String(dniRaw);
-  if (!dniStr) set('dni', 'El DNI es obligatorio.');
-  else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI sólo puede contener números.');
-  else if (dniStr.length !== VOLUNTEER_DNI_LEN) {
-    set('dni', `El DNI debe tener ${VOLUNTEER_DNI_LEN} dígitos.`);
-  } else {
-    const dup = volunteers.find((v) => {
-      if (v == null) return false;
-      if (String(v.dni) !== dniStr) return false;
-      const vid = v.idVoluntaria ?? v.id;
-      if (
-        excludeVolunteerId != null &&
-        Number(vid) === Number(excludeVolunteerId)
-      ) {
-        return false;
-      }
-      return true;
-    });
-    if (dup) set('dni', 'Ya existe una voluntaria registrada con este DNI.');
+  if (!myProfile) {
+    const dniRaw = model?.dni;
+    const dniStr =
+      dniRaw === '' || dniRaw === undefined || dniRaw === null ? '' : String(dniRaw);
+    if (!dniStr) set('dni', 'El DNI es obligatorio.');
+    else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI sólo puede contener números.');
+    else if (dniStr.length !== VOLUNTEER_DNI_LEN) {
+      set('dni', `El DNI debe tener ${VOLUNTEER_DNI_LEN} dígitos.`);
+    } else {
+      const dup = volunteers.find((v) => {
+        if (v == null) return false;
+        if (String(v.dni) !== dniStr) return false;
+        const vid = v.idVoluntaria ?? v.id;
+        if (
+          excludeVolunteerId != null &&
+          Number(vid) === Number(excludeVolunteerId)
+        ) {
+          return false;
+        }
+        return true;
+      });
+      if (dup) set('dni', 'Ya existe una voluntaria registrada con este DNI.');
+    }
   }
 
   const celRaw = model?.celular == null ? '' : String(model.celular).trim();
@@ -303,45 +306,47 @@ export function validateVolunteerProfile(model, options = {}) {
     );
   }
 
-  /** Perfil: el contrato VOLUNTARIA del API no siempre incluye fechaNacimiento; si viene vacío no bloqueamos el guardado. */
-  if (model?.fechaNacimiento) {
-    const d = dayjs(model.fechaNacimiento);
-    if (!d.isValid()) set('fechaNacimiento', 'La fecha no es válida.');
-    else {
-      if (d.isAfter(dayjs(), 'day')) {
-        set('fechaNacimiento', 'No podés seleccionar una fecha futura.');
-      }
-      const oldestAllowed = dayjs()
-        .subtract(VOLUNTEER_MIN_AGE, 'year')
-        .startOf('day');
-      if (d.isAfter(oldestAllowed, 'day')) {
-        set('fechaNacimiento', 'Debés ser mayor de edad (al menos 18 años).');
-      }
-      const minBirth = dayjs()
-        .subtract(VOLUNTEER_DATE_MIN_YEARS_BACK, 'year')
-        .startOf('day');
-      if (d.isBefore(minBirth, 'day')) {
-        set('fechaNacimiento', 'Seleccioná una fecha de nacimiento válida.');
+  if (!myProfile) {
+    /** Perfil: el contrato VOLUNTARIA del API no siempre incluye fechaNacimiento; si viene vacío no bloqueamos el guardado. */
+    if (model?.fechaNacimiento) {
+      const d = dayjs(model.fechaNacimiento);
+      if (!d.isValid()) set('fechaNacimiento', 'La fecha no es válida.');
+      else {
+        if (d.isAfter(dayjs(), 'day')) {
+          set('fechaNacimiento', 'No podés seleccionar una fecha futura.');
+        }
+        const oldestAllowed = dayjs()
+          .subtract(VOLUNTEER_MIN_AGE, 'year')
+          .startOf('day');
+        if (d.isAfter(oldestAllowed, 'day')) {
+          set('fechaNacimiento', 'Debés ser mayor de edad (al menos 18 años).');
+        }
+        const minBirth = dayjs()
+          .subtract(VOLUNTEER_DATE_MIN_YEARS_BACK, 'year')
+          .startOf('day');
+        if (d.isBefore(minBirth, 'day')) {
+          set('fechaNacimiento', 'Seleccioná una fecha de nacimiento válida.');
+        }
       }
     }
-  }
 
-  if (!model?.fechaInicio) {
-    set('fechaInicio', 'La fecha de inicio es obligatoria.');
-  } else {
-    const d = dayjs(model.fechaInicio);
-    if (!d.isValid()) set('fechaInicio', 'La fecha no es válida.');
-  }
+    if (!model?.fechaInicio) {
+      set('fechaInicio', 'La fecha de inicio es obligatoria.');
+    } else {
+      const d = dayjs(model.fechaInicio);
+      if (!d.isValid()) set('fechaInicio', 'La fecha no es válida.');
+    }
 
-  const finRaw = model?.fechaFin;
-  const hasFin =
-    finRaw !== '' &&
-    finRaw !== undefined &&
-    finRaw !== null &&
-    !(typeof finRaw === 'string' && finRaw.trim() === '');
-  if (hasFin) {
-    const d = dayjs(finRaw);
-    if (!d.isValid()) set('fechaFin', 'La fecha no es válida.');
+    const finRaw = model?.fechaFin;
+    const hasFin =
+      finRaw !== '' &&
+      finRaw !== undefined &&
+      finRaw !== null &&
+      !(typeof finRaw === 'string' && finRaw.trim() === '');
+    if (hasFin) {
+      const d = dayjs(finRaw);
+      if (!d.isValid()) set('fechaFin', 'La fecha no es válida.');
+    }
   }
 
   return { ok, errors };
