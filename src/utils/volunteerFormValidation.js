@@ -12,7 +12,7 @@ export const VOLUNTEER_DATE_MIN_YEARS_BACK = 100;
 export const VOLUNTEER_TURNO_VALUES = [1, 2, 3];
 
 const NAME_REGEX = /^[\p{L}\s]+$/u;
-/** Solo letras, números, @ y . (sin espacios). */
+/** Sólo letras, números, @ y . (sin espacios). */
 const EMAIL_ALLOWED_CHARS = /^[\p{L}0-9.@]+$/u;
 
 /**
@@ -87,7 +87,7 @@ export function validateVolunteerAlta(model, options = {}) {
   } else if (!NAME_REGEX.test(nombre)) {
     set(
       'nombre',
-      'El nombre no debe contener caracteres especiales. Solo letras, espacios y tildes (incluye ñ).',
+      'El nombre no debe contener caracteres especiales. Sólo letras, espacios y tildes (incluye ñ).',
     );
   }
 
@@ -98,7 +98,7 @@ export function validateVolunteerAlta(model, options = {}) {
   } else if (!NAME_REGEX.test(apellido)) {
     set(
       'apellido',
-      'El apellido no debe contener caracteres especiales. Solo letras, espacios y tildes (incluye ñ).',
+      'El apellido no debe contener caracteres especiales. Sólo letras, espacios y tildes (incluye ñ).',
     );
   }
 
@@ -106,7 +106,7 @@ export function validateVolunteerAlta(model, options = {}) {
   const dniStr =
     dniRaw === '' || dniRaw === undefined || dniRaw === null ? '' : String(dniRaw);
   if (!dniStr) set('dni', 'El DNI es obligatorio.');
-  else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI solo puede contener números.');
+  else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI sólo puede contener números.');
   else if (dniStr.length !== VOLUNTEER_DNI_LEN) {
     set('dni', `El DNI debe tener ${VOLUNTEER_DNI_LEN} dígitos.`);
   } else {
@@ -130,7 +130,7 @@ export function validateVolunteerAlta(model, options = {}) {
   else {
     const normalized = celRaw.replace(/\s/g, '');
     if (!/^\+?[0-9]+$/.test(normalized)) {
-      set('celular', 'El celular solo puede contener números y, si aplica, un único + al inicio.');
+      set('celular', 'El celular sólo puede contener números y, si aplica, un único + al inicio.');
     } else {
       const digits = normalized.replace(/\D/g, '');
       if (
@@ -158,7 +158,7 @@ export function validateVolunteerAlta(model, options = {}) {
   } else if (!isVolunteerEmailShape(mail)) {
     set(
       'mail',
-      'Ingresá un correo válido. Solo letras, números y los signos @ y .',
+      'Ingresá un correo válido. Sólo letras, números y los signos @ y .',
     );
   }
 
@@ -228,7 +228,7 @@ export function validateVolunteerProfile(model, options = {}) {
   } else if (!NAME_REGEX.test(nombre)) {
     set(
       'nombre',
-      'El nombre no debe contener caracteres especiales. Solo letras, espacios y tildes (incluye ñ).',
+      'El nombre no debe contener caracteres especiales. Sólo letras, espacios y tildes (incluye ñ).',
     );
   }
 
@@ -239,7 +239,7 @@ export function validateVolunteerProfile(model, options = {}) {
   } else if (!NAME_REGEX.test(apellido)) {
     set(
       'apellido',
-      'El apellido no debe contener caracteres especiales. Solo letras, espacios y tildes (incluye ñ).',
+      'El apellido no debe contener caracteres especiales. Sólo letras, espacios y tildes (incluye ñ).',
     );
   }
 
@@ -247,7 +247,7 @@ export function validateVolunteerProfile(model, options = {}) {
   const dniStr =
     dniRaw === '' || dniRaw === undefined || dniRaw === null ? '' : String(dniRaw);
   if (!dniStr) set('dni', 'El DNI es obligatorio.');
-  else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI solo puede contener números.');
+  else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI sólo puede contener números.');
   else if (dniStr.length !== VOLUNTEER_DNI_LEN) {
     set('dni', `El DNI debe tener ${VOLUNTEER_DNI_LEN} dígitos.`);
   } else {
@@ -271,7 +271,7 @@ export function validateVolunteerProfile(model, options = {}) {
   else {
     const normalized = celRaw.replace(/\s/g, '');
     if (!/^\+?[0-9]+$/.test(normalized)) {
-      set('celular', 'El celular solo puede contener números y, si aplica, un único + al inicio.');
+      set('celular', 'El celular sólo puede contener números y, si aplica, un único + al inicio.');
     } else {
       const digits = normalized.replace(/\D/g, '');
       if (
@@ -299,7 +299,7 @@ export function validateVolunteerProfile(model, options = {}) {
   } else if (!isVolunteerEmailShape(mail)) {
     set(
       'mail',
-      'Ingresá un correo válido. Solo letras, números y los signos @ y .',
+      'Ingresá un correo válido. Sólo letras, números y los signos @ y .',
     );
   }
 

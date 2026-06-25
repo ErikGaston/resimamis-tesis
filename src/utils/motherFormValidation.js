@@ -97,7 +97,7 @@ export function validateMotherForm(model, options = {}) {
   } else if (!NAME_REGEX.test(nombre)) {
     set(
       'nombre',
-      'Solo se permiten letras (incluye ñ y tildes) y espacios.',
+      'Sólo se permiten letras (incluye ñ y tildes) y espacios.',
     );
   }
 
@@ -108,7 +108,7 @@ export function validateMotherForm(model, options = {}) {
   } else if (!NAME_REGEX.test(apellido)) {
     set(
       'apellido',
-      'Solo se permiten letras (incluye ñ y tildes) y espacios.',
+      'Sólo se permiten letras (incluye ñ y tildes) y espacios.',
     );
   }
 
@@ -116,7 +116,7 @@ export function validateMotherForm(model, options = {}) {
   const dniStr =
     dniRaw === '' || dniRaw === undefined || dniRaw === null ? '' : String(dniRaw);
   if (!dniStr) set('dni', 'Completá el DNI.');
-  else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI solo debe contener números.');
+  else if (!/^\d+$/.test(dniStr)) set('dni', 'El DNI sólo debe contener números.');
   else if (dniStr.length < MOTHER_DNI_MIN_LEN || dniStr.length > MOTHER_DNI_MAX_LEN) {
     set(
       'dni',
@@ -161,7 +161,7 @@ export function validateMotherForm(model, options = {}) {
   else {
     const normalized = celRaw.replace(/\s/g, '');
     if (!/^\+?[0-9]+$/.test(normalized)) {
-      set('celular', 'Solo números y, si aplica, un único + al inicio.');
+      set('celular', 'Sólo números y, si aplica, un único + al inicio.');
     } else {
       const digits = normalized.replace(/\D/g, '');
       if (digits.length < MOTHER_PHONE_DIGITS_MIN || digits.length > MOTHER_PHONE_DIGITS_MAX) {
