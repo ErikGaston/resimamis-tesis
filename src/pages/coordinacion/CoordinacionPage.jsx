@@ -151,7 +151,7 @@ export const CoordinacionPage = () => {
   // Asistencia
   const [repIni, setRepIni] = useState(() => dayjs().startOf('month').format('YYYY-MM-DDTHH:mm'));
   const [repFin, setRepFin] = useState(() => dayjs().endOf('day').format('YYYY-MM-DDTHH:mm'));
-  const [idAsistenciaDel, setIdAsistenciaDel] = useState('');
+  const [repLastQuery, setRepLastQuery] = useState(null);
   const [reporteOpen, setReporteOpen] = useState(false);
 
   // Usuarios
@@ -243,8 +243,9 @@ export const CoordinacionPage = () => {
       dispatch(showLoading(false));
       toastOk('Asistencia eliminada.');
       dispatch(clearVolunteerWrites());
+      if (repLastQuery) dispatch(getAssistanceReporte(repLastQuery));
     }
-  }, [volunteer?.postAssistanceDelete, dispatch, toastOk]);
+  }, [volunteer?.postAssistanceDelete, dispatch, toastOk, repLastQuery]);
 
   useEffect(() => {
     if (user?.postUsuario != null || user?.putUsuario != null || user?.postUsuarioDelete != null) {
@@ -538,37 +539,16 @@ export const CoordinacionPage = () => {
               fullWidth
               sx={{ bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
               onClick={() => {
+                const q = {
+                  fechaInicio: new Date(repIni).toISOString(),
+                  fechaFin: new Date(repFin).toISOString(),
+                };
+                setRepLastQuery(q);
                 dispatch(showLoading(true));
-                dispatch(
-                  getAssistanceReporte({
-                    fechaInicio: new Date(repIni).toISOString(),
-                    fechaFin: new Date(repFin).toISOString(),
-                  }),
-                );
+                dispatch(getAssistanceReporte(q));
               }}
             >
               Ver reporte
-            </Button>
-            <Divider sx={{ my: 2 }} />
-            <TextField
-              label="ID de la asistencia"
-              value={idAsistenciaDel}
-              onChange={(e) => setIdAsistenciaDel(e.target.value)}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              inputProps={{ inputMode: 'numeric' }}
-            />
-            <Button
-              color="error"
-              variant="outlined"
-              onClick={() => {
-                const id = Number(idAsistenciaDel);
-                if (!Number.isFinite(id)) return;
-                openConfirm(`¿Eliminar asistencia ${id}?`, () => { dispatch(showLoading(true)); dispatch(postAssistanceDelete(id)); });
-              }}
-            >
-              Eliminar asistencia
             </Button>
           </TabPanel>
 
@@ -1184,19 +1164,42 @@ export const CoordinacionPage = () => {
                       boxShadow: '0 2px 10px rgba(21,44,112,0.06)',
                     }}
                   >
-                    {/* Nombre */}
-                    <Box sx={{ mb: 1.25 }}>
-                      <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: NAVY, lineHeight: 1.3 }}>
-                        {nombre}
-                      </Typography>
-                      {durFmt && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
-                          <TimerIcon sx={{ fontSize: 13, color: VIOLET }} />
-                          <Typography sx={{ fontSize: '0.75rem', color: VIOLET, fontWeight: 600 }}>
-                            {durFmt}
-                          </Typography>
-                        </Box>
-                      )}
+                    {/* Nombre + delete */}
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1.25 }}>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: NAVY, lineHeight: 1.3 }}>
+                          {nombre}
+                        </Typography>
+                        {durFmt && (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
+                            <TimerIcon sx={{ fontSize: 13, color: VIOLET }} />
+                            <Typography sx={{ fontSize: '0.75rem', color: VIOLET, fontWeight: 600 }}>
+                              {durFmt}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                      <IconButton
+                        size="small"
+                        aria-label={`Eliminar asistencia de ${nombre}`}
+                        onClick={() =>
+                          openConfirm(
+                            `¿Eliminar asistencia de ${nombre}?`,
+                            () => { dispatch(showLoading(true)); dispatch(postAssistanceDelete(r.idAsistencia)); },
+                          )
+                        }
+                        sx={{
+                          ml: 1,
+                          flexShrink: 0,
+                          minWidth: 36,
+                          minHeight: 36,
+                          color: 'rgba(197,56,20,0.55)',
+                          '&:hover': { bgcolor: 'rgba(197,56,20,0.08)', color: '#C53814' },
+                          transition: 'color 0.15s, background-color 0.15s',
+                        }}
+                      >
+                        <DeleteOutlineIcon sx={{ fontSize: 19 }} />
+                      </IconButton>
                     </Box>
 
                     {/* Ingreso / Salida */}
