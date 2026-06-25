@@ -134,6 +134,7 @@ export const ProfileVolunteerPage = () => {
                 <VolunteerHorarioSection
                   idVoluntaria={Number(model.idVoluntaria)}
                   horarios={model?.horarios ?? []}
+                  onSuccess={() => dispatch(getVolunteerById(id))}
                 />
               }
             />

@@ -16,8 +16,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  useTheme,
-  useMediaQuery,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -263,9 +261,6 @@ const AssistanceDataDialog = ({
   volunteerFallback = null,
   presentation = 'auto',
 }) => {
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-
   const rows = useMemo(() => {
     const extracted = extractAssistanceRows(data);
     return extracted.map(normalizeAssistanceRow);
@@ -283,13 +278,13 @@ const AssistanceDataDialog = ({
       open={open}
       onClose={onClose}
       fullWidth
-      fullScreen={fullScreen}
-      maxWidth="sm"
+      maxWidth="xs"
       PaperProps={{
         sx: {
-          borderRadius: fullScreen ? 0 : 3,
+          borderRadius: '10px',
+          boxShadow: '0px 4px 6px rgba(28, 27, 31, 0.15)',
           overflow: 'hidden',
-          border: fullScreen ? 'none' : `1px solid ${PALETTE.border}`,
+          border: `1px solid ${PALETTE.border}`,
         },
       }}
     >
@@ -299,12 +294,12 @@ const AssistanceDataDialog = ({
           alignItems: 'center',
           justifyContent: 'space-between',
           pr: 1,
-          py: 2,
+          py: 1.5,
           background: 'linear-gradient(90deg, #8f00ff 0%, #a54dff 100%)',
           color: '#fff',
         }}
       >
-        <Typography component="span" sx={{ fontWeight: 600, fontSize: '1.05rem', letterSpacing: '0.02em' }}>
+        <Typography component="span" sx={{ fontWeight: 600, fontSize: '1rem', letterSpacing: '0.02em' }}>
           {title}
         </Typography>
         <IconButton aria-label="Cerrar" onClick={onClose} size="small" sx={{ color: '#fff' }}>
@@ -313,11 +308,7 @@ const AssistanceDataDialog = ({
       </DialogTitle>
       <DialogContent
         dividers
-        sx={{
-          p: 0,
-          bgcolor: 'linear-gradient(180deg, #f9f6ff 0%, #fff 100%)',
-          background: '#faf8fc',
-        }}
+        sx={{ p: 0, background: '#faf8fc' }}
       >
         {showEmptyList ? (
           <Box sx={{ p: 4, textAlign: 'center' }}>
@@ -331,7 +322,7 @@ const AssistanceDataDialog = ({
         ) : showAssignmentView ? (
           <AssignmentReadableBlock data={data} />
         ) : showTable ? (
-          <Box sx={{ p: 2 }}>
+          <Box sx={{ p: 1.5 }}>
             <TableContainer
               component={Paper}
               elevation={0}
@@ -339,7 +330,7 @@ const AssistanceDataDialog = ({
                 borderRadius: 2,
                 border: `1px solid ${PALETTE.border}`,
                 overflow: 'auto',
-                maxHeight: fullScreen ? 'calc(100vh - 130px)' : '62vh',
+                maxHeight: '55vh',
                 bgcolor: '#fff',
               }}
             >
@@ -457,7 +448,7 @@ const AssistanceDataDialog = ({
             </TableContainer>
           </Box>
         ) : (
-          <Box sx={{ p: 2 }}>
+          <Box sx={{ p: 1.5 }}>
             <Typography sx={{ color: PALETTE.text, fontSize: '0.9rem', mb: 1, fontWeight: 500 }}>
               Respuesta en formato libre
             </Typography>
@@ -465,13 +456,13 @@ const AssistanceDataDialog = ({
               component="pre"
               sx={{
                 m: 0,
-                p: 2,
+                p: 1.5,
                 fontSize: 11,
                 lineHeight: 1.5,
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
                 color: PALETTE.text,
-                maxHeight: '58vh',
+                maxHeight: '50vh',
                 overflow: 'auto',
                 bgcolor: '#fff',
                 borderRadius: 2,

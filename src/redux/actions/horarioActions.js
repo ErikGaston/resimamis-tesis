@@ -21,3 +21,7 @@ export function putHorario(idVoluntaria, body) {
 export function clearHorario() {
   return { type: actionTypes.CLEAR_HORARIO };
 }
+
+export function clearHorarioWrites() {
+  return { type: actionTypes.CLEAR_HORARIO_WRITES };
+}

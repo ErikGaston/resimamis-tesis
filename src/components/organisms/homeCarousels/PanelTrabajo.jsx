@@ -21,7 +21,7 @@ const ROW_GESTION_BASE = [
 ];
 
 const COORD_ITEM = {
-    name: "Coordinación",
+    name: "Administración",
     image: coordinacion,
     url: "/coordinacion",
     special: true,

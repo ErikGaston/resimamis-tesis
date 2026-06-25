@@ -16,6 +16,7 @@ export default function horarioReducer(state = initialState, action) {
     [actionTypes.SUCCESS_PUT_HORARIO]: responseToReturn('postHorario'),
     [actionTypes.ERROR_HORARIO]: responseToReturn('error'),
     [actionTypes.CLEAR_HORARIO]: clearHorario(),
+    [actionTypes.CLEAR_HORARIO_WRITES]: { ...state, postHorario: null, error: null },
   };
 
   function responseToReturn(typeState) {

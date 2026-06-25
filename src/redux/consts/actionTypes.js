@@ -239,6 +239,7 @@ export const PUT_HORARIO = "PUT_HORARIO";
 export const SUCCESS_PUT_HORARIO = "SUCCESS_PUT_HORARIO";
 export const ERROR_HORARIO = "ERROR_HORARIO";
 export const CLEAR_HORARIO = "CLEAR_HORARIO";
+export const CLEAR_HORARIO_WRITES = "CLEAR_HORARIO_WRITES";
 //#endregion
 
 //#region - TAREA

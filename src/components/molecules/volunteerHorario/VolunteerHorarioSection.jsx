@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { getHorarioDias, putHorario, clearHorario } from '../../../redux/actions/horarioActions';
+import { getHorarioDias, putHorario, clearHorario, clearHorarioWrites } from '../../../redux/actions/horarioActions';
 import { showToast } from '../../../redux/actions/toastActions';
 
 const TURNOS = [
@@ -21,7 +21,7 @@ const TURNOS = [
   { value: 'Jornada completa', label: 'Jornada completa' },
 ];
 
-export function VolunteerHorarioSection({ idVoluntaria, horarios }) {
+export function VolunteerHorarioSection({ idVoluntaria, horarios, onSuccess }) {
   const dispatch = useDispatch();
   const { getHorarioDias: diasPayload, postHorario: postRes } = useSelector(
     (s) => s.horarioReducer,
@@ -63,7 +63,8 @@ export function VolunteerHorarioSection({ idVoluntaria, horarios }) {
   useEffect(() => {
     if (postRes != null) {
       dispatch(showToast({ message: 'Disponibilidad guardada correctamente.', severity: 'success' }));
-      dispatch(clearHorario());
+      dispatch(clearHorarioWrites());
+      onSuccess?.();
     }
   }, [postRes, dispatch]);
 

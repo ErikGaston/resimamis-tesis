@@ -69,10 +69,10 @@ const TasksTemplate = (props) => {
                 title="Tareas"
                 rightAction={
                     canAccessAssignment ? (
-                        <Tooltip title="Coordinación">
+                        <Tooltip title="Administración">
                             <IconButton
                                 onClick={() => navigate('/coordinacion')}
-                                aria-label="Ir a coordinación"
+                                aria-label="Ir a administración"
                                 sx={{ color: '#fff' }}
                             >
                                 <TuneIcon fontSize="small" />
