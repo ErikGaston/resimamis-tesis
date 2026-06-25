@@ -558,8 +558,7 @@ const SupplyTemplate = (props) => {
             onClose={closeSupplyDrawer}
             fullWidth
             maxWidth={false}
-            PaperProps={{ sx: BOTTOM_SHEET_PAPER_SX }}
-            sx={BOTTOM_SHEET_DIALOG_SX}
+            PaperProps={{ sx: DIALOG_FULL_SX }}
             aria-labelledby="new-supply-drawer-title"
           >
             {/* Header */}
