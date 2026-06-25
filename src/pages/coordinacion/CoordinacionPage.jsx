@@ -52,12 +52,6 @@ import {
   putUsuarioContrasena,
 } from '../../redux/actions/userActions';
 import {
-  getSupplyById,
-  putSupplyById,
-  postSupplyDelete,
-  clearSupplyWrites,
-} from '../../redux/actions/supplyActions';
-import {
   getTareas,
   getTareaById,
   postTarea,
@@ -108,7 +102,6 @@ export const CoordinacionPage = () => {
   const assignment = useSelector((s) => s.assignmentReducer);
   const volunteer = useSelector((s) => s.volunteerReducer);
   const user = useSelector((s) => s.userReducer);
-  const supply = useSelector((s) => s.supplyReducer);
   const tarea = useSelector((s) => s.tareaReducer);
   const mother = useSelector((s) => s.motherReducer);
   const baby = useSelector((s) => s.babyReducer);
@@ -133,9 +126,6 @@ export const CoordinacionPage = () => {
   const [idUsuarioDel, setIdUsuarioDel] = useState('');
   const [contrasenaForm, setContrasenaForm] = useState({ ContrasenaActual: '', ContrasenaNueva: '' });
 
-  // Insumos
-  const [idInsumo, setIdInsumo] = useState('');
-  const [insumoJson, setInsumoJson] = useState('{}');
 
   // Tareas
   const [tareaForm, setTareaForm] = useState({ nombre: '', Estado: true, esUnica: false });
@@ -165,17 +155,6 @@ export const CoordinacionPage = () => {
       setUsuarioJsonEdit(JSON.stringify(user.getUsuarioById, null, 2));
     }
   }, [user?.getUsuarioById, dispatch]);
-
-  useEffect(() => {
-    if (supply?.getSupplyById != null) {
-      dispatch(showLoading(false));
-      try {
-        setInsumoJson(JSON.stringify(supply.getSupplyById, null, 2));
-      } catch {
-        setInsumoJson('{}');
-      }
-    }
-  }, [supply?.getSupplyById, dispatch]);
 
   useEffect(() => {
     if (tarea?.getTareaById != null) {
@@ -232,14 +211,6 @@ export const CoordinacionPage = () => {
   }, [user?.putUsuarioContrasena, dispatch, toastOk]);
 
   useEffect(() => {
-    if (supply?.putSupplyById != null || supply?.postSupplyDelete != null) {
-      dispatch(showLoading(false));
-      toastOk('Insumo actualizado.');
-      dispatch(clearSupplyWrites());
-    }
-  }, [supply?.putSupplyById, supply?.postSupplyDelete, dispatch, toastOk]);
-
-  useEffect(() => {
     if (tarea?.postTarea != null || tarea?.putTarea != null || tarea?.postTareaDelete != null) {
       dispatch(showLoading(false));
       toastOk('Tarea: operación OK.');
@@ -289,7 +260,6 @@ export const CoordinacionPage = () => {
       assignment?.error,
       volunteer?.error,
       user?.error,
-      supply?.error,
       tarea?.error,
       mother?.error,
       baby?.error,
@@ -305,7 +275,6 @@ export const CoordinacionPage = () => {
     assignment?.error,
     volunteer?.error,
     user?.error,
-    supply?.error,
     tarea?.error,
     mother?.error,
     baby?.error,
@@ -358,7 +327,6 @@ export const CoordinacionPage = () => {
             <Tab label="Asignación" />
             <Tab label="Asistencia" />
             <Tab label="Usuarios" />
-            <Tab label="Insumos" />
             <Tab label="Tareas" />
             <Tab label="Bajas" icon={<PersonRemoveIcon sx={{ fontSize: 16 }} />} iconPosition="start" />
           </Tabs>
@@ -719,67 +687,8 @@ export const CoordinacionPage = () => {
             </Button>
           </TabPanel>
 
-          {/* ── 3: Insumos ── */}
+          {/* ── 3: Tareas ── */}
           <TabPanel value={tab} index={3}>
-            <TextField
-              label="ID del insumo"
-              value={idInsumo}
-              onChange={(e) => setIdInsumo(e.target.value)}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              inputProps={{ inputMode: 'numeric' }}
-            />
-            <Button
-              variant="outlined"
-              onClick={() => { dispatch(showLoading(true)); dispatch(getSupplyById(Number(idInsumo))); }}
-            >
-              Cargar insumo
-            </Button>
-            <TextField
-              label="Datos del insumo (JSON)"
-              value={insumoJson}
-              onChange={(e) => setInsumoJson(e.target.value)}
-              fullWidth
-              multiline
-              minRows={6}
-              size="small"
-              sx={{ mt: 1 }}
-            />
-            <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-              <Button
-                variant="contained"
-                onClick={() => {
-                  const id = Number(idInsumo);
-                  const body = safeJsonParse(insumoJson, {});
-                  if (!Number.isFinite(id)) return;
-                  dispatch(showLoading(true));
-                  dispatch(putSupplyById(id, body));
-                }}
-              >
-                Guardar insumo
-              </Button>
-              <Button
-                color="error"
-                variant="outlined"
-                onClick={() => {
-                  const id = Number(idInsumo);
-                  if (!Number.isFinite(id)) return;
-                  const parsedInsumo = safeJsonParse(insumoJson, {});
-                  if (Number(parsedInsumo.stockActual) !== 0) {
-                    dispatch(showToast({ message: `No se puede eliminar: el insumo posee stock disponible (${parsedInsumo.stockActual} U). Primero registre los movimientos para agotar el stock.`, severity: 'error' }));
-                    return;
-                  }
-                  openConfirm(`¿Eliminar insumo ${id}?`, () => { dispatch(showLoading(true)); dispatch(postSupplyDelete(id)); });
-                }}
-              >
-                Eliminar
-              </Button>
-            </Box>
-          </TabPanel>
-
-          {/* ── 4: Tareas ── */}
-          <TabPanel value={tab} index={4}>
             <Button variant="outlined" fullWidth sx={{ mb: 2 }} onClick={() => { dispatch(showLoading(true)); dispatch(getTareas()); }}>
               Cargar lista de tareas
             </Button>
@@ -968,7 +877,7 @@ export const CoordinacionPage = () => {
           </TabPanel>
 
           {/* ── 5: Bajas ── */}
-          <TabPanel value={tab} index={5}>
+          <TabPanel value={tab} index={4}>
             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
               <Button
                 variant={bajasSubTab === 'madres' ? 'contained' : 'outlined'}
