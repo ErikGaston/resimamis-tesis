@@ -24,6 +24,10 @@ const BottomNavigationCustom = ({ tabs = [] }) => {
     }
     if (lastPart === 'estadisticas') {
       setSelectedValue('estadisticas');
+      return;
+    }
+    if (lastPart === 'mi-perfil') {
+      setSelectedValue('mi-perfil');
     }
   }, [location.pathname, tabs]);
 

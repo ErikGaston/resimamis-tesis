@@ -953,3 +953,45 @@ export const postVisitaDelete = async (idVisita) => {
     });
 };
 //#endregion
+
+//#region - PROVEEDOR
+const proveedorBase = '/proveedor';
+
+export const getProveedoresAll = async () => {
+  return AxiosInstance.get(`${proveedorBase}`).then((r) => r).catch((e) => { throw e; });
+};
+
+/** Body `PROVEEDOR`: `nombre` (string), `descripcion` (string?), `Activa` (bool). */
+export const postProveedor = async (body) => {
+  return AxiosInstance.post(`${proveedorBase}`, body).then((r) => r).catch((e) => { throw e; });
+};
+
+export const putProveedor = async (idProveedor, body) => {
+  return AxiosInstance.put(`${proveedorBase}/id/${idProveedor}`, body).then((r) => r).catch((e) => { throw e; });
+};
+
+export const postProveedorDelete = async (idProveedor) => {
+  return AxiosInstance.post(`${proveedorBase}/delete`, null, { params: { idProveedor } }).then((r) => r).catch((e) => { throw e; });
+};
+//#endregion
+
+//#region - SALA
+const salaBase = '/sala';
+
+export const getSalasAll = async () => {
+  return AxiosInstance.get(`${salaBase}`).then((r) => r).catch((e) => { throw e; });
+};
+
+/** Body `SALA`: `Nombre` (string), `Activa` (bool). */
+export const postSala = async (body) => {
+  return AxiosInstance.post(`${salaBase}`, body).then((r) => r).catch((e) => { throw e; });
+};
+
+export const putSala = async (idSala, body) => {
+  return AxiosInstance.put(`${salaBase}/id/${idSala}`, body).then((r) => r).catch((e) => { throw e; });
+};
+
+export const postSalaDelete = async (idSala) => {
+  return AxiosInstance.post(`${salaBase}/delete`, null, { params: { idSala } }).then((r) => r).catch((e) => { throw e; });
+};
+//#endregion

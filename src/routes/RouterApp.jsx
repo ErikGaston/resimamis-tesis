@@ -23,6 +23,9 @@ const SupplyPage = lazy(() =>
 const ProfileBabyPage = lazy(() =>
   import('../pages/profile/ProfileBabyPage').then(m => ({ default: m.ProfileBabyPage }))
 )
+const MyProfilePage = lazy(() =>
+  import('../pages/profile/MyProfilePage').then(m => ({ default: m.MyProfilePage }))
+)
 
 const withAuth = (element) => <PrivateRoute>{element}</PrivateRoute>
 
@@ -103,6 +106,10 @@ export const RouterApp = () => {
     {
       path: 'coordinacion',
       element: withAuth(<CoordinacionPage />),
+    },
+    {
+      path: 'mi-perfil',
+      element: withAuth(<MyProfilePage />),
     },
   ])
 

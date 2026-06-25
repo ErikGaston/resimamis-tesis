@@ -1,6 +1,8 @@
 import React from 'react'
 import BottomNavigationCustom from '../atoms/BottomNavigation'
 import { Box } from '@mui/material'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined'
 import { APP_COLUMN_MAX_WIDTH_PX } from '../../helpers/const/appLayout'
 import home from '../../assets/home/home.svg'
 import homeSelected from '../../assets/home/homeSelected.svg'
@@ -21,13 +23,19 @@ const Footer = () => {
       label: 'Tareas',
       value: 'tareas',
       icon: <img src={task} alt="tareas" />,
-      iconSelected: <img src={taskSelected} alt="home" />
+      iconSelected: <img src={taskSelected} alt="tareas" />
     },
     {
       label: 'Estadísticas',
       value: 'estadisticas',
       icon: <img src={metrics} alt="estadisticas" />,
-      iconSelected: <img src={metricsSelected} alt="home" />
+      iconSelected: <img src={metricsSelected} alt="estadisticas" />
+    },
+    {
+      label: 'Perfil',
+      value: 'mi-perfil',
+      icon: <AccountCircleOutlinedIcon sx={{ fontSize: 24, color: 'rgba(255,255,255,0.92)' }} />,
+      iconSelected: <AccountCircleIcon sx={{ fontSize: 24, color: '#FFEB3B' }} />
     },
   ]
   return (

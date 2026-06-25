@@ -25,8 +25,10 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
+import StoreIcon from '@mui/icons-material/Store';
 import TimerIcon from '@mui/icons-material/Timer';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -47,6 +49,8 @@ import {
   getAssistanceAll,
   postAssistanceDelete,
   clearVolunteerWrites,
+  getVolunteers,
+  postVolunteerDelete,
 } from '../../redux/actions/volunteerActions';
 import {
   postUsuario,
@@ -58,6 +62,8 @@ import {
 } from '../../redux/actions/userActions';
 import { getMother, postMotherDelete, clearMotherWrites } from '../../redux/actions/motherActions';
 import { getBabys, postBabyDelete, clearBabyWrites } from '../../redux/actions/babyActions';
+import { getProveedoresAll, postProveedor, putProveedor, postProveedorDelete, clearProveedorWrites } from '../../redux/actions/proveedorActions';
+import { getSalasAll, postSala, putSala, postSalaDelete, clearSalaWrites } from '../../redux/actions/salaActions';
 import { showToast } from '../../redux/actions/toastActions';
 import Loading from '../../components/atoms/loading/Loading';
 import { showLoading } from '../../redux/actions/loadingActions';
@@ -84,6 +90,8 @@ const MENU_ITEMS = [
   { label: 'Asistencia', icon: <EventNoteIcon /> },
   { label: 'Usuarios', icon: <PeopleIcon /> },
   { label: 'Bajas', icon: <PersonRemoveIcon /> },
+  { label: 'Proveedores', icon: <StoreIcon /> },
+  { label: 'Salas', icon: <MeetingRoomIcon /> },
 ];
 
 function TabPanel({ children, value, index }) {
@@ -117,6 +125,8 @@ export const CoordinacionPage = () => {
   const user = useSelector((s) => s.userReducer);
   const mother = useSelector((s) => s.motherReducer);
   const baby = useSelector((s) => s.babyReducer);
+  const proveedor = useSelector((s) => s.proveedorReducer);
+  const sala = useSelector((s) => s.salaReducer);
   const loading = useSelector((s) => s.assignmentReducer?.loading);
 
   const [tab, setTab] = useState(0);
@@ -143,6 +153,16 @@ export const CoordinacionPage = () => {
   // Bajas
   const [bajasSubTab, setBajasSubTab] = useState('madres');
   const [bajasSearch, setBajasSearch] = useState('');
+
+  // Proveedores
+  const [editProveedor, setEditProveedor] = useState(null);
+  const [editProveedorForm, setEditProveedorForm] = useState({ nombre: '', descripcion: '', Activa: true });
+  const [newProveedorForm, setNewProveedorForm] = useState({ nombre: '', descripcion: '', Activa: true });
+
+  // Salas
+  const [editSala, setEditSala] = useState(null);
+  const [editSalaForm, setEditSalaForm] = useState({ Nombre: '', Activa: true });
+  const [newSalaForm, setNewSalaForm] = useState({ Nombre: '', Activa: true });
 
   const toastOk = useCallback(
     (msg) => dispatch(showToast({ message: msg, severity: 'success' })),
@@ -172,6 +192,13 @@ export const CoordinacionPage = () => {
       dispatch(showLoading(true));
       dispatch(getBabys());
       dispatch(getMother());
+      dispatch(getVolunteers());
+    } else if (tab === 4) {
+      dispatch(showLoading(true));
+      dispatch(getProveedoresAll());
+    } else if (tab === 5) {
+      dispatch(showLoading(true));
+      dispatch(getSalasAll());
     }
   }, [tab, dispatch]);
 
@@ -242,6 +269,37 @@ export const CoordinacionPage = () => {
     }
   }, [baby?.postBabyDelete, dispatch, toastOk]);
 
+  useEffect(() => {
+    if (volunteer?.postVolunteerDelete != null) {
+      dispatch(showLoading(false));
+      toastOk('Voluntaria dada de baja.');
+      dispatch(clearVolunteerWrites());
+      dispatch(getVolunteers());
+    }
+  }, [volunteer?.postVolunteerDelete, dispatch, toastOk]);
+
+  useEffect(() => {
+    if (proveedor?.postProveedor != null || proveedor?.putProveedor != null || proveedor?.postProveedorDelete != null) {
+      dispatch(showLoading(false));
+      toastOk('Proveedor: operación OK.');
+      setEditProveedor(null);
+      setNewProveedorForm({ nombre: '', descripcion: '', Activa: true });
+      dispatch(clearProveedorWrites());
+      dispatch(getProveedoresAll());
+    }
+  }, [proveedor?.postProveedor, proveedor?.putProveedor, proveedor?.postProveedorDelete, dispatch, toastOk]);
+
+  useEffect(() => {
+    if (sala?.postSala != null || sala?.putSala != null || sala?.postSalaDelete != null) {
+      dispatch(showLoading(false));
+      toastOk('Sala: operación OK.');
+      setEditSala(null);
+      setNewSalaForm({ Nombre: '', Activa: true });
+      dispatch(clearSalaWrites());
+      dispatch(getSalasAll());
+    }
+  }, [sala?.postSala, sala?.putSala, sala?.postSalaDelete, dispatch, toastOk]);
+
   // Dismiss loading on list GET results and errors
   useEffect(() => {
     const anyResult = [
@@ -252,6 +310,9 @@ export const CoordinacionPage = () => {
       volunteer?.getAssistanceAll,
       mother?.getMother,
       baby?.getBabys,
+      volunteer?.getVolunteers,
+      proveedor?.getProveedoresAll,
+      sala?.getSalasAll,
     ].some((r) => r != null);
     const anyError = [
       assignment?.error,
@@ -260,6 +321,8 @@ export const CoordinacionPage = () => {
       user?.userAdminError,
       mother?.error,
       baby?.error,
+      proveedor?.error,
+      sala?.error,
     ].some((e) => e != null);
     if (anyResult || anyError) dispatch(showLoading(false));
   }, [
@@ -270,12 +333,17 @@ export const CoordinacionPage = () => {
     volunteer?.getAssistanceAll,
     mother?.getMother,
     baby?.getBabys,
+    volunteer?.getVolunteers,
+    proveedor?.getProveedoresAll,
+    sala?.getSalasAll,
     assignment?.error,
     volunteer?.error,
     user?.error,
     user?.userAdminError,
     mother?.error,
     baby?.error,
+    proveedor?.error,
+    sala?.error,
     dispatch,
   ]);
 
@@ -297,6 +365,9 @@ export const CoordinacionPage = () => {
   const usuariosList = normalizarLista(user?.getUsuarios);
   const volsSinUsuario = normalizarLista(user?.getVoluntariasSinUsuario);
   const asistenciasList = normalizarLista(volunteer?.getAssistanceAll);
+  const voluntariasList = normalizarLista(volunteer?.getVolunteers);
+  const proveedoresList = normalizarLista(proveedor?.getProveedoresAll);
+  const salasList = normalizarLista(sala?.getSalasAll);
 
   const asistenciaReporteRows = (() => {
     const raw = volunteer?.getAssistanceReporte;
@@ -466,6 +537,48 @@ export const CoordinacionPage = () => {
 
           {/* ── 1: Asistencia ── */}
           <TabPanel value={tab} index={1}>
+            <Typography variant="subtitle2" sx={{ mb: 1.5, color: NAVY }}>
+              Reporte por período
+            </Typography>
+            <TextField
+              label="Fecha inicio"
+              type="datetime-local"
+              value={repIni}
+              onChange={(e) => setRepIni(e.target.value)}
+              fullWidth
+              size="small"
+              sx={{ mb: 1 }}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Fecha fin"
+              type="datetime-local"
+              value={repFin}
+              onChange={(e) => setRepFin(e.target.value)}
+              fullWidth
+              size="small"
+              sx={{ mb: 1 }}
+              InputLabelProps={{ shrink: true }}
+            />
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{ bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' }, mb: 2 }}
+              onClick={() => {
+                const q = {
+                  fechaInicio: new Date(repIni).toISOString(),
+                  fechaFin: new Date(repFin).toISOString(),
+                };
+                setRepLastQuery(q);
+                dispatch(showLoading(true));
+                dispatch(getAssistanceReporte(q));
+              }}
+            >
+              Ver reporte
+            </Button>
+
+            <Divider sx={{ my: 2 }} />
+
             <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2, color: NAVY }}>
               Asistencias registradas
             </Typography>
@@ -523,48 +636,6 @@ export const CoordinacionPage = () => {
                 No hay asistencias registradas.
               </Typography>
             ) : null}
-
-            <Divider sx={{ my: 2 }} />
-
-            <Typography variant="subtitle2" sx={{ mb: 1.5, color: NAVY }}>
-              Reporte por período
-            </Typography>
-            <TextField
-              label="Fecha inicio"
-              type="datetime-local"
-              value={repIni}
-              onChange={(e) => setRepIni(e.target.value)}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              label="Fecha fin"
-              type="datetime-local"
-              value={repFin}
-              onChange={(e) => setRepFin(e.target.value)}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              InputLabelProps={{ shrink: true }}
-            />
-            <Button
-              variant="contained"
-              fullWidth
-              sx={{ bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
-              onClick={() => {
-                const q = {
-                  fechaInicio: new Date(repIni).toISOString(),
-                  fechaFin: new Date(repFin).toISOString(),
-                };
-                setRepLastQuery(q);
-                dispatch(showLoading(true));
-                dispatch(getAssistanceReporte(q));
-              }}
-            >
-              Ver reporte
-            </Button>
           </TabPanel>
 
           {/* ── 2: Usuarios ── */}
@@ -721,6 +792,7 @@ export const CoordinacionPage = () => {
                 variant={bajasSubTab === 'madres' ? 'contained' : 'outlined'}
                 size="small"
                 fullWidth
+                sx={bajasSubTab === 'madres' ? { bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } } : { borderColor: VIOLET, color: VIOLET }}
                 onClick={() => { setBajasSubTab('madres'); setBajasSearch(''); }}
               >
                 Madres
@@ -729,16 +801,30 @@ export const CoordinacionPage = () => {
                 variant={bajasSubTab === 'bebes' ? 'contained' : 'outlined'}
                 size="small"
                 fullWidth
+                sx={bajasSubTab === 'bebes' ? { bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } } : { borderColor: VIOLET, color: VIOLET }}
                 onClick={() => { setBajasSubTab('bebes'); setBajasSearch(''); }}
               >
                 Bebés
+              </Button>
+              <Button
+                variant={bajasSubTab === 'voluntarias' ? 'contained' : 'outlined'}
+                size="small"
+                fullWidth
+                sx={bajasSubTab === 'voluntarias' ? { bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } } : { borderColor: VIOLET, color: VIOLET }}
+                onClick={() => { setBajasSubTab('voluntarias'); setBajasSearch(''); }}
+              >
+                Voluntarias
               </Button>
             </Box>
 
             <TextField
               value={bajasSearch}
               onChange={(e) => setBajasSearch(e.target.value)}
-              placeholder={bajasSubTab === 'madres' ? 'Buscar por nombre o DNI…' : 'Buscar por nombre o madre…'}
+              placeholder={
+                bajasSubTab === 'madres' ? 'Buscar por nombre o DNI…' :
+                bajasSubTab === 'bebes' ? 'Buscar por nombre o madre…' :
+                'Buscar por nombre o DNI…'
+              }
               fullWidth
               size="small"
               sx={{ mb: 2 }}
@@ -854,6 +940,239 @@ export const CoordinacionPage = () => {
                 </Box>
               );
             })()}
+
+            {bajasSubTab === 'voluntarias' && (() => {
+              if (!Array.isArray(voluntariasList)) {
+                return <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textAlign: 'center', py: 3 }}>Cargando voluntarias…</Typography>;
+              }
+              const q = bajasSearch.trim().toLowerCase();
+              const filtered = voluntariasList.filter((v) => {
+                if (!q) return true;
+                const full = `${v.nombre ?? ''} ${v.apellido ?? ''}`.toLowerCase();
+                const dniStr = String(v.dni ?? '');
+                return full.includes(q) || dniStr.includes(q.replace(/\D/g, ''));
+              });
+              if (!filtered.length) {
+                return <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textAlign: 'center', py: 3 }}>Sin resultados.</Typography>;
+              }
+              return (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  {filtered.map((v) => {
+                    const id = v.idVoluntaria ?? v.id;
+                    const nombreVol = `${v.nombre ?? ''} ${v.apellido ?? ''}`.trim() || 'Sin nombre';
+                    return (
+                      <Box
+                        key={id}
+                        sx={{
+                          display: 'flex', alignItems: 'center', gap: 1.5,
+                          p: 1.5, bgcolor: '#fff', borderRadius: 2,
+                          border: '1px solid rgba(0,0,0,0.08)',
+                          boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                        }}
+                      >
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography noWrap sx={{ fontWeight: 600, fontSize: '0.9rem' }}>
+                            {nombreVol}
+                          </Typography>
+                          <Typography noWrap sx={{ fontSize: '0.78rem', color: 'text.secondary' }}>
+                            DNI: {v.dni ?? '—'}{v.mail ? ` · ${v.mail}` : ''}
+                          </Typography>
+                        </Box>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => openConfirm(
+                            `¿Dar de baja a ${nombreVol}?`,
+                            () => { dispatch(showLoading(true)); dispatch(postVolunteerDelete(id)); },
+                          )}
+                        >
+                          <DeleteOutlineIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              );
+            })()}
+          </TabPanel>
+
+          {/* ── 4: Proveedores ── */}
+          <TabPanel value={tab} index={4}>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2, color: NAVY }}>
+              Proveedores
+            </Typography>
+
+            {Array.isArray(proveedoresList) && proveedoresList.length > 0 ? (
+              <Box sx={{ mb: 2 }}>
+                {proveedoresList.map((p) => (
+                  <Box
+                    key={p.idProveedor}
+                    sx={{
+                      display: 'flex', alignItems: 'center', gap: 1,
+                      py: 1, px: 0.5,
+                      borderBottom: '1px solid rgba(21,44,112,0.08)',
+                    }}
+                  >
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="body2" fontWeight={600} noWrap>
+                        {p.nombre}
+                      </Typography>
+                      {p.descripcion ? (
+                        <Typography variant="caption" color="text.secondary" noWrap display="block">
+                          {p.descripcion}
+                        </Typography>
+                      ) : null}
+                    </Box>
+                    <Chip
+                      label={p.Activa ? 'Activo' : 'Inactivo'}
+                      size="small"
+                      sx={{
+                        bgcolor: p.Activa ? 'rgba(0,168,107,0.1)' : 'rgba(0,0,0,0.06)',
+                        color: p.Activa ? '#00A86B' : 'text.secondary',
+                        fontWeight: 600, fontSize: '0.65rem', height: 20,
+                        '& .MuiChip-label': { px: 0.75 },
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setEditProveedor(p);
+                        setEditProveedorForm({ nombre: p.nombre ?? '', descripcion: p.descripcion ?? '', Activa: p.Activa ?? true });
+                      }}
+                    >
+                      <EditOutlinedIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => openConfirm(
+                        `¿Eliminar proveedor "${p.nombre}"?`,
+                        () => { dispatch(showLoading(true)); dispatch(postProveedorDelete(p.idProveedor)); },
+                      )}
+                    >
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Box>
+            ) : Array.isArray(proveedoresList) && proveedoresList.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                No hay proveedores registrados.
+              </Typography>
+            ) : null}
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              Nuevo proveedor
+            </Typography>
+            <TextField
+              label="Nombre *"
+              value={newProveedorForm.nombre}
+              onChange={(e) => setNewProveedorForm((f) => ({ ...f, nombre: e.target.value }))}
+              fullWidth size="small" sx={{ mb: 1 }}
+            />
+            <TextField
+              label="Descripción"
+              value={newProveedorForm.descripcion}
+              onChange={(e) => setNewProveedorForm((f) => ({ ...f, descripcion: e.target.value }))}
+              fullWidth size="small" multiline minRows={2} sx={{ mb: 1 }}
+            />
+            <Button
+              variant="contained"
+              fullWidth
+              disabled={!newProveedorForm.nombre.trim()}
+              sx={{ bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
+              onClick={() => {
+                dispatch(showLoading(true));
+                dispatch(postProveedor({ nombre: newProveedorForm.nombre, descripcion: newProveedorForm.descripcion || null, Activa: true }));
+              }}
+            >
+              Crear proveedor
+            </Button>
+          </TabPanel>
+
+          {/* ── 5: Salas NEO ── */}
+          <TabPanel value={tab} index={5}>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2, color: NAVY }}>
+              Salas NEO
+            </Typography>
+
+            {Array.isArray(salasList) && salasList.length > 0 ? (
+              <Box sx={{ mb: 2 }}>
+                {salasList.map((s) => (
+                  <Box
+                    key={s.IdSala ?? s.idSala}
+                    sx={{
+                      display: 'flex', alignItems: 'center', gap: 1,
+                      py: 1, px: 0.5,
+                      borderBottom: '1px solid rgba(21,44,112,0.08)',
+                    }}
+                  >
+                    <Typography variant="body2" fontWeight={600} sx={{ flex: 1, minWidth: 0 }} noWrap>
+                      {s.Nombre ?? s.nombre}
+                    </Typography>
+                    <Chip
+                      label={s.Activa ? 'Activa' : 'Inactiva'}
+                      size="small"
+                      sx={{
+                        bgcolor: s.Activa ? 'rgba(0,168,107,0.1)' : 'rgba(0,0,0,0.06)',
+                        color: s.Activa ? '#00A86B' : 'text.secondary',
+                        fontWeight: 600, fontSize: '0.65rem', height: 20,
+                        '& .MuiChip-label': { px: 0.75 },
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setEditSala(s);
+                        setEditSalaForm({ Nombre: s.Nombre ?? s.nombre ?? '', Activa: s.Activa ?? true });
+                      }}
+                    >
+                      <EditOutlinedIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => openConfirm(
+                        `¿Eliminar sala "${s.Nombre ?? s.nombre}"?`,
+                        () => { dispatch(showLoading(true)); dispatch(postSalaDelete(s.IdSala ?? s.idSala)); },
+                      )}
+                    >
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Box>
+            ) : Array.isArray(salasList) && salasList.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                No hay salas registradas.
+              </Typography>
+            ) : null}
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              Nueva sala
+            </Typography>
+            <TextField
+              label="Nombre *"
+              value={newSalaForm.Nombre}
+              onChange={(e) => setNewSalaForm((f) => ({ ...f, Nombre: e.target.value }))}
+              fullWidth size="small" sx={{ mb: 1 }}
+            />
+            <Button
+              variant="contained"
+              fullWidth
+              disabled={!newSalaForm.Nombre.trim()}
+              sx={{ bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
+              onClick={() => {
+                dispatch(showLoading(true));
+                dispatch(postSala({ Nombre: newSalaForm.Nombre, Activa: true }));
+              }}
+            >
+              Crear sala
+            </Button>
           </TabPanel>
 
         </Paper>
@@ -1165,6 +1484,124 @@ export const CoordinacionPage = () => {
           <Button onClick={handleCancelConfirm}>Cancelar</Button>
           <Button onClick={handleConfirm} color="error" variant="contained">
             Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Proveedor Dialog */}
+      <Dialog
+        open={Boolean(editProveedor)}
+        onClose={() => setEditProveedor(null)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0' } }}
+        sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25 }}>
+          <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'rgba(21,44,112,0.15)' }} />
+        </Box>
+        <DialogTitle sx={{ fontWeight: 700, color: NAVY, pb: 0.5 }}>
+          Editar proveedor
+        </DialogTitle>
+        <DialogContent sx={{ pt: 1 }}>
+          <TextField
+            label="Nombre *"
+            value={editProveedorForm.nombre}
+            onChange={(e) => setEditProveedorForm((f) => ({ ...f, nombre: e.target.value }))}
+            fullWidth size="small" sx={{ mb: 1.5 }}
+          />
+          <TextField
+            label="Descripción"
+            value={editProveedorForm.descripcion}
+            onChange={(e) => setEditProveedorForm((f) => ({ ...f, descripcion: e.target.value }))}
+            fullWidth size="small" multiline minRows={2} sx={{ mb: 1.5 }}
+          />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2">Activo</Typography>
+            <Button
+              size="small"
+              variant={editProveedorForm.Activa ? 'contained' : 'outlined'}
+              sx={editProveedorForm.Activa ? { bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' }, minWidth: 60 } : { borderColor: VIOLET, color: VIOLET, minWidth: 60 }}
+              onClick={() => setEditProveedorForm((f) => ({ ...f, Activa: !f.Activa }))}
+            >
+              {editProveedorForm.Activa ? 'Sí' : 'No'}
+            </Button>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
+          <Button variant="outlined" onClick={() => setEditProveedor(null)} sx={{ flex: 1, borderColor: 'rgba(21,44,112,0.22)', color: VIOLET }}>
+            Cancelar
+          </Button>
+          <Button
+            variant="contained"
+            disabled={!editProveedorForm.nombre.trim()}
+            sx={{ flex: 1, bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
+            onClick={() => {
+              if (!editProveedor) return;
+              dispatch(showLoading(true));
+              dispatch(putProveedor(editProveedor.idProveedor, {
+                idProveedor: editProveedor.idProveedor,
+                nombre: editProveedorForm.nombre,
+                descripcion: editProveedorForm.descripcion || null,
+                Activa: editProveedorForm.Activa,
+              }));
+            }}
+          >
+            Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Sala Dialog */}
+      <Dialog
+        open={Boolean(editSala)}
+        onClose={() => setEditSala(null)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0' } }}
+        sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25 }}>
+          <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'rgba(21,44,112,0.15)' }} />
+        </Box>
+        <DialogTitle sx={{ fontWeight: 700, color: NAVY, pb: 0.5 }}>
+          Editar sala
+        </DialogTitle>
+        <DialogContent sx={{ pt: 1 }}>
+          <TextField
+            label="Nombre *"
+            value={editSalaForm.Nombre}
+            onChange={(e) => setEditSalaForm((f) => ({ ...f, Nombre: e.target.value }))}
+            fullWidth size="small" sx={{ mb: 1.5 }}
+          />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2">Activa</Typography>
+            <Button
+              size="small"
+              variant={editSalaForm.Activa ? 'contained' : 'outlined'}
+              sx={editSalaForm.Activa ? { bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' }, minWidth: 60 } : { borderColor: VIOLET, color: VIOLET, minWidth: 60 }}
+              onClick={() => setEditSalaForm((f) => ({ ...f, Activa: !f.Activa }))}
+            >
+              {editSalaForm.Activa ? 'Sí' : 'No'}
+            </Button>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
+          <Button variant="outlined" onClick={() => setEditSala(null)} sx={{ flex: 1, borderColor: 'rgba(21,44,112,0.22)', color: VIOLET }}>
+            Cancelar
+          </Button>
+          <Button
+            variant="contained"
+            disabled={!editSalaForm.Nombre.trim()}
+            sx={{ flex: 1, bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
+            onClick={() => {
+              if (!editSala) return;
+              const id = editSala.IdSala ?? editSala.idSala;
+              dispatch(showLoading(true));
+              dispatch(putSala(id, { IdSala: id, Nombre: editSalaForm.Nombre, Activa: editSalaForm.Activa }));
+            }}
+          >
+            Guardar
           </Button>
         </DialogActions>
       </Dialog>
