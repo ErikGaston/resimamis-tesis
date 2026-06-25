@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Box } from '@mui/material';
 import Loading from '../../components/atoms/loading/Loading';
 import { ProfileTemplate } from '../../components/templates/profile/ProfileTemplate';
@@ -27,13 +27,26 @@ export const ProfileMotherPage = () => {
   const dataMother = useSelector(state => state.motherReducer)
   const dataBaby = useSelector(state => state.babyReducer)
   const [model, setModel] = useState(null);
+  const modelRef = useRef(null);
+  const originalModel = useRef(null);
+  useEffect(() => { modelRef.current = model; }, [model]);
   const { id } = useParams();
-  const [editForm, setEditForm] = React.useState(false);
+  const [editForm, setEditFormRaw] = React.useState(false);
+  const setEditForm = (val) => {
+    if (val === true && !editForm) {
+      originalModel.current = JSON.stringify(modelRef.current);
+    }
+    setEditFormRaw(val);
+  };
   const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_MOTHER_FIELD_ERRORS });
 
   const submitMother = () => {
     dispatch(clearMotherApiError());
     const mdl = model || {};
+    if (originalModel.current != null && JSON.stringify(mdl) === originalModel.current) {
+      dispatch(showToast({ message: 'No se detectaron cambios.', severity: 'info' }));
+      return;
+    }
     const mothers = dataMother?.getMother?.data ?? [];
     const { ok, errors } = validateMotherForm(mdl, {
       mothers,
@@ -113,9 +126,10 @@ export const ProfileMotherPage = () => {
       }
     }
     if (dataMother?.putMother !== null) {
-      setEditForm(state => !state)
+      setEditFormRaw(false);
       setFieldErrors({ ...INITIAL_MOTHER_FIELD_ERRORS });
       dispatch(showLoading(false));
+      originalModel.current = JSON.stringify(modelRef.current);
       dispatch(showToast({ message: 'La madre se ha modificado con éxito.', severity: 'success' }));
     }
   }, [dataMother?.error, dataMother?.putMother, dispatch])

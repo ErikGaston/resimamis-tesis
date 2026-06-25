@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Box } from '@mui/material';
 import Loading from '../../components/atoms/loading/Loading';
 import { ProfileTemplate } from '../../components/templates/profile/ProfileTemplate';
@@ -25,14 +25,27 @@ export const ProfileVolunteerPage = () => {
   const loading = useSelector(state => state.volunteerReducer?.loading)
   const dataVolunteer = useSelector(state => state.volunteerReducer)
   const [model, setModel] = useState(null);
+  const modelRef = useRef(null);
+  const originalModel = useRef(null);
+  useEffect(() => { modelRef.current = model; }, [model]);
   const [stateForm, setStateForm] = useState(null);
   const { id } = useParams();
-  const [editForm, setEditForm] = React.useState(false);
+  const [editForm, setEditFormRaw] = React.useState(false);
+  const setEditForm = (val) => {
+    if (val === true && !editForm) {
+      originalModel.current = JSON.stringify(modelRef.current);
+    }
+    setEditFormRaw(val);
+  };
   const { getVolunteer } = dataVolunteer;
   const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_VOLUNTEER_FIELD_ERRORS });
 
   const submitVolunteer = () => {
     const mdl = model || {};
+    if (originalModel.current != null && JSON.stringify(mdl) === originalModel.current) {
+      dispatch(showToast({ message: 'No se detectaron cambios.', severity: 'info' }));
+      return;
+    }
     const volunteers = dataVolunteer?.getVolunteers?.data ?? [];
     const selfId =
       mdl?.idVoluntaria ??
@@ -80,9 +93,10 @@ export const ProfileVolunteerPage = () => {
       dispatch(showLoading(false))
     }
     if (dataVolunteer?.putVolunteer !== null) {
-      setEditForm(state => !state)
+      setEditFormRaw(false);
       setFieldErrors({ ...INITIAL_VOLUNTEER_FIELD_ERRORS });
-      dispatch(showLoading(false))
+      dispatch(showLoading(false));
+      originalModel.current = JSON.stringify(modelRef.current);
       setStateForm('SUCCESS')
       setTimeout(() => {
         setStateForm(null);

@@ -87,6 +87,7 @@ export const ProfileBabyPage = () => {
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
   // Used to know whether the next getBabys refresh should update the model
   const pendingModelRefresh = useRef(false);
+  const originalBabyModel = useRef(null);
 
   const openConfirm = (message, onConfirm) =>
     setConfirmDialog({ open: true, message, onConfirm });
@@ -117,6 +118,7 @@ export const ProfileBabyPage = () => {
         if (pendingModelRefresh.current) {
           // After a successful save, update with server data
           setBabyModel(found);
+          originalBabyModel.current = JSON.stringify(found);
           pendingModelRefresh.current = false;
         } else {
           // Initial load: only set if not already set
@@ -140,6 +142,7 @@ export const ProfileBabyPage = () => {
       const freshBaby = babyState.putBaby?.data;
       if (freshBaby != null) {
         setBabyModel(freshBaby);
+        originalBabyModel.current = JSON.stringify(freshBaby);
       } else {
         pendingModelRefresh.current = true;
       }
@@ -184,6 +187,10 @@ export const ProfileBabyPage = () => {
 
   const handleSaveBaby = () => {
     if (!babyModel) return;
+    if (originalBabyModel.current != null && JSON.stringify(babyModel) === originalBabyModel.current) {
+      dispatch(showToast({ message: 'No se detectaron cambios.', severity: 'info' }));
+      return;
+    }
     const payload = normalizeBabyApiPayload(babyModel, babyModel?.idMadre);
     if (payload.id == null) {
       dispatch(showToast({ message: 'No se pudo identificar el bebé. Recargá la página e intentá de nuevo.', severity: 'error' }));
@@ -238,7 +245,10 @@ export const ProfileBabyPage = () => {
                       <Button
                         variant="contained"
                         fullWidth
-                        onClick={() => setEditMode(true)}
+                        onClick={() => {
+                          originalBabyModel.current = JSON.stringify(babyModel);
+                          setEditMode(true);
+                        }}
                         sx={btnEdit}
                       >
                         Editar bebé
