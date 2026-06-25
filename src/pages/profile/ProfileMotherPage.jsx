@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Box } from '@mui/material';
+import { Box, Skeleton } from '@mui/material';
 import Loading from '../../components/atoms/loading/Loading';
 import { ProfileTemplate } from '../../components/templates/profile/ProfileTemplate';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,6 +7,7 @@ import { getMotherId, clearMother, putMother, getMother, clearMotherApiError } f
 import { useParams } from 'react-router-dom';
 import Footer from '../../components/molecules/Footer';
 import PageScrollMain from '../../components/common/PageScrollMain';
+import { PageHeader } from '../../components/common/PageHeader';
 import { showLoading } from '../../redux/actions/loadingActions';
 import { getLocalities, getEstadosCiviles } from '../../redux/actions/genericsActions';
 import { showToast } from '../../redux/actions/toastActions';
@@ -17,6 +18,54 @@ import {
 } from '../../utils/motherFormValidation';
 import { mapAspNetErrorsToMotherFieldErrors } from '../../utils/apiErrorMessage';
 import { clearBaby, getBabySalas, putBaby } from '../../redux/actions/babyActions';
+
+function FieldSkeleton({ multiline = false }) {
+  return (
+    <Box sx={{ mb: 1.5 }}>
+      <Skeleton variant="text" width="38%" height={18} sx={{ mb: 0.5 }} />
+      <Skeleton variant="rounded" height={multiline ? 76 : 44} />
+    </Box>
+  );
+}
+
+function MotherProfileSkeleton() {
+  return (
+    <>
+      <PageHeader title="Cargando..." />
+      <Box sx={{ px: 2.5, pt: 2, pb: 4 }}>
+        {/* Accordion header */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            py: 1.5,
+            px: 1,
+            mb: 1.5,
+            borderBottom: '1px solid rgba(0,0,0,0.10)',
+          }}
+        >
+          <Skeleton variant="text" width="65%" height={26} />
+          <Skeleton variant="circular" width={24} height={24} />
+        </Box>
+
+        {/* Campos */}
+        <FieldSkeleton />
+        <FieldSkeleton />
+        <FieldSkeleton />
+        <FieldSkeleton />
+        <FieldSkeleton />
+        <FieldSkeleton />
+        <FieldSkeleton />
+        <FieldSkeleton multiline />
+        <FieldSkeleton />
+
+        {/* Botón */}
+        <Skeleton variant="rounded" height={44} sx={{ mt: 1, borderRadius: '10px' }} />
+      </Box>
+    </>
+  );
+}
 
 export const ProfileMotherPage = () => {
 
@@ -167,25 +216,30 @@ export const ProfileMotherPage = () => {
         position: 'relative',
       }}
     >
-      {loading && (
+      {/* Overlay solo para mutaciones (putMother, putBaby), no para la carga inicial */}
+      {loading && model !== null && (
         <Loading position={'absolute'} height={'100%'} zIndex={9999} />
       )}
       <PageScrollMain>
-        <ProfileTemplate
-          model={model}
-          setModel={setModel}
-          submit={submitMother}
-          localities={localities?.data ?? null}
-          estadosCiviles={estadosCiviles?.data ?? null}
-          mothers={dataMother?.getMother?.data ?? null}
-          editForm={editForm}
-          setEditForm={setEditForm}
-          typeForm="EDITAR"
-          fieldErrors={fieldErrors}
-          setFieldErrors={setFieldErrors}
-          type={"MOTHER"}
-          profileBabyExtras={profileBabyExtras}
-        />
+        {model === null ? (
+          <MotherProfileSkeleton />
+        ) : (
+          <ProfileTemplate
+            model={model}
+            setModel={setModel}
+            submit={submitMother}
+            localities={localities?.data ?? null}
+            estadosCiviles={estadosCiviles?.data ?? null}
+            mothers={dataMother?.getMother?.data ?? null}
+            editForm={editForm}
+            setEditForm={setEditForm}
+            typeForm="EDITAR"
+            fieldErrors={fieldErrors}
+            setFieldErrors={setFieldErrors}
+            type={"MOTHER"}
+            profileBabyExtras={profileBabyExtras}
+          />
+        )}
       </PageScrollMain>
       <Footer />
     </Box>

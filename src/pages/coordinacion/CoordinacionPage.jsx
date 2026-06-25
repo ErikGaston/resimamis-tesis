@@ -16,13 +16,16 @@ import {
   Paper,
   Select,
   Switch,
-  Tab,
-  Tabs,
   TextField,
   Typography,
 } from '@mui/material';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import PeopleIcon from '@mui/icons-material/People';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -43,13 +46,11 @@ import {
 } from '../../redux/actions/volunteerActions';
 import {
   postUsuario,
-  getUsuarioById,
   putUsuario,
   postUsuarioDelete,
   clearUserAdmin,
   getUsuarios,
   getVoluntariasSinUsuario,
-  putUsuarioContrasena,
 } from '../../redux/actions/userActions';
 import {
   getTareas,
@@ -64,6 +65,17 @@ import { getBabys, postBabyDelete, clearBabyWrites } from '../../redux/actions/b
 import { showToast } from '../../redux/actions/toastActions';
 import Loading from '../../components/atoms/loading/Loading';
 import { showLoading } from '../../redux/actions/loadingActions';
+
+const VIOLET = '#7A659B';
+const VIOLET_LIGHT = '#F3EEFF';
+
+const MENU_ITEMS = [
+  { label: 'Asignación', icon: <AssignmentIcon /> },
+  { label: 'Asistencia', icon: <EventNoteIcon /> },
+  { label: 'Usuarios', icon: <PeopleIcon /> },
+  { label: 'Tareas', icon: <PlaylistAddCheckIcon /> },
+  { label: 'Bajas', icon: <PersonRemoveIcon /> },
+];
 
 function TabPanel({ children, value, index }) {
   if (value !== index) return null;
@@ -121,11 +133,9 @@ export const CoordinacionPage = () => {
 
   // Usuarios
   const [usuarioForm, setUsuarioForm] = useState({ dni: '', contrasena: '', idVoluntaria: '' });
-  const [usuarioIdBuscar, setUsuarioIdBuscar] = useState('');
-  const [usuarioJsonEdit, setUsuarioJsonEdit] = useState('{}');
-  const [idUsuarioDel, setIdUsuarioDel] = useState('');
-  const [contrasenaForm, setContrasenaForm] = useState({ ContrasenaActual: '', ContrasenaNueva: '' });
-
+  const [editUserTarget, setEditUserTarget] = useState(null);
+  const [editUserDni, setEditUserDni] = useState('');
+  const [editUserPwd, setEditUserPwd] = useState('');
 
   // Tareas
   const [tareaForm, setTareaForm] = useState({ nombre: '', Estado: true, esUnica: false });
@@ -148,14 +158,23 @@ export const CoordinacionPage = () => {
   };
   const handleCancelConfirm = () => setConfirmDialog({ open: false, message: '', onConfirm: null });
 
-  // ── Dismiss loading on individual GET results ──
+  // Auto-cargar datos al cambiar de pestaña
   useEffect(() => {
-    if (user?.getUsuarioById != null) {
-      dispatch(showLoading(false));
-      setUsuarioJsonEdit(JSON.stringify(user.getUsuarioById, null, 2));
+    if (tab === 2) {
+      dispatch(showLoading(true));
+      dispatch(getUsuarios());
+      dispatch(getVoluntariasSinUsuario());
+    } else if (tab === 3) {
+      dispatch(showLoading(true));
+      dispatch(getTareas());
+    } else if (tab === 4) {
+      dispatch(showLoading(true));
+      dispatch(getBabys());
+      dispatch(getMother());
     }
-  }, [user?.getUsuarioById, dispatch]);
+  }, [tab, dispatch]);
 
+  // Tarea detail loaded
   useEffect(() => {
     if (tarea?.getTareaById != null) {
       dispatch(showLoading(false));
@@ -168,7 +187,7 @@ export const CoordinacionPage = () => {
     }
   }, [tarea?.getTareaById, dispatch]);
 
-  // ── Success effects (write operations) ──
+  // Success effects (write operations)
   useEffect(() => {
     if (assignment?.postResetAbrazosColgados != null) {
       dispatch(showLoading(false));
@@ -197,18 +216,15 @@ export const CoordinacionPage = () => {
     if (user?.postUsuario != null || user?.putUsuario != null || user?.postUsuarioDelete != null) {
       dispatch(showLoading(false));
       toastOk('Usuario: operación OK.');
+      setEditUserTarget(null);
+      setEditUserDni('');
+      setEditUserPwd('');
+      setUsuarioForm({ dni: '', contrasena: '', idVoluntaria: '' });
       dispatch(clearUserAdmin());
+      dispatch(getUsuarios());
+      dispatch(getVoluntariasSinUsuario());
     }
   }, [user?.postUsuario, user?.putUsuario, user?.postUsuarioDelete, dispatch, toastOk]);
-
-  useEffect(() => {
-    if (user?.putUsuarioContrasena != null) {
-      dispatch(showLoading(false));
-      toastOk('Contraseña actualizada.');
-      setContrasenaForm({ ContrasenaActual: '', ContrasenaNueva: '' });
-      dispatch(clearUserAdmin());
-    }
-  }, [user?.putUsuarioContrasena, dispatch, toastOk]);
 
   useEffect(() => {
     if (tarea?.postTarea != null || tarea?.putTarea != null || tarea?.postTareaDelete != null) {
@@ -237,16 +253,7 @@ export const CoordinacionPage = () => {
     }
   }, [baby?.postBabyDelete, dispatch, toastOk]);
 
-  // ── Cargar listas de Bajas al entrar en la pestaña ──
-  useEffect(() => {
-    if (tab === 5) {
-      dispatch(showLoading(true));
-      dispatch(getBabys());
-      dispatch(getMother());
-    }
-  }, [tab, dispatch]);
-
-  // ── Dismiss loading on list-type GET results and errors ──
+  // Dismiss loading on list GET results and errors
   useEffect(() => {
     const anyResult = [
       user?.getUsuarios,
@@ -260,6 +267,7 @@ export const CoordinacionPage = () => {
       assignment?.error,
       volunteer?.error,
       user?.error,
+      user?.userAdminError,
       tarea?.error,
       mother?.error,
       baby?.error,
@@ -275,6 +283,7 @@ export const CoordinacionPage = () => {
     assignment?.error,
     volunteer?.error,
     user?.error,
+    user?.userAdminError,
     tarea?.error,
     mother?.error,
     baby?.error,
@@ -313,23 +322,44 @@ export const CoordinacionPage = () => {
       <PageHeader title="Coordinación" />
       <PageScrollMain>
         <Paper elevation={0} sx={{ p: 2, mx: 1, mb: 2, borderRadius: 2 }}>
-          <Tabs
-            value={tab}
-            onChange={(_, v) => setTab(v)}
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{
-              '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: '0.85rem' },
-              '& .Mui-selected': { color: '#8F00FF' },
-              '& .MuiTabs-indicator': { backgroundColor: '#8F00FF' },
-            }}
-          >
-            <Tab label="Asignación" />
-            <Tab label="Asistencia" />
-            <Tab label="Usuarios" />
-            <Tab label="Tareas" />
-            <Tab label="Bajas" icon={<PersonRemoveIcon sx={{ fontSize: 16 }} />} iconPosition="start" />
-          </Tabs>
+
+          {/* Card-grid menu */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, mb: 2 }}>
+            {MENU_ITEMS.map((item, index) => (
+              <Paper
+                key={index}
+                elevation={tab === index ? 2 : 0}
+                onClick={() => setTab(index)}
+                sx={{
+                  p: 1.5,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  cursor: 'pointer',
+                  borderRadius: 2,
+                  border: `2px solid ${tab === index ? VIOLET : 'rgba(0,0,0,0.08)'}`,
+                  bgcolor: tab === index ? VIOLET_LIGHT : 'background.paper',
+                  transition: 'border-color 0.15s, background-color 0.15s',
+                  userSelect: 'none',
+                  '&:active': { opacity: 0.85 },
+                }}
+              >
+                <Box sx={{ color: tab === index ? VIOLET : 'text.secondary', display: 'flex', '& svg': { fontSize: 28 } }}>
+                  {item.icon}
+                </Box>
+                <Typography
+                  variant="caption"
+                  fontWeight={tab === index ? 700 : 500}
+                  color={tab === index ? VIOLET : 'text.secondary'}
+                  textAlign="center"
+                  lineHeight={1.2}
+                >
+                  {item.label}
+                </Typography>
+              </Paper>
+            ))}
+          </Box>
 
           {/* ── 0: Asignación ── */}
           <TabPanel value={tab} index={0}>
@@ -482,15 +512,11 @@ export const CoordinacionPage = () => {
 
           {/* ── 2: Usuarios ── */}
           <TabPanel value={tab} index={2}>
-            <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
-              <Button variant="outlined" size="small" onClick={() => { dispatch(showLoading(true)); dispatch(getUsuarios()); }}>
-                Ver todos los usuarios
-              </Button>
-              <Button variant="outlined" size="small" onClick={() => { dispatch(showLoading(true)); dispatch(getVoluntariasSinUsuario()); }}>
-                Voluntarias sin usuario
-              </Button>
-            </Box>
-            {Array.isArray(usuariosList) && usuariosList.length > 0 && (
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2, color: '#152C70' }}>
+              Voluntarias con acceso al sistema
+            </Typography>
+
+            {Array.isArray(usuariosList) && usuariosList.length > 0 ? (
               <Box sx={{ mb: 2 }}>
                 {usuariosList.map((u) => (
                   <Box
@@ -499,30 +525,63 @@ export const CoordinacionPage = () => {
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      py: 0.75,
+                      py: 1,
+                      px: 0.5,
                       borderBottom: '1px solid rgba(21,44,112,0.08)',
                     }}
                   >
-                    <Box>
-                      <Typography variant="body2" fontWeight={600}>
-                        {u.nombre ?? u.voluntariaNombre ?? `Usuario #${u.idUsuario ?? u.id}`}{' '}
-                        {u.apellido ?? ''}
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="body2" fontWeight={600} noWrap>
+                        {u.nombreVoluntaria ?? u.nombre ?? `Usuario #${u.idUsuario ?? u.id}`}{' '}
+                        {u.apellidoVoluntaria ?? u.apellido ?? ''}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         DNI {u.dni ?? '—'}
                       </Typography>
                     </Box>
-                    <Typography variant="caption" color="text.secondary">
-                      #{u.idUsuario ?? u.id}
-                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setEditUserTarget({
+                            id: u.idUsuario ?? u.id,
+                            nombre: `${u.nombreVoluntaria ?? u.nombre ?? ''} ${u.apellidoVoluntaria ?? u.apellido ?? ''}`.trim(),
+                            idVoluntaria: u.idVoluntaria,
+                            idEstado: u.idEstado,
+                          });
+                          setEditUserDni(u.dni != null ? String(u.dni) : '');
+                          setEditUserPwd('');
+                        }}
+                      >
+                        <EditOutlinedIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => {
+                          const id = u.idUsuario ?? u.id;
+                          openConfirm(
+                            `¿Eliminar acceso de ${u.nombreVoluntaria ?? u.nombre ?? 'este usuario'}?`,
+                            () => { dispatch(showLoading(true)); dispatch(postUsuarioDelete(id)); },
+                          );
+                        }}
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
                   </Box>
                 ))}
               </Box>
-            )}
+            ) : Array.isArray(usuariosList) && usuariosList.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                No hay voluntarias con acceso registrado.
+              </Typography>
+            ) : null}
+
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Nuevo usuario
+              Dar acceso a una voluntaria
             </Typography>
             {Array.isArray(volsSinUsuario) && volsSinUsuario.length > 0 ? (
               <FormControl fullWidth size="small" sx={{ mb: 1 }}>
@@ -561,7 +620,7 @@ export const CoordinacionPage = () => {
               />
             )}
             <TextField
-              label="DNI"
+              label="DNI de acceso"
               value={usuarioForm.dni}
               onChange={(e) => setUsuarioForm((f) => ({ ...f, dni: e.target.value }))}
               fullWidth
@@ -570,7 +629,7 @@ export const CoordinacionPage = () => {
               inputProps={{ inputMode: 'numeric' }}
             />
             <TextField
-              label="Contraseña"
+              label="Contraseña (8–15 caracteres)"
               type="password"
               value={usuarioForm.contrasena}
               onChange={(e) => setUsuarioForm((f) => ({ ...f, contrasena: e.target.value }))}
@@ -580,6 +639,7 @@ export const CoordinacionPage = () => {
             />
             <Button
               variant="contained"
+              disabled={!usuarioForm.dni || !usuarioForm.contrasena || !usuarioForm.idVoluntaria}
               onClick={() => {
                 dispatch(showLoading(true));
                 dispatch(
@@ -595,103 +655,10 @@ export const CoordinacionPage = () => {
             >
               Crear usuario
             </Button>
-            <Divider sx={{ my: 2 }} />
-
-            <TextField
-              label="ID del usuario"
-              value={usuarioIdBuscar}
-              onChange={(e) => setUsuarioIdBuscar(e.target.value)}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              inputProps={{ inputMode: 'numeric' }}
-            />
-            <Button variant="outlined" onClick={() => { dispatch(showLoading(true)); dispatch(getUsuarioById(Number(usuarioIdBuscar))); }}>
-              Buscar usuario
-            </Button>
-            <TextField
-              label="Datos del usuario (JSON)"
-              value={usuarioJsonEdit}
-              onChange={(e) => setUsuarioJsonEdit(e.target.value)}
-              fullWidth
-              multiline
-              minRows={5}
-              size="small"
-              sx={{ mt: 1 }}
-            />
-            <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-              <Button
-                variant="contained"
-                onClick={() => {
-                  const id = Number(usuarioIdBuscar);
-                  const body = safeJsonParse(usuarioJsonEdit, {});
-                  if (!Number.isFinite(id)) return;
-                  dispatch(showLoading(true));
-                  dispatch(putUsuario(id, body));
-                }}
-              >
-                Guardar usuario
-              </Button>
-            </Box>
-            <Divider sx={{ my: 2 }} />
-
-            <TextField
-              label="ID del usuario (baja)"
-              value={idUsuarioDel}
-              onChange={(e) => setIdUsuarioDel(e.target.value)}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              inputProps={{ inputMode: 'numeric' }}
-            />
-            <Button
-              color="error"
-              variant="outlined"
-              onClick={() => {
-                const id = Number(idUsuarioDel);
-                if (!Number.isFinite(id)) return;
-                openConfirm(`¿Eliminar usuario ${id}?`, () => { dispatch(showLoading(true)); dispatch(postUsuarioDelete(id)); });
-              }}
-            >
-              Eliminar usuario
-            </Button>
-            <Divider sx={{ my: 2 }} />
-
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Cambiar contraseña (sesión actual)
-            </Typography>
-            <TextField
-              label="Contraseña actual"
-              type="password"
-              value={contrasenaForm.ContrasenaActual}
-              onChange={(e) => setContrasenaForm((f) => ({ ...f, ContrasenaActual: e.target.value }))}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-            />
-            <TextField
-              label="Contraseña nueva"
-              type="password"
-              value={contrasenaForm.ContrasenaNueva}
-              onChange={(e) => setContrasenaForm((f) => ({ ...f, ContrasenaNueva: e.target.value }))}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-            />
-            <Button
-              variant="contained"
-              disabled={!contrasenaForm.ContrasenaActual || !contrasenaForm.ContrasenaNueva}
-              onClick={() => { dispatch(showLoading(true)); dispatch(putUsuarioContrasena(contrasenaForm)); }}
-            >
-              Cambiar contraseña
-            </Button>
           </TabPanel>
 
           {/* ── 3: Tareas ── */}
           <TabPanel value={tab} index={3}>
-            <Button variant="outlined" fullWidth sx={{ mb: 2 }} onClick={() => { dispatch(showLoading(true)); dispatch(getTareas()); }}>
-              Cargar lista de tareas
-            </Button>
             {Array.isArray(tareasList) && tareasList.length > 0 && (
               <Box sx={{ mb: 2 }}>
                 {tareasList.map((t) => (
@@ -785,7 +752,7 @@ export const CoordinacionPage = () => {
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Editar / eliminar
+              Editar / eliminar tarea
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
               <TextField
@@ -876,7 +843,7 @@ export const CoordinacionPage = () => {
             </Box>
           </TabPanel>
 
-          {/* ── 5: Bajas ── */}
+          {/* ── 4: Bajas ── */}
           <TabPanel value={tab} index={4}>
             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
               <Button
@@ -1021,6 +988,66 @@ export const CoordinacionPage = () => {
         </Paper>
       </PageScrollMain>
 
+      {/* Edit User Dialog */}
+      <Dialog
+        open={!!editUserTarget}
+        onClose={() => { setEditUserTarget(null); setEditUserDni(''); setEditUserPwd(''); }}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: 600, color: '#152C70' }}>Editar acceso</DialogTitle>
+        <DialogContent sx={{ pt: 1 }}>
+          <Typography variant="body1" fontWeight={600} sx={{ mb: 0.5 }}>
+            {editUserTarget?.nombre}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
+            Nombre y apellido vienen de la voluntaria y no se editan aquí.
+          </Typography>
+          <TextField
+            label="DNI de acceso"
+            value={editUserDni}
+            onChange={(e) => setEditUserDni(e.target.value)}
+            fullWidth
+            size="small"
+            sx={{ mb: 1.5 }}
+            inputProps={{ inputMode: 'numeric' }}
+          />
+          <TextField
+            label="Nueva contraseña (dejar vacío para no cambiar)"
+            type="password"
+            value={editUserPwd}
+            onChange={(e) => setEditUserPwd(e.target.value)}
+            fullWidth
+            size="small"
+            helperText="8–15 caracteres si se ingresa"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setEditUserTarget(null); setEditUserDni(''); setEditUserPwd(''); }}>
+            Cancelar
+          </Button>
+          <Button
+            variant="contained"
+            disabled={!editUserDni}
+            onClick={() => {
+              dispatch(showLoading(true));
+              dispatch(
+                putUsuario(editUserTarget.id, {
+                  idUsuario: editUserTarget.id,
+                  dni: Number(editUserDni),
+                  idVoluntaria: editUserTarget.idVoluntaria,
+                  contrasena: editUserPwd || '',
+                  ...(editUserTarget.idEstado != null && { idEstado: editUserTarget.idEstado }),
+                }),
+              );
+            }}
+          >
+            Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Confirm Dialog */}
       <Dialog open={confirmDialog.open} onClose={handleCancelConfirm} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 600, color: '#152C70' }}>Confirmar</DialogTitle>
         <DialogContent>

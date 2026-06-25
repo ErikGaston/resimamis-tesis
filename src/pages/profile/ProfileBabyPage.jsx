@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Skeleton, Typography } from '@mui/material';
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -71,6 +71,52 @@ function normalizarVisitas(raw) {
     if (Array.isArray(c)) return c;
   }
   return [];
+}
+
+function FieldSkeleton({ multiline = false }) {
+  return (
+    <Box sx={{ mb: 1.5 }}>
+      <Skeleton variant="text" width="38%" height={18} sx={{ mb: 0.5 }} />
+      <Skeleton variant="rounded" height={multiline ? 76 : 44} />
+    </Box>
+  );
+}
+
+function BabyProfileSkeleton() {
+  return (
+    <Box sx={{ px: 2.5, pt: 2, pb: 4 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          py: 1.5,
+          px: 1,
+          mb: 1.5,
+          borderBottom: '1px solid rgba(0,0,0,0.10)',
+        }}
+      >
+        <Skeleton variant="text" width="60%" height={26} />
+        <Skeleton variant="circular" width={24} height={24} />
+      </Box>
+
+      {/* Nombre, Apellido, DNI, Fecha nac., Lugar nac., Sexo, Madre, Fecha ingreso NEO, Sala, Peso nac., Diagnóstico, Peso día abrazo */}
+      <FieldSkeleton />
+      <FieldSkeleton />
+      <FieldSkeleton />
+      <FieldSkeleton />
+      <FieldSkeleton />
+      <FieldSkeleton />
+      <FieldSkeleton />
+      <FieldSkeleton />
+      <FieldSkeleton />
+      <FieldSkeleton />
+      <FieldSkeleton />
+      <FieldSkeleton />
+
+      <Skeleton variant="rounded" height={44} sx={{ mt: 1, borderRadius: '10px' }} />
+    </Box>
+  );
 }
 
 export const ProfileBabyPage = () => {
@@ -208,11 +254,14 @@ export const ProfileBabyPage = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100dvh', maxHeight: '100dvh', minHeight: 0, overflow: 'hidden', position: 'relative' }}>
-      {loading && <Loading position="absolute" height="100%" zIndex={9999} />}
+      {loading && babyModel !== null && <Loading position="absolute" height="100%" zIndex={9999} />}
       <PageHeader title="Perfil del bebé" />
 
       <PageScrollMain>
-        <Box sx={{ px: 2.5, pt: 1, pb: 1 }}>
+        {babyModel === null ? (
+          <BabyProfileSkeleton />
+        ) : null}
+        {babyModel !== null && <Box sx={{ px: 2.5, pt: 1, pb: 1 }}>
 
           {/* Acordeón datos del bebé */}
           <AccordionCustomized
@@ -336,7 +385,7 @@ export const ProfileBabyPage = () => {
             }
           />
 
-        </Box>
+        </Box>}
       </PageScrollMain>
 
       <Dialog open={confirmDialog.open} onClose={handleCancelConfirm} maxWidth="xs" fullWidth>

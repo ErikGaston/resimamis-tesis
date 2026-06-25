@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Box } from '@mui/material';
+import { Box, Skeleton } from '@mui/material';
 import Loading from '../../components/atoms/loading/Loading';
 import { ProfileTemplate } from '../../components/templates/profile/ProfileTemplate';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,7 +7,9 @@ import { getVolunteerById, putVolunteer, clearVolunteer, getVolunteers } from '.
 import { useParams } from 'react-router-dom';
 import Footer from '../../components/molecules/Footer';
 import PageScrollMain from '../../components/common/PageScrollMain';
+import { PageHeader } from '../../components/common/PageHeader';
 import { showLoading } from '../../redux/actions/loadingActions';
+import { showToast } from '../../redux/actions/toastActions';
 import DialogSuccess from '../../components/atoms/dialogSuccess/DialogSuccess';
 import {
   validateVolunteerProfile,
@@ -18,6 +20,51 @@ import { VolunteerHorarioSection } from '../../components/molecules/volunteerHor
 import AccordionCustomized from '../../components/atoms/accordionCustomized/AccordionCustomized';
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+
+function FieldSkeleton({ multiline = false }) {
+  return (
+    <Box sx={{ mb: 1.5 }}>
+      <Skeleton variant="text" width="38%" height={18} sx={{ mb: 0.5 }} />
+      <Skeleton variant="rounded" height={multiline ? 76 : 44} />
+    </Box>
+  );
+}
+
+function VolunteerProfileSkeleton() {
+  return (
+    <>
+      <PageHeader title="Cargando..." />
+      <Box sx={{ px: 2.5, pt: 2, pb: 4 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            py: 1.5,
+            px: 1,
+            mb: 1.5,
+            borderBottom: '1px solid rgba(0,0,0,0.10)',
+          }}
+        >
+          <Skeleton variant="text" width="65%" height={26} />
+          <Skeleton variant="circular" width={24} height={24} />
+        </Box>
+
+        {/* Nombre, Apellido, DNI, E-mail, Celular, Fecha nacimiento, Fecha inicio, Fecha baja */}
+        <FieldSkeleton />
+        <FieldSkeleton />
+        <FieldSkeleton />
+        <FieldSkeleton />
+        <FieldSkeleton />
+        <FieldSkeleton />
+        <FieldSkeleton />
+        <FieldSkeleton />
+
+        <Skeleton variant="rounded" height={44} sx={{ mt: 1, borderRadius: '10px' }} />
+      </Box>
+    </>
+  );
+}
 
 export const ProfileVolunteerPage = () => {
 
@@ -117,20 +164,25 @@ export const ProfileVolunteerPage = () => {
         position: 'relative',
       }}
     >
-      {loading && (
+      {/* Overlay solo para mutaciones (putVolunteer), no para la carga inicial */}
+      {loading && model !== null && (
         <Loading position={'absolute'} height={'100%'} zIndex={9999} />
       )}
       <PageScrollMain>
-        <ProfileTemplate
-          model={model}
-          setModel={setModel}
-          submit={submitVolunteer}
-          editForm={editForm}
-          setEditForm={setEditForm}
-          type="VOLUNTEER"
-          fieldErrors={fieldErrors}
-          setFieldErrors={setFieldErrors}
-        />
+        {model === null ? (
+          <VolunteerProfileSkeleton />
+        ) : (
+          <ProfileTemplate
+            model={model}
+            setModel={setModel}
+            submit={submitVolunteer}
+            editForm={editForm}
+            setEditForm={setEditForm}
+            type="VOLUNTEER"
+            fieldErrors={fieldErrors}
+            setFieldErrors={setFieldErrors}
+          />
+        )}
         {model?.idVoluntaria != null && (
           <Box sx={{ px: 2.5, pt: 0.5, pb: 1 }}>
             <AccordionCustomized

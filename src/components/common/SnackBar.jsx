@@ -23,7 +23,7 @@ const SnackBar = ({
     <Snackbar
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       open={open}
-      autoHideDuration={autoHideDuration ?? 6000}
+      autoHideDuration={autoHideDuration ?? 3000}
       onClose={handleClose}
       sx={{ zIndex: 10050 }}
     >
