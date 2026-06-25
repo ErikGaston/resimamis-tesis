@@ -176,6 +176,7 @@ const ProfileForm = ({
                 value={dateNacValue}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
+                styleLabel={{ fontSize: '16px' }}
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaNacimiento')}
                 disabled={!edit}
                 minDate={birthMin}
@@ -189,6 +190,7 @@ const ProfileForm = ({
                 value={dateInicioValue}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
+                styleLabel={{ fontSize: '16px' }}
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaInicio')}
                 disabled={!edit}
                 minDate={profileAssignmentPickerMin(dateInicioValue)}
@@ -202,6 +204,7 @@ const ProfileForm = ({
                 value={dateFinValue}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
+                styleLabel={{ fontSize: '16px' }}
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaFin')}
                 disabled={!edit}
                 minDate={profileAssignmentPickerMin(dateFinValue)}
