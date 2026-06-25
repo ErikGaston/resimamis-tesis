@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Button, Skeleton, TextField, Typography } from '@mui/material';
+import {
+  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
+  Skeleton, TextField, Typography,
+} from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import Footer from '../../components/molecules/Footer';
 import PageScrollMain from '../../components/common/PageScrollMain';
@@ -18,6 +21,15 @@ import {
 import { getIdVolunteer } from '../../utils/localStorage';
 
 const VIOLET = '#7A659B';
+
+const BOTTOM_SHEET_SX = {
+  maxWidth: 444,
+  width: '100%',
+  mx: 'auto',
+  mb: 0,
+  mt: 'auto',
+  borderRadius: '20px 20px 0 0',
+};
 
 function FieldSkeleton() {
   return (
@@ -50,10 +62,19 @@ export const MyProfilePage = () => {
   const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_VOLUNTEER_FIELD_ERRORS });
 
   // Cambio de contraseña
+  const [pwdOpen, setPwdOpen] = useState(false);
   const [pwdActual, setPwdActual] = useState('');
   const [pwdNueva, setPwdNueva] = useState('');
   const [pwdConfirm, setPwdConfirm] = useState('');
   const [pwdError, setPwdError] = useState('');
+
+  const closePwdDialog = () => {
+    setPwdOpen(false);
+    setPwdActual('');
+    setPwdNueva('');
+    setPwdConfirm('');
+    setPwdError('');
+  };
 
   useEffect(() => {
     dispatch(showLoading(true));
@@ -90,10 +111,7 @@ export const MyProfilePage = () => {
     if (userState?.putUsuarioContrasena != null) {
       dispatch(showLoading(false));
       dispatch(showToast({ message: 'Contraseña actualizada.', severity: 'success' }));
-      setPwdActual('');
-      setPwdNueva('');
-      setPwdConfirm('');
-      setPwdError('');
+      closePwdDialog();
       dispatch(clearUserAdmin());
     }
   }, [userState?.userAdminError, userState?.putUsuarioContrasena]);
@@ -161,51 +179,84 @@ export const MyProfilePage = () => {
           />
         )}
 
-        {/* Sección cambio de contraseña */}
+        {/* Botón cambiar contraseña */}
         <Box sx={{ px: 2.5, pt: 0.5, pb: 3 }}>
-          <Typography
-            variant="subtitle2"
-            sx={{ color: VIOLET, fontWeight: 700, mb: 1.5, fontSize: '0.95rem', letterSpacing: '0.4px' }}
+          <Button
+            variant="outlined"
+            fullWidth
+            sx={{ borderColor: VIOLET, color: VIOLET, '&:hover': { bgcolor: '#F3EEFF', borderColor: VIOLET } }}
+            onClick={() => setPwdOpen(true)}
           >
             Cambiar contraseña
-          </Typography>
+          </Button>
+        </Box>
+      </PageScrollMain>
+
+      {/* Bottom-sheet cambio de contraseña */}
+      <Dialog
+        open={pwdOpen}
+        onClose={closePwdDialog}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: BOTTOM_SHEET_SX }}
+        sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25 }}>
+          <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'rgba(21,44,112,0.15)' }} />
+        </Box>
+        <DialogTitle sx={{ fontWeight: 700, color: '#152C70', pb: 0.5 }}>
+          Cambiar contraseña
+        </DialogTitle>
+        <DialogContent sx={{ pt: 1 }}>
           <TextField
             label="Contraseña actual"
             type="password"
             value={pwdActual}
             onChange={(e) => setPwdActual(e.target.value)}
-            fullWidth size="small" sx={{ mb: 1 }}
+            fullWidth size="small" sx={{ mb: 1.5 }}
+            autoComplete="current-password"
           />
           <TextField
             label="Nueva contraseña (8–15 caracteres)"
             type="password"
             value={pwdNueva}
             onChange={(e) => setPwdNueva(e.target.value)}
-            fullWidth size="small" sx={{ mb: 1 }}
+            fullWidth size="small" sx={{ mb: 1.5 }}
+            autoComplete="new-password"
           />
           <TextField
             label="Confirmar nueva contraseña"
             type="password"
             value={pwdConfirm}
             onChange={(e) => setPwdConfirm(e.target.value)}
-            fullWidth size="small" sx={{ mb: 1 }}
+            fullWidth size="small"
+            autoComplete="new-password"
           />
           {pwdError && (
-            <Typography variant="caption" color="error" display="block" sx={{ mb: 1 }}>
+            <Typography variant="caption" color="error" display="block" sx={{ mt: 1 }}>
               {pwdError}
             </Typography>
           )}
+        </DialogContent>
+        <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
+          <Button
+            variant="outlined"
+            onClick={closePwdDialog}
+            sx={{ flex: 1, borderColor: 'rgba(21,44,112,0.22)', color: VIOLET }}
+          >
+            Cancelar
+          </Button>
           <Button
             variant="contained"
-            fullWidth
             disabled={!pwdActual || !pwdNueva || !pwdConfirm}
-            sx={{ bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
+            sx={{ flex: 1, bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
             onClick={submitContrasena}
           >
-            Actualizar contraseña
+            Actualizar
           </Button>
-        </Box>
-      </PageScrollMain>
+        </DialogActions>
+      </Dialog>
+
       <Footer />
     </Box>
   );

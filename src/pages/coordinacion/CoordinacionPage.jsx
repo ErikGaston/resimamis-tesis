@@ -437,6 +437,25 @@ export const CoordinacionPage = () => {
 
           {/* ── 0: Asignación ── */}
           <TabPanel value={tab} index={0}>
+            <Button
+              variant="outlined"
+              fullWidth
+              sx={{
+                borderColor: VIOLET,
+                color: VIOLET,
+                mb: 2,
+                '&:hover': { bgcolor: VIOLET_LIGHT, borderColor: VIOLET },
+              }}
+              onClick={() =>
+                openConfirm(
+                  '¿Cerrar todos los abrazos sin finalizar de días anteriores?',
+                  () => { dispatch(showLoading(true)); dispatch(postResetAbrazosColgados()); },
+                )
+              }
+            >
+              Cerrar abrazos sin finalizar
+            </Button>
+
             <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2, color: '#152C70' }}>
               Asignaciones del día
             </Typography>
@@ -514,25 +533,6 @@ export const CoordinacionPage = () => {
               </Typography>
             ) : null}
 
-            <Divider sx={{ my: 2 }} />
-
-            <Button
-              variant="outlined"
-              fullWidth
-              sx={{
-                borderColor: VIOLET,
-                color: VIOLET,
-                '&:hover': { bgcolor: VIOLET_LIGHT, borderColor: VIOLET },
-              }}
-              onClick={() =>
-                openConfirm(
-                  '¿Cerrar todos los abrazos sin finalizar de días anteriores?',
-                  () => { dispatch(showLoading(true)); dispatch(postResetAbrazosColgados()); },
-                )
-              }
-            >
-              Cerrar abrazos sin finalizar
-            </Button>
           </TabPanel>
 
           {/* ── 1: Asistencia ── */}
