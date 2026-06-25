@@ -209,7 +209,7 @@ const SupplyTemplate = (props) => {
 
   const onChangeStockNumber = (setter) => (e) => {
     const v = e.target.value;
-    if (/^$|^[0-9]+$/.test(v)) setter(v);
+    if (/^$|^[0-9]+$/.test(v) && (v === '' || Number(v) <= 999999)) setter(v);
   };
 
   const canSubmitNewSupply =
@@ -335,14 +335,23 @@ const SupplyTemplate = (props) => {
     !Number.isNaN(Number(movCantidad)) &&
     Number(movCantidad) > 0;
 
+  const editNombreError =
+    editNombre.trim().length > 0 &&
+    (editNombre.trim().length < 2 || editNombre.trim().length > 100);
+  const editDescripcionError = editDescripcion.length > 500;
+
   const editFormValid =
-    editNombre.trim() !== '' &&
+    editNombre.trim().length >= 2 &&
+    editNombre.trim().length <= 100 &&
+    !editDescripcionError &&
     !Number.isNaN(Number(editStockMin)) &&
     !Number.isNaN(Number(editStockMax)) &&
     !Number.isNaN(Number(editStockActual)) &&
     Number(editStockMin) >= 0 &&
+    Number(editStockMin) <= 999999 &&
     Number(editStockMax) >= 0 &&
     Number(editStockActual) >= 0 &&
+    Number(editStockActual) <= 999999 &&
     Number(editStockMax) >= Number(editStockMin);
 
   return (
@@ -717,6 +726,14 @@ const SupplyTemplate = (props) => {
                   inputColor={INPUT_COLOR}
                   styleLabel={LABEL_STYLE}
                   required
+                  error={editNombreError}
+                  helperText={
+                    editNombreError
+                      ? editNombre.trim().length < 2
+                        ? 'Mínimo 2 caracteres.'
+                        : 'Máximo 100 caracteres.'
+                      : undefined
+                  }
                 />
                 <LabelInput
                   name="editDescripcion"
@@ -728,6 +745,8 @@ const SupplyTemplate = (props) => {
                   styleLabel={LABEL_STYLE}
                   multiline
                   rows={3}
+                  error={editDescripcionError}
+                  helperText={editDescripcionError ? 'Máximo 500 caracteres.' : undefined}
                 />
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, mb: 0.5 }}>
