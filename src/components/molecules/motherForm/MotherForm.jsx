@@ -196,6 +196,7 @@ const MotherForm = ({
                 value={dateValue}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
+                styleLabel={{ fontSize: '16px' }}
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaNacimiento')}
                 disabled={!editForm && typeForm === "EDITAR"}
                 minDate={minBirthDate}
@@ -230,6 +231,7 @@ const MotherForm = ({
                 label={'Estado civil'}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
+                styleLabel={{ fontSize: '16px' }}
                 disabled={!editForm && typeForm === "EDITAR"}
                 error={!!fieldErrors.estadoCivil}
                 helperText={fieldErrors.estadoCivil}
@@ -246,6 +248,7 @@ const MotherForm = ({
                     label={'Localidad'}
                     labelColor={'#152C70'}
                     inputColor={'#152C70'}
+                    styleLabel={{ fontSize: '16px' }}
                     disabled={!editForm && typeForm === "EDITAR"}
                     error={!!fieldErrors.localidad}
                     helperText={fieldErrors.localidad}

@@ -112,7 +112,7 @@ const ListMotherTemplate = (props) => {
                 dni={item.dni}
                 whatsapp={item.whatsapp}
                 context="madre"
-                onAdminDelete={isCoordinator && onDeleteMother ? () => onDeleteMother(item.idMadre) : undefined}
+                onAdminDelete={isCoordinator && onDeleteMother ? () => onDeleteMother(item.idMadre, `${item.nombre ?? ''} ${item.apellido ?? ''}`.trim()) : undefined}
               />
             ))}
           </ListStack>

@@ -199,7 +199,7 @@ const ListBabysTemplate = (props) => {
                 baby={item}
                 onAdminDelete={
                   isCoordinator && onDeleteBaby
-                    ? (idBebe) => onDeleteBaby(idBebe)
+                    ? (idBebe) => onDeleteBaby(idBebe, `${item.nombre ?? ''} ${item.apellido ?? ''}`.trim())
                     : undefined
                 }
               />

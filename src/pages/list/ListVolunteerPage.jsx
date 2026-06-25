@@ -16,8 +16,8 @@ export const ListVolunteerPage = () => {
   const handleConfirm = () => { confirmDialog.onConfirm?.(); setConfirmDialog({ open: false, message: '', onConfirm: null }); };
   const handleCancelConfirm = () => setConfirmDialog({ open: false, message: '', onConfirm: null });
 
-  const handleDeleteVolunteer = (idVoluntaria) => {
-    openConfirm(`¿Dar de baja la voluntaria #${idVoluntaria}? Esta acción es irreversible.`, () => {
+  const handleDeleteVolunteer = (idVoluntaria, nombre) => {
+    openConfirm(`¿Dar de baja a ${nombre}? Esta acción es irreversible.`, () => {
       dispatch(showLoading(true));
       dispatch(postVolunteerDelete(idVoluntaria));
     });

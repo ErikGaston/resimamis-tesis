@@ -169,6 +169,7 @@ const VolunteerForm = ({
                 value={dateNacValue}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
+                styleLabel={{ fontSize: '16px' }}
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaNacimiento')}
                 minDate={birthMin}
                 maxDate={birthMax}
@@ -181,6 +182,7 @@ const VolunteerForm = ({
                 value={dateInicioValue}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
+                styleLabel={{ fontSize: '16px' }}
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaInicio')}
                 minDate={fechaInicioMin}
                 maxDate={fechaInicioMax}
@@ -201,6 +203,7 @@ const VolunteerForm = ({
                 displayEmpty={true}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
+                styleLabel={{ fontSize: '16px' }}
                 required
                 error={!!fieldErrors.idTurno}
                 helperText={fieldErrors.idTurno}

@@ -120,7 +120,7 @@ const ListVolunteerTemplate = (props) => {
                 context="voluntaria"
                 onAdminDelete={
                   isCoordinator && onDeleteVolunteer
-                    ? () => onDeleteVolunteer(item.idVoluntaria)
+                    ? () => onDeleteVolunteer(item.idVoluntaria, `${item.nombre ?? ''} ${item.apellido ?? ''}`.trim())
                     : undefined
                 }
               />
