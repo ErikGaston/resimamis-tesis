@@ -107,3 +107,9 @@ export function postVolunteerDelete(idVoluntaria) {
         payload: idVoluntaria,
     };
 }
+
+export function getAssistanceAll() {
+    return {
+        type: actionTypes.GET_ASSISTANCE_ALL,
+    };
+}

@@ -237,6 +237,18 @@ function* asyncPostVolunteerDelete({ payload }) {
     }
 }
 
+function* asyncGetAssistanceAll() {
+    try {
+        const response = yield call(API.getAsistenciasAll);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_GET_ASSISTANCE_ALL, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_VOLUNTEER, response: error });
+    }
+}
+
 export default function* volunteerSaga() {
     yield takeLatest(actionTypes.POST_VOLUNTEER, asyncPostVolunteer);
     yield takeLatest(actionTypes.POST_ASSISTANCE, asyncPostAssistance);
@@ -252,4 +264,5 @@ export default function* volunteerSaga() {
     yield takeLatest(actionTypes.GET_ASSISTANCE_REPORTE, asyncGetAssistanceReporte);
     yield takeLatest(actionTypes.POST_ASSISTANCE_DELETE, asyncPostAssistanceDelete);
     yield takeLatest(actionTypes.POST_VOLUNTEER_DELETE, asyncPostVolunteerDelete);
+    yield takeLatest(actionTypes.GET_ASSISTANCE_ALL, asyncGetAssistanceAll);
 }

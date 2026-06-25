@@ -651,6 +651,10 @@ export const postAssistanceDelete = async (idAsistencia) => {
       throw e;
     });
 };
+
+export const getAsistenciasAll = async () => {
+  return AxiosInstance.get('/asistencia').then((r) => r).catch((e) => { throw e; });
+};
 //#endregion
 
 //#region - BEBE EXTRA

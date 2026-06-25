@@ -9,14 +9,12 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  FormControlLabel,
   FormControl,
   IconButton,
   InputLabel,
   MenuItem,
   Paper,
   Select,
-  Switch,
   TextField,
   Typography,
 } from '@mui/material';
@@ -29,7 +27,6 @@ import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PeopleIcon from '@mui/icons-material/People';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
-import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import TimerIcon from '@mui/icons-material/Timer';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -47,6 +44,7 @@ import {
 } from '../../redux/actions/assignmentActions';
 import {
   getAssistanceReporte,
+  getAssistanceAll,
   postAssistanceDelete,
   clearVolunteerWrites,
 } from '../../redux/actions/volunteerActions';
@@ -58,14 +56,6 @@ import {
   getUsuarios,
   getVoluntariasSinUsuario,
 } from '../../redux/actions/userActions';
-import {
-  getTareas,
-  getTareaById,
-  postTarea,
-  putTarea,
-  postTareaDelete,
-  clearTareaWrites,
-} from '../../redux/actions/tareaActions';
 import { getMother, postMotherDelete, clearMotherWrites } from '../../redux/actions/motherActions';
 import { getBabys, postBabyDelete, clearBabyWrites } from '../../redux/actions/babyActions';
 import { showToast } from '../../redux/actions/toastActions';
@@ -93,21 +83,12 @@ const MENU_ITEMS = [
   { label: 'Asignación', icon: <AssignmentIcon /> },
   { label: 'Asistencia', icon: <EventNoteIcon /> },
   { label: 'Usuarios', icon: <PeopleIcon /> },
-  { label: 'Tareas', icon: <PlaylistAddCheckIcon /> },
   { label: 'Bajas', icon: <PersonRemoveIcon /> },
 ];
 
 function TabPanel({ children, value, index }) {
   if (value !== index) return null;
   return <Box sx={{ pt: 2 }}>{children}</Box>;
-}
-
-function safeJsonParse(raw, fallback) {
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
 }
 
 function normalizarLista(raw) {
@@ -134,7 +115,6 @@ export const CoordinacionPage = () => {
   const assignment = useSelector((s) => s.assignmentReducer);
   const volunteer = useSelector((s) => s.volunteerReducer);
   const user = useSelector((s) => s.userReducer);
-  const tarea = useSelector((s) => s.tareaReducer);
   const mother = useSelector((s) => s.motherReducer);
   const baby = useSelector((s) => s.babyReducer);
   const loading = useSelector((s) => s.assignmentReducer?.loading);
@@ -160,11 +140,6 @@ export const CoordinacionPage = () => {
   const [editUserDni, setEditUserDni] = useState('');
   const [editUserPwd, setEditUserPwd] = useState('');
 
-  // Tareas
-  const [tareaForm, setTareaForm] = useState({ nombre: '', Estado: true, esUnica: false });
-  const [tareaEditId, setTareaEditId] = useState('');
-  const [tareaEditForm, setTareaEditForm] = useState({ nombre: '', Estado: true, esUnica: false });
-
   // Bajas
   const [bajasSubTab, setBajasSubTab] = useState('madres');
   const [bajasSearch, setBajasSearch] = useState('');
@@ -186,32 +161,19 @@ export const CoordinacionPage = () => {
     if (tab === 0) {
       dispatch(showLoading(true));
       dispatch(getAssignmentToday());
+    } else if (tab === 1) {
+      dispatch(showLoading(true));
+      dispatch(getAssistanceAll());
     } else if (tab === 2) {
       dispatch(showLoading(true));
       dispatch(getUsuarios());
       dispatch(getVoluntariasSinUsuario());
     } else if (tab === 3) {
       dispatch(showLoading(true));
-      dispatch(getTareas());
-    } else if (tab === 4) {
-      dispatch(showLoading(true));
       dispatch(getBabys());
       dispatch(getMother());
     }
   }, [tab, dispatch]);
-
-  // Tarea detail loaded
-  useEffect(() => {
-    if (tarea?.getTareaById != null) {
-      dispatch(showLoading(false));
-      const t = tarea.getTareaById;
-      setTareaEditForm({
-        nombre: t?.nombre ?? '',
-        Estado: t?.Estado ?? true,
-        esUnica: t?.esUnica ?? false,
-      });
-    }
-  }, [tarea?.getTareaById, dispatch]);
 
   // Success effects (write operations)
   useEffect(() => {
@@ -243,6 +205,7 @@ export const CoordinacionPage = () => {
       dispatch(showLoading(false));
       toastOk('Asistencia eliminada.');
       dispatch(clearVolunteerWrites());
+      dispatch(getAssistanceAll());
       if (repLastQuery) dispatch(getAssistanceReporte(repLastQuery));
     }
   }, [volunteer?.postAssistanceDelete, dispatch, toastOk, repLastQuery]);
@@ -260,15 +223,6 @@ export const CoordinacionPage = () => {
       dispatch(getVoluntariasSinUsuario());
     }
   }, [user?.postUsuario, user?.putUsuario, user?.postUsuarioDelete, dispatch, toastOk]);
-
-  useEffect(() => {
-    if (tarea?.postTarea != null || tarea?.putTarea != null || tarea?.postTareaDelete != null) {
-      dispatch(showLoading(false));
-      toastOk('Tarea: operación OK.');
-      dispatch(clearTareaWrites());
-      dispatch(getTareas());
-    }
-  }, [tarea?.postTarea, tarea?.putTarea, tarea?.postTareaDelete, dispatch, toastOk]);
 
   useEffect(() => {
     if (mother?.postMotherDelete != null) {
@@ -295,7 +249,7 @@ export const CoordinacionPage = () => {
       user?.getUsuarios,
       user?.getVoluntariasSinUsuario,
       volunteer?.getAssistanceReporte,
-      tarea?.getTareas,
+      volunteer?.getAssistanceAll,
       mother?.getMother,
       baby?.getBabys,
     ].some((r) => r != null);
@@ -304,7 +258,6 @@ export const CoordinacionPage = () => {
       volunteer?.error,
       user?.error,
       user?.userAdminError,
-      tarea?.error,
       mother?.error,
       baby?.error,
     ].some((e) => e != null);
@@ -314,14 +267,13 @@ export const CoordinacionPage = () => {
     user?.getUsuarios,
     user?.getVoluntariasSinUsuario,
     volunteer?.getAssistanceReporte,
-    tarea?.getTareas,
+    volunteer?.getAssistanceAll,
     mother?.getMother,
     baby?.getBabys,
     assignment?.error,
     volunteer?.error,
     user?.error,
     user?.userAdminError,
-    tarea?.error,
     mother?.error,
     baby?.error,
     dispatch,
@@ -342,9 +294,9 @@ export const CoordinacionPage = () => {
   }
 
   const asignacionesList = normalizarLista(assignment?.getAssignmentToday);
-  const tareasList = normalizarLista(tarea?.getTareas);
   const usuariosList = normalizarLista(user?.getUsuarios);
   const volsSinUsuario = normalizarLista(user?.getVoluntariasSinUsuario);
+  const asistenciasList = normalizarLista(volunteer?.getAssistanceAll);
 
   const asistenciaReporteRows = (() => {
     const raw = volunteer?.getAssistanceReporte;
@@ -370,7 +322,7 @@ export const CoordinacionPage = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', position: 'relative' }}>
       {loading && <Loading position="absolute" height="100%" />}
-      <PageHeader title="Coordinación" />
+      <PageHeader title="Administracion" />
       <PageScrollMain>
         <Paper elevation={0} sx={{ p: 2, mx: 1, mb: 2, borderRadius: 2 }}>
 
@@ -514,6 +466,69 @@ export const CoordinacionPage = () => {
 
           {/* ── 1: Asistencia ── */}
           <TabPanel value={tab} index={1}>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2, color: NAVY }}>
+              Asistencias registradas
+            </Typography>
+
+            {Array.isArray(asistenciasList) && asistenciasList.length > 0 ? (
+              <Box sx={{ mb: 2 }}>
+                {asistenciasList.map((a, i) => {
+                  const nombre = [a.nombreVoluntaria, a.apellidoVoluntaria].filter(Boolean).join(' ') || `Voluntaria #${a.idVoluntaria ?? i}`;
+                  const ingreso = a.fechaHoraIngreso ? dayjs(a.fechaHoraIngreso).format('DD/MM HH:mm') : '—';
+                  const salida = a.fechaHoraSalida ? dayjs(a.fechaHoraSalida).format('DD/MM HH:mm') : null;
+                  const enCentro = !!a.fechaHoraIngreso && !a.fechaHoraSalida;
+                  return (
+                    <Box
+                      key={a.idAsistencia ?? i}
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        py: 1,
+                        px: 0.5,
+                        borderBottom: '1px solid rgba(21,44,112,0.08)',
+                      }}
+                    >
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography variant="body2" fontWeight={600} noWrap>
+                          {nombre}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                          {ingreso}{salida ? ` → ${salida}` : ''}
+                        </Typography>
+                        {enCentro && (
+                          <Typography variant="caption" sx={{ color: VIOLET, fontWeight: 600 }}>
+                            En centro
+                          </Typography>
+                        )}
+                      </Box>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() =>
+                          openConfirm(
+                            `¿Eliminar asistencia de ${nombre}?`,
+                            () => { dispatch(showLoading(true)); dispatch(postAssistanceDelete(a.idAsistencia)); },
+                          )
+                        }
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  );
+                })}
+              </Box>
+            ) : Array.isArray(asistenciasList) && asistenciasList.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                No hay asistencias registradas.
+              </Typography>
+            ) : null}
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography variant="subtitle2" sx={{ mb: 1.5, color: NAVY }}>
+              Reporte por período
+            </Typography>
             <TextField
               label="Fecha inicio"
               type="datetime-local"
@@ -699,194 +714,8 @@ export const CoordinacionPage = () => {
             </Button>
           </TabPanel>
 
-          {/* ── 3: Tareas ── */}
+          {/* ── 3: Bajas ── */}
           <TabPanel value={tab} index={3}>
-            {Array.isArray(tareasList) && tareasList.length > 0 && (
-              <Box sx={{ mb: 2 }}>
-                {tareasList.map((t) => (
-                  <Box
-                    key={t.idTarea}
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      py: 0.75,
-                      borderBottom: '1px solid #eee',
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="body2" fontWeight={600}>
-                        {t.nombre}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {t.Estado ? 'Activa' : 'Inactiva'} · {t.esUnica ? 'Única' : 'Múltiple'}
-                      </Typography>
-                    </Box>
-                    <Button
-                      size="small"
-                      onClick={() => {
-                        setTareaEditId(String(t.idTarea));
-                        dispatch(showLoading(true));
-                        dispatch(getTareaById(t.idTarea));
-                      }}
-                    >
-                      Editar
-                    </Button>
-                  </Box>
-                ))}
-              </Box>
-            )}
-            {Array.isArray(tareasList) && tareasList.length === 0 && (
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                No hay tareas registradas.
-              </Typography>
-            )}
-            <Divider sx={{ my: 2 }} />
-
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Nueva tarea
-            </Typography>
-            <TextField
-              label="Nombre"
-              value={tareaForm.nombre}
-              onChange={(e) => setTareaForm((f) => ({ ...f, nombre: e.target.value }))}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={tareaForm.Estado}
-                  onChange={(e) => setTareaForm((f) => ({ ...f, Estado: e.target.checked }))}
-                />
-              }
-              label="Activa"
-              sx={{ mb: 0.5, display: 'flex' }}
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={tareaForm.esUnica}
-                  onChange={(e) => setTareaForm((f) => ({ ...f, esUnica: e.target.checked }))}
-                />
-              }
-              label="Es única (una activa a la vez)"
-              sx={{ mb: 1, display: 'flex' }}
-            />
-            <Button
-              variant="contained"
-              disabled={!tareaForm.nombre.trim()}
-              onClick={() => {
-                dispatch(showLoading(true));
-                dispatch(
-                  postTarea({
-                    nombre: tareaForm.nombre.trim(),
-                    Estado: tareaForm.Estado,
-                    esUnica: tareaForm.esUnica,
-                  }),
-                );
-                setTareaForm({ nombre: '', Estado: true, esUnica: false });
-              }}
-            >
-              Crear tarea
-            </Button>
-            <Divider sx={{ my: 2 }} />
-
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Editar / eliminar tarea
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-              <TextField
-                label="ID de tarea"
-                value={tareaEditId}
-                onChange={(e) => setTareaEditId(e.target.value)}
-                size="small"
-                sx={{ flex: 1 }}
-                inputProps={{ inputMode: 'numeric' }}
-              />
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  const id = Number(tareaEditId);
-                  if (!Number.isFinite(id)) return;
-                  dispatch(showLoading(true));
-                  dispatch(getTareaById(id));
-                }}
-              >
-                Cargar
-              </Button>
-            </Box>
-            {tarea?.getTareaById != null && (
-              <>
-                <TextField
-                  label="Nombre"
-                  value={tareaEditForm.nombre}
-                  onChange={(e) => setTareaEditForm((f) => ({ ...f, nombre: e.target.value }))}
-                  fullWidth
-                  size="small"
-                  sx={{ mb: 1 }}
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={tareaEditForm.Estado}
-                      onChange={(e) => setTareaEditForm((f) => ({ ...f, Estado: e.target.checked }))}
-                    />
-                  }
-                  label="Activa"
-                  sx={{ mb: 0.5, display: 'flex' }}
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={tareaEditForm.esUnica}
-                      onChange={(e) =>
-                        setTareaEditForm((f) => ({ ...f, esUnica: e.target.checked }))
-                      }
-                    />
-                  }
-                  label="Es única"
-                  sx={{ mb: 1, display: 'flex' }}
-                />
-              </>
-            )}
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                variant="contained"
-                disabled={!tareaEditId || !tareaEditForm.nombre.trim()}
-                onClick={() => {
-                  const id = Number(tareaEditId);
-                  if (!Number.isFinite(id)) return;
-                  dispatch(showLoading(true));
-                  dispatch(
-                    putTarea(id, {
-                      nombre: tareaEditForm.nombre.trim(),
-                      Estado: tareaEditForm.Estado,
-                      esUnica: tareaEditForm.esUnica,
-                    }),
-                  );
-                }}
-              >
-                Guardar cambios
-              </Button>
-              <Button
-                color="error"
-                variant="outlined"
-                disabled={!tareaEditId}
-                onClick={() => {
-                  const id = Number(tareaEditId);
-                  if (!Number.isFinite(id)) return;
-                  openConfirm(`¿Eliminar tarea ${id}?`, () => { dispatch(showLoading(true)); dispatch(postTareaDelete(id)); });
-                }}
-              >
-                Eliminar
-              </Button>
-            </Box>
-          </TabPanel>
-
-          {/* ── 4: Bajas ── */}
-          <TabPanel value={tab} index={4}>
             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
               <Button
                 variant={bajasSubTab === 'madres' ? 'contained' : 'outlined'}
