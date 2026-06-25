@@ -70,7 +70,7 @@ resimamis-tesis/
 
 ```
 
-> **ADVERTENCIA:** Las reglas en `.claude/rules/` (01–07) describen un proyecto completamente distinto ("Universal Market", marketplace B2C con Next.js + RTK Query + MercadoPago). **No aplican a este repo.** La fuente de verdad de dominio/arquitectura son `.cursor/rules/*.mdc` y este archivo.
+> Las reglas en `.claude/rules/` (00–07) son la fuente de verdad de dominio/arquitectura para Claude Code en este repo. Las reglas en `.cursor/rules/*.mdc` tienen más detalle para Cursor y deben mantenerse sincronizadas.
 
 ---
 
@@ -153,8 +153,24 @@ Patrón clave para no perder datos de listados al hacer operaciones de escritura
 
 - `AppScreenLayout` envuelve toda la app: columna centrada `maxWidth: 444px`.
 - `GlobalSnackBar` escucha `toastReducer`.
-- `BottomNavigation` fijo en la parte inferior (tab bar móvil).
+- `Footer` (tab bar móvil): 4 tabs fijos — **Inicio** (`/overview`), **Tareas** (`/tareas`), **Estadísticas** (`/estadisticas`), **Perfil** (`/mi-perfil`).
 - `PageScrollMain`: padding inferior para no tapar contenido bajo la nav.
+
+### Error display rule (NO violar)
+
+| Contexto | Mecanismo |
+|----------|-----------|
+| **Login** | Solo inline (`<Typography role="alert">` en `LoginTemplate`) — el toast desaparece, el usuario necesita ver el error mientras reingresa la contraseña |
+| **Todo el resto** | Solo toast (`showApiErrorToast(error)` en el catch de la saga) |
+
+`asyncPostLogin` en `userSaga.js` es la **única saga** que omite `showApiErrorToast`. Todas las demás siempre lo llaman.
+
+### Patrones de Dialog
+
+| Patrón | Uso | `PaperProps.sx` clave |
+|--------|-----|----------------------|
+| Full-screen (100dvh) | Finalizar abrazo, detalles de asignación, Coordinación | `height: '100dvh', maxHeight: '100dvh', m: 0, borderRadius: 0` |
+| Bottom-sheet (90dvh) | Cambio de contraseña, formularios cortos | `mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: '90dvh'` + `sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}` |
 
 ### Errores de API
 
@@ -324,7 +340,9 @@ docker build -t resimamis .       # imagen Docker
 | `/tareas` | `TasksPage` | privada | asistencia, asignaciones, abrazos, insumos (la pantalla más compleja) |
 | `/estadisticas` | `StatisticsPage` | privada | estadísticas madre, asignación, insumo |
 | `/insumos` | `SupplyPage` | privada | catálogo, movimientos, proveedores |
-| `/coordinacion` | `CoordinacionPage` | solo coordinadora | gestión avanzada: PUT/DELETE asignación, reset abrazos, CRUD usuarios, reportes |
+| `/bebe/perfil/:id` | `ProfileBabyPage` | privada | `getBabyByDni`, `putBaby`, `getBabySalas` |
+| `/coordinacion` | `CoordinacionPage` | solo coordinadora | gestión avanzada: PUT/DELETE asignación, reset abrazos, CRUD usuarios, reportes, CRUD proveedores, CRUD salas |
+| `/mi-perfil` | `MyProfilePage` | privada | `getVolunteerById`, `putVolunteer`, `putUsuarioContrasena` |
 
 La ruta `/home` redirige a `/overview` (legacy).
 
@@ -338,10 +356,13 @@ Base URL: `VITE_URL_API`. Prefijo en el backend: `/api/[Controller]`. Auth: `Aut
 | Método | Path | Notas |
 |--------|------|-------|
 | POST | `/usuario/login/` | Sin auth. Body: `{ dni, contrasena }` |
+| GET | `/usuario` | Solo Administrativa |
 | POST | `/usuario` | Solo Administrativa |
 | GET | `/usuario/id/{id}` | — |
 | PUT | `/usuario/id/{id}/` | Solo Administrativa |
+| PUT | `/usuario/contrasena` | Body: `{ ContrasenaActual, ContrasenaNueva }` |
 | POST | `/usuario/delete` | Query `idUsuario` |
+| GET | `/usuario/voluntarias-sin-usuario` | Voluntarias sin usuario asignado |
 
 ### Voluntaria + Asistencia
 | Método | Path |
@@ -384,12 +405,30 @@ Base URL: `VITE_URL_API`. Prefijo en el backend: `/api/[Controller]`. Auth: `Aut
 | POST | `/insumo`, `/insumo/consultaMovimientos`, `/insumo/registrarMovimiento`, `/insumo/delete` |
 | PUT | `/insumo/id/{id}/` |
 
+### Proveedores
+| Método | Path | Notas |
+|--------|------|-------|
+| GET | `/proveedor` | Listado activos |
+| POST | `/proveedor` | Body: `{ nombre, descripcion?, Activa }` |
+| PUT | `/proveedor/id/{id}` | — |
+| POST | `/proveedor/delete` | Query `idProveedor` |
+
+### Salas
+| Método | Path | Notas |
+|--------|------|-------|
+| GET | `/sala` | Listado activas |
+| POST | `/sala` | Body: `{ Nombre, Activa }` |
+| PUT | `/sala/id/{id}` | — |
+| POST | `/sala/delete` | Query `idSala` |
+
 ### Otros
 | Método | Path |
 |--------|------|
 | GET | `/genericos/localidades` |
+| GET | `/genericos/estadosCiviles` |
 | GET | `/horario/dias` |
 | POST | `/horario` |
+| PUT | `/horario/{idVoluntaria}` |
 | GET / POST / PUT | `/tarea/`, `/tarea/disponibles`, `/tarea/id/{id}`, `/tarea/delete` |
 | GET / POST / PUT | `/visita/`, `/visita/bebe/{idBebe}`, `/visita/id/{id}`, `/visita/delete` |
 
@@ -401,14 +440,18 @@ Base URL: `VITE_URL_API`. Prefijo en el backend: `/api/[Controller]`. Auth: `Aut
 
 | Función `src/redux/api/index.js` | Saga |
 |---|---|
-| `postLogin`, `postUsuario`, `getUsuarioById`, `putUsuarioById`, `postUsuarioDelete` | `userSaga` |
-| `getLocalities` | `genericsSaga` |
+| `postLogin`, `postUsuario`, `getUsuarios`, `getUsuarioById`, `putUsuarioById`, `postUsuarioDelete`, `putUsuarioContrasena`, `getVoluntariasSinUsuario` | `userSaga` |
+| `getLocalities`, `getEstadosCiviles` | `genericsSaga` |
 | `postMother`, `getMother`, `getMotherId`, `putMother`, `getStatisticsLocalities`, `getStatisticsAgeMother`, `postMotherDelete` | `motherSaga` |
-| `postVolunteer`, `putVolunteer`, `getVolunteers`, `getVolunteersFree`, `getVolunteersStates`, `getVolunteerById`, `postVolunteerDelete`, `postAssistance`, `postAssistanceSalida`, `getAssistance`, `getAssistanceToday`, `getAssistanceHistoricas`, `getAssistanceReporte`, `postAssistanceDelete` | `volunteerSaga` |
+| `postVolunteer`, `putVolunteer`, `getVolunteers`, `getVolunteersFree`, `getVolunteersStates`, `getVolunteerById`, `postVolunteerDelete`, `postAssistance`, `postAssistanceSalida`, `getAssistance`, `getAssistanceToday`, `getAssistanceHistoricas`, `getAssistanceReporte`, `postAssistanceDelete`, `getAsistenciasAll` | `volunteerSaga` |
 | `postBaby`, `putBaby`, `getBabys`, `getBabysFree`, `getBabysDisponiblesAbrazo`, `getBabySalas`, `getBabyByDni`, `postBabyDelete` | `babySaga` |
 | `postAssignmentGenerateTareas`, `postAssignmentGenerateTarea`, `getAssignmentById`, `postDetailAssignment`, `postStartHug`, `postEndHug`, `getDurationHug`, `getAssignmentToday`, `getAssignmentTodayById`, `getStatisticsAssignmentMonth`, `putAssignmentById`, `deleteAssignmentById`, `postResetAbrazosColgados` | `assignmentSaga` |
 | `getSupplies`, `postSupplyCreate`, `getStatisticsSupplies`, `postSupplyConsultMovements`, `getSupplyProviders`, `postSupplyRegisterMovement`, `getSupplyById`, `putSupplyById`, `postSupplyDelete` | `supplySaga` |
-| `getHorarioDias`, `postHorario` | `horarioSaga` |
+| `getHorarioDias`, `postHorario`, `putHorario` | `horarioSaga` |
+| `getTareas`, `getTareasDisponibles`, `getTareaById`, `postTarea`, `putTareaById`, `postTareaDelete` | `tareaSaga` |
+| `getVisitas`, `getVisitasByBebe`, `getVisitaById`, `postVisita`, `putVisitaById`, `postVisitaDelete` | `visitaSaga` |
+| `getProveedoresAll`, `postProveedor`, `putProveedor`, `postProveedorDelete` | `proveedorSaga` |
+| `getSalasAll`, `postSala`, `putSala`, `postSalaDelete` | `salaSaga` |
 
 ---
 

@@ -20,7 +20,8 @@
 | GET | `/usuario/id/{id}` | Sí | `getUsuarioById` | — |
 | PUT | `/usuario/id/{id}/` | Sí | `putUsuarioById` | Solo coordinadora. |
 | POST | `/usuario/delete` | Sí | `postUsuarioDelete` | Query `idUsuario`. Baja lógica. |
-| GET | `/usuario/voluntarias-sin-usuario` | Sí | — | Voluntarias sin usuario asignado. |
+| PUT | `/usuario/contrasena` | Sí | `putUsuarioContrasena` | Body: `{ ContrasenaActual, ContrasenaNueva }`. Cualquier usuario autenticado. |
+| GET | `/usuario/voluntarias-sin-usuario` | Sí | `getVoluntariasSinUsuario` | Voluntarias sin usuario asignado. |
 
 ---
 
@@ -29,7 +30,7 @@
 | Método | Path | Función API |
 |--------|------|-------------|
 | GET | `/genericos/localidades` | `getLocalities` |
-| GET | `/genericos/estadosCiviles` | `getEstadosCiviles` | Catálogo estático `[{ id, nombre }]` — no requiere tabla en DB |
+| GET | `/genericos/estadosCiviles` | `getEstadosCiviles` | Catálogo estático `[{ id, nombre }]` |
 
 ---
 
@@ -55,6 +56,7 @@
 | GET | `/asistencia/hoy` | `getAssistanceToday` | Todas las asistencias del día |
 | GET | `/asistencia/historicas/{id}` | `getAssistanceHistoricas` | Historial de una voluntaria |
 | GET | `/asistencia/reporte` | `getAssistanceReporte` | Query `fechaInicio`, `fechaFin`. Coordinadora. |
+| GET | `/asistencia` | `getAsistenciasAll` | Todas las asistencias (sin filtro de fecha). |
 | POST | `/asistencia/delete` | `postAssistanceDelete` | Query `idAsistencia`. Coordinadora. |
 
 ---
@@ -129,25 +131,52 @@
 
 ## Horario y Tareas
 
-| Método | Path | Función API |
-|--------|------|-------------|
-| GET | `/horario/dias` | `getHorarioDias` |
-| POST | `/horario` | `postHorario` |
-| GET | `/tarea/` | `getTareas` |
-| GET | `/tarea/disponibles` | `getTareasDisponibles` |
+| Método | Path | Función API | Notas |
+|--------|------|-------------|-------|
+| GET | `/horario/dias` | `getHorarioDias` | Catálogo de días disponibles |
+| POST | `/horario` | `postHorario` | Body: `HorarioVoluntaria[]` |
+| PUT | `/horario/{idVoluntaria}` | `putHorario` | Reemplaza TODOS los horarios de la voluntaria |
+| GET | `/tarea/` | `getTareas` | Catálogo completo |
+| GET | `/tarea/disponibles` | `getTareasDisponibles` | Respeta flag `esUnica` |
+| GET | `/tarea/id/{id}` | `getTareaById` | — |
+| POST | `/tarea/` | `postTarea` | Body: `{ nombre, Estado, esUnica }` |
+| PUT | `/tarea/id/{id}` | `putTareaById` | — |
+| POST | `/tarea/delete` | `postTareaDelete` | Query `idTarea` |
 
 ---
 
-## Visitas (nuevo desde jun 2026)
+## Proveedores
 
-| Método | Path | Notas |
-|--------|------|-------|
-| GET | `/visita/` | Listado activas |
-| GET | `/visita/bebe/{idBebe}` | Visitas de un bebé |
-| GET | `/visita/id/{id}` | — |
-| POST | `/visita/` | Registrar visita |
-| PUT | `/visita/id/{id}/` | Modificar |
-| POST | `/visita/delete` | Baja lógica |
+| Método | Path | Función API | Notas |
+|--------|------|-------------|-------|
+| GET | `/proveedor` | `getProveedoresAll` | Listado activos |
+| POST | `/proveedor` | `postProveedor` | Body: `{ nombre, descripcion?, Activa }` |
+| PUT | `/proveedor/id/{id}` | `putProveedor` | — |
+| POST | `/proveedor/delete` | `postProveedorDelete` | Query `idProveedor` |
+
+---
+
+## Salas NEO
+
+| Método | Path | Función API | Notas |
+|--------|------|-------------|-------|
+| GET | `/sala` | `getSalasAll` | Listado activas |
+| POST | `/sala` | `postSala` | Body: `{ Nombre, Activa }` |
+| PUT | `/sala/id/{id}` | `putSala` | — |
+| POST | `/sala/delete` | `postSalaDelete` | Query `idSala` |
+
+---
+
+## Visitas
+
+| Método | Path | Función API | Notas |
+|--------|------|-------------|-------|
+| GET | `/visita/` | `getVisitas` | Listado activas |
+| GET | `/visita/bebe/{idBebe}` | `getVisitasByBebe` | Visitas de un bebé |
+| GET | `/visita/id/{id}` | `getVisitaById` | — |
+| POST | `/visita/` | `postVisita` | `documentoVisitante` (int?), `telefonoVisitante` (long?) — normalizar con `normalizeVisitaBody` |
+| PUT | `/visita/id/{id}/` | `putVisitaById` | — |
+| POST | `/visita/delete` | `postVisitaDelete` | Query `idVisita` |
 
 ---
 
@@ -155,11 +184,15 @@
 
 | Función `src/redux/api/index.js` | Saga |
 |---|---|
-| `postLogin`, `postUsuario`, `getUsuarioById`, `putUsuarioById`, `postUsuarioDelete` | `userSaga` |
-| `getLocalities` | `genericsSaga` |
+| `postLogin`, `postUsuario`, `getUsuarios`, `getUsuarioById`, `putUsuarioById`, `postUsuarioDelete`, `putUsuarioContrasena`, `getVoluntariasSinUsuario` | `userSaga` |
+| `getLocalities`, `getEstadosCiviles` | `genericsSaga` |
 | `postMother`, `getMother`, `getMotherId`, `putMother`, `getStatisticsLocalities`, `getStatisticsAgeMother`, `postMotherDelete` | `motherSaga` |
-| `postVolunteer`, `putVolunteer`, `getVolunteers`, `getVolunteersFree`, `getVolunteersStates`, `getVolunteerById`, `postVolunteerDelete`, `postAssistance`, `postAssistanceSalida`, `getAssistance`, `getAssistanceToday`, `getAssistanceHistoricas`, `getAssistanceReporte`, `postAssistanceDelete` | `volunteerSaga` |
+| `postVolunteer`, `putVolunteer`, `getVolunteers`, `getVolunteersFree`, `getVolunteersStates`, `getVolunteerById`, `postVolunteerDelete`, `postAssistance`, `postAssistanceSalida`, `getAssistance`, `getAssistanceToday`, `getAssistanceHistoricas`, `getAssistanceReporte`, `postAssistanceDelete`, `getAsistenciasAll` | `volunteerSaga` |
 | `postBaby`, `putBaby`, `getBabys`, `getBabysFree`, `getBabysDisponiblesAbrazo`, `getBabySalas`, `getBabyByDni`, `postBabyDelete` | `babySaga` |
 | `postAssignmentGenerateTareas`, `postAssignmentGenerateTarea`, `getAssignmentById`, `postDetailAssignment`, `postStartHug`, `postEndHug`, `getDurationHug`, `getAssignmentToday`, `getAssignmentTodayById`, `getStatisticsAssignmentMonth`, `putAssignmentById`, `deleteAssignmentById`, `postResetAbrazosColgados` | `assignmentSaga` |
 | `getSupplies`, `postSupplyCreate`, `getStatisticsSupplies`, `postSupplyConsultMovements`, `getSupplyProviders`, `postSupplyRegisterMovement`, `getSupplyById`, `putSupplyById`, `postSupplyDelete` | `supplySaga` |
-| `getHorarioDias`, `postHorario` | `horarioSaga` |
+| `getHorarioDias`, `postHorario`, `putHorario` | `horarioSaga` |
+| `getTareas`, `getTareasDisponibles`, `getTareaById`, `postTarea`, `putTareaById`, `postTareaDelete` | `tareaSaga` |
+| `getVisitas`, `getVisitasByBebe`, `getVisitaById`, `postVisita`, `putVisitaById`, `postVisitaDelete` | `visitaSaga` |
+| `getProveedoresAll`, `postProveedor`, `putProveedor`, `postProveedorDelete` | `proveedorSaga` |
+| `getSalasAll`, `postSala`, `putSala`, `postSalaDelete` | `salaSaga` |

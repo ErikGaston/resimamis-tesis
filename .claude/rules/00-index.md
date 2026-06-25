@@ -7,10 +7,10 @@ Documentación extensa adicional en `.cursor/rules/` (Cursor las carga; Claude C
 |------|-------|
 | [01-negocio](01-negocio.md) | Dominio: actores (voluntaria/coordinadora/madre/bebé), flujo del día, entidades, validaciones de negocio |
 | [02-auth](02-auth.md) | JWT Bearer, localStorage, interceptor 401, rol coordinadora, guards de ruta |
-| [03-arquitectura-frontend](03-arquitectura-frontend.md) | Stack React 18 + Vite + Redux + Redux-Saga + MUI v5, estructura, patrón page→template, cómo agregar features |
-| [04-flujo-operativo](04-ordenes-checkout.md) | Asistencia, asignaciones, abrazos (iniciar/finalizar/detalle), insumos, algoritmo auto, CoordinacionPage |
+| [03-arquitectura-frontend](03-arquitectura-frontend.md) | Stack React 18 + Vite + Redux + Redux-Saga + MUI v5, estructura, patrón page→template, cómo agregar features, ProfileTemplate props, MyProfilePage, Footer tabs, patrones Dialog |
+| [04-flujo-operativo](04-ordenes-checkout.md) | Asistencia, asignaciones, abrazos (iniciar/finalizar/detalle, InformationHug Dialog), CardBabyHug, insumos, algoritmo auto, CoordinacionPage 6 tabs |
 | [05-backend](05-data-testid.md) | ASP.NET Core .NET 8 + EF Core + PostgreSQL, capas, convenciones HTTP, estados, baja lógica, deploy |
-| [06-endpoints-api](06-endpoints-backend.md) | Referencia completa de endpoints REST + mapeo función API → saga |
+| [06-endpoints-api](06-endpoints-backend.md) | Referencia completa de endpoints REST + mapeo función API → saga (incluye proveedores, salas, visitas, tareas, horario PUT, usuario/contrasena) |
 | [07-gobernanza-rules](07-gobernanza-rules.md) | Cuándo y cómo actualizar estas rules; mapeo cambio→rule |
 
 ## Qué es este proyecto

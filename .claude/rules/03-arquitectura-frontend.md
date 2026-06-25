@@ -103,25 +103,58 @@ No usar `CLEAR_MADRE` (vacía el listado). Usar `CLEAR_MADRE_WRITES` que solo li
 
 ```js
 combineReducers({
-  userReducer,       // token, login, datos de sesión, CRUD usuario admin
+  userReducer,       // token, login, datos de sesión, CRUD usuario admin, cambio contraseña
   volunteerReducer,  // asistencia, voluntarias libres/históricas, reporte, estados
   motherReducer,     // alta/edición madre, listados, estadísticas localidades/edades
-  genericsReducer,   // localidades
+  genericsReducer,   // localidades, estados civiles
   babyReducer,       // bebés, bebés libres (abrazar), salas
   assignmentReducer, // asignaciones, inicio/fin abrazo, estadísticas asignaciones
   supplyReducer,     // catálogo insumos, movimientos, proveedores
   toastReducer,      // snackbar global (GlobalSnackBar lo escucha)
-  horarioReducer,    // días disponibles + alta horario voluntaria
+  horarioReducer,    // días disponibles + alta/edición horario voluntaria
+  tareaReducer,      // catálogo tareas (CRUD), tareas disponibles
+  visitaReducer,     // visitas de bebés (CRUD)
+  proveedorReducer,  // proveedores (CRUD) — gestionado en CoordinacionPage
+  salaReducer,       // salas NEO (CRUD) — gestionado en CoordinacionPage
 })
 ```
 
 ## Layout global
 
 - `AppScreenLayout`: columna centrada `maxWidth: 444px` (`APP_COLUMN_MAX_WIDTH_PX`). Constante en `helpers/const/appLayout.js`.
-- `BottomNavigation`: tab bar fijo en la parte inferior.
+- `Footer`: tab bar fijo (4 tabs): **Inicio** (`/overview`), **Tareas** (`/tareas`), **Estadísticas** (`/estadisticas`), **Perfil** (`/mi-perfil`).
 - `GlobalSnackBar`: escucha `toastReducer`, muestra el snackbar global.
 - `PageScrollMain`: padding inferior calculado para no tapar campos bajo la nav.
 - FABs: se posicionan con `fabRightInsetInColumn` para alinearse dentro de la columna.
+
+## ProfileTemplate (`src/components/templates/profile/ProfileTemplate.jsx`)
+
+Props notables:
+
+| Prop | Tipo | Default | Descripción |
+|------|------|---------|-------------|
+| `disableAccordion` | bool | `false` | Si true, renderiza el formulario directo sin Accordion wrapper |
+| `myProfile` | bool | `false` | Pasa a `ProfileForm` para ocultar DNI, fechas (nacimiento/inicio/fin) |
+| `hideHeader` | bool | `false` | Oculta el `PageHeader` — usado cuando la página tiene su propio header visual |
+
+### MyProfilePage (`/mi-perfil`)
+
+Página del perfil propio de la voluntaria logueada. Características:
+- Banner con Avatar de iniciales + nombre sobre fondo gradiente violeta.
+- Skeletons mientras carga (`AvatarSkeleton`, `FieldSkeleton`).
+- Usa `ProfileTemplate` con `disableAccordion={true}`, `myProfile={true}`, `hideHeader={true}`.
+- Oculta DNI y fechas (no devueltas por el endpoint `/voluntaria/id/{id}`).
+- Dialog bottom-sheet (90dvh) para cambio de contraseña con dos campos: `ContrasenaActual` + `ContrasenaNueva`.
+- `dispatch(showLoading(false))` en cleanup del useEffect para evitar spinner indefinido al cerrar la página.
+
+## Patrones de Dialog
+
+| Patrón | `PaperProps.sx` clave |
+|--------|----------------------|
+| Full-screen (100dvh) | `height:'100dvh', maxHeight:'100dvh', m:0, borderRadius:0, display:'flex', flexDirection:'column', overflow:'hidden'` |
+| Bottom-sheet (90dvh) | `mb:0, mt:'auto', borderRadius:'20px 20px 0 0', maxHeight:'90dvh', display:'flex', flexDirection:'column'` + `sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}` |
+
+Usados en: `InformationHug`, `AssignedList` (detail), `CoordinacionPage` (todos), `MyProfilePage` (contraseña).
 
 ## Tema MUI (`src/helpers/theme.js`)
 
@@ -196,8 +229,10 @@ useEffect(() => {
 | `/voluntaria/perfil/:id` | `ProfileVolunteerPage` | privada |
 | `/voluntarias` | `ListVolunteerPage` | privada |
 | `/bebes` | `ListBabysPage` | privada |
+| `/bebe/perfil/:id` | `ProfileBabyPage` | privada |
 | `/tareas` | `TasksPage` | privada |
 | `/estadisticas` | `StatisticsPage` | privada |
 | `/insumos` | `SupplyPage` | privada |
 | `/coordinacion` | `CoordinacionPage` | privada (check interno por coordinadora) |
+| `/mi-perfil` | `MyProfilePage` | privada |
 | `/home` | redirect a `/overview` | — |

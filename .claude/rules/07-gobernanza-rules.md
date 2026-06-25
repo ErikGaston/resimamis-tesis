@@ -8,15 +8,19 @@ Las rules en `.claude/rules/` son la **fuente de verdad** del proyecto para Clau
 
 | Cambio en el código | Rule a actualizar |
 |--------------------|-------------------|
-| Nueva función en `redux/api/index.js` o nuevo saga | `06-endpoints-api.md` |
+| Nueva función en `redux/api/index.js` o nuevo saga | `06-endpoints-api.md` + `CLAUDE.md` (mapeo) |
 | Nuevo flujo de auth, localStorage, interceptor o rol | `02-auth.md` |
-| Nueva ruta en `RouterApp.jsx` o nuevo layout/guard | `03-arquitectura-frontend.md` |
+| Nueva ruta en `RouterApp.jsx` o nuevo layout/guard | `03-arquitectura-frontend.md` + `CLAUDE.md` (rutas) |
 | Nuevo atom/molecule/organism/template reutilizable | `03-arquitectura-frontend.md` |
+| Nuevo Dialog pattern o cambio de pattern existente | `03-arquitectura-frontend.md` |
 | Cambio en flujo de asistencia, asignación, abrazo, insumos | `04-flujo-operativo.md` |
+| Cambio en CoordinacionPage (tabs, CRUD) | `04-flujo-operativo.md` + `06-endpoints-api.md` |
 | Cambio de stack, dependencias clave o estructura de carpetas | `03-arquitectura-frontend.md` + `CLAUDE.md` raíz |
+| Nuevo reducer/saga (nuevo dominio) | `03-arquitectura-frontend.md` (combineReducers) + `06-endpoints-api.md` (mapeo) |
 | Nuevo endpoint, migración EF Core o entidad backend | `05-backend.md` + `06-endpoints-api.md` |
 | Nueva entidad de negocio, actor o regla de negocio | `01-negocio.md` |
 | Cambio en auth del backend (JWT, roles, CORS) | `02-auth.md` + `05-backend.md` |
+| Nueva ruta en Footer (tab bar) | `03-arquitectura-frontend.md` + `CLAUDE.md` (rutas) |
 
 ## Qué actualizar
 

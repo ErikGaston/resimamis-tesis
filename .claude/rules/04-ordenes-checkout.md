@@ -64,16 +64,19 @@ POST /asignacion/iniciarAbrazo/{idAsignacion}
 // Función: postStartHug — assignmentSaga
 ```
 
-### Finalizar
+### Finalizar — `InformationHug` (Dialog 100dvh)
 
-El Swagger define el contrato exacto:
+`InformationHug` es un **Dialog full-screen** (no reemplaza la pantalla). Se monta siempre en `TasksTemplate` y se controla con `open={changeInformationHug}`. `ActivityTask` permanece renderizado debajo.
+
+Props: `open`, `onClose`, `model`, `setModel`, `submitEndHug`, `hug`, `stateInsumo`, `setStateInsumo`, `changeStateInsumo`, `listSupplies`, `setListSupplies`, `submitChangeSupplies`.
+
+El backend recibe:
 ```js
 POST /asignacion/finalizarAbrazo/
 Body: { idAsignacion: number, comentario: string | null }
 // Función: postEndHug — assignmentSaga
-// TasksPage despacha: postEndHug({ idAsignacion, comentario })
 ```
-El comentario va **solo en el body**, no en la URL. Formas como `.../finalizarAbrazo/141/comentario` son incorrectas.
+El comentario va **solo en el body**, nunca en la URL.
 
 ### Resetear abrazos colgados (coordinadora)
 
@@ -85,14 +88,47 @@ POST /asignacion/resetearAbrazosColgados   // Sin body
 
 ## 4. Detalle de asignación (insumos usados)
 
-El Swagger define:
 ```js
 POST /asignacion/registrarDetalleAsignacion/
 Body: [{ idAsignacion: int, idInsumo: int, cantidadInsumo: int }]  // array
 // Función: postDetailAssignment — assignmentSaga
-// Acepta un objeto solo o un array; se normaliza a array antes de enviar
 ```
-Los segmentos de URL tipo `.../registrarDetalleAsignacion/142/1/2` son incorrectos según el contrato OpenAPI.
+
+**Patrón `submitChangeSupplies` (TasksPage)** — siempre filtrar antes de enviar:
+```js
+const submitChangeSupplies = (list, idAsignacion) => {
+    if (!idAsignacion) { dispatch(showToast({...})); return; }
+    const activeItems = (list ?? []).filter(item => Number(item?.cantidad) > 0);
+    if (!activeItems.length) { dispatch(showToast({...})); return; }
+    const payload = activeItems.map(item => ({
+        idAsignacion: Number(idAsignacion),
+        idInsumo: item.idInsumo,
+        cantidadInsumo: Number(item.cantidad),
+    }));
+    dispatch(postDetailAssignment(payload));
+}
+```
+Nunca enviar items con `cantidadInsumo = 0` — el backend los omite pero sí valida que `idAsignacion` exista para los ítems con cantidad > 0.
+
+## 4b. CardBabyHug — diseño actual
+
+`CardBabyHug` recibe solo `item` (objeto de `getAssignmentTodayById`) — **no acepta props `name` ni `hall`**. Lee directamente: `item.nombreBebe`, `item.nombreSala`, `item.estadoAsignacion`, `item.fechaHoraInicio`, `item.fechaHoraFin`, `item.comentario`.
+
+Color del header por estado:
+```js
+const HEADER_CFG = {
+    Creada:     { gradient: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)' },
+    Iniciado:   { gradient: 'linear-gradient(90deg, #E65100 0%, #FF6D00 100%)' },
+    Finalizado: { gradient: 'linear-gradient(90deg, #00875A 0%, #00A86B 100%)' },
+};
+```
+
+Acciones inline por estado:
+- `Creada` → botón "Iniciar abrazo" (gradiente violeta, `submitStartHug(item.idAsignacion)`)
+- `Iniciado` → botón "Finalizar / Registrar insumos" (outlined naranja, `editHug(item)`)
+- `Finalizado` → ícono CheckCircle verde, sin botón
+
+`ActivityTask` muestra **todas** las asignaciones del día (no filtra por `fechaHoraFin === null`). Solo muestra la sección "Abrazos del día" si la voluntaria tiene entrada registrada (`check`).
 
 ## 5. Normalización de bebés (`utils/assignmentSelection.js`)
 
@@ -118,15 +154,22 @@ La saga `babySaga` intenta primero `getBabysDisponiblesAbrazo` (`/bebe/disponibl
 
 ## 7. CoordinacionPage (`/coordinacion`)
 
-Solo accesible a coordinadoras (`isCoordinadoraSession()`). Pestañas:
+Solo accesible a coordinadoras (`isCoordinadoraSession()`). 6 pestañas:
 
 | Pestaña | Funcionalidades |
 |---------|----------------|
-| Asignación | PUT/DELETE asignación por id, resetear abrazos colgados |
-| Asistencia | Reporte por fechas (`getAssistanceReporte`), baja por id |
-| Usuarios | Listar (`GET /usuario`), crear (`POST /usuario`), GET/PUT/DELETE por id |
+| Asignación | PUT/DELETE asignación por id, resetear abrazos colgados, chips de estado (Creada/En curso/Finalizado) |
+| Asistencia | Reporte por fechas (`getAssistanceReporte`), listado todas las asistencias (`getAsistenciasAll`), baja por id |
+| Usuarios | Listar (`getUsuarios`), crear (`postUsuario`), GET/PUT/DELETE por id, `getVoluntariasSinUsuario` |
 | Bajas | Baja por id: madre (`postMotherDelete`), voluntaria (`postVolunteerDelete`), bebé (`postBabyDelete`) |
-| Insumos | GET/PUT/DELETE insumo por id desde panel técnico |
+| Proveedores | CRUD proveedores — `getProveedoresAll`, `postProveedor`, `putProveedor`, `postProveedorDelete` |
+| Salas | CRUD salas NEO — `getSalasAll`, `postSala`, `putSala`, `postSalaDelete` |
+
+**Notas de implementación CoordinacionPage:**
+- `(p.activa ?? p.Activa)` — backend devuelve `"activa"` (lowercase ASP.NET serialización), no `"Activa"`. Usar fallback para compatibilidad.
+- Todos los dialogs bottom-sheet: `PaperProps.sx` con `maxHeight: '90dvh', display: 'flex', flexDirection: 'column'`; DialogContent con `overflowY: 'auto'`.
+- `DialogContent sx={{ pt: 2.5 }}` — no usar `pt: 1` (8px) porque MUI clip-path corta las floating labels de outlined TextFields.
+- Dialogs de detalle (asignación, usuarios): full-screen 100dvh con `DIALOG_FULL_SX`.
 
 ## 8. Insumos — pantalla `/insumos`
 
