@@ -15,10 +15,10 @@ const pulse = keyframes`
 `;
 
 const ContainerLoading = styled.div`
-  position: ${props => props.position || 'absolute'};
+  position: fixed;
   top: 0;
   left: 0;
-  height: ${props => props.height || '100%'};
+  height: 100dvh;
   width: 100%;
   z-index: 9999;
 
@@ -69,9 +69,9 @@ const LoadingText = styled.span`
   opacity: 0.85;
 `;
 
-const Loading = ({ position, height }) => {
+const Loading = () => {
   return (
-    <ContainerLoading position={position} height={height}>
+    <ContainerLoading>
       <ContainerSpinner>
         <SpinnerWrap>
           <PulseRing />
