@@ -25,6 +25,7 @@ import {
   InputAdornment,
   LinearProgress,
   Paper,
+  Skeleton,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -405,6 +406,30 @@ const SupplyTemplate = (props) => {
           aria-labelledby="tab-supply-list"
           sx={{ pb: 14, px: 2, pt: 1.5, overflow: 'hidden' }}
         >
+          {listSupplies === null && Array.from({ length: 5 }).map((_, i) => (
+            <Paper
+              key={i}
+              elevation={0}
+              sx={{
+                mt: 1.25,
+                p: '12px 14px 12px 16px',
+                borderRadius: '14px',
+                border: '1.5px solid rgba(143,0,255,0.10)',
+                bgcolor: '#fff',
+                boxShadow: '0 2px 10px rgba(21,44,112,0.06)',
+                overflow: 'hidden',
+                width: '100%',
+                boxSizing: 'border-box',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
+                <Skeleton variant="text" sx={{ flex: 1 }} height={20} />
+                <Skeleton variant="text" width={36} height={20} />
+              </Box>
+              <Skeleton variant="rounded" height={5} sx={{ borderRadius: 3 }} />
+            </Paper>
+          ))}
+
           {listSupplies &&
             listSupplies.map((item) => {
               const isLow =

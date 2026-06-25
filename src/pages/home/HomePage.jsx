@@ -35,15 +35,16 @@ export const HomePage = () => {
     }
   }, [dataVolunteer?.error, dataVolunteer?.getVolunteersFree, dispatch])
 
+  const volunteersFree = dataVolunteer?.getVolunteersFree?.data ?? null;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
-      {
-        loading &&
+      {loading && volunteersFree !== null && (
         <Loading position={'absolute'} height={'100%'} zIndex={9999} />
-      }
+      )}
       <HomeTemplate
         nameVolunteer={nameVolunteer}
-        volunteersFree={dataVolunteer?.getVolunteersFree?.data ?? null}
+        volunteersFree={volunteersFree}
       />
       <Footer />
     </div>
