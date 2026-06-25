@@ -171,7 +171,7 @@ const BabyForm = ({
             />
             {readOnly ? (
                 <LabelInput
-                    label='Madre(s)'
+                    label='Madre'
                     name='madre_display'
                     value={model?.nombre_madre || madreDisplayName || '—'}
                     onChange={noop}
@@ -205,7 +205,7 @@ const BabyForm = ({
                         renderInput={(params) => (
                             <TextField
                                 {...params}
-                                label="Madre(s)"
+                                label="Madre"
                                 placeholder="Buscar y agregar madres"
                                 required
                                 sx={{

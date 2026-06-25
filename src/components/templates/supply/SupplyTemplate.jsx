@@ -1201,7 +1201,7 @@ const SupplyTemplate = (props) => {
             <Box sx={{ flex: 1, overflowY: 'auto', px: 2.5, pt: 2, pb: 1 }}>
 
               {/* Toggle Entrada / Salida */}
-              <Box sx={{ mb: 0.5 }}>
+              <Box sx={{ mb: 2.5 }}>
                 <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em', mb: 1.25 }}>
                   Tipo de movimiento
                 </Typography>
@@ -1218,7 +1218,6 @@ const SupplyTemplate = (props) => {
                     sx={{
                       flex: 1,
                       py: 1.5,
-                      gap: 0.75,
                       borderRadius: '10px !important',
                       border: '1.5px solid rgba(46,125,50,0.35) !important',
                       color: movEsEntrada === 'S' ? '#fff' : '#2E7D32',
@@ -1235,8 +1234,10 @@ const SupplyTemplate = (props) => {
                       },
                     }}
                   >
-                    <ArrowUpwardIcon sx={{ fontSize: 19 }} />
-                    Entrada
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', position: 'relative' }}>
+                      <ArrowUpwardIcon sx={{ fontSize: 18, position: 'absolute', left: 4 }} />
+                      <span>Entrada</span>
+                    </Box>
                   </ToggleButton>
                   <ToggleButton
                     value="N"
@@ -1244,7 +1245,6 @@ const SupplyTemplate = (props) => {
                     sx={{
                       flex: 1,
                       py: 1.5,
-                      gap: 0.75,
                       borderRadius: '10px !important',
                       border: '1.5px solid rgba(194,56,20,0.35) !important',
                       color: movEsEntrada === 'N' ? '#fff' : '#C23814',
@@ -1261,8 +1261,10 @@ const SupplyTemplate = (props) => {
                       },
                     }}
                   >
-                    <ArrowDownwardIcon sx={{ fontSize: 19 }} />
-                    Salida
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', position: 'relative' }}>
+                      <ArrowDownwardIcon sx={{ fontSize: 18, position: 'absolute', left: 4 }} />
+                      <span>Salida</span>
+                    </Box>
                   </ToggleButton>
                 </ToggleButtonGroup>
               </Box>
@@ -1279,19 +1281,22 @@ const SupplyTemplate = (props) => {
                 }))}
                 labelColor={LABEL_COLOR}
                 styleLabel={LABEL_STYLE}
+                displayEmpty
                 required
               />
 
               <LabelInput
                 name="movCantidad"
                 label="Cantidad"
-                type="number"
                 value={movCantidad}
-                onChange={(e) => setMovCantidad(e.target.value)}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (/^$|^[0-9]+$/.test(v)) setMovCantidad(v);
+                }}
                 labelColor={LABEL_COLOR}
                 inputColor={INPUT_COLOR}
                 styleLabel={LABEL_STYLE}
-                inputProps={{ min: 1, inputMode: 'numeric' }}
+                inputProps={{ inputMode: 'numeric' }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -1357,6 +1362,7 @@ const SupplyTemplate = (props) => {
                 ]}
                 labelColor={LABEL_COLOR}
                 styleLabel={LABEL_STYLE}
+                displayEmpty
               />
             </Box>
 

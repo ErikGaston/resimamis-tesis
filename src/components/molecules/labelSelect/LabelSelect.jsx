@@ -64,11 +64,13 @@ export default LabelSelect;
 const StyledInputLabel = styled(InputLabel)`
     color: ${(props) => (props.labelColor)};
     font-family: Roboto;
-    font-size: 18px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-
+    &.MuiInputLabel-shrink {
+        transform: translate(14px, -9px) scale(1);
+    }
 `;
 
 const StyledSelectCustomized = styled(SelectCustomized)`
