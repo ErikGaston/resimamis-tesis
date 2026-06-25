@@ -138,14 +138,7 @@ export const ProfileBabyPage = () => {
     if (babyState?.putBaby != null) {
       dispatch(showLoading(false));
       setEditMode(false);
-      // Try to update model from response data directly
-      const freshBaby = babyState.putBaby?.data;
-      if (freshBaby != null) {
-        setBabyModel(freshBaby);
-        originalBabyModel.current = JSON.stringify(freshBaby);
-      } else {
-        pendingModelRefresh.current = true;
-      }
+      pendingModelRefresh.current = true;
       dispatch(showToast({ message: 'Datos del bebé actualizados correctamente.', severity: 'success' }));
       dispatch(clearBabyWrites());
       dispatch(getBabys());

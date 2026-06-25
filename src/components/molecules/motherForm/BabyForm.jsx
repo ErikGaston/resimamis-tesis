@@ -42,6 +42,13 @@ const BabyForm = ({
         }
     }
 
+    const onChangeWeight = (e) => {
+        const { name, value } = e.target;
+        if (/^$|^\d+([.]\d{0,3})?$/.test(value)) {
+            safeSetModel({ ...model, [name]: value })
+        }
+    }
+
     const onChangeDateTime = (newValue, option) => {
         if (newValue !== null) {
             safeSetModel({ ...model, [option]: formattedDate(newValue) })
@@ -254,8 +261,8 @@ const BabyForm = ({
             <LabelInput
                 name='pesoNacimiento'
                 label='Peso de nacimiento'
-                value={model?.pesoNacimiento}
-                onChange={onChangeNumber}
+                value={model?.pesoNacimiento ?? ''}
+                onChange={onChangeWeight}
                 className={error && 'errorInput'}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
@@ -265,8 +272,8 @@ const BabyForm = ({
             <LabelInput
                 name='pesoIngresoNEO'
                 label='Peso ingreso a NEO'
-                value={model?.pesoIngresoNEO}
-                onChange={onChangeNumber}
+                value={model?.pesoIngresoNEO ?? ''}
+                onChange={onChangeWeight}
                 className={error && 'errorInput'}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
@@ -276,8 +283,8 @@ const BabyForm = ({
             <LabelInput
                 name='pesoAlta'
                 label='Peso ingreso al programa'
-                value={model?.pesoAlta}
-                onChange={onChangeNumber}
+                value={model?.pesoAlta ?? ''}
+                onChange={onChangeWeight}
                 className={error && 'errorInput'}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
@@ -287,8 +294,8 @@ const BabyForm = ({
             <LabelInput
                 name='pesoDiaAbrazos'
                 label='Peso día de abrazo'
-                value={model?.pesoDiaAbrazos}
-                onChange={onChangeNumber}
+                value={model?.pesoDiaAbrazos ?? ''}
+                onChange={onChangeWeight}
                 className={error && 'errorInput'}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
