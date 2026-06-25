@@ -34,6 +34,7 @@ import PageScrollMain from '../../components/common/PageScrollMain';
 import { PageHeader } from '../../components/common/PageHeader';
 import { isCoordinadoraSession } from '../../utils/coordinadoraRole';
 import {
+  getAssignmentToday,
   putAssignmentById,
   deleteAssignmentById,
   postResetAbrazosColgados,
@@ -123,8 +124,10 @@ export const CoordinacionPage = () => {
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
 
   // Asignación
-  const [asigId, setAsigId] = useState('');
-  const [asigJson, setAsigJson] = useState('{}');
+  const [editAsig, setEditAsig] = useState(null);
+  const [editAsigComentario, setEditAsigComentario] = useState('');
+  const [editAsigInicio, setEditAsigInicio] = useState('');
+  const [editAsigFin, setEditAsigFin] = useState('');
 
   // Asistencia
   const [repIni, setRepIni] = useState(() => dayjs().startOf('month').format('YYYY-MM-DDTHH:mm'));
@@ -160,7 +163,10 @@ export const CoordinacionPage = () => {
 
   // Auto-cargar datos al cambiar de pestaña
   useEffect(() => {
-    if (tab === 2) {
+    if (tab === 0) {
+      dispatch(showLoading(true));
+      dispatch(getAssignmentToday());
+    } else if (tab === 2) {
       dispatch(showLoading(true));
       dispatch(getUsuarios());
       dispatch(getVoluntariasSinUsuario());
@@ -200,7 +206,9 @@ export const CoordinacionPage = () => {
     if (assignment?.putAssignmentById != null || assignment?.deleteAssignmentById != null) {
       dispatch(showLoading(false));
       toastOk('Asignación actualizada.');
+      setEditAsig(null);
       dispatch(clearAssignmentWrites());
+      dispatch(getAssignmentToday());
     }
   }, [assignment?.putAssignmentById, assignment?.deleteAssignmentById, dispatch, toastOk]);
 
@@ -256,6 +264,7 @@ export const CoordinacionPage = () => {
   // Dismiss loading on list GET results and errors
   useEffect(() => {
     const anyResult = [
+      assignment?.getAssignmentToday,
       user?.getUsuarios,
       user?.getVoluntariasSinUsuario,
       volunteer?.getAssistanceReporte,
@@ -274,6 +283,7 @@ export const CoordinacionPage = () => {
     ].some((e) => e != null);
     if (anyResult || anyError) dispatch(showLoading(false));
   }, [
+    assignment?.getAssignmentToday,
     user?.getUsuarios,
     user?.getVoluntariasSinUsuario,
     volunteer?.getAssistanceReporte,
@@ -304,6 +314,7 @@ export const CoordinacionPage = () => {
     );
   }
 
+  const asignacionesList = normalizarLista(assignment?.getAssignmentToday);
   const tareasList = normalizarLista(tarea?.getTareas);
   const usuariosList = normalizarLista(user?.getUsuarios);
   const volsSinUsuario = normalizarLista(user?.getVoluntariasSinUsuario);
@@ -363,54 +374,93 @@ export const CoordinacionPage = () => {
 
           {/* ── 0: Asignación ── */}
           <TabPanel value={tab} index={0}>
-            <TextField
-              label="ID de asignación"
-              value={asigId}
-              onChange={(e) => setAsigId(e.target.value)}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-              inputProps={{ inputMode: 'numeric' }}
-            />
-            <TextField
-              label="Datos de asignación (JSON)"
-              value={asigJson}
-              onChange={(e) => setAsigJson(e.target.value)}
-              fullWidth
-              multiline
-              minRows={4}
-              size="small"
-            />
-            <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  const id = Number(asigId);
-                  const body = safeJsonParse(asigJson, {});
-                  if (!Number.isFinite(id)) return;
-                  dispatch(showLoading(true));
-                  dispatch(putAssignmentById(id, body));
-                }}
-              >
-                Guardar asignación
-              </Button>
-              <Button
-                color="error"
-                variant="outlined"
-                onClick={() => {
-                  const id = Number(asigId);
-                  if (!Number.isFinite(id)) return;
-                  openConfirm(`¿Eliminar asignación ${id}?`, () => { dispatch(showLoading(true)); dispatch(deleteAssignmentById(id)); });
-                }}
-              >
-                Eliminar
-              </Button>
-            </Box>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2, color: '#152C70' }}>
+              Asignaciones del día
+            </Typography>
+
+            {Array.isArray(asignacionesList) && asignacionesList.length > 0 ? (
+              <Box sx={{ mb: 2 }}>
+                {asignacionesList.map((a) => {
+                  const subject = a.nombreBebe ?? a.nombreTarea ?? `Asignación #${a.idAsignacion}`;
+                  const enProgreso = !!a.fechaHoraInicio && !a.fechaHoraFin;
+                  return (
+                    <Box
+                      key={a.idAsignacion}
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        py: 1,
+                        px: 0.5,
+                        borderBottom: '1px solid rgba(21,44,112,0.08)',
+                      }}
+                    >
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography variant="body2" fontWeight={600} noWrap>
+                          {subject}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                          {a.nombreVoluntaria ?? '—'}{a.nombreSala ? ` · ${a.nombreSala}` : ''}
+                        </Typography>
+                        {enProgreso && (
+                          <Typography variant="caption" sx={{ color: '#00A86B', fontWeight: 600 }}>
+                            En progreso
+                          </Typography>
+                        )}
+                      </Box>
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            setEditAsig(a);
+                            setEditAsigComentario(a.comentario ?? '');
+                            setEditAsigInicio(
+                              a.fechaHoraInicio
+                                ? dayjs(a.fechaHoraInicio).format('YYYY-MM-DDTHH:mm')
+                                : '',
+                            );
+                            setEditAsigFin(
+                              a.fechaHoraFin
+                                ? dayjs(a.fechaHoraFin).format('YYYY-MM-DDTHH:mm')
+                                : '',
+                            );
+                          }}
+                        >
+                          <EditOutlinedIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() =>
+                            openConfirm(
+                              `¿Eliminar asignación de ${subject}?`,
+                              () => { dispatch(showLoading(true)); dispatch(deleteAssignmentById(a.idAsignacion)); },
+                            )
+                          }
+                        >
+                          <DeleteOutlineIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Box>
+            ) : Array.isArray(asignacionesList) && asignacionesList.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                No hay asignaciones para hoy.
+              </Typography>
+            ) : null}
+
+            <Divider sx={{ my: 2 }} />
+
             <Button
               variant="outlined"
-              color="warning"
               fullWidth
-              sx={{ mt: 2 }}
+              sx={{
+                borderColor: VIOLET,
+                color: VIOLET,
+                '&:hover': { bgcolor: VIOLET_LIGHT, borderColor: VIOLET },
+              }}
               onClick={() =>
                 openConfirm(
                   '¿Cerrar todos los abrazos sin finalizar de días anteriores?',
@@ -1040,6 +1090,83 @@ export const CoordinacionPage = () => {
                   ...(editUserTarget.idEstado != null && { idEstado: editUserTarget.idEstado }),
                 }),
               );
+            }}
+          >
+            Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Assignment Dialog */}
+      <Dialog
+        open={Boolean(editAsig)}
+        onClose={() => setEditAsig(null)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0' } }}
+        sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25 }}>
+          <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'rgba(21,44,112,0.15)' }} />
+        </Box>
+        <DialogTitle sx={{ fontWeight: 700, color: '#152C70', pb: 0.5 }}>
+          Editar asignación #{editAsig?.idAsignacion}
+          <Typography variant="body2" color="text.secondary" fontWeight={400}>
+            {editAsig?.nombreBebe ?? editAsig?.nombreTarea ?? '—'} · {editAsig?.nombreVoluntaria ?? '—'}
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 1 }}>
+          <TextField
+            label="Comentario"
+            value={editAsigComentario}
+            onChange={(e) => setEditAsigComentario(e.target.value)}
+            fullWidth
+            multiline
+            minRows={2}
+            size="small"
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label="Inicio abrazo"
+            type="datetime-local"
+            value={editAsigInicio}
+            onChange={(e) => setEditAsigInicio(e.target.value)}
+            fullWidth
+            size="small"
+            sx={{ mb: 1.5 }}
+            InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            label="Fin abrazo"
+            type="datetime-local"
+            value={editAsigFin}
+            onChange={(e) => setEditAsigFin(e.target.value)}
+            fullWidth
+            size="small"
+            InputLabelProps={{ shrink: true }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
+          <Button
+            variant="outlined"
+            onClick={() => setEditAsig(null)}
+            sx={{ flex: 1, borderColor: 'rgba(21,44,112,0.22)', color: '#4A148C' }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="contained"
+            sx={{ flex: 1, bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
+            onClick={() => {
+              if (!editAsig) return;
+              const body = {
+                ...editAsig,
+                comentario: editAsigComentario || null,
+                fechaHoraInicio: editAsigInicio ? new Date(editAsigInicio).toISOString() : null,
+                fechaHoraFin: editAsigFin ? new Date(editAsigFin).toISOString() : null,
+              };
+              dispatch(showLoading(true));
+              dispatch(putAssignmentById(editAsig.idAsignacion, body));
             }}
           >
             Guardar
