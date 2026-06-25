@@ -170,6 +170,8 @@ const SupplyTemplate = (props) => {
   // Estado dialog confirmar eliminación
   const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
   const [deleteTarget, setDeleteTarget] = React.useState(null);
+  // Estado dialog bloqueo eliminación por stock
+  const [deleteBlockOpen, setDeleteBlockOpen] = React.useState(false);
 
   // Estado drawer detalle de movimiento
   const [detailMovement, setDetailMovement] = React.useState(null);
@@ -260,6 +262,11 @@ const SupplyTemplate = (props) => {
   };
 
   const handleOpenDelete = (item) => {
+    if (Number(item.stockActual) !== 0) {
+      setDeleteTarget(item);
+      setDeleteBlockOpen(true);
+      return;
+    }
     setDeleteTarget(item);
     setDeleteConfirmOpen(true);
   };
@@ -362,14 +369,17 @@ const SupplyTemplate = (props) => {
             fullWidth
             sx={{
               textTransform: 'none',
-              fontWeight: 600,
+              fontWeight: valueTask === tab.value ? 700 : 600,
               minHeight: 44,
               borderRadius: 2,
-              bgcolor: valueTask === tab.value ? '#8F00FF' : '#fff',
-              color: valueTask === tab.value ? '#fff' : '#4A148C',
+              backgroundColor: valueTask === tab.value ? 'rgba(143,0,255,0.10)' : '#fff',
+              color: valueTask === tab.value ? '#6A1B9A' : '#9575CD',
               border: '2px solid',
-              borderColor: valueTask === tab.value ? '#6A1B9A' : '#9575CD',
-              boxShadow: valueTask === tab.value ? '0 2px 8px rgba(106,27,154,0.35)' : 'none',
+              borderColor: valueTask === tab.value ? '#8F00FF' : '#D1C4E9',
+              boxShadow: 'none',
+              '&:hover': {
+                backgroundColor: valueTask === tab.value ? 'rgba(143,0,255,0.15)' : '#F3E5F5',
+              },
               '&:focus-visible': { outline: '3px solid #FFEB3B', outlineOffset: 2 },
             }}
           >
@@ -832,6 +842,35 @@ const SupplyTemplate = (props) => {
                   }}
                 >
                   Eliminar
+                </Button>
+              </DialogActions>
+            </Dialog>
+          )}
+
+          {/* ── Dialog: Bloqueo eliminación por stock ── */}
+          {isCoord && (
+            <Dialog
+              open={deleteBlockOpen}
+              onClose={() => { setDeleteBlockOpen(false); setDeleteTarget(null); }}
+              maxWidth={false}
+              fullWidth
+              PaperProps={{ sx: DIALOG_SMALL_SX }}
+            >
+              <DialogTitle sx={{ fontWeight: 700, color: '#C23814', pb: 1 }}>
+                No se puede eliminar el insumo
+              </DialogTitle>
+              <DialogContent>
+                <Typography sx={{ color: '#152C70', fontSize: '0.95rem' }}>
+                  <strong>{deleteTarget?.nombre ?? `Insumo #${deleteTarget?.idInsumo}`}</strong> posee stock disponible ({deleteTarget?.stockActual} U). Para eliminarlo, primero registre los movimientos correspondientes hasta agotar el stock.
+                </Typography>
+              </DialogContent>
+              <DialogActions sx={{ px: 3, py: 2 }}>
+                <Button
+                  variant="contained"
+                  onClick={() => { setDeleteBlockOpen(false); setDeleteTarget(null); }}
+                  sx={BTN_SX}
+                >
+                  Entendido
                 </Button>
               </DialogActions>
             </Dialog>

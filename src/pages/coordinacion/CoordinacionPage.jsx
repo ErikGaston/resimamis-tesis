@@ -765,6 +765,11 @@ export const CoordinacionPage = () => {
                 onClick={() => {
                   const id = Number(idInsumo);
                   if (!Number.isFinite(id)) return;
+                  const parsedInsumo = safeJsonParse(insumoJson, {});
+                  if (Number(parsedInsumo.stockActual) !== 0) {
+                    dispatch(showToast({ message: `No se puede eliminar: el insumo posee stock disponible (${parsedInsumo.stockActual} U). Primero registre los movimientos para agotar el stock.`, severity: 'error' }));
+                    return;
+                  }
                   openConfirm(`¿Eliminar insumo ${id}?`, () => { dispatch(showLoading(true)); dispatch(postSupplyDelete(id)); });
                 }}
               >
