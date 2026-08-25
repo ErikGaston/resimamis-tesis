@@ -33,7 +33,8 @@
       "Bash(dotnet build*)",
       "Bash(dotnet run*)",
       "Bash(dotnet ef migrations list*)",
-      "Bash(node .claude/hooks/*)"
+      "Bash(node .claude/hooks/*)",
+      "Bash(py .claude/skills/ui-ux-pro-max/scripts/*)"
     ]
   },
   "hooks": {

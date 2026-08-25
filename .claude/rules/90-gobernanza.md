@@ -63,6 +63,34 @@ rule correspondiente. Si el cambio es demasiado grande para la sesión, dejar no
 El hook `PostToolUse` `.claude/hooks/rules-reminder.mjs` avisa qué rule revisar según el
 archivo tocado. Si agregás un mapeo cambio→rule acá, agregalo también en `RULES_MAP` del hook.
 
+## Skills
+
+Cada skill instalada aporta su `name` + `description` al contexto de **toda** sesión, y orienta
+a Claude hacia el stack que describe. Una skill que asume otro stack no es neutra: empuja
+activamente hacia patrones que este repo prohíbe.
+
+| Skill | Origen | Para qué |
+|-------|--------|----------|
+| `sync-api-contract` | del proyecto | diff entre `resimamis/Controllers/` y `src/redux/api/index.js` |
+| `nueva-feature-redux` | del proyecto | los 7 pasos para cablear una feature Redux completa |
+| `ui-ux-pro-max` | terceros | base de datos de diseño (paletas, tipografías, layouts) |
+| `premium-ui-design` | terceros | sistemas de diseño y micro-interacciones sobre Emotion |
+
+Las dos de terceros son **material de referencia de diseño**, y sesgan hacia Tailwind, shadcn/ui
+y Next.js. Este proyecto usa **MUI v5 + Emotion, sin Tailwind y sin Next.js**: tomar de ellas
+criterio visual (color, jerarquía, espaciado, tipografía), nunca la implementación.
+
+En ago 2026 se eliminaron `engineering-team/` (code-reviewer, playwright-pro, senior-qa,
+tdd-guide, senior-frontend-react), `senior-frontend-react` y `unit-tests`: describían
+Next.js, TypeScript, Tailwind, Jest y RTK Query — nada de eso existe acá — y `unit-tests`
+apuntaba directamente a otro repositorio. `playwright-pro` además era un plugin completo
+vendorizado dentro de `skills/`. Para revisar código está el agente `revisor-resimamis`, que
+sí conoce las convenciones reales.
+
+**Antes de instalar una skill nueva:** verificar que su stack coincida con el del proyecto. Si
+solo sirve una parte, conviene escribir una skill propia y corta antes que vendorizar un árbol
+de terceros. Un plugin se instala como plugin, no se copia dentro de `skills/`.
+
 ## Estructura de `.claude/`
 
 ```
