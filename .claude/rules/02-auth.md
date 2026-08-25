@@ -1,74 +1,98 @@
-# 02 — Autenticación — Resimamis
+# 02 — Autenticación
 
-> Fuente de verdad: `src/redux/interceptor/interceptor.js`, `src/utils/localStorage.js`, `src/utils/coordinadoraRole.js`, `src/routes/`.
+> Fuente: `src/redux/interceptor/interceptor.js`, `src/utils/localStorage.js`,
+> `src/utils/coordinadoraRole.js`, `src/routes/`, `resimamis/Negocio/NegUsuarios.cs`.
 
-## Almacenamiento (localStorage)
+## Almacenamiento
 
-| Qué | Key | Tipo |
-|-----|-----|------|
-| JWT Token | `token` | string |
-| Datos de sesión | `voluntaria` | JSON: `{ id, nombre, apellido, mail, dni, celular, idRol, rol }` |
+| Qué | Key de `localStorage` | Tipo |
+|-----|----------------------|------|
+| JWT | `token` | string |
+| Sesión | `voluntaria` | JSON `{ id, nombre, apellido, mail, dni, celular, idRol, rol }` |
 
-No hay cookie. No hay `is_staff`. El token es **JWT Bearer** (no DRF Token).
+No hay cookie ni `is_staff`. El token es **JWT Bearer**.
+
+Helpers: `getIdVolunteer()` / `getNameVolunteer()` en `src/utils/localStorage.js`.
 
 ## Login
 
-1. Form: campos `Dni` (number) + `Contrasena` (string).
-2. `postLogin` en `redux/api/index.js` normaliza a `{ dni, contrasena }` (minúsculas) → `POST usuario/login/`.
-3. Respuesta plana (sin envelope `data`): incluye `token` + datos de la voluntaria.
-4. Se guarda `localStorage.setItem('token', token)` y `localStorage.setItem('voluntaria', JSON.stringify({ id, nombre, apellido, mail, dni, celular, idRol, rol }))`.
-5. `setAuthToken(token)` en `utils/setAuthToken.js` refuerza el header por defecto de Axios.
-6. Navega a `/overview` (o `/home` que redirige a `/overview`).
+1. Form `Dni` (number) + `Contrasena` (string).
+2. `postLogin` normaliza a `{ dni: Number, contrasena }` → `POST usuario/login/`.
+3. **Respuesta plana, sin envelope `data`**: incluye `token` + datos de la voluntaria.
+4. Se guardan `token` y `voluntaria` en `localStorage`; `setAuthToken(token)` refuerza el
+   header por defecto de Axios.
+5. Navega a `/overview`.
 
-```js
-// Helpers en src/utils/localStorage.js
-getIdVolunteer()     // localStorage['voluntaria'].id
-getNameVolunteer()   // localStorage['voluntaria'].nombre
-```
+Backend: `NegUsuarios.Loguear` busca por DNI, verifica con `BCrypt.Verify` y firma un JWT con
+claims `NameIdentifier` y `Name` = DNI. Expiración 30 días, pero `ValidateLifetime` está
+comentado → **los tokens no expiran técnicamente** (deuda conocida).
 
-## Interceptor Axios (`src/redux/interceptor/interceptor.js`)
+## Interceptor Axios
 
-- **Request:** lee `localStorage.getItem('token')` e inyecta `Authorization: Bearer <token>` si existe.
-- **Response 401:** limpia `localStorage` (borra `token` y `voluntaria`) y redirige a `/login`.
-- **Base URL:** `import.meta.env.VITE_URL_API`.
-- **Timeout:** 20 s.
+`src/redux/interceptor/interceptor.js` — base URL `import.meta.env.VITE_URL_API`, timeout 20 s.
 
-> Los comentarios de las líneas 33–35 del interceptor (`localStorage.clear()`, `window.location.reload()`, `window.location.href = '/login'`) son el bloque 401 que está inactivo/comentado. Si se reactiva, verificar que limpia exactamente `token` y `voluntaria` (no `localStorage.clear()` que borraría todo).
+- **Request:** inyecta `Authorization: Bearer <token>` si existe.
+- **Response 401:** el bloque **está activo**. Usa un flag `_retry`, borra puntualmente
+  `token` y `voluntaria` (no hace `localStorage.clear()`) y redirige con
+  `window.location.href = '/login'`.
+
+> Si tocás este bloque, mantené el borrado puntual: un `localStorage.clear()` borraría
+> cualquier otra clave del origen.
 
 ## Rol coordinadora
 
 ```js
 // src/utils/coordinadoraRole.js
-isCoordinadoraSession()
-  // Lee localStorage['voluntaria']
-  // 1. Verifica rol === "coordinadora" (normalizado: sin acentos, minúsculas)
-  // 2. Fallback: idRol === parseInt(import.meta.env.VITE_COORDINADORA_ID_ROL)
-  // Retorna boolean
-
-readVolunteerSession()  // Retorna el objeto voluntaria parseado o null
+readVolunteerSession()      // objeto voluntaria parseado o null
+isCoordinadoraVoluntaria(v) // evalúa un objeto suelto
+isCoordinadoraSession()     // rol === "coordinadora" (sin acentos, minúsculas)
+                            // o idRol === Number(VITE_COORDINADORA_ID_ROL)
 ```
 
-El rol "coordinadora" en el frontend equivale al rol **"Administrativa"** en el backend (`ROL.Nombre`).
+Equivale al rol **"Administrativa"** del backend (`ROL.Nombre`).
 
-## Guards de ruta (`src/routes/`)
+## Guards y acceso elevado
 
 | Componente | Comportamiento |
 |------------|----------------|
-| `PrivateRoute` | Chequea `localStorage.getItem('token')`. Sin token → `<Navigate to="/login">`. |
-| `PublicRoute` | Con token → `<Navigate to="/overview">`. |
-| `RootRedirect` | Entrada raíz: con token → `/overview`, sin token → `/login`. |
+| `PrivateRoute` | Sin `token` → `<Navigate to="/login">` |
+| `PublicRoute` | Con `token` → `<Navigate to="/overview">` |
+| `RootRedirect` | Con token → `/overview`; sin token → `/login` |
 
-`CoordinacionPage` hace su propio check on-mount: `isCoordinadoraSession()` → si false → navega a `/overview`.
+**Las rutas no filtran por rol.** El acceso elevado se resuelve *dentro* de cada página con
+`isCoordinadoraSession()`:
 
-## Usuarios admin (desde CoordinacionPage)
+- `CoordinacionPage`: si no es coordinadora renderiza un `<Alert severity="warning">` +
+  botón "Volver al inicio". **No redirige** — no hay `useEffect` de navegación.
+- `TasksPage`: `canAccessAssignment` habilita la sección de asignación masiva.
+- `ListMotherPage` / `ListVolunteerPage` / `ListBabysPage`: muestran íconos de baja.
+- `SupplyPage`, `HomePage` (`PanelTrabajo`): habilitan acciones/cards extra.
 
-La coordinadora puede crear/editar/eliminar usuarios (`USUARIO` del backend) vía:
-- `POST /usuario` — crear usuario (asociado a una voluntaria existente)
-- `GET /usuario/id/{id}`, `PUT /usuario/id/{id}/` — editar
-- `POST /usuario/delete` — baja lógica
+> Esto es **UI, no seguridad**: quien conozca la ruta puede abrirla, y para casi todas estas
+> acciones el backend tampoco valida el rol (ver abajo).
 
-Los usuarios son distintos a las voluntarias: `USUARIO` tiene `IdVoluntaria` (FK) + `Contrasena` (BCrypt). Login → `POST usuario/login/` con `{ dni, contrasena }`.
+## Autorización en el backend
+
+No usa `[Authorize(Roles=...)]`. `RolesVoluntaria.EsCoordinadora(idRol, nombreRol)` acepta
+`idRol == 3` o un nombre en `{Coordinadora, Administrativa, Administrador, Admin}`.
+`NegUsuarios.EsCoordinadoraPorDni` → `RequiereCoordinadora` → `ForbiddenException` → 403.
+
+**Solo 8 operaciones verifican el rol en el servidor:** las cinco de gestión de usuarios
+(`POST /Usuario`, `GET /Usuario`, `GET /Usuario/voluntarias-sin-usuario`,
+`PUT /Usuario/id/{id}`, `POST /Usuario/delete`), `GET /Usuario/id/{id}` (coordinadora o el
+propio usuario), `GET /Asignacion/listarAsignacionesHoy` y `POST /Asistente/preguntar`.
+
+Todo lo demás solo requiere un JWT válido: las bajas lógicas de madre/bebé/voluntaria/
+asistencia, `PUT`/`DELETE` de asignación, `resetearAbrazosColgados`, los 16 endpoints de
+`Dashboard` y los ABM de proveedores/salas/tareas **no están protegidos por rol**. Cualquier
+voluntaria autenticada puede ejecutarlos llamando la API directamente.
+
+> Deuda de seguridad abierta, registrada en `docs/deuda-tecnica.md`. Al documentar un endpoint,
+> no lo marques "solo coordinadora" salvo que el servidor lo verifique.
+
+CORS: `AllowAnyOrigin + AllowAnyHeader + AllowAnyMethod`.
 
 ## Cambio de contraseña
 
-`PUT /usuario/contrasena` (auth requerida). No hay flujo de reset por email actualmente.
+`PUT /usuario/contrasena` body `{ ContrasenaActual, ContrasenaNueva }`, para cualquier usuario
+autenticado. No existe flujo de "olvidé mi contraseña".

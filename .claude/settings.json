@@ -3,7 +3,12 @@
     "deny": [
       "Read(.env)",
       "Read(.env.*)",
+      "Read(resimamis/appsettings*.json)",
+      "Write(.env)",
+      "Write(.env.*)",
+      "Write(resimamis/appsettings*.json)",
       "Write(package-lock.json)",
+      "Write(yarn.lock)",
       "Write(pnpm-lock.yaml)",
       "Write(bun.lockb)",
       "Write(bun.lock)",
@@ -12,19 +17,23 @@
       "Bash(git push -f*)"
     ],
     "allow": [
-      "Bash(yarn install*)",
-      "Bash(yarn dev*)",
-      "Bash(yarn build*)",
-      "Bash(yarn test*)",
-      "Bash(yarn start*)",
-      "Bash(git add*)",
-      "Bash(git commit*)",
+      "Bash(npm install*)",
+      "Bash(npm run dev*)",
+      "Bash(npm run build*)",
+      "Bash(npm run preview*)",
+      "Bash(npm ls*)",
       "Bash(git status*)",
       "Bash(git diff*)",
       "Bash(git log*)",
-      "Bash(node .claude/hooks/*)",
-      "Bash(npx playwright*)",
-      "Bash(python3 .claude/skills/ui-ux-pro-max/scripts/search.py*)"
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git fetch*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(dotnet build*)",
+      "Bash(dotnet run*)",
+      "Bash(dotnet ef migrations list*)",
+      "Bash(node .claude/hooks/*)"
     ]
   },
   "hooks": {
@@ -36,10 +45,11 @@
         ]
       }
     ],
-    "Stop": [
+    "PostToolUse": [
       {
+        "matcher": "Write|Edit",
         "hooks": [
-          { "type": "command", "command": "node .claude/hooks/stop-checklist.mjs" }
+          { "type": "command", "command": "node .claude/hooks/rules-reminder.mjs" }
         ]
       }
     ]

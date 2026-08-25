@@ -24,8 +24,16 @@ dist-ssr
 *.sw?
 
 # Environment variables
+# .env NO se versiona: documentar las claves en .env.example.
+.env
 .env.local
-.env.*.local
+.env.*
+!.env.example
 
-# Backend
-resimamis
+# Backend: repo Git independiente (github.com/maurogab2018/resimamis) clonado
+# dentro de esta carpeta. No se versiona desde el repo del frontend.
+resimamis/
+
+# Claude Code — config personal (la compartida .claude/settings.json SI se versiona)
+.claude/settings.local.json
+CLAUDE.local.md
