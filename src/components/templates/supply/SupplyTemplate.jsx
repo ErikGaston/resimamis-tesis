@@ -191,9 +191,17 @@ const SupplyTemplate = (props) => {
     if (supplies) setListSupplies(supplies);
   }, [supplies]);
 
-  const providerRows = Array.isArray(providersData?.data?.listadoDeProveedores)
-    ? providersData.data.listadoDeProveedores
-    : [];
+  // `/insumo/proveedores` devuelve el array directamente dentro del envelope.
+  // Acá se buscaba `listadoDeProveedores`, que es la forma de otros endpoints y
+  // en este nunca llega: el select quedaba siempre vacío.
+  const providerRows = React.useMemo(() => {
+    const cuerpo = providersData?.data ?? providersData;
+    if (Array.isArray(cuerpo)) return cuerpo;
+    for (const clave of ['listadoDeProveedores', 'proveedores', 'items']) {
+      if (Array.isArray(cuerpo?.[clave])) return cuerpo[clave];
+    }
+    return [];
+  }, [providersData]);
 
   // ── Helpers formulario nuevo insumo ──
   const resetSupplyForm = () => {
