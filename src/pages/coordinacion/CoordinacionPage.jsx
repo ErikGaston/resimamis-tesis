@@ -434,11 +434,11 @@ export const CoordinacionPage = () => {
                   {item.icon}
                 </Box>
                 <Typography
-                  variant="caption"
-                  fontWeight={tab === index ? 700 : 500}
-                  color={tab === index ? VIOLET : 'text.secondary'}
+                  fontWeight={tab === index ? 700 : 600}
+                  color={tab === index ? '#5F1FA8' : 'rgba(21,44,112,0.8)'}
                   textAlign="center"
                   lineHeight={1.2}
+                  sx={{ fontSize: '0.8125rem' }}
                 >
                   {item.label}
                 </Typography>

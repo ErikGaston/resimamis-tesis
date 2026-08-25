@@ -47,7 +47,7 @@ const BottomNavigationCustom = ({ tabs = [] }) => {
           maxWidth: 'none',
           py: 0.5,
           '& .MuiBottomNavigationAction-label': {
-            fontSize: '0.7rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             color: 'rgba(255,255,255,0.92)',
             opacity: 1,
@@ -57,7 +57,7 @@ const BottomNavigationCustom = ({ tabs = [] }) => {
             color: '#FFEB3B',
             '& .MuiBottomNavigationAction-label': {
               color: '#FFEB3B',
-              fontSize: '0.7rem',
+              fontSize: '0.75rem',
             },
           },
         },
