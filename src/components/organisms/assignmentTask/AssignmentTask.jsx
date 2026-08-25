@@ -61,8 +61,8 @@ const AssignmentTask = ({
     const hasBabys = listBabysFree && listBabysFree.length > 0;
 
     const submitLabel = canSubmit
-        ? `GENERAR ASIGNACIONES · ${selectedVolunteerIds.length}V – ${selectedBabyTareaIds.length}B`
-        : 'GENERAR ASIGNACIONES';
+        ? `Generar asignaciones · ${selectedVolunteerIds.length}V – ${selectedBabyTareaIds.length}B`
+        : 'Generar asignaciones';
 
     return (
         <Box sx={{ p: '20px 16px 12px' }}>

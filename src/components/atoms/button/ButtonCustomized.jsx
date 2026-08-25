@@ -26,7 +26,7 @@ export default ButtonCustomized;
 
 const StyledButton = styled(Button)`
       font-family: 'Roboto'; 
-      text-transform:capitalize;
+      text-transform: none;
       background-color: ${props => props.button};
       color: ${props => props.text};
       :hover{

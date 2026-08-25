@@ -229,7 +229,7 @@ const InformationHug = (props) => {
                             }}
                             onClick={() => submitChangeSupplies(listSupplies, hug?.idAsignacion)}
                         >
-                            REGISTRAR INSUMOS
+                            Registrar insumos
                         </ButtonCustomized>
                     }
                 />

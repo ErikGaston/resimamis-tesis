@@ -192,6 +192,35 @@ que gana sobre cualquier `pt` del `sx` (0-1-0). En ese caso hace falta
 `pt: '20px !important'`. Si hay algo en el medio (un `Box` de drag-handle, por ejemplo), se
 rompe la adyacencia y alcanza con `pt: 2.5`.
 
+## Componentes transversales que conviene reusar
+
+| Componente | Para qué |
+|------------|----------|
+| `common/ConfirmDialog` | Confirmar una acción destructiva. Botones de 48px, jerarquía cancelar/destructivo. **No** escribir un `Dialog` de confirmación inline. |
+| `common/PageHeader` | Header violeta con botón de volver. |
+| `common/PageScrollMain` | `<main>` con scroll y el colchón del footer ya aplicado. |
+| `common/ErrorBoundary` | Ya montado por ruta en `RouterApp`. |
+
+## Textos de botones
+
+Sentence case, en español: "Guardar insumo", no "GUARDAR INSUMO" ni "Guardar
+Insumo". `ButtonCustomized` usa `text-transform: none`, así que la etiqueta
+renderiza tal cual se escribe.
+
+Los `Button` de MUI **sí** vienen en mayúsculas por defecto, porque los overrides
+del tema están comentados: hay que pasarles `textTransform: 'none'` (y
+`minHeight: 44`, que tampoco traen).
+
+**Copy de bajas:** ninguna baja es irreversible — todas son lógicas. No escribir
+"Esta acción es irreversible"; describir el efecto real ("Dejará de aparecer en
+los listados").
+
+## Props de estilo propias
+
+Si un `styled()` recibe props propias (`labelColor`, `inputColor`, `widthInput`),
+hay que filtrarlas con `shouldForwardProp`. Sin eso llegan al DOM y React emite
+un warning por cada campo renderizado.
+
 ## Estilo de código
 
 ES6+, arrow functions, `?.` / `??`, template strings. `camelCase` para vars/fns,

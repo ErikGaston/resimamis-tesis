@@ -209,18 +209,23 @@ const VolunteerForm = ({
                 helperText={fieldErrors.idTurno}
             />
 
-            <div style={{ textAlign: 'right' }}>
+            <div>
                 <ButtonCustomized
-                    variant={'container'}
+                    variant={'contained'}
                     colorText={'#FFF'}
+                    fullWidth
                     sx={{
                         fontSize: '16px',
+                        minHeight: 48,
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 700,
                         background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
                         boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)'
                     }}
                     onClick={submitVolunteer}
                 >
-                    GUARDAR
+                    Guardar voluntaria
                 </ButtonCustomized>
             </div>
         </div>
