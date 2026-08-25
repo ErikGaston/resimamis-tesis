@@ -135,6 +135,8 @@ const StyledLink = styled(Link)`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: center;
+  min-height: 44px;
   border-radius: 8px;
   outline: none;
   &:focus-visible {
