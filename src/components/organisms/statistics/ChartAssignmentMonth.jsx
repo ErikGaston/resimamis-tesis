@@ -44,9 +44,20 @@ function acumularPorMes(statisticsAssignment) {
         totales.set(mes, (totales.get(mes) ?? 0) + cantidad);
     }
 
-    return [...totales.entries()]
-        .sort(([mesA], [mesB]) => mesA - mesB)
-        .map(([mes, cantidad]) => ({ mes, cantidad }));
+    if (!totales.size) return [];
+
+    // Se rellenan los meses intermedios sin registros: en una línea, saltear
+    // un mes sin datos lo dibujaría contiguo al siguiente y falsearía la
+    // pendiente (Jun y Ago se verían a un mes de distancia).
+    const meses = [...totales.keys()];
+    const desde = Math.min(...meses);
+    const hasta = Math.max(...meses);
+
+    const puntos = [];
+    for (let mes = desde; mes <= hasta; mes++) {
+        puntos.push({ mes, cantidad: totales.get(mes) ?? 0 });
+    }
+    return puntos;
 }
 
 export function ChartAssignmentMonth({ title, statisticsAssignment }) {
