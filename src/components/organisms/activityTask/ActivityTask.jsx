@@ -62,6 +62,13 @@ const ActivityTask = ({
 }) => {
     const existAssigned = listAssignmentVolunteer?.length > 0;
 
+    // Una voluntaria abraza de a un bebé por vez: con uno en curso, el resto no puede arrancar.
+    const hayAbrazoEnCurso = (listAssignmentVolunteer ?? []).some((a) => {
+        const estado = a.estadoAsignacion
+            ?? (!a.fechaHoraInicio ? 'Creada' : !a.fechaHoraFin ? 'Iniciado' : 'Finalizado');
+        return estado === 'Iniciado';
+    });
+
     return (
         <Box sx={{ px: 2.5, pt: 2, pb: 2 }}>
 
@@ -130,6 +137,7 @@ const ActivityTask = ({
                             editHug={editHug}
                             submitStartHug={submitStartHug}
                             onAssignmentDetail={onAssignmentDetail}
+                            hayAbrazoEnCurso={hayAbrazoEnCurso}
                         />
                     ))}
                     {!existAssigned && (

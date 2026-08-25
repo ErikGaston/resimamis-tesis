@@ -32,7 +32,7 @@ function fmt(iso) {
     return d.isValid() ? d.format('HH:mm') : null;
 }
 
-const CardBabyHug = ({ item, editHug, submitStartHug, onAssignmentDetail }) => {
+const CardBabyHug = ({ item, editHug, submitStartHug, onAssignmentDetail, hayAbrazoEnCurso = false }) => {
     const isTask = !item.nombreBebe && !!item.nombreTarea;
     const subject = item.nombreBebe ?? item.nombreTarea ?? '—';
     const sala = item.nombreSala;
@@ -46,6 +46,7 @@ const CardBabyHug = ({ item, editHug, submitStartHug, onAssignmentDetail }) => {
     const fin = fmt(item.fechaHoraFin);
 
     const canStart = estado === 'Creada' && typeof submitStartHug === 'function';
+    const startBlocked = canStart && hayAbrazoEnCurso;
     const canEdit = estado === 'Iniciado' && typeof editHug === 'function';
     const isDone = estado === 'Finalizado';
 
@@ -138,19 +139,25 @@ const CardBabyHug = ({ item, editHug, submitStartHug, onAssignmentDetail }) => {
                             fullWidth
                             startIcon={<PlayArrowIcon />}
                             onClick={() => submitStartHug(item.idAsignacion)}
+                            disabled={startBlocked}
                             sx={{
-                                background: GRADIENT,
+                                background: startBlocked ? 'rgba(21,44,112,0.12)' : GRADIENT,
                                 minHeight: 40,
                                 borderRadius: '10px',
                                 fontWeight: 700,
                                 fontSize: '0.88rem',
                                 textTransform: 'none',
-                                boxShadow: '0 3px 10px rgba(127,0,255,0.22)',
+                                boxShadow: startBlocked ? 'none' : '0 3px 10px rgba(127,0,255,0.22)',
                                 '&:hover': { opacity: 0.88 },
                             }}
                         >
                             Iniciar abrazo
                         </Button>
+                        {startBlocked && (
+                            <Typography sx={{ fontSize: '0.72rem', color: 'rgba(21,44,112,0.5)', mt: 0.5, textAlign: 'center' }}>
+                                Finalizá el abrazo en curso para iniciar otro.
+                            </Typography>
+                        )}
                     </Box>
                 )}
 
