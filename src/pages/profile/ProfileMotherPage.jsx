@@ -218,7 +218,7 @@ export const ProfileMotherPage = () => {
     >
       {/* Overlay solo para mutaciones (putMother, putBaby), no para la carga inicial */}
       {loading && model !== null && (
-        <Loading position={'absolute'} height={'100%'} zIndex={9999} />
+        <Loading />
       )}
       <PageScrollMain>
         {model === null ? (

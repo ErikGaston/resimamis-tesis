@@ -79,7 +79,11 @@ const MotherAccordionForm = (props) => {
     const [editingBabyIndex, setEditingBabyIndex] = useState(null);
 
     const madreNombreCompleto = [model?.nombre, model?.apellido].filter(Boolean).join(' ').trim();
-    const tituloMadre = `Datos de la madre: ${madreNombreCompleto || 'Sin nombre'}`;
+    // En un alta vacía "Sin nombre" se lee como un error; hasta que haya nombre
+    // el título va solo.
+    const tituloMadre = madreNombreCompleto
+        ? `Datos de la madre: ${madreNombreCompleto}`
+        : 'Datos de la madre';
 
     const handleSaveBaby = (index) => {
         const row = model?.bebe?.[index];
@@ -256,7 +260,8 @@ const MotherAccordionForm = (props) => {
 
             {typeForm !== 'ALTA' && model?.bebe?.map((item, index) => {
                 const panelId = `bebe-${item?.id ?? item?.idBebe ?? index}`;
-                const tituloBebe = `Datos del bebé: ${[item?.nombre, item?.apellido].filter(Boolean).join(' ').trim() || 'Sin nombre'}`;
+                const bebeNombreCompleto = [item?.nombre, item?.apellido].filter(Boolean).join(' ').trim();
+                const tituloBebe = bebeNombreCompleto ? `Datos del bebé: ${bebeNombreCompleto}` : 'Datos del bebé';
                 const isEditingThisBaby = editingBabyIndex === index;
                 const canEditBaby = typeForm === 'EDITAR' && isEditingThisBaby && profileBabyExtras?.onPutBaby;
                 const readOnlyBaby = !canEditBaby;

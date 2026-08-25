@@ -403,7 +403,7 @@ export const CoordinacionPage = () => {
         '& .MuiButton-root': { textTransform: 'none', minHeight: 44 },
       }}
     >
-      {loading && <Loading position="absolute" height="100%" />}
+      {loading && <Loading />}
       <PageHeader title="Administración" />
       <PageScrollMain>
         <Paper elevation={0} sx={{ p: 2, mx: 1, mb: 2, borderRadius: 2 }}>

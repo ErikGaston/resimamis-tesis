@@ -69,6 +69,7 @@ const LoadingText = styled.span`
   opacity: 0.85;
 `;
 
+/** Overlay bloqueante a pantalla completa. No acepta props: es siempre igual. */
 const Loading = () => {
   return (
     <ContainerLoading>

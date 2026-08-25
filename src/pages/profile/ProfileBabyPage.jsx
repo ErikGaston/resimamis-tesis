@@ -254,7 +254,7 @@ export const ProfileBabyPage = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100dvh', maxHeight: '100dvh', minHeight: 0, overflow: 'hidden', position: 'relative' }}>
-      {loading && babyModel !== null && <Loading position="absolute" height="100%" zIndex={9999} />}
+      {loading && babyModel !== null && <Loading />}
       <PageHeader title="Perfil del bebé" />
 
       <PageScrollMain>

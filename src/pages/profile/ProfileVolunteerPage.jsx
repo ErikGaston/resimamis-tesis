@@ -166,7 +166,7 @@ export const ProfileVolunteerPage = () => {
     >
       {/* Overlay solo para mutaciones (putVolunteer), no para la carga inicial */}
       {loading && model !== null && (
-        <Loading position={'absolute'} height={'100%'} zIndex={9999} />
+        <Loading />
       )}
       <PageScrollMain>
         {model === null ? (

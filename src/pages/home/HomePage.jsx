@@ -40,7 +40,7 @@ export const HomePage = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
       {loading && volunteersFree !== null && (
-        <Loading position={'absolute'} height={'100%'} zIndex={9999} />
+        <Loading />
       )}
       <HomeTemplate
         nameVolunteer={nameVolunteer}

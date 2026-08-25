@@ -203,7 +203,7 @@ export const MotherPage = () => {
     return (
         <>
             {loading &&
-                <Loading position={'absolute'} height={'100%'} zIndex={9999} />
+                <Loading />
             }
             <MotherTemplate
                 model={model}

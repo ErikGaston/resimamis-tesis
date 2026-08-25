@@ -156,7 +156,7 @@ export const SupplyPage = () => {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
             {loading && suppliesLoaded &&
-                <Loading position={'absolute'} height={'100%'} zIndex={9999} />
+                <Loading />
             }
             <SupplyTemplate
                 valueTask={valueTask}

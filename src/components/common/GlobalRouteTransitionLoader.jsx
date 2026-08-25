@@ -28,5 +28,5 @@ export default function GlobalRouteTransitionLoader() {
   }, [location.key]);
 
   if (!visible) return null;
-  return <Loading position="absolute" height="100dvh" />;
+  return <Loading />;
 }

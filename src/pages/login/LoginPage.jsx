@@ -74,7 +74,7 @@ export const LoginPage = () => {
   return (
     <>
       {loading &&
-        <Loading position={'absolute'} height={'100%'} zIndex={9999} />
+        <Loading />
       }
       <LoginTemplate
         model={model}

@@ -62,7 +62,7 @@ export const VolunteerPage = () => {
     return (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
             {loading &&
-                <Loading position={'absolute'} height={'100%'} zIndex={9999} />
+                <Loading />
             }
             <VolunteerTemplate
                 model={model}
