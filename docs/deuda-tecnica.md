@@ -86,7 +86,6 @@ Sobre una API con JWT en header. Restringir a los orígenes del frontend.
 | `MapControllers` duplicado | Se registra en `Startup.Configure` y otra vez en `Program.cs` |
 | Parámetros fantasma | `GET /Genericos/localidades` declara un `int Dni` que no usa; `GET /Bebe/id/{Dni}` recibe en realidad el ID, no el DNI |
 | Código muerto | El parámetro de rango de `listarCantidadAsignacionesPorDia` está comentado |
-| Estadística de asignaciones sin año | `AsignacionRepositorio.devolverEstadisticaCantidadAsignaciones1()` agrupa por `(Mes, Año)` pero `EstadsiticaCantidadAsignacion` **solo expone `Mes`**: con datos de más de un año llegan entradas duplicadas del mismo mes, indistinguibles. El front las suma como paliativo (`ChartAssignmentMonth`), pero el arreglo real es agregar `Anio` al DTO |
 
 ### Frontend
 

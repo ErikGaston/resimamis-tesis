@@ -27,41 +27,73 @@ const NOMBRES_MES_CORTO = [
 
 const LINE_COLOR = 'rgba(143, 0, 255, 1)';
 const FILL_COLOR = 'rgba(143, 0, 255, 0.12)';
-
 /**
- * El backend agrupa por (mes, año) pero el DTO solo expone `mes`, así que dos
- * años distintos llegan como dos entradas con el mismo mes y sin forma de
- * distinguirlas. Se suman para que la serie no muestre el mismo mes dos veces.
+ * El backend agrupa por (mes, año). Los despliegues anteriores a agosto 2026 no
+ * exponían `anio` en el DTO: ahí dos años distintos llegan como dos entradas con
+ * el mismo mes y sin forma de distinguirlas, así que se suman.
  */
 function acumularPorMes(statisticsAssignment) {
-    const totales = new Map();
+    const registros = [];
 
     for (const registro of statisticsAssignment ?? []) {
         const mes = Number(registro?.mes);
         if (!Number.isInteger(mes) || mes < 1 || mes > 12) continue;
 
-        const cantidad = Number(registro?.cantidadAsignaciones) || 0;
-        totales.set(mes, (totales.get(mes) ?? 0) + cantidad);
+        const anio = Number(registro?.anio);
+        registros.push({
+            mes,
+            anio: Number.isInteger(anio) && anio > 0 ? anio : null,
+            cantidad: Number(registro?.cantidadAsignaciones) || 0,
+        });
     }
 
-    if (!totales.size) return [];
+    if (!registros.length) return [];
+    if (registros.some((r) => r.anio === null)) return acumularSoloPorMes(registros);
 
-    // Se rellenan los meses intermedios sin registros: en una línea, saltear
-    // un mes sin datos lo dibujaría contiguo al siguiente y falsearía la
-    // pendiente (Jun y Ago se verían a un mes de distancia).
-    const meses = [...totales.keys()];
-    const desde = Math.min(...meses);
-    const hasta = Math.max(...meses);
+    const totales = new Map();
+    for (const r of registros) {
+        const clave = r.anio * 12 + (r.mes - 1);
+        totales.set(clave, (totales.get(clave) ?? 0) + r.cantidad);
+    }
 
+    return rellenarHuecos(totales, (clave) => ({
+        mes: (clave % 12) + 1,
+        anio: Math.floor(clave / 12),
+    }));
+}
+
+function acumularSoloPorMes(registros) {
+    const totales = new Map();
+    for (const r of registros) {
+        totales.set(r.mes, (totales.get(r.mes) ?? 0) + r.cantidad);
+    }
+    return rellenarHuecos(totales, (mes) => ({ mes, anio: null }));
+}
+
+// Saltear un mes sin registros lo dibujaría contiguo al siguiente y falsearía la
+// pendiente de la línea (Jun y Ago se verían a un mes de distancia).
+function rellenarHuecos(totales, describir) {
+    const claves = [...totales.keys()];
     const puntos = [];
-    for (let mes = desde; mes <= hasta; mes++) {
-        puntos.push({ mes, cantidad: totales.get(mes) ?? 0 });
+    for (let clave = Math.min(...claves); clave <= Math.max(...claves); clave++) {
+        puntos.push({ ...describir(clave), cantidad: totales.get(clave) ?? 0 });
     }
     return puntos;
 }
 
+function etiquetaCorta(punto, mostrarAnio) {
+    const mes = NOMBRES_MES_CORTO[punto.mes - 1];
+    return mostrarAnio ? `${mes} ${String(punto.anio).slice(-2)}` : mes;
+}
+
+function tituloMes(punto) {
+    const mes = NOMBRES_MES[punto.mes - 1];
+    return punto.anio ? `${mes} ${punto.anio}` : mes;
+}
+
 export function ChartAssignmentMonth({ title, statisticsAssignment }) {
     const puntos = acumularPorMes(statisticsAssignment);
+    const mostrarAnio = new Set(puntos.map((p) => p.anio)).size > 1;
 
     if (!puntos.length) {
         return (
@@ -80,7 +112,7 @@ export function ChartAssignmentMonth({ title, statisticsAssignment }) {
             title: { display: false },
             tooltip: {
                 callbacks: {
-                    title: (items) => NOMBRES_MES[puntos[items[0].dataIndex].mes - 1],
+                    title: (items) => tituloMes(puntos[items[0].dataIndex]),
                     label: (ctx) => ` ${ctx.parsed.y} ${ctx.parsed.y === 1 ? 'asignación' : 'asignaciones'}`,
                 },
             },
@@ -96,7 +128,7 @@ export function ChartAssignmentMonth({ title, statisticsAssignment }) {
     };
 
     const data = {
-        labels: puntos.map((p) => NOMBRES_MES_CORTO[p.mes - 1]),
+        labels: puntos.map((p) => etiquetaCorta(p, mostrarAnio)),
         datasets: [{
             label: 'Asignaciones',
             data: puntos.map((p) => p.cantidad),
