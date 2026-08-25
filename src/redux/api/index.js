@@ -326,7 +326,6 @@ const postAssignmentGenerateTareasURL = '/asignacion/generarTareas/';
 const postDetailAssignmentURL = '/asignacion/registrarDetalleAsignacion/';
 const postStartHugURL = '/asignacion/iniciarAbrazo/';
 const postEndHugURL = '/asignacion/finalizarAbrazo/';
-const getDurationHugURL = '/asignacion/duracionAbrazos/';
 const getAssignmentTodayURL = '/asignacion/listarAsignacionesHoy/';
 const getAssignmentTodayByIdURL = '/asignacion/listarAsignacionesHoyVoluntaria/';
 const getStatisticsAssignmentMonthURL = '/asignacion/listarCantidadAsignacionesPorDia/';
@@ -442,16 +441,6 @@ export const postEndHug = async (param) => {
     });
 };
 
-export const getDurationHug = async () => {
-  return AxiosInstance
-    .get(`${getDurationHugURL}`)
-    .then((response) => {
-      return response;
-    })
-    .catch((error) => {
-      throw error;
-    });
-};
 
 export const getAssignmentToday = async () => {
   return AxiosInstance
@@ -1028,6 +1017,10 @@ export const getCoordinacionHoy = async () =>
 /** Cobertura de abrazos del día + lista nominal de bebés que no recibieron. */
 export const getCoberturaHoy = async () =>
   AxiosInstance.get('/dashboard/coordinacion/cobertura-hoy').then((r) => r).catch((e) => { throw e; });
+
+/** Duración de abrazos finalizados en un período. Sin params, toma todo el histórico. */
+export const getDuracionAbrazosPeriodo = async (params) =>
+  AxiosInstance.get('/dashboard/abrazos/duracion', params ? { params } : undefined).then((r) => r).catch((e) => { throw e; });
 
 export const getBebesPorSala = async () =>
   AxiosInstance.get('/dashboard/bebes/por-sala').then((r) => r).catch((e) => { throw e; });

@@ -7,6 +7,7 @@ const initialState = {
     bebesPorEstado: null,
     bebesRangoEdades: null,
     rankingVoluntarias: null,
+    duracionAbrazos: null,
     loading: false,
     error: null,
 };
@@ -24,6 +25,10 @@ const ACTIONS = {
         ({ ...state, bebesRangoEdades: action.response.data, error: null, loading: false }),
     [actionTypes.SUCCESS_GET_RANKING_VOLUNTARIAS]: (state, action) =>
         ({ ...state, rankingVoluntarias: action.response.data, error: null, loading: false }),
+    // A diferencia del resto, este payload lo compone la saga a partir de varias
+    // llamadas, así que ya viene desenvuelto: la página lo usa tal cual.
+    [actionTypes.SUCCESS_GET_DURACION_ABRAZOS]: (state, action) =>
+        ({ ...state, duracionAbrazos: action.response.data, error: null, loading: false }),
     [actionTypes.ERROR_DASHBOARD]: (state, action) =>
         ({ ...state, error: action.response, loading: false }),
     [actionTypes.SHOW_LOADING]: (state, action) => ({ ...state, loading: action.payload }),

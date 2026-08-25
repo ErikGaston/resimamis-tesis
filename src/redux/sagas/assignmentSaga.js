@@ -111,24 +111,6 @@ function* asyncPostEndHug({ payload }) {
     }
 }
 
-function* asyncGetDurationHug() {
-    try {
-        let response = yield call(API.getDurationHug);
-        if (response)
-            yield put({
-                type: actionTypes.SUCCESS_GET_DURATION_HUG,
-                response,
-            });
-    } catch (error) {
-        yield* showApiErrorToast(error);
-        yield put({
-            type: actionTypes.ERROR_ASSIGNMENT,
-            response: error,
-            message: error.message,
-        });
-    }
-}
-
 function* asyncGetAssignmentToday() {
     try {
         let response = yield call(API.getAssignmentToday);
@@ -227,7 +209,6 @@ export default function* assignmentSaga() {
     yield takeLatest(actionTypes.POST_DETAIL_ASSIGNMENT, asyncPostDetailAssignment);
     yield takeLatest(actionTypes.POST_START_HUG, asyncPostStartHug);
     yield takeLatest(actionTypes.POST_END_HUG, asyncPostEndHug);
-    yield takeLatest(actionTypes.GET_DURATION_HUG, asyncGetDurationHug);
     yield takeLatest(actionTypes.GET_ASSIGNMENT_TODAY, asyncGetAssignmentToday);
     yield takeLatest(actionTypes.GET_ASSIGNMENT_TODAY_BY_ID, asyncGetAssignmentTodayById);
     yield takeLatest(actionTypes.GET_STATISTICS_ASSIGNMENT_MONTH, asyncGetStatisticsAssignmentMonth);

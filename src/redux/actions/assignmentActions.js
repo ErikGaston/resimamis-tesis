@@ -47,12 +47,6 @@ export function postEndHug(param) {
     };
 }
 
-export function getDurationHug() {
-    return {
-        type: actionTypes.GET_DURATION_HUG,
-    };
-}
-
 export function getAssignmentToday() {
     return {
         type: actionTypes.GET_ASSIGNMENT_TODAY,

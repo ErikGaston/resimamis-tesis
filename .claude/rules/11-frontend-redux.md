@@ -58,7 +58,11 @@ export default function* salaSaga() {
 }
 ```
 
-`rootSaga` (`sagas/index.js`) sí usa `all([...])` para arrancar las 12 sagas de dominio.
+`rootSaga` (`sagas/index.js`) sí usa `all([...])` para arrancar las sagas de dominio.
+
+`all([...])` también es válido **dentro** de un worker para paralelizar llamadas que no
+dependen entre sí — por ejemplo `asyncGetDuracionAbrazos`, que pide una serie mes a mes. Lo
+que no existe en este repo son funciones `watch*`.
 
 **`showApiErrorToast` va en el `catch` de todas las sagas excepto `asyncPostLogin`**
 (ver la regla de errores en `10-frontend.md`).

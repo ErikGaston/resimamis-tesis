@@ -25,6 +25,14 @@ export function getRankingVoluntarias(params) {
     return { type: actionTypes.GET_RANKING_VOLUNTARIAS, payload: params };
 }
 
+/**
+ * Duración de abrazos: totales del histórico + promedio mes a mes.
+ * @param {{ meses?: number }} [opciones] cuántos meses hacia atrás graficar
+ */
+export function getDuracionAbrazos(opciones) {
+    return { type: actionTypes.GET_DURACION_ABRAZOS, payload: opciones };
+}
+
 export function clearDashboard() {
     return { type: actionTypes.CLEAR_DASHBOARD };
 }

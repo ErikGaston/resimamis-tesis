@@ -29,9 +29,9 @@ skill `sync-api-contract`.
 
 ## Sin integrar
 
-### `api/Dashboard` — 16 endpoints, 8 consumidos
+### `api/Dashboard` — 16 endpoints, 9 consumidos
 
-Quedan 8 endpoints sin UI. El resto de `/estadisticas` todavía se alimenta de los endpoints
+Quedan 7 endpoints sin UI. El resto de `/estadisticas` todavía se alimenta de los endpoints
 viejos de madre/asignación/insumo.
 
 | Endpoint | Qué daría |
@@ -40,7 +40,7 @@ viejos de madre/asignación/insumo.
 | ~~`coordinacion/hoy`~~ | **Integrado** (ago 2026): `/panel` |
 | ~~`coordinacion/cobertura-hoy`~~ | **Integrado** (ago 2026): `/panel` |
 | `asignaciones/por-dia` | Serie diaria |
-| `abrazos/duracion` | Promedio/mín/máx/total en minutos |
+| ~~`abrazos/duracion`~~ | **Integrado** (ago 2026): `/estadisticas` → "Duración de abrazos", con promedio/mín/máx y una llamada por mes para la serie |
 | ~~`bebes/por-estado`~~, ~~`bebes/por-sala`~~ | **Integrado** (ago 2026): `/estadisticas` |
 | ~~`bebes/rango-edades`~~ | **Integrado** (ago 2026): `/estadisticas` → "Edad de los bebés" |
 | ~~`bebes/permanencia`~~ | **Integrado** (ago 2026): `/estadisticas` → "Permanencia de los bebés" |

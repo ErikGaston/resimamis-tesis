@@ -8,7 +8,6 @@ const initialState = {
     error: null,
     postStartHug: null,
     postEndHug: null,
-    getDurationHug: null,
     getAssignmentToday: null,
     getAssignmentTodayById: null,
     getAssignmentById: null,
@@ -28,7 +27,6 @@ export default function assignmentReducer(state = initialState, action) {
         [actionTypes.SUCCESS_GET_ASSIGNMENT_BY_ID]: responseToReturn('getAssignmentById'),
         [actionTypes.SUCCESS_POST_START_HUG]: responseToReturn('postStartHug'),
         [actionTypes.SUCCESS_POST_END_HUG]: responseToReturn('postEndHug'),
-        [actionTypes.SUCCESS_GET_DURATION_HUG]: responseToReturn('getDurationHug'),
         [actionTypes.SUCCESS_GET_ASSIGNMENT_TODAY]: responseToReturn('getAssignmentToday'),
         [actionTypes.SUCCESS_GET_ASSIGNMENT_TODAY_BY_ID]: responseToReturn('getAssignmentTodayById'),
         [actionTypes.SUCCESS_GET_STATISTICS_ASSIGNMENT_MONTH]: responseToReturn('getStatisticsAssignmentMonth'),
@@ -64,7 +62,7 @@ export default function assignmentReducer(state = initialState, action) {
         if (action.type === 'CLEAR_ASSIGNMENT') {
             res = {
                 ...state, postAssignmentGenerate: null, postAssignmentGenerateTarea: null, error: null, postDetailAssignment: null,
-                postStartHug: null, postEndHug: null, getDurationHug: null, getAssignmentToday: null, getAssignmentTodayById: null,
+                postStartHug: null, postEndHug: null, getAssignmentToday: null, getAssignmentTodayById: null,
                 getAssignmentById: null,
                 getStatisticsAssignmentMonth: null,
                 putAssignmentById: null,

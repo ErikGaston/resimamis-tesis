@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { showLoading } from "../../redux/actions/loadingActions";
 import { clearMother, getStatisticsAgeMother, getStatisticsLocalities } from "../../redux/actions/motherActions";
 import { clearSupply, getStatisticsSupplies } from "../../redux/actions/supplyActions";
-import { clearAssignment, getStatisticsAssignmentMonth, getDurationHug } from "../../redux/actions/assignmentActions";
+import { clearAssignment, getStatisticsAssignmentMonth } from "../../redux/actions/assignmentActions";
 import { clearBaby, getBabyWeightEvolution, getBabyPermanencia } from "../../redux/actions/babyActions";
-import { clearDashboard, getBebesPorEstado, getBebesPorSala, getBebesRangoEdades, getRankingVoluntarias } from "../../redux/actions/dashboardActions";
+import { clearDashboard, getBebesPorEstado, getBebesPorSala, getBebesRangoEdades, getDuracionAbrazos, getRankingVoluntarias } from "../../redux/actions/dashboardActions";
 import dayjs from "dayjs";
 import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
 import StatisticsTemplate from "../../components/templates/statistics/StatisticsTemplate";
@@ -43,7 +43,7 @@ export const StatisticsPage = () => {
                 dispatch(getStatisticsAssignmentMonth());
                 break;
             case 5:
-                dispatch(getDurationHug());
+                dispatch(getDuracionAbrazos());
                 break;
             case 6:
                 dispatch(getBabyWeightEvolution());
@@ -90,14 +90,14 @@ export const StatisticsPage = () => {
     useEffect(() => {
         if ((dataMother?.getStatisticsLocalities !== null || dataMother?.getStatisticsAgeMother !== null
             || dataSupply.getStatisticsSupplies !== null || dataAssignment?.getStatisticsAssignmentMonth !== null
-            || dataAssignment?.getDurationHug !== null || dataBaby?.getBabyWeightEvolution !== null
+            || dataBaby?.getBabyWeightEvolution !== null || dataDashboard?.duracionAbrazos !== null
             || dataBaby?.getBabyPermanencia !== null || dataDashboard?.bebesPorSala !== null
             || dataDashboard?.bebesPorEstado !== null || dataDashboard?.bebesRangoEdades !== null
             || dataDashboard?.rankingVoluntarias !== null) && valueChart !== 0) {
             setStateChart('OPEN')
             dispatch(showLoading(false))
         }
-    }, [dataMother?.getStatisticsLocalities, dataMother?.getStatisticsAgeMother, dataSupply?.getStatisticsSupplies, dataAssignment?.getStatisticsAssignmentMonth, dataAssignment?.getDurationHug, dataBaby?.getBabyWeightEvolution, dataBaby?.getBabyPermanencia, dataDashboard?.bebesPorSala, dataDashboard?.bebesPorEstado, dataDashboard?.bebesRangoEdades, dataDashboard?.rankingVoluntarias])
+    }, [dataMother?.getStatisticsLocalities, dataMother?.getStatisticsAgeMother, dataSupply?.getStatisticsSupplies, dataAssignment?.getStatisticsAssignmentMonth, dataBaby?.getBabyWeightEvolution, dataDashboard?.duracionAbrazos, dataBaby?.getBabyPermanencia, dataDashboard?.bebesPorSala, dataDashboard?.bebesPorEstado, dataDashboard?.bebesRangoEdades, dataDashboard?.rankingVoluntarias])
 
     // `showLoading(true)` prende el flag en todos los reducers, pero la saga que
     // falla solo apaga el suyo: sin esto el spinner queda trabado a pantalla
@@ -121,7 +121,7 @@ export const StatisticsPage = () => {
                 statisticsLocalities={dataMother?.getStatisticsLocalities?.data}
                 statisticsSupplies={dataSupply?.getStatisticsSupplies?.data}
                 statisticsAssignment={dataAssignment?.getStatisticsAssignmentMonth?.data}
-                statisticsDurationHug={dataAssignment?.getDurationHug}
+                statisticsDuracion={dataDashboard?.duracionAbrazos}
                 statisticsWeightEvolution={dataBaby?.getBabyWeightEvolution?.data}
                 statisticsPermanencia={dataBaby?.getBabyPermanencia?.data}
                 statisticsPorSala={dataDashboard?.bebesPorSala?.data}

@@ -38,14 +38,14 @@ La skill **`sync-api-contract`** automatiza el diff backend↔frontend.
 | Madre | `postMother`, `getMother`, `getMotherId`, `putMother`, `getStatisticsLocalities`, `getStatisticsAgeMother`, `postMotherDelete` | `motherSaga` |
 | Voluntaria + Asistencia | `postVolunteer`, `putVolunteer`, `getVolunteers`, `getVolunteersFree`, `getVolunteersStates`, `getVolunteerById`, `postVolunteerDelete`, `postAssistance`, `postAssistanceSalida`, `getAssistance`, `getAssistanceToday`, `getAssistanceHistoricas`, `getAssistanceReporte`, `getAsistenciasAll`, `postAssistanceDelete` | `volunteerSaga` |
 | Bebé | `postBaby`, `putBaby`, `getBabys`, `getBabysFree`, `getBabysDisponiblesAbrazo`, `getBabySalas`, `getBabyByDni`, `postBabyDelete`, `getBabyWeightEvolution`, `getBabyPermanencia` | `babySaga` |
-| Asignación | `postAssignmentGenerateLegacy`, `postAssignmentGenerateTareas`, `postAssignmentGenerateTarea`, `getAssignmentById`, `postDetailAssignment`, `postStartHug`, `postEndHug`, `getDurationHug`, `getAssignmentToday`, `getAssignmentTodayById`, `getStatisticsAssignmentMonth`, `putAssignmentById`, `deleteAssignmentById`, `postResetAbrazosColgados` | `assignmentSaga` |
+| Asignación | `postAssignmentGenerateLegacy`, `postAssignmentGenerateTareas`, `postAssignmentGenerateTarea`, `getAssignmentById`, `postDetailAssignment`, `postStartHug`, `postEndHug`, `getAssignmentToday`, `getAssignmentTodayById`, `getStatisticsAssignmentMonth`, `putAssignmentById`, `deleteAssignmentById`, `postResetAbrazosColgados` | `assignmentSaga` |
 | Insumos | `getSupplies`, `postSupplyCreate`, `getStatisticsSupplies`, `postSupplyConsultMovements`, `getSupplyProviders`, `postSupplyRegisterMovement`, `getSupplyById`, `putSupplyById`, `postSupplyDelete` | `supplySaga` |
 | Horario | `getHorarioDias`, `postHorario`, `putHorario` | `horarioSaga` |
 | Tarea | `getTareas`, `getTareasDisponibles`, `getTareaById`, `postTarea`, `putTareaById`, `postTareaDelete` | `tareaSaga` ⚠️ ninguna se consume desde la UI |
 | Visita | `getVisitas`, `getVisitasByBebe`, `getVisitaById`, `postVisita`, `putVisitaById`, `postVisitaDelete` | `visitaSaga` |
 | Proveedor | `getProveedoresAll`, `postProveedor`, `putProveedor`, `postProveedorDelete` | `proveedorSaga` |
 | Sala | `getSalasAll`, `postSala`, `putSala`, `postSalaDelete` | `salaSaga` |
-| Dashboard | `getCoordinacionHoy`, `getCoberturaHoy`, `getBebesPorSala`, `getBebesPorEstado`, `getBebesRangoEdades`, `getRankingVoluntarias` | `dashboardSaga` |
+| Dashboard | `getCoordinacionHoy`, `getCoberturaHoy`, `getBebesPorSala`, `getBebesPorEstado`, `getBebesRangoEdades`, `getRankingVoluntarias`, `getDuracionAbrazosPeriodo` | `dashboardSaga` |
 | Asistente | `getAsistenteEstado`, `postAsistentePregunta` | `asistenteSaga` |
 
 ## Contratos con forma no obvia
@@ -72,7 +72,7 @@ El backend tiene ~100 endpoints y el front usa unos 60. Lo que falta integrar:
 
 | Familia | Estado |
 |---------|--------|
-| `api/Dashboard/*` | 8 de 16 consumidos. Faltan: resumen de período, asignaciones por día, duración de abrazos, visitas, y los historiales por bebé y por voluntaria |
+| `api/Dashboard/*` | 9 de 16 consumidos. Faltan: resumen de período, asignaciones por día, visitas, y los historiales por bebé y por voluntaria |
 | `GET /Bebe/estados`, `PUT /Bebe/id/{id}/estado` | Sin consumir |
 | `GET /Asignacion/abrazosHistoricos/{idBebe}` | Sin consumir |
 | `GET /Insumo/bajoStockMinimo`, `POST /Insumo/avisoStockMinimo`, `GET /Insumo/movimiento/id/{id}` | Sin consumir |
