@@ -46,7 +46,8 @@ Backend ASP.NET Core .NET 8 + EF Core + PostgreSQL (`resimamis/`, repo independi
 
 ## 4. Asistencia
 
-- Registrar **entrada y salida** del día.
+- Registrar **entrada y salida** del día. Se puede volver a marcar entrada después de la salida:
+  el backend solo rechaza una segunda entrada si la jornada anterior sigue abierta.
 - Consultar asistencia propia (individual, hoy, históricas).
 - Reporte por período y listado completo, con baja lógica desde las cards.
 

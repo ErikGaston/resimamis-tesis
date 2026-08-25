@@ -18,7 +18,9 @@
    — el comentario va **solo en el body**, nunca en la URL; `comentario` acepta `null`
 5. Opcional: registra **insumos usados** → `POST /asignacion/registrarDetalleAsignacion/`
    body **array** `[{ idAsignacion, idInsumo, cantidadInsumo }]`
-6. Al irse → **registra salida** (`POST /asistencia/salida/{id}`)
+6. Al irse → **registra salida** (`POST /asistencia/salida/{id}`). Si vuelve el mismo día puede
+   marcar una nueva entrada: el backend solo rechaza una segunda entrada con la jornada anterior
+   abierta (`FechaHoraSalida == null`)
 
 La coordinadora además genera asignaciones masivas, resetea abrazos colgados (iniciados en
 días anteriores y nunca finalizados) y accede al panel `/coordinacion`.
