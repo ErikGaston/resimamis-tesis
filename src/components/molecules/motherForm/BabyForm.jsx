@@ -5,7 +5,7 @@ import LabelInput from '../labelInput/LabelInput';
 import LabelDate from '../labelDate/LabelDate';
 import LabelAutocomplete from '../labelAutocomplete/LabelAutocomplete';
 import { formattedDate } from '../../../utils/dateFormat';
-import { collectIdMadresForBaby } from '../../../utils/babyPayload';
+import { collectIdMadresForBaby, resolveIdLocalidad } from '../../../utils/babyPayload';
 
 const listSexo = [
     { value: 'M', label: 'Masculino' },
@@ -61,8 +61,9 @@ const BabyForm = ({
     const onChangeAutocomplete = (e, newValue) => {
         safeSetModel({
             ...model,
-            nombre_localidad: newValue?.label,
-            localidad: newValue?.value,
+            nombre_localidad: newValue?.label ?? '',
+            localidad: newValue?.value ?? null,
+            idLocalidad: newValue?.value ?? null,
         })
     };
 
@@ -95,9 +96,20 @@ const BabyForm = ({
             ? dayjs(model.fechaIngresoNEO)
             : null
 
-    const localidadLabel = () => {
-        return model?.nombre_localidad ?? '';
+    /** El bebé que vuelve del backend trae `idLocalidad` + `localidadDetalle`, no `nombre_localidad`. */
+    const localidadOption = () => {
+        if (!listLocalities) return null;
+        const id = resolveIdLocalidad(model);
+        if (id != null) {
+            const porId = listLocalities.find((loc) => Number(loc.value ?? loc.idLocalidad) === id);
+            if (porId) return porId;
+        }
+        const nombre = model?.nombre_localidad ?? model?.localidadDetalle?.nombre;
+        return nombre ? listLocalities.find((loc) => loc.label === nombre) ?? null : null;
     };
+
+    const localidadLabel = () =>
+        model?.nombre_localidad ?? model?.localidadDetalle?.nombre ?? localidadOption()?.label ?? '';
 
     const sexoOption =
         listSexo.find(
@@ -252,7 +264,7 @@ const BabyForm = ({
                 <LabelAutocomplete
                     id='nombre_localidad'
                     options={listLocalities}
-                    value={readOnly ? localidadLabel() : model?.nombre_localidad}
+                    value={localidadOption()}
                     onChange={onChangeAutocomplete}
                     placeholder={'Buscar localidad'}
                     noOptionsText={'No se encontraron localidades'}
@@ -267,7 +279,7 @@ const BabyForm = ({
                 <LabelInput
                     name='nombre_localidad'
                     label='Localidad'
-                    value={model?.nombre_localidad ?? ''}
+                    value={localidadLabel()}
                     onChange={readOnly ? noop : onChangeText}
                     labelColor={'#152C70'}
                     inputColor={'#152C70'}

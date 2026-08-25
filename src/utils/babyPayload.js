@@ -4,6 +4,19 @@
  */
 
 /**
+ * El autocomplete de localidad guarda el id en `localidad` (y el label en `nombre_localidad`),
+ * pero la entidad BEBE lo espera como `idLocalidad`. Sin este puente el dato se perdía.
+ * @param {Record<string, unknown>} baby
+ * @returns {number | null}
+ */
+export function resolveIdLocalidad(baby) {
+  const raw = baby?.idLocalidad ?? baby?.localidad;
+  if (raw === '' || raw === undefined || raw === null) return null;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
  * @param {Record<string, unknown>} baby
  * @param {number|string|null|undefined} idMadreFallback id de la madre del contexto (p. ej. perfil madre)
  * @returns {number[]}
@@ -53,6 +66,7 @@ export function normalizeBabyApiPayload(baby, idMadreFallback) {
     diagnosticoIngreso: b.diagnosticoIngreso ?? null,
     diagnosticoEgreso: b.diagnosticoEgreso ?? null,
     idSala: b.idSala != null && b.idSala !== '' ? Number(b.idSala) : null,
+    idLocalidad: resolveIdLocalidad(b),
     idMadre: idMadre != null ? Number(idMadre) : null,
     idEstado: b.idEstado != null ? Number(b.idEstado) : null,
   };
@@ -91,5 +105,6 @@ export function normalizeBabyForAlta(baby) {
     diagnosticoIngreso: b.diagnosticoIngreso ?? null,
     diagnosticoEgreso: b.diagnosticoEgreso ?? null,
     idSala: numeroOpcional(b.idSala),
+    idLocalidad: resolveIdLocalidad(b),
   };
 }

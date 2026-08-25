@@ -65,8 +65,8 @@ export function validateBabyForm(baby) {
 
   if (isBlank(b.sexo)) {
     errors.sexo = 'Sexo es obligatorio.';
-  } else if (!/^[MF]$/i.test(String(b.sexo).trim())) {
-    errors.sexo = 'El sistema solo admite Masculino o Femenino.';
+  } else if (!/^[MFO]$/i.test(String(b.sexo).trim())) {
+    errors.sexo = 'Sexo inválido.';
   }
 
   if (!isBlank(b.dni)) {
