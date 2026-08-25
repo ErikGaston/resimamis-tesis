@@ -61,7 +61,7 @@ const LabelSelect = (props) => {
 
 export default LabelSelect;
 
-const StyledInputLabel = styled(InputLabel)`
+const StyledInputLabel = styled(InputLabel, { shouldForwardProp: (p) => !['labelColor', 'inputColor', 'widthInput'].includes(p) })`
     color: ${(props) => (props.labelColor)};
     font-family: Roboto;
     font-size: 16px;

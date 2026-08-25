@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import Footer from '../../components/molecules/Footer';
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 import ListBabysTemplate from '../../components/templates/list/ListBabysTemplate';
 import { clearBaby, getBabyByDni, getBabys, postBabyDelete, clearBabyWrites } from '../../redux/actions/babyActions';
 import { showLoading } from '../../redux/actions/loadingActions';
@@ -50,7 +50,7 @@ export const ListBabysPage = () => {
   };
 
   const handleDeleteBaby = (idBebe, nombre) => {
-    openConfirm(`¿Dar de baja al bebé ${nombre}? Esta acción es irreversible.`, () => {
+    openConfirm(`¿Dar de baja al bebé ${nombre}? Dejará de aparecer en los listados.`, () => {
       dispatch(showLoading(true));
       dispatch(postBabyDelete(idBebe));
     });
@@ -66,14 +66,12 @@ export const ListBabysPage = () => {
         babyByDniPayload={dataBabys?.getBabyByDni ?? null}
       />
       <Footer />
-      <Dialog open={confirmDialog.open} onClose={handleCancelConfirm} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 600, color: '#152C70' }}>Confirmar baja</DialogTitle>
-        <DialogContent><Typography>{confirmDialog.message}</Typography></DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelConfirm}>Cancelar</Button>
-          <Button onClick={handleConfirm} color="error" variant="contained">Dar de baja</Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmDialog
+        open={confirmDialog.open}
+        message={confirmDialog.message}
+        onConfirm={handleConfirm}
+        onCancel={handleCancelConfirm}
+      />
     </div>
   );
 };

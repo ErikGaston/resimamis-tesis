@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import Footer from '../../components/molecules/Footer';
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { useDispatch, useSelector } from 'react-redux';
 import { clearMother, clearMotherWrites, getMother, postMotherDelete } from '../../redux/actions/motherActions';
 import { showLoading } from '../../redux/actions/loadingActions';
@@ -17,7 +17,7 @@ export const ListMotherPage = () => {
   const handleCancelConfirm = () => setConfirmDialog({ open: false, message: '', onConfirm: null });
 
   const handleDeleteMother = (idMadre, nombre) => {
-    openConfirm(`¿Dar de baja a ${nombre}? Esta acción es irreversible.`, () => {
+    openConfirm(`¿Dar de baja a ${nombre}? Dejará de aparecer en los listados.`, () => {
       dispatch(showLoading(true));
       dispatch(postMotherDelete(idMadre));
     });
@@ -54,14 +54,12 @@ export const ListMotherPage = () => {
         onDeleteMother={isCoordinator ? handleDeleteMother : undefined}
       />
       <Footer />
-      <Dialog open={confirmDialog.open} onClose={handleCancelConfirm} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 600, color: '#152C70' }}>Confirmar baja</DialogTitle>
-        <DialogContent><Typography>{confirmDialog.message}</Typography></DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelConfirm}>Cancelar</Button>
-          <Button onClick={handleConfirm} color="error" variant="contained">Dar de baja</Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmDialog
+        open={confirmDialog.open}
+        message={confirmDialog.message}
+        onConfirm={handleConfirm}
+        onCancel={handleCancelConfirm}
+      />
     </div>
   );
 };

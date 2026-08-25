@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import SearchIcon from '@mui/icons-material/Search';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
-import { Box, InputAdornment, Skeleton, TextField, Typography } from '@mui/material';
+import { Box, Fab, InputAdornment, Skeleton, TextField, Typography } from '@mui/material';
+import { Link } from 'react-router-dom';
 import { PageHeader } from '../../common/PageHeader';
 import styled from '@emotion/styled';
 import CardIcon from '../../molecules/cardIcon/CardIcon';
-import { listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
+import { fabRightInsetInColumn } from '../../../helpers/const/appLayout';
+import { fabBottomAboveNav, listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
 
 function motherMatchesQuery(mother, rawQuery) {
   const q = rawQuery.trim().toLowerCase();
@@ -138,6 +141,26 @@ const ListMotherTemplate = (props) => {
           </EmptyState>
         ) : null}
       </ContainerList>
+      <Fab
+        component={Link}
+        to="/madre"
+        color="primary"
+        aria-label="Registrar nueva madre"
+        sx={{
+          position: 'fixed',
+          right: fabRightInsetInColumn,
+          bottom: fabBottomAboveNav,
+          zIndex: 9,
+          width: 56,
+          height: 56,
+          background: 'linear-gradient(135deg, #A54DFF 0%, #8F00FF 100%)',
+          boxShadow: '0 6px 20px rgba(143, 0, 255, 0.35)',
+          '&:hover': { background: 'linear-gradient(135deg, #B55DFF 0%, #9F10FF 100%)' },
+          '&:focus-visible': { outline: '3px solid #FFEB3B', outlineOffset: 2 },
+        }}
+      >
+        <AddCircleIcon sx={{ fontSize: 32, color: '#fff' }} />
+      </Fab>
     </PageRoot>
   );
 };

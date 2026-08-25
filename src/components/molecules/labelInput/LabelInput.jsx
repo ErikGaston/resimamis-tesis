@@ -43,7 +43,7 @@ const LabelInput = (props) => {
 
 export default LabelInput;
 
-const StyledInputLabel = styled(InputLabel)`
+const StyledInputLabel = styled(InputLabel, { shouldForwardProp: (p) => !['labelColor', 'inputColor', 'widthInput'].includes(p) })`
     color: ${(props) => (props.labelColor)};
     font-family: Roboto;
     font-size: 18px;
@@ -53,7 +53,7 @@ const StyledInputLabel = styled(InputLabel)`
 
 `;
 
-const StyledTextfield = styled(TextField)`
+const StyledTextfield = styled(TextField, { shouldForwardProp: (p) => !['labelColor', 'inputColor', 'widthInput'].includes(p) })`
     /* En modo lectura los campos van disabled; sin esto MUI los pinta a
        rgba(0,0,0,0.38) (2.66:1) y el perfil queda ilegible. */
     .MuiInputBase-input.Mui-disabled {
