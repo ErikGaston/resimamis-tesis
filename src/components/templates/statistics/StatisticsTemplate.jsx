@@ -22,7 +22,11 @@ import { ChartLocalitiesMother } from '../../organisms/statistics/ChartLocalitie
 import { ChartSupplies } from '../../organisms/statistics/ChartSupplies';
 import { ChartAssignmentMonth } from '../../organisms/statistics/ChartAssignmentMonth';
 import { ChartWeightEvolution } from '../../organisms/statistics/ChartWeightEvolution';
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import { ChartBabyPermanence } from '../../organisms/statistics/ChartBabyPermanence';
+import { ChartDistribucionBebes } from '../../organisms/statistics/ChartDistribucionBebes';
+import { RankingVoluntarias } from '../../organisms/statistics/RankingVoluntarias';
+import { normalizeBebesPorEstado, normalizeBebesPorSala, normalizeBebesRangoEdades, totalDe } from '../../../utils/dashboardDistribuciones';
 import { APP_SCROLL_BOTTOM_PADDING } from '../../../helpers/const/appLayout';
 
 const CHART_OPTIONS = [
@@ -33,6 +37,10 @@ const CHART_OPTIONS = [
     { id: 5, label: 'Duración de abrazos', icon: AccessTimeIcon },
     { id: 6, label: 'Evolución de peso de los bebés', icon: MonitorWeightOutlinedIcon, soloCoordinadora: true },
     { id: 7, label: 'Permanencia de los bebés', icon: AccessTimeIcon, soloCoordinadora: true },
+    { id: 8, label: 'Bebés por sala', icon: AddchartIcon, soloCoordinadora: true },
+    { id: 9, label: 'Bebés por estado', icon: AddchartIcon, soloCoordinadora: true },
+    { id: 10, label: 'Edad de los bebés', icon: AddchartIcon, soloCoordinadora: true },
+    { id: 11, label: 'Ranking de voluntarias', icon: EmojiEventsOutlinedIcon, soloCoordinadora: true },
 ];
 
 // Paper del dialog mobile: centrado en columna 444px
@@ -93,6 +101,10 @@ const StatisticsTemplate = (props) => {
         statisticsDurationHug,
         statisticsWeightEvolution,
         statisticsPermanencia,
+        statisticsPorSala,
+        statisticsPorEstado,
+        statisticsRangoEdades,
+        statisticsRanking,
         isCoordinadora,
     } = props;
 
@@ -162,6 +174,10 @@ const StatisticsTemplate = (props) => {
                     {valueChart === 4 && <ChartAssignmentMonth statisticsAssignment={statisticsAssignment} />}
                     {valueChart === 6 && <ChartWeightEvolution statisticsWeightEvolution={statisticsWeightEvolution} />}
                     {valueChart === 7 && <ChartBabyPermanence statisticsPermanencia={statisticsPermanencia} />}
+                    {valueChart === 8 && <ChartDistribucionBebes datos={normalizeBebesPorSala(statisticsPorSala)} total={totalDe(statisticsPorSala)} notaAlPie="Solo bebés activos, agrupados por la sala donde están internados." />}
+                    {valueChart === 9 && <ChartDistribucionBebes datos={normalizeBebesPorEstado(statisticsPorEstado)} total={totalDe(statisticsPorEstado)} />}
+                    {valueChart === 10 && <ChartDistribucionBebes datos={normalizeBebesRangoEdades(statisticsRangoEdades)} total={totalDe(statisticsRangoEdades)} notaAlPie="Días de vida cumplidos al día de hoy." />}
+                    {valueChart === 11 && <RankingVoluntarias ranking={statisticsRanking} />}
 
                     {/* ── Duración de abrazos ── */}
                     {valueChart === 5 && (

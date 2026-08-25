@@ -105,11 +105,13 @@ voluntaria) · **Proveedores** (ABM) · **Salas** (ABM).
 Registro de visitas de familiares a bebés: visitante, si es familiar, fecha/hora, documento,
 teléfono y observación. Baja lógica por flag `Activa`. Se accede desde el perfil del bebé.
 
-## 10. Asistente IA *(solo backend)*
+## 10. Asistente IA
 
 Asistente conversacional para la coordinadora, sobre OpenAI, con 19 herramientas de **solo
 lectura** contra los datos del dashboard (cobertura del día, rankings, búsquedas de bebés y
-voluntarias, evolución de peso, stock bajo mínimo). Requiere API key configurada. Sin UI.
+voluntarias, evolución de peso, stock bajo mínimo). Accesible en `/asistente`, solo para
+coordinadora. Requiere API key configurada en el backend: si falta, la pantalla lo informa y
+deja el compositor deshabilitado.
 
 ---
 

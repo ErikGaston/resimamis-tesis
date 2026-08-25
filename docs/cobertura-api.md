@@ -2,7 +2,7 @@
 
 **Última revisión:** 2026-08-24 (backend en `4684eea`).
 
-El backend expone ~100 endpoints; el frontend consume ~50. Este documento registra la brecha.
+El backend expone ~100 endpoints; el frontend consume ~60. Este documento registra la brecha.
 
 Fuente de verdad del contrato: `resimamis/Controllers/*.cs`. Para regenerar el diff, usar la
 skill `sync-api-contract`.
@@ -29,23 +29,23 @@ skill `sync-api-contract`.
 
 ## Sin integrar
 
-### `api/Dashboard` — 16 endpoints, 2 consumidos
+### `api/Dashboard` — 16 endpoints, 8 consumidos
 
-Sigue siendo la brecha más grande: 14 de 16 endpoints no tienen UI, y el resto de
-`/estadisticas` todavía se alimenta de los endpoints viejos de madre/asignación/insumo.
+Quedan 8 endpoints sin UI. El resto de `/estadisticas` todavía se alimenta de los endpoints
+viejos de madre/asignación/insumo.
 
 | Endpoint | Qué daría |
 |----------|-----------|
 | `resumen` | KPIs del período |
-| `coordinacion/hoy` | Snapshot operativo: bebés activos/asignados, abrazos creados/en curso/finalizados, voluntarias presentes, **abrazos colgados**, visitas |
-| `coordinacion/cobertura-hoy` | % de bebés con abrazo finalizado + lista nominal de los que no recibieron |
+| ~~`coordinacion/hoy`~~ | **Integrado** (ago 2026): `/panel` |
+| ~~`coordinacion/cobertura-hoy`~~ | **Integrado** (ago 2026): `/panel` |
 | `asignaciones/por-dia` | Serie diaria |
 | `abrazos/duracion` | Promedio/mín/máx/total en minutos |
-| `bebes/por-estado`, `bebes/por-sala` | Distribuciones |
-| `bebes/rango-edades` | 0-7 / 8-14 / 15-28 / 29-60 / 61+ días |
+| ~~`bebes/por-estado`~~, ~~`bebes/por-sala`~~ | **Integrado** (ago 2026): `/estadisticas` |
+| ~~`bebes/rango-edades`~~ | **Integrado** (ago 2026): `/estadisticas` → "Edad de los bebés" |
 | ~~`bebes/permanencia`~~ | **Integrado** (ago 2026): `/estadisticas` → "Permanencia de los bebés" |
 | ~~`bebes/evolucion-peso`~~ | **Integrado** (ago 2026): `/estadisticas` → "Evolución de peso de los bebés" |
-| `voluntarias/ranking-abrazos` | Top por abrazos finalizados |
+| ~~`voluntarias/ranking-abrazos`~~ | **Integrado** (ago 2026): `/estadisticas` → "Ranking de voluntarias" |
 | `bebe/{id}/abrazos-hoy` · `abrazos-historial` | Historial por bebé |
 | `voluntaria/{id}/abrazos-hoy` · `abrazos-historial` | Historial por voluntaria |
 
@@ -54,7 +54,7 @@ Sigue siendo la brecha más grande: 14 de 16 endpoints no tienen UI, y el resto 
 > obligatorias (`resumen`, `asignaciones/por-dia`, `visitas/estadisticas`,
 > `voluntarias/ranking-abrazos`). **Ninguno valida rol en el servidor.**
 
-### `api/Asistente` — 2 endpoints, cero consumo
+### `api/Asistente` — 2 endpoints, **integrado** (ago 2026) en `/asistente`
 
 Asistente IA por OpenAI para la coordinadora, con 19 herramientas de solo lectura sobre los
 datos del dashboard.

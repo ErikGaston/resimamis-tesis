@@ -36,10 +36,11 @@ export const AsistentePage = () => {
     useEffect(() => {
         if (!esperandoRef.current || !data?.ultimaRespuesta) return;
         esperandoRef.current = false;
+        const payload = data.ultimaRespuesta.data ?? data.ultimaRespuesta;
         setMensajes((prev) => [...prev, {
             rol: 'assistant',
-            contenido: data.ultimaRespuesta.respuesta ?? '',
-            herramientas: data.ultimaRespuesta.herramientasUsadas ?? [],
+            contenido: payload.respuesta ?? '',
+            herramientas: payload.herramientasUsadas ?? [],
         }]);
     }, [data?.ultimaRespuesta]);
 
@@ -51,8 +52,11 @@ export const AsistentePage = () => {
         finRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }, [mensajes, data?.consultando]);
 
-    const habilitado = data?.estado?.habilitado === true;
-    const sugerencias = data?.estado?.quePuedeConsultar ?? [];
+    // El reducer guarda el body del envelope ({ data }), así que el payload va
+    // un nivel más adentro.
+    const estado = data?.estado?.data;
+    const habilitado = estado?.habilitado === true;
+    const sugerencias = estado?.quePuedeConsultar ?? [];
 
     const enviar = (texto) => {
         const t = (texto ?? pregunta).trim();
