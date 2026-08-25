@@ -13,11 +13,14 @@ const DialogInsumo = (props) => {
         <Dialog
             fullScreen={fullScreen}
             open={open}
+            onClose={() => setOpen?.('')}
             PaperProps={{
                 style: {
                     minWidth: '260px',
-                    maxWidth: fullScreen ? undefined : '444px',
-                    width: fullScreen ? widthPaper : '100%',
+                    maxWidth: '444px',
+                    width: fullScreen ? widthPaper ?? '100%' : '100%',
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
                 },
             }}
             classes={classes}
@@ -38,15 +41,17 @@ const DialogInsumo = (props) => {
                     <CloseIcon />
                 </IconButton>
             </DialogTitle> */}
-            <DialogTitle sx={{ m: 0, p: 0 }} >
+            <DialogTitle sx={{ m: 0, p: 0, pt: 'calc(8px + env(safe-area-inset-top, 0px))' }} >
                 {title}
             </DialogTitle>
             <DialogContent>
                 {content}
             </DialogContent>
-            <DialogActions>
-                {actions}
-            </DialogActions>
+            {actions && (
+                <DialogActions sx={{ pb: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}>
+                    {actions}
+                </DialogActions>
+            )}
         </Dialog>
     )
 }

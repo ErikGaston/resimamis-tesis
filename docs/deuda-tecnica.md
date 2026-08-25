@@ -86,6 +86,7 @@ Sobre una API con JWT en header. Restringir a los orígenes del frontend.
 | `MapControllers` duplicado | Se registra en `Startup.Configure` y otra vez en `Program.cs` |
 | Parámetros fantasma | `GET /Genericos/localidades` declara un `int Dni` que no usa; `GET /Bebe/id/{Dni}` recibe en realidad el ID, no el DNI |
 | Código muerto | El parámetro de rango de `listarCantidadAsignacionesPorDia` está comentado |
+| Estadística de asignaciones sin año | `AsignacionRepositorio.devolverEstadisticaCantidadAsignaciones1()` agrupa por `(Mes, Año)` pero `EstadsiticaCantidadAsignacion` **solo expone `Mes`**: con datos de más de un año llegan entradas duplicadas del mismo mes, indistinguibles. El front las suma como paliativo (`ChartAssignmentMonth`), pero el arreglo real es agregar `Anio` al DTO |
 
 ### Frontend
 
@@ -94,8 +95,7 @@ Sobre una API con JWT en header. Restringir a los orígenes del frontend.
 | `redux` no declarado | `store/index.js` y `reducers/index.js` importan `redux` directamente, pero **no está en `package.json`**: funciona por hoisting transitivo de `react-redux`/`redux-saga`. Se rompe ante cualquier cambio de resolución |
 | `faker@5.5.3` | Instalado sin uso, y es la versión saboteada de 2022. Desinstalar |
 | Slice `tarea` muerto | Actions, saga, reducer y 6 endpoints cableados en el store y el `rootSaga`, pero **ninguna página los despacha** |
-| `react-query` fantasma | Instalado; los imports siguen vivos en `main.jsx` (entran al bundle) pero el `QueryClientProvider` está comentado |
-| Color inválido | `palette.primary.main = '#transparent'` en `helpers/theme.js` |
+| `react-query` fantasma | Sigue en `package.json` pero ya no se importa (imports muertos removidos ago 2026). Falta desinstalarlo |
 | Código muerto | `src/services/config.js` es residuo de otro proyecto e importa `../helpers/const` y `../helpers/urls`, **que no existen** |
 | Componentes muertos | ~15 sin consumidores: 4 atoms, 4 molecules, 11 en `common/` (incluido un `Loading` duplicado del de `atoms/`) |
 | Hooks muertos | `useStep`, `useResponsive`, `useNotify` — el directorio `hooks/` no tiene un solo consumidor |
@@ -104,7 +104,7 @@ Sobre una API con JWT en header. Restringir a los orígenes del frontend.
 | Archivos gigantes | `CoordinacionPage.jsx` 1561 líneas, `SupplyTemplate.jsx` 1358 líneas |
 | Dos lockfiles | Conviven `package-lock.json` y `yarn.lock`. Elegir uno |
 | `dist/` versionado | Build commiteado en el árbol de trabajo |
-| Tema legacy | ~160 líneas de overrides MUI v4 comentadas en `theme.js` |
+| Tema legacy | ~160 líneas de overrides MUI v4 comentadas en `theme.js`. Como están comentadas, MUI usa sus defaults: por eso los botones quedan en ~36px y hay que forzar `minHeight: 44` caso por caso |
 
 ---
 

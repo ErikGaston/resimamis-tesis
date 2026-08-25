@@ -183,12 +183,12 @@ const AssignmentTask = ({
                     justifyContent: 'space-between',
                 }}>
                     Asignación rápida
-                    <IconButton onClick={closeQuick} size="small" aria-label="Cerrar">
+                    <IconButton onClick={closeQuick} aria-label="Cerrar" sx={{ width: 44, height: 44 }}>
                         <CloseIcon fontSize="small" />
                     </IconButton>
                 </DialogTitle>
 
-                <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '12px !important' }}>
+                <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '20px !important' }}>
                     <Typography sx={{ fontSize: '0.82rem', color: 'rgba(21,44,112,0.7)', mt: 0.5 }}>
                         Asigná una sola voluntaria a un bebé sin pasar por la selección múltiple.
                     </Typography>

@@ -107,7 +107,7 @@ const CardBabyHug = ({ item, editHug, submitStartHug, onAssignmentDetail, hayAbr
             <Box sx={{ px: 2, py: 1.25, bgcolor: '#fff', display: 'flex', flexDirection: 'column', gap: 0.6 }}>
                 {sala && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                        <RoomIcon sx={{ fontSize: 14, color: 'rgba(21,44,112,0.38)', flexShrink: 0 }} />
+                        <RoomIcon sx={{ fontSize: 14, color: 'rgba(21,44,112,0.72)', flexShrink: 0 }} />
                         <Typography sx={{ fontSize: '0.82rem', color: NAVY, fontWeight: 500 }}>
                             Sala {sala}
                         </Typography>
@@ -116,7 +116,7 @@ const CardBabyHug = ({ item, editHug, submitStartHug, onAssignmentDetail, hayAbr
 
                 {(inicio || fin) && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                        <AccessTimeIcon sx={{ fontSize: 14, color: 'rgba(21,44,112,0.38)', flexShrink: 0 }} />
+                        <AccessTimeIcon sx={{ fontSize: 14, color: 'rgba(21,44,112,0.72)', flexShrink: 0 }} />
                         <Typography sx={{ fontSize: '0.82rem', color: NAVY, fontWeight: 500 }}>
                             {inicio ? `Inicio ${inicio}` : ''}
                             {inicio && fin ? ' · ' : ''}
@@ -126,7 +126,7 @@ const CardBabyHug = ({ item, editHug, submitStartHug, onAssignmentDetail, hayAbr
                 )}
 
                 {isDone && item.comentario && (
-                    <Typography sx={{ fontSize: '0.78rem', color: 'rgba(21,44,112,0.55)', fontStyle: 'italic', mt: 0.25, lineHeight: 1.4 }}>
+                    <Typography sx={{ fontSize: '0.78rem', color: 'rgba(21,44,112,0.75)', fontStyle: 'italic', mt: 0.25, lineHeight: 1.4 }}>
                         "{item.comentario}"
                     </Typography>
                 )}
@@ -154,7 +154,7 @@ const CardBabyHug = ({ item, editHug, submitStartHug, onAssignmentDetail, hayAbr
                             Iniciar abrazo
                         </Button>
                         {startBlocked && (
-                            <Typography sx={{ fontSize: '0.72rem', color: 'rgba(21,44,112,0.5)', mt: 0.5, textAlign: 'center' }}>
+                            <Typography sx={{ fontSize: '0.72rem', color: 'rgba(21,44,112,0.75)', mt: 0.5, textAlign: 'center' }}>
                                 Finalizá el abrazo en curso para iniciar otro.
                             </Typography>
                         )}

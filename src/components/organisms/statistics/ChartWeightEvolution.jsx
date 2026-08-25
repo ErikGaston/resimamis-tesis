@@ -36,7 +36,7 @@ function StatTile({ icon: Icon, label, value, color }) {
         >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5 }}>
                 <Icon sx={{ fontSize: 16, color }} />
-                <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(21,44,112,0.45)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                     {label}
                 </Typography>
             </Box>
@@ -60,10 +60,10 @@ export function ChartWeightEvolution({ statisticsWeightEvolution }) {
     if (!resumen || resumen.bebesConComparacionCompleta === 0) {
         return (
             <Box sx={{ py: 6, textAlign: 'center' }}>
-                <Typography sx={{ color: '#888', fontSize: 14 }}>
+                <Typography sx={{ color: '#5A6478', fontSize: 14 }}>
                     Sin datos disponibles
                 </Typography>
-                <Typography sx={{ color: 'rgba(21,44,112,0.4)', fontSize: 12, mt: 0.75, px: 2 }}>
+                <Typography sx={{ color: 'rgba(21,44,112,0.72)', fontSize: 12, mt: 0.75, px: 2 }}>
                     Se necesitan bebés con peso de ingreso a NEO y peso de egreso cargados.
                 </Typography>
             </Box>
@@ -93,7 +93,7 @@ export function ChartWeightEvolution({ statisticsWeightEvolution }) {
         scales: {
             y: {
                 beginAtZero: true,
-                title: { display: true, text: 'Gramos', color: 'rgba(21,44,112,0.5)', font: { size: 11 } },
+                title: { display: true, text: 'Gramos', color: 'rgba(21,44,112,0.75)', font: { size: 11 } },
                 ticks: { precision: 0, color: '#555' },
                 grid: { color: 'rgba(0,0,0,0.06)' },
             },
@@ -170,12 +170,12 @@ export function ChartWeightEvolution({ statisticsWeightEvolution }) {
                 />
             </Box>
 
-            <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em', mb: 1 }}>
+            <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.09em', mb: 1 }}>
                 Ganancia promedio por mes
             </Typography>
 
             {labels.length === 0 ? (
-                <Typography sx={{ color: 'rgba(21,44,112,0.5)', textAlign: 'center', py: 3, fontSize: '0.9rem' }}>
+                <Typography sx={{ color: 'rgba(21,44,112,0.75)', textAlign: 'center', py: 3, fontSize: '0.9rem' }}>
                     Los bebés comparables no tienen fecha de ingreso ni de egreso cargada.
                 </Typography>
             ) : (
@@ -184,7 +184,7 @@ export function ChartWeightEvolution({ statisticsWeightEvolution }) {
                 </Box>
             )}
 
-            <Typography sx={{ mt: 1.5, fontSize: '0.72rem', color: 'rgba(21,44,112,0.45)', lineHeight: 1.5 }}>
+            <Typography sx={{ mt: 1.5, fontSize: '0.72rem', color: 'rgba(21,44,112,0.72)', lineHeight: 1.5 }}>
                 Calculado sobre {resumen.bebesConComparacionCompleta} de {resumen.totalBebes} bebés con
                 peso de ingreso a NEO y peso de egreso cargados.
                 {hayPerdidas ? ' Las barras rojas indican meses con pérdida de peso promedio.' : ''}

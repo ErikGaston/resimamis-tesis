@@ -130,7 +130,7 @@ const VisitasBebe = ({ visitasList = [], idBebe, onCrear, onEditar, onEliminar }
       {visitasList.length === 0 ? (
         <EmptyState>
           <EventNoteIcon sx={{ fontSize: 44, color: 'rgba(122, 101, 155, 0.4)', mb: 1 }} />
-          <Typography sx={{ color: 'rgba(21,44,112,0.55)', fontSize: '0.9rem', textAlign: 'center' }}>
+          <Typography sx={{ color: 'rgba(21,44,112,0.75)', fontSize: '0.9rem', textAlign: 'center' }}>
             Sin visitas registradas para este bebé.
           </Typography>
         </EmptyState>
@@ -149,12 +149,12 @@ const VisitasBebe = ({ visitasList = [], idBebe, onCrear, onEditar, onEliminar }
                   {v.familiar} · {formatFecha(v.fechaHoraVisita)}
                 </Typography>
                 {v.observacion && (
-                  <Typography sx={{ fontSize: '0.8rem', color: 'rgba(21,44,112,0.55)', mt: 0.25, fontStyle: 'italic' }}>
+                  <Typography sx={{ fontSize: '0.8rem', color: 'rgba(21,44,112,0.75)', mt: 0.25, fontStyle: 'italic' }}>
                     {v.observacion}
                   </Typography>
                 )}
                 {(v.documentoVisitante || v.telefonoVisitante) && (
-                  <Typography sx={{ fontSize: '0.78rem', color: 'rgba(21,44,112,0.5)', mt: 0.25 }}>
+                  <Typography sx={{ fontSize: '0.78rem', color: 'rgba(21,44,112,0.75)', mt: 0.25 }}>
                     {v.documentoVisitante ? `DNI: ${v.documentoVisitante}` : ''}
                     {v.documentoVisitante && v.telefonoVisitante ? ' · ' : ''}
                     {v.telefonoVisitante ? `Tel: ${v.telefonoVisitante}` : ''}

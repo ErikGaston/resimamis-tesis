@@ -59,7 +59,7 @@ const SectionLabel = ({ children }) => (
         sx={{
             fontSize: "0.65rem",
             fontWeight: 700,
-            color: "rgba(21,44,112,0.38)",
+            color: "rgba(21,44,112,0.72)",
             textTransform: "uppercase",
             letterSpacing: "0.09em",
             mb: 1,

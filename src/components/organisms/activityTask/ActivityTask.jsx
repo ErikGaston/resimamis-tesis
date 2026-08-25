@@ -159,7 +159,7 @@ const ActivityTask = ({
 export default ActivityTask;
 
 const SectionLabel = styled(Typography)`
-    color: rgba(21, 44, 112, 0.45);
+    color: rgba(21, 44, 112, 0.72);
     font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;

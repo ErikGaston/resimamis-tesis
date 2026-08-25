@@ -55,13 +55,14 @@ const BTN_CANCEL_SX = {
   borderRadius: 2,
   color: '#4A148C',
   border: '1.5px solid rgba(21,44,112,0.22)',
-  '&:hover': { bgcolor: 'rgba(21,44,112,0.04)', borderColor: 'rgba(21,44,112,0.35)' },
+  '&:hover': { bgcolor: 'rgba(21,44,112,0.04)', borderColor: 'rgba(21,44,112,0.72)' },
 };
 
 // Paper del bottom-sheet (Dialog configurado como drawer desde abajo)
 const BOTTOM_SHEET_PAPER_SX = {
   maxWidth: 444,
   width: '100%',
+  m: 0,
   mx: 'auto',
   mb: 0,
   mt: 'auto',
@@ -69,7 +70,7 @@ const BOTTOM_SHEET_PAPER_SX = {
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-  maxHeight: '100dvh',
+  maxHeight: 'calc(var(--app-vh, 100dvh) * 0.9)',
 };
 
 // sx del Dialog container para alinear hacia abajo
@@ -84,8 +85,8 @@ const DIALOG_FULL_SX = {
   maxWidth: 444,
   width: '100%',
   mx: 'auto',
-  height: '100dvh',
-  maxHeight: '100dvh',
+  height: 'var(--app-vh, 100dvh)',
+  maxHeight: 'var(--app-vh, 100dvh)',
   m: 0,
   borderRadius: 0,
   display: 'flex',
@@ -597,7 +598,7 @@ const SupplyTemplate = (props) => {
             <Box sx={{ flex: 1, overflowY: 'auto', px: 2.5, pt: 2, pb: 1 }}>
               <Typography
                 variant="body2"
-                sx={{ color: 'rgba(21,44,112,0.55)', fontSize: '0.85rem', lineHeight: 1.6, mb: 1 }}
+                sx={{ color: 'rgba(21,44,112,0.75)', fontSize: '0.85rem', lineHeight: 1.6, mb: 1 }}
               >
                 Registrá un ítem en el catálogo. Para entradas/salidas de stock usá la pestaña Movimientos.
               </Typography>
@@ -626,7 +627,7 @@ const SupplyTemplate = (props) => {
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, mb: 0.5 }}>
                 <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
-                <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(21,44,112,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em', px: 1 }}>
+                <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.09em', px: 1 }}>
                   Niveles de stock
                 </Typography>
                 <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
@@ -775,7 +776,7 @@ const SupplyTemplate = (props) => {
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, mb: 0.5 }}>
                   <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
-                  <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(21,44,112,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em', px: 1 }}>
+                  <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.09em', px: 1 }}>
                     Niveles de stock
                   </Typography>
                   <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.2)' }} />
@@ -931,7 +932,7 @@ const SupplyTemplate = (props) => {
         >
           <Typography
             sx={{
-              color: 'rgba(21,44,112,0.45)',
+              color: 'rgba(21,44,112,0.72)',
               fontWeight: 700,
               fontSize: '0.68rem',
               textTransform: 'uppercase',
@@ -948,7 +949,7 @@ const SupplyTemplate = (props) => {
               return (
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 6, gap: 1.5 }}>
                   <SwapVertIcon sx={{ fontSize: 48, color: 'rgba(143,0,255,0.18)' }} />
-                  <Typography sx={{ color: 'rgba(21,44,112,0.5)', fontSize: '0.9rem', textAlign: 'center' }}>
+                  <Typography sx={{ color: 'rgba(21,44,112,0.75)', fontSize: '0.9rem', textAlign: 'center' }}>
                     {movementsData == null ? 'Cargando movimientos…' : 'Sin movimientos en este período'}
                   </Typography>
                 </Box>
@@ -1145,7 +1146,7 @@ const SupplyTemplate = (props) => {
                     <Typography sx={{ fontSize: '2.4rem', fontWeight: 800, color: dmEntrada ? '#00A86B' : '#C53814', lineHeight: 1 }}>
                       {dm.cantidad ?? '—'}
                     </Typography>
-                    <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: 'rgba(21,44,112,0.55)' }}>
+                    <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: 'rgba(21,44,112,0.75)' }}>
                       unidades
                     </Typography>
                   </Box>
@@ -1160,7 +1161,7 @@ const SupplyTemplate = (props) => {
                     { label: 'ID movimiento', value: dm.idMovimiento != null ? `#${dm.idMovimiento}` : null },
                   ].filter(f => f.value != null).map(({ label, value }) => (
                     <Box key={label} sx={{ display: 'flex', gap: 2, mb: 1.5, alignItems: 'flex-start' }}>
-                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(21,44,112,0.45)', textTransform: 'uppercase', letterSpacing: '0.07em', minWidth: 88, flexShrink: 0, pt: '2px' }}>
+                      <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.07em', minWidth: 88, flexShrink: 0, pt: '2px' }}>
                         {label}
                       </Typography>
                       <Typography sx={{ fontSize: '0.9rem', color: '#152C70', fontWeight: 500, lineHeight: 1.45, flex: 1, wordBreak: 'break-word' }}>
@@ -1226,7 +1227,7 @@ const SupplyTemplate = (props) => {
 
               {/* Toggle Entrada / Salida */}
               <Box sx={{ mb: 2.5 }}>
-                <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.5)', textTransform: 'uppercase', letterSpacing: '0.09em', mb: 1.25 }}>
+                <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.75)', textTransform: 'uppercase', letterSpacing: '0.09em', mb: 1.25 }}>
                   Tipo de movimiento
                 </Typography>
                 <ToggleButtonGroup
@@ -1336,7 +1337,7 @@ const SupplyTemplate = (props) => {
               {/* Divisor opcional */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, mb: 0.5 }}>
                 <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.15)' }} />
-                <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(21,44,112,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', px: 1 }}>
+                <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.1em', px: 1 }}>
                   Opcional
                 </Typography>
                 <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.15)' }} />

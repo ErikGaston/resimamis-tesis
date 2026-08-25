@@ -76,8 +76,8 @@ const DIALOG_FULL_SX = {
   maxWidth: 444,
   width: '100%',
   mx: 'auto',
-  height: '100dvh',
-  maxHeight: '100dvh',
+  height: 'var(--app-vh, 100dvh)',
+  maxHeight: 'var(--app-vh, 100dvh)',
   m: 0,
   borderRadius: 0,
   display: 'flex',
@@ -1376,7 +1376,7 @@ export const CoordinacionPage = () => {
                           <LoginIcon sx={{ fontSize: 15, color: '#00A86B' }} />
                         </Box>
                         <Box>
-                          <Typography sx={{ fontSize: '0.67rem', fontWeight: 700, color: 'rgba(21,44,112,0.42)', textTransform: 'uppercase', letterSpacing: '0.07em', lineHeight: 1 }}>
+                          <Typography sx={{ fontSize: '0.67rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.07em', lineHeight: 1 }}>
                             Ingreso
                           </Typography>
                           <Typography sx={{ fontSize: '0.87rem', color: NAVY, fontWeight: 500, lineHeight: 1.3 }}>
@@ -1391,10 +1391,10 @@ export const CoordinacionPage = () => {
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Box>
-                            <Typography sx={{ fontSize: '0.67rem', fontWeight: 700, color: 'rgba(21,44,112,0.42)', textTransform: 'uppercase', letterSpacing: '0.07em', lineHeight: 1 }}>
+                            <Typography sx={{ fontSize: '0.67rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.07em', lineHeight: 1 }}>
                               Salida
                             </Typography>
-                            <Typography sx={{ fontSize: '0.87rem', color: enCentro ? 'rgba(21,44,112,0.4)' : NAVY, fontStyle: enCentro ? 'italic' : 'normal', fontWeight: 500, lineHeight: 1.3 }}>
+                            <Typography sx={{ fontSize: '0.87rem', color: enCentro ? 'rgba(21,44,112,0.72)' : NAVY, fontStyle: enCentro ? 'italic' : 'normal', fontWeight: 500, lineHeight: 1.3 }}>
                               {salida ?? 'Sin registrar'}
                             </Typography>
                           </Box>
@@ -1422,7 +1422,7 @@ export const CoordinacionPage = () => {
         onClose={() => setEditAsig(null)}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: '90dvh', display: 'flex', flexDirection: 'column' } }}
+        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: 'calc(var(--app-vh, 100dvh) * 0.9)', display: 'flex', flexDirection: 'column' } }}
         sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25, flexShrink: 0 }}>
@@ -1513,7 +1513,7 @@ export const CoordinacionPage = () => {
         onClose={() => setEditProveedor(null)}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: '90dvh', display: 'flex', flexDirection: 'column' } }}
+        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: 'calc(var(--app-vh, 100dvh) * 0.9)', display: 'flex', flexDirection: 'column' } }}
         sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25 }}>
@@ -1577,7 +1577,7 @@ export const CoordinacionPage = () => {
         onClose={() => setEditSala(null)}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: '90dvh', display: 'flex', flexDirection: 'column' } }}
+        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: 'calc(var(--app-vh, 100dvh) * 0.9)', display: 'flex', flexDirection: 'column' } }}
         sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25 }}>

@@ -15,5 +15,8 @@ export const listSearchTextFieldSx = {
 /** Altura del BottomNavigation (debe coincidir con `BottomNavigation` styled). */
 export const BOTTOM_NAV_HEIGHT_REM = 3.75;
 
-/** Separación del FAB sobre la barra inferior. */
-export const fabBottomAboveNav = `calc(${BOTTOM_NAV_HEIGHT_REM}rem + 24px)`;
+/**
+ * Separación del FAB sobre la barra inferior. Incluye la safe area del home
+ * indicator: sin ella el FAB queda por debajo del footer en iPhone con notch.
+ */
+export const fabBottomAboveNav = `calc(${BOTTOM_NAV_HEIGHT_REM}rem + env(safe-area-inset-bottom, 0px) + 20px)`;

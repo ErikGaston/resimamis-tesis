@@ -31,7 +31,7 @@ const BOTTOM_SHEET_SX = {
   mb: 0,
   mt: 'auto',
   borderRadius: '20px 20px 0 0',
-  maxHeight: '90dvh',
+  maxHeight: 'calc(var(--app-vh, 100dvh) * 0.9)',
   display: 'flex',
   flexDirection: 'column',
 };
@@ -179,7 +179,7 @@ export const MyProfilePage = () => {
     <Box
       sx={{
         display: 'flex', flexDirection: 'column',
-        width: '100%', height: '100dvh', maxHeight: '100dvh',
+        width: '100%', height: 'var(--app-vh, 100dvh)', maxHeight: 'var(--app-vh, 100dvh)',
         minHeight: 0, overflow: 'hidden', position: 'relative',
       }}
     >
@@ -333,7 +333,7 @@ export const MyProfilePage = () => {
             </Typography>
           )}
         </DialogContent>
-        <DialogActions sx={{ px: 2, pb: 2.5, gap: 1 }}>
+        <DialogActions sx={{ px: 2, pb: 'calc(20px + env(safe-area-inset-bottom, 0px))', gap: 1 }}>
           <Button
             variant="outlined"
             onClick={closePwdDialog}

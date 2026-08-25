@@ -4,7 +4,7 @@ import { showLoading } from "../../redux/actions/loadingActions";
 import { clearMother, getStatisticsAgeMother, getStatisticsLocalities } from "../../redux/actions/motherActions";
 import { clearSupply, getStatisticsSupplies } from "../../redux/actions/supplyActions";
 import { clearAssignment, getStatisticsAssignmentMonth, getDurationHug } from "../../redux/actions/assignmentActions";
-import { clearBaby, getBabyWeightEvolution } from "../../redux/actions/babyActions";
+import { clearBaby, getBabyWeightEvolution, getBabyPermanencia } from "../../redux/actions/babyActions";
 import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
 import StatisticsTemplate from "../../components/templates/statistics/StatisticsTemplate";
 import { PageWrapper } from "../../components/common/PageWrapper";
@@ -45,6 +45,9 @@ export const StatisticsPage = () => {
             case 6:
                 dispatch(getBabyWeightEvolution());
                 break;
+            case 7:
+                dispatch(getBabyPermanencia());
+                break;
         }
     }
 
@@ -64,11 +67,22 @@ export const StatisticsPage = () => {
     useEffect(() => {
         if ((dataMother?.getStatisticsLocalities !== null || dataMother?.getStatisticsAgeMother !== null
             || dataSupply.getStatisticsSupplies !== null || dataAssignment?.getStatisticsAssignmentMonth !== null
-            || dataAssignment?.getDurationHug !== null || dataBaby?.getBabyWeightEvolution !== null) && valueChart !== 0) {
+            || dataAssignment?.getDurationHug !== null || dataBaby?.getBabyWeightEvolution !== null
+            || dataBaby?.getBabyPermanencia !== null) && valueChart !== 0) {
             setStateChart('OPEN')
             dispatch(showLoading(false))
         }
-    }, [dataMother?.getStatisticsLocalities, dataMother?.getStatisticsAgeMother, dataSupply?.getStatisticsSupplies, dataAssignment?.getStatisticsAssignmentMonth, dataAssignment?.getDurationHug, dataBaby?.getBabyWeightEvolution])
+    }, [dataMother?.getStatisticsLocalities, dataMother?.getStatisticsAgeMother, dataSupply?.getStatisticsSupplies, dataAssignment?.getStatisticsAssignmentMonth, dataAssignment?.getDurationHug, dataBaby?.getBabyWeightEvolution, dataBaby?.getBabyPermanencia])
+
+    // `showLoading(true)` prende el flag en todos los reducers, pero la saga que
+    // falla solo apaga el suyo: sin esto el spinner queda trabado a pantalla
+    // completa y el toast de error atrás. La saga ya avisó, acá solo se corta.
+    useEffect(() => {
+        if (dataMother?.error != null || dataSupply?.error != null
+            || dataAssignment?.error != null || dataBaby?.error != null) {
+            dispatch(showLoading(false))
+        }
+    }, [dataMother?.error, dataSupply?.error, dataAssignment?.error, dataBaby?.error])
 
 
     return (
@@ -84,6 +98,7 @@ export const StatisticsPage = () => {
                 statisticsAssignment={dataAssignment?.getStatisticsAssignmentMonth?.data}
                 statisticsDurationHug={dataAssignment?.getDurationHug}
                 statisticsWeightEvolution={dataBaby?.getBabyWeightEvolution?.data}
+                statisticsPermanencia={dataBaby?.getBabyPermanencia?.data}
                 isCoordinadora={isCoordinadora}
             />
         </PageWrapper>

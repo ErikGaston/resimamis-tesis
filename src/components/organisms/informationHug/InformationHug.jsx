@@ -23,8 +23,8 @@ const FULL_DIALOG_SX = {
     maxWidth: 444,
     width: '100%',
     mx: 'auto',
-    height: '100dvh',
-    maxHeight: '100dvh',
+    height: 'var(--app-vh, 100dvh)',
+    maxHeight: 'var(--app-vh, 100dvh)',
     m: 0,
     borderRadius: 0,
     display: 'flex',
@@ -118,7 +118,7 @@ const InformationHug = (props) => {
                         <>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                                 <InventoryIcon sx={{ fontSize: 15, color: PURPLE }} />
-                                <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(21,44,112,0.42)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                                <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                                     Insumos registrados
                                 </Typography>
                             </Box>
@@ -168,7 +168,7 @@ const InformationHug = (props) => {
                 </DialogContent>
 
                 {/* Fixed footer */}
-                <Box sx={{ px: 2.5, pb: 2.5, pt: 1.5, bgcolor: '#fff', flexShrink: 0 }}>
+                <Box sx={{ px: 2.5, pb: 'calc(20px + env(safe-area-inset-bottom, 0px))', pt: 1.5, bgcolor: '#fff', flexShrink: 0 }}>
                     <Button
                         variant="contained"
                         fullWidth
@@ -214,22 +214,23 @@ const InformationHug = (props) => {
                                     submitChangeSupplies={submitChangeSupplies}
                                 />
                             ))}
-                            <div style={{ textAlign: 'center', marginTop: '40px' }}>
-                                <ButtonCustomized
-                                    variant={'container'}
-                                    colorText={'#FFF'}
-                                    sx={{
-                                        width: '70%',
-                                        fontSize: '16px',
-                                        background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
-                                        boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)',
-                                    }}
-                                    onClick={() => submitChangeSupplies(listSupplies, hug?.idAsignacion)}
-                                >
-                                    REGISTRAR INSUMOS
-                                </ButtonCustomized>
-                            </div>
                         </>
+                    }
+                    actions={
+                        <ButtonCustomized
+                            variant={'contained'}
+                            colorText={'#FFF'}
+                            sx={{
+                                width: '100%',
+                                minHeight: 48,
+                                fontSize: '16px',
+                                background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
+                                boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)',
+                            }}
+                            onClick={() => submitChangeSupplies(listSupplies, hug?.idAsignacion)}
+                        >
+                            REGISTRAR INSUMOS
+                        </ButtonCustomized>
                     }
                 />
             )}

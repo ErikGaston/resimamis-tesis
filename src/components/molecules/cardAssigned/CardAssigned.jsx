@@ -73,8 +73,8 @@ const CardAssigned = ({ item, onClick }) => {
             {/* Body */}
             <Box sx={{ px: 2, py: 1.1, bgcolor: '#fff', display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                    <PersonIcon sx={{ fontSize: 14, color: 'rgba(21,44,112,0.4)', flexShrink: 0 }} />
-                    <Typography sx={{ fontSize: '0.72rem', color: 'rgba(21,44,112,0.45)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', mr: 0.5 }}>
+                    <PersonIcon sx={{ fontSize: 14, color: 'rgba(21,44,112,0.72)', flexShrink: 0 }} />
+                    <Typography sx={{ fontSize: '0.72rem', color: 'rgba(21,44,112,0.72)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', mr: 0.5 }}>
                         Voluntaria
                     </Typography>
                     <Typography sx={{ fontSize: '0.82rem', color: NAVY, fontWeight: 500 }}>
@@ -84,8 +84,8 @@ const CardAssigned = ({ item, onClick }) => {
 
                 {sala && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                        <RoomIcon sx={{ fontSize: 14, color: 'rgba(21,44,112,0.4)', flexShrink: 0 }} />
-                        <Typography sx={{ fontSize: '0.72rem', color: 'rgba(21,44,112,0.45)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', mr: 0.5 }}>
+                        <RoomIcon sx={{ fontSize: 14, color: 'rgba(21,44,112,0.72)', flexShrink: 0 }} />
+                        <Typography sx={{ fontSize: '0.72rem', color: 'rgba(21,44,112,0.72)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', mr: 0.5 }}>
                             Sala
                         </Typography>
                         <Typography sx={{ fontSize: '0.82rem', color: NAVY, fontWeight: 500 }}>

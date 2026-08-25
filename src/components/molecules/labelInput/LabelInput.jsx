@@ -54,6 +54,16 @@ const StyledInputLabel = styled(InputLabel)`
 `;
 
 const StyledTextfield = styled(TextField)`
+    /* En modo lectura los campos van disabled; sin esto MUI los pinta a
+       rgba(0,0,0,0.38) (2.66:1) y el perfil queda ilegible. */
+    .MuiInputBase-input.Mui-disabled {
+        -webkit-text-fill-color: #152C70;
+        opacity: 1;
+    }
+    .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
+        border-color: rgba(21,44,112,0.25);
+    }
+
     width:100%;
     border-radius: 10px;
     border: 1.5px solid #FFF;

@@ -51,7 +51,7 @@ const InsumoQuantity = (props) => {
                     </span>
                 </Subtitle>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Button style={{ textTransform: 'inherit' }}
+                    <Button sx={{ minWidth: 48, minHeight: 48, textTransform: 'inherit' }}
                         onClick={() => removeSupplies(item)}
                         disabled={cantidad <= 0}
                     >
@@ -60,7 +60,7 @@ const InsumoQuantity = (props) => {
                     <TitleButton style={{ fontWeight: 600, margin: '0px' }}>
                         {cantidad}
                     </TitleButton>
-                    <Button style={{ textTransform: 'inherit' }}
+                    <Button sx={{ minWidth: 48, minHeight: 48, textTransform: 'inherit' }}
                         onClick={() => addSupplies(item)}
                         disabled={!puedeSumar}
                     >

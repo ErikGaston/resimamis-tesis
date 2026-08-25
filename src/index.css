@@ -9,7 +9,7 @@
   font-weight: 400;
 
   color-scheme: light;
-  color: dark;
+  color: #262626;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -37,6 +37,16 @@ html {
   height: 100%;
   width: 100%;
   min-width: var(--app-min-width);
+}
+
+/* En iOS `100%` resuelve contra el viewport grande mientras el scroller real
+   usa el chico: eso deja ~99px de scroll fantasma con banda blanca al pie. */
+@supports (height: 100dvh) {
+  html,
+  body,
+  #root {
+    height: 100dvh;
+  }
 }
 
 ::-webkit-scrollbar {

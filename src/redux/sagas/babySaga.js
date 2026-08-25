@@ -135,6 +135,18 @@ function* asyncGetBabyWeightEvolution({ payload }) {
     }
 }
 
+function* asyncGetBabyPermanencia() {
+    try {
+        const response = yield call(API.getBabyPermanencia);
+        if (response) {
+            yield put({ type: actionTypes.SUCCESS_GET_BABY_PERMANENCIA, response });
+        }
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_BABY, response: error });
+    }
+}
+
 export default function* babySaga() {
     yield takeLatest(actionTypes.GET_BABYS, asyncGetBabys);
     yield takeLatest(actionTypes.POST_BABY, asyncPostBaby);
@@ -144,4 +156,5 @@ export default function* babySaga() {
     yield takeLatest(actionTypes.POST_BABY_DELETE, asyncPostBabyDelete);
     yield takeLatest(actionTypes.GET_BABY_SALAS, asyncGetBabySalas);
     yield takeLatest(actionTypes.GET_BABY_WEIGHT_EVOLUTION, asyncGetBabyWeightEvolution);
+    yield takeLatest(actionTypes.GET_BABY_PERMANENCIA, asyncGetBabyPermanencia);
 }

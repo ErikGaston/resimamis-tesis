@@ -696,6 +696,20 @@ export const getBabyWeightEvolution = async (params) => {
       throw e;
     });
 };
+
+/**
+ * Permanencia en NEO de los bebés activos: días transcurridos desde FechaIngresoNEO.
+ * No acepta parámetros: el filtro por período se resuelve en el cliente sobre
+ * `fechaIngresoNeo`, porque el endpoint devuelve siempre la foto del día de hoy.
+ */
+export const getBabyPermanencia = async () => {
+  return AxiosInstance
+    .get('/dashboard/bebes/permanencia')
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
 //#endregion
 
 //#region - MADRE EXTRA

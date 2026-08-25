@@ -68,8 +68,11 @@ const StyledInputLabel = styled(InputLabel)`
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+    /* scale(0.75) es el valor que asume MUI para dimensionar el hueco del
+       notchedOutline; con scale(1) la etiqueta queda más ancha que el hueco
+       y se ve el borde cruzando por detrás del texto. */
     &.MuiInputLabel-shrink {
-        transform: translate(14px, -9px) scale(1);
+        transform: translate(14px, -9px) scale(0.75);
     }
 `;
 

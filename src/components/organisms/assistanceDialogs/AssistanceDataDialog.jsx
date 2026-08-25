@@ -28,8 +28,8 @@ const DIALOG_SX = {
   maxWidth: 444,
   width: '100%',
   mx: 'auto',
-  height: '100dvh',
-  maxHeight: '100dvh',
+  height: 'var(--app-vh, 100dvh)',
+  maxHeight: 'var(--app-vh, 100dvh)',
   m: 0,
   borderRadius: 0,
   display: 'flex',
@@ -243,7 +243,7 @@ function AssistanceCard({ row, fallback }) {
           {name}
         </Typography>
         {dni && (
-          <Typography sx={{ fontSize: '0.78rem', color: 'rgba(21,44,112,0.5)', fontWeight: 500, mt: 0.25 }}>
+          <Typography sx={{ fontSize: '0.78rem', color: 'rgba(21,44,112,0.75)', fontWeight: 500, mt: 0.25 }}>
             DNI {dni}
           </Typography>
         )}
@@ -263,7 +263,7 @@ function AssistanceCard({ row, fallback }) {
             <LoginIcon sx={{ fontSize: 15, color: '#00A86B' }} />
           </Box>
           <Box>
-            <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(21,44,112,0.45)', textTransform: 'uppercase', letterSpacing: '0.07em', lineHeight: 1 }}>
+            <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.07em', lineHeight: 1 }}>
               Ingreso
             </Typography>
             <Typography sx={{ fontSize: '0.88rem', color: PALETTE.text, fontWeight: 500, lineHeight: 1.3 }}>
@@ -285,10 +285,10 @@ function AssistanceCard({ row, fallback }) {
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box>
-              <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(21,44,112,0.45)', textTransform: 'uppercase', letterSpacing: '0.07em', lineHeight: 1 }}>
+              <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.07em', lineHeight: 1 }}>
                 Salida
               </Typography>
-              <Typography sx={{ fontSize: '0.88rem', color: enCentro ? 'rgba(21,44,112,0.45)' : PALETTE.text, fontStyle: enCentro ? 'italic' : 'normal', fontWeight: 500, lineHeight: 1.3 }}>
+              <Typography sx={{ fontSize: '0.88rem', color: enCentro ? 'rgba(21,44,112,0.72)' : PALETTE.text, fontStyle: enCentro ? 'italic' : 'normal', fontWeight: 500, lineHeight: 1.3 }}>
                 {salida ?? 'En centro'}
               </Typography>
             </Box>
@@ -369,7 +369,7 @@ const AssistanceDataDialog = ({
             <Typography sx={{ color: PALETTE.text, fontWeight: 600, fontSize: '1rem' }}>
               No hay registros en esta consulta.
             </Typography>
-            <Typography sx={{ color: 'rgba(21,44,112,0.5)', fontSize: '0.9rem', mt: 1, lineHeight: 1.6 }}>
+            <Typography sx={{ color: 'rgba(21,44,112,0.75)', fontSize: '0.9rem', mt: 1, lineHeight: 1.6 }}>
               Cuando haya asistencias, aparecerán aquí.
             </Typography>
           </Box>
@@ -379,7 +379,7 @@ const AssistanceDataDialog = ({
           <Box sx={{ px: 2, pt: 2, pb: 4 }}>
             <Typography
               sx={{
-                fontSize: '0.68rem', fontWeight: 700, color: 'rgba(21,44,112,0.45)',
+                fontSize: '0.68rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)',
                 textTransform: 'uppercase', letterSpacing: '0.09em', mb: 1.5,
               }}
             >

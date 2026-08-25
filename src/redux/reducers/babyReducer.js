@@ -11,6 +11,7 @@ const initialState = {
     getBabyByDni: null,
     postBabyDelete: null,
     getBabyWeightEvolution: null,
+    getBabyPermanencia: null,
 };
 
 export default function babyReducer(state = initialState, action) {
@@ -25,6 +26,7 @@ export default function babyReducer(state = initialState, action) {
         [actionTypes.SUCCESS_GET_BABY_BY_DNI]: responseToReturn('getBabyByDni'),
         [actionTypes.SUCCESS_POST_BABY_DELETE]: responseToReturn('postBabyDelete'),
         [actionTypes.SUCCESS_GET_BABY_WEIGHT_EVOLUTION]: responseToReturn('getBabyWeightEvolution'),
+        [actionTypes.SUCCESS_GET_BABY_PERMANENCIA]: responseToReturn('getBabyPermanencia'),
         [actionTypes.ERROR_BABY]: responseToReturn('error'),
         [actionTypes.CLEAR_BABY]: clearBaby(),
         [actionTypes.CLEAR_BABY_WRITES]: clearBabyWrites(),
@@ -36,7 +38,7 @@ export default function babyReducer(state = initialState, action) {
             const payload = action.response.data;
             if (typeState === 'getBabys' || typeState === 'postBaby' || typeState === 'putBaby' || typeState === 'getBabysFree'
                 || typeState === 'getBabySalas' || typeState === 'getBabyByDni' || typeState === 'postBabyDelete'
-                || typeState === 'getBabyWeightEvolution') {
+                || typeState === 'getBabyWeightEvolution' || typeState === 'getBabyPermanencia') {
                 res = { ...state, [typeState]: payload, error: null, loading: false };
             } else {
                 res = { ...state, [typeState]: payload, loading: false };
@@ -66,6 +68,7 @@ export default function babyReducer(state = initialState, action) {
                 getBabyByDni: null,
                 postBabyDelete: null,
                 getBabyWeightEvolution: null,
+                getBabyPermanencia: null,
             };
         }
         return res;

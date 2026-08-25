@@ -20,7 +20,7 @@ export function ChartHugMonth({ title, statisticsMonthMother }) {
     if (!labels.length) {
         return (
             <Box sx={{ py: 6, textAlign: 'center' }}>
-                <Typography sx={{ color: '#888', fontSize: 14 }}>Sin datos disponibles</Typography>
+                <Typography sx={{ color: '#5A6478', fontSize: 14 }}>Sin datos disponibles</Typography>
             </Box>
         );
     }

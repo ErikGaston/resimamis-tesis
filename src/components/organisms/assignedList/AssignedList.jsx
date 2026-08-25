@@ -32,8 +32,8 @@ const FULL_DIALOG_SX = {
     maxWidth: 444,
     width: '100%',
     mx: 'auto',
-    height: '100dvh',
-    maxHeight: '100dvh',
+    height: 'var(--app-vh, 100dvh)',
+    maxHeight: 'var(--app-vh, 100dvh)',
     m: 0,
     borderRadius: 0,
     display: 'flex',
@@ -65,7 +65,7 @@ function DetailRow({ icon, label, value, valueColor }) {
                 {React.cloneElement(icon, { sx: { fontSize: 15, color: PURPLE } })}
             </Box>
             <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontSize: '0.66rem', fontWeight: 700, color: 'rgba(21,44,112,0.42)', textTransform: 'uppercase', letterSpacing: '0.07em', lineHeight: 1 }}>
+                <Typography sx={{ fontSize: '0.66rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.07em', lineHeight: 1 }}>
                     {label}
                 </Typography>
                 <Typography sx={{ fontSize: '0.9rem', color: valueColor ?? NAVY, fontWeight: 500, lineHeight: 1.4, mt: 0.25 }}>
@@ -156,13 +156,13 @@ function AssignmentFullDialog({ item, onClose, onStartHug }) {
                     icon={<PlayArrowIcon />}
                     label="Inicio abrazo"
                     value={inicio ?? '—'}
-                    valueColor={inicio ? NAVY : 'rgba(21,44,112,0.4)'}
+                    valueColor={inicio ? NAVY : 'rgba(21,44,112,0.72)'}
                 />
                 <DetailRow
                     icon={<StopIcon />}
                     label="Fin abrazo"
                     value={fin ?? '—'}
-                    valueColor={fin ? NAVY : 'rgba(21,44,112,0.4)'}
+                    valueColor={fin ? NAVY : 'rgba(21,44,112,0.72)'}
                 />
 
                 {item.comentario && (
@@ -177,7 +177,7 @@ function AssignmentFullDialog({ item, onClose, onStartHug }) {
                         <Divider sx={{ my: 1, borderColor: 'rgba(143,0,255,0.08)' }} />
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
                             <InventoryIcon sx={{ fontSize: 15, color: PURPLE }} />
-                            <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.42)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                            <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                                 Insumos usados
                             </Typography>
                         </Box>
@@ -204,7 +204,7 @@ function AssignmentFullDialog({ item, onClose, onStartHug }) {
 
             {/* Acción iniciar abrazo */}
             {canStart && (
-                <Box sx={{ px: 2.5, pb: 2.5, pt: 1.5, bgcolor: '#fff', flexShrink: 0 }}>
+                <Box sx={{ px: 2.5, pb: 'calc(20px + env(safe-area-inset-bottom, 0px))', pt: 1.5, bgcolor: '#fff', flexShrink: 0 }}>
                     <Button
                         variant="contained"
                         fullWidth

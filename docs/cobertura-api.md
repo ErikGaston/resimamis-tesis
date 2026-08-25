@@ -29,10 +29,10 @@ skill `sync-api-contract`.
 
 ## Sin integrar
 
-### `api/Dashboard` — 16 endpoints, cero consumo
+### `api/Dashboard` — 16 endpoints, 2 consumidos
 
-Es la brecha más grande. Todo el módulo de estadísticas del backend está sin UI, mientras
-`/estadisticas` sigue alimentándose de los endpoints viejos de madre/asignación/insumo.
+Sigue siendo la brecha más grande: 14 de 16 endpoints no tienen UI, y el resto de
+`/estadisticas` todavía se alimenta de los endpoints viejos de madre/asignación/insumo.
 
 | Endpoint | Qué daría |
 |----------|-----------|
@@ -43,8 +43,8 @@ Es la brecha más grande. Todo el módulo de estadísticas del backend está sin
 | `abrazos/duracion` | Promedio/mín/máx/total en minutos |
 | `bebes/por-estado`, `bebes/por-sala` | Distribuciones |
 | `bebes/rango-edades` | 0-7 / 8-14 / 15-28 / 29-60 / 61+ días |
-| `bebes/permanencia` | Días desde ingreso a NEO |
-| `bebes/evolucion-peso` | Peso de ingreso vs egreso y ganancia en gramos |
+| ~~`bebes/permanencia`~~ | **Integrado** (ago 2026): `/estadisticas` → "Permanencia de los bebés" |
+| ~~`bebes/evolucion-peso`~~ | **Integrado** (ago 2026): `/estadisticas` → "Evolución de peso de los bebés" |
 | `voluntarias/ranking-abrazos` | Top por abrazos finalizados |
 | `bebe/{id}/abrazos-hoy` · `abrazos-historial` | Historial por bebé |
 | `voluntaria/{id}/abrazos-hoy` · `abrazos-historial` | Historial por voluntaria |

@@ -50,6 +50,9 @@ const Footer = () => {
         maxWidth: APP_COLUMN_MAX_WIDTH_PX,
         alignContent: 'center',
         zIndex: 10,
+        // El fondo va acá y no solo en el nav: si no, la franja del home
+        // indicator queda transparente y se ve el contenido por detrás.
+        bgcolor: '#8F00FF',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >

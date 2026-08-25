@@ -10,6 +10,7 @@ export default function AppScreenLayout({ children }) {
     <Box
       sx={{
         minHeight: '100vh',
+        '@supports (min-height: 100dvh)': { minHeight: '100dvh' },
         width: '100%',
         display: 'flex',
         justifyContent: 'center',
@@ -24,6 +25,7 @@ export default function AppScreenLayout({ children }) {
           width: '100%',
           maxWidth: APP_COLUMN_MAX_WIDTH_PX,
           minHeight: '100vh',
+          '@supports (min-height: 100dvh)': { minHeight: '100dvh' },
           minWidth: 0,
           flex: '0 1 auto',
           display: 'flex',

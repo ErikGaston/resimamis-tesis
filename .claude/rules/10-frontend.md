@@ -30,8 +30,8 @@ paths:
 - **`redux` no está declarado en `package.json`** aunque `store/index.js` y `reducers/index.js`
   lo importan directamente; funciona por hoisting transitivo. Es frágil: si tocás dependencias,
   declaralo.
-- **`react-query` está instalado y sus imports siguen vivos en `main.jsx`**, pero el
-  `QueryClientProvider` está comentado. No activarlo sin alinear con el equipo.
+- **`react-query` sigue en `package.json` pero ya no se importa en ningún lado.** Se puede
+  desinstalar. No reintroducirlo sin alinear con el equipo.
 - `faker@5.5.3` y `@types/react*` están instalados sin uso.
 
 **No introducir:** Next.js, RTK Query, React Query, Zustand, styled-components, Tailwind,
@@ -118,10 +118,30 @@ Todo envuelto en `ErrorBoundary` (se resetea por `location.key`) + `Suspense`.
 ## Tema (`src/helpers/theme.js`)
 
 Botón activo/primario `#7A659B`, error `#C53814`, fondos `#F6F6F6`/`#FAFAFA`,
-font Open Sans → Roboto → Helvetica.
+font Open Sans → Roboto → Helvetica. Violeta de acento (footer, FABs, gráficos) `#8F00FF`;
+azul de texto `#152C70`.
 
-> `palette.primary.main` está seteado en `'#transparent'`, que **no es un color válido**.
-> Si tocás el tema, corregilo.
+## Mobile: targets iPhone 14 (390px) / 16 Pro (402px)
+
+La columna mide 444px pero el ancho real es **390px**: todo tiene que entrar ahí.
+
+- **Alturas de viewport:** usar siempre el par `100vh` + `100dvh` (o el bloque
+  `@supports (min-height: 100dvh)` en `sx`). `100vh` solo, en iOS, resuelve contra el viewport
+  grande y deja scroll fantasma con banda blanca al pie.
+- **Dialogs con formulario:** dimensionar con `var(--app-vh, ...)`, no con `dvh` pelado.
+  `initAppViewportHeight()` (en `main.jsx`, `utils/appViewportHeight.js`) mantiene `--app-vh`
+  sincronizada con el visual viewport; sin eso **el teclado de iOS tapa el footer de acciones**,
+  porque `dvh` no se achica al abrirse el teclado.
+- **Safe areas:** todo lo anclado al borde inferior (footers de dialog, FABs, la tab bar) suma
+  `env(safe-area-inset-bottom)`. El contenedor que lo aplica debe tener fondo propio, si no la
+  franja del home indicator queda transparente.
+- **Footer:** 3.75rem (60px) + safe area. Para el colchón de scroll usar
+  `APP_SCROLL_BOTTOM_PADDING`; para FABs, `fabBottomAboveNav`. No hardcodear píxeles.
+- **Targets táctiles ≥ 44×44** (48 en controles que se usan con guantes, como el stepper de
+  insumos). `IconButton size="small"` da 30×30: agregarle `sx={{ width: 44, height: 44 }}`.
+- **Tipografía:** mínimo 14px en texto de cuerpo. Los `0.62–0.7rem` son solo para labels
+  en mayúsculas.
+- **Contraste ≥ 4.5:1.** Sobre blanco, `rgba(21,44,112,α)` necesita α ≥ 0.72.
 
 ## Regla de display de errores de API (NO violar)
 
@@ -160,11 +180,17 @@ ProblemDetails de ASP.NET. Nunca mostrar mensajes crudos del backend ni stack tr
 
 | Patrón | Uso | `PaperProps.sx` |
 |--------|-----|-----------------|
-| Full-screen | Finalizar abrazo, detalle de asignación, Coordinación | `height:'100dvh', maxHeight:'100dvh', m:0, borderRadius:0, display:'flex', flexDirection:'column', overflow:'hidden'` |
-| Bottom-sheet | Cambio de contraseña, formularios cortos | `mb:0, mt:'auto', borderRadius:'20px 20px 0 0', maxHeight:'90dvh', display:'flex', flexDirection:'column'` + `sx={{ '& .MuiDialog-container': { alignItems:'flex-end' } }}` |
+| Full-screen | Finalizar abrazo, detalle de asignación, Coordinación | `height:'var(--app-vh, 100dvh)', maxHeight:'var(--app-vh, 100dvh)', m:0, borderRadius:0, display:'flex', flexDirection:'column', overflow:'hidden'` |
+| Bottom-sheet | Cambio de contraseña, formularios cortos | `m:0, mx:'auto', mb:0, mt:'auto', borderRadius:'20px 20px 0 0', maxHeight:'var(--app-vh, 90dvh)', display:'flex', flexDirection:'column'` + `sx={{ '& .MuiDialog-container': { alignItems:'flex-end' } }}` |
 
-`DialogContent` con `pt: 2.5` — **no** `pt: 1`: MUI recorta las floating labels de los
-`TextField` outlined con padding chico.
+`DialogContent` necesita `pt` suficiente (≈20px) para no recortar las floating labels de los
+`TextField` outlined.
+
+**Ojo con la especificidad:** si el `DialogContent` es hermano **inmediato** de un
+`DialogTitle`, MUI aplica `.MuiDialogTitle-root + & { padding-top: 0 }` (especificidad 0-2-0),
+que gana sobre cualquier `pt` del `sx` (0-1-0). En ese caso hace falta
+`pt: '20px !important'`. Si hay algo en el medio (un `Box` de drag-handle, por ejemplo), se
+rompe la adyacencia y alcanza con `pt: 2.5`.
 
 ## Estilo de código
 

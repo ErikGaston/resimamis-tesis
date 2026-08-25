@@ -43,6 +43,14 @@ const StyledInputLabel = styled(InputLabel)`
 `;
 
 const StyledDatePickerCustomized = styled(DatePickerCustomized)`
+    .MuiInputBase-input.Mui-disabled {
+        -webkit-text-fill-color: #152C70;
+        opacity: 1;
+    }
+    .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
+        border-color: rgba(21,44,112,0.25);
+    }
+
     width:100%;
     border-radius: 10px;
     border: 1.5px solid #FFF;

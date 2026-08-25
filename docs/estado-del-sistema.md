@@ -77,13 +77,17 @@ que nunca se finalizaron.
 
 ## 7. Estadísticas (`/estadisticas`)
 
-Hoy: distribución de madres por localidad, edades de madres, asignaciones por día del mes,
-duración de abrazos y consumo de insumos (chart.js).
+Siete gráficos: edades de madres, localidades de madres, insumos más utilizados, abrazos por
+mes (línea), duración de abrazos, **evolución de peso de los bebés** y **permanencia de los
+bebés** — los dos últimos solo para coordinadora, alimentados por el módulo `Dashboard`.
 
-*(solo backend)* Un módulo `Dashboard` completo sin UI: resumen de período, snapshot de
-coordinación del día, cobertura de abrazos, bebés por estado/sala/rango de edad/permanencia,
-evolución de peso ingreso vs egreso, ranking de voluntarias e historial de abrazos por bebé y
-por voluntaria.
+La permanencia mide días desde el ingreso a NEO **hasta hoy** e incluye solo bebés activos:
+el endpoint no cubre estadías ya cerradas. El período se filtra en el cliente por fecha de
+ingreso.
+
+*(solo backend)* Del módulo `Dashboard` siguen sin UI 14 de 16 endpoints: resumen de período,
+snapshot de coordinación del día, cobertura de abrazos, bebés por estado/sala/rango de edad,
+ranking de voluntarias e historial de abrazos por bebé y por voluntaria.
 
 ## 8. Coordinación (`/coordinacion`)
 

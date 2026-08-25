@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import VolunteerForm from '../../molecules/volunteerForm/VolunteerForm';
 import { PageHeader } from '../../common/PageHeader';
+import { APP_SCROLL_BOTTOM_PADDING } from '../../../helpers/const/appLayout';
 
 const listTurnos = [
     {
@@ -34,7 +35,7 @@ const VolunteerTemplate = ({ model, setModel, localities, submitVolunteer, error
     return (
         <div style={{ height: '100%' }}>
             <PageHeader title="Nueva voluntaria" />
-            <div style={{ padding: '20px 20px 75px 20px', }}>
+            <div style={{ padding: '20px', paddingBottom: APP_SCROLL_BOTTOM_PADDING }}>
                 <VolunteerForm
                     model={model}
                     setModel={setModel}

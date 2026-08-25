@@ -54,6 +54,12 @@ export function getBabyWeightEvolution(params) {
     };
 }
 
+export function getBabyPermanencia() {
+    return {
+        type: actionTypes.GET_BABY_PERMANENCIA,
+    };
+}
+
 export function clearBaby() {
     return {
         type: actionTypes.CLEAR_BABY,

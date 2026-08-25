@@ -103,12 +103,12 @@ export function VolunteerHorarioSection({ idVoluntaria, horarios, onSuccess }) {
 
   return (
     <Box sx={{ pt: 0.5, pb: 1 }}>
-      <Typography sx={{ color: 'rgba(21,44,112,0.55)', fontSize: '0.82rem', mb: 2 }}>
+      <Typography sx={{ color: 'rgba(21,44,112,0.75)', fontSize: '0.82rem', mb: 2 }}>
         Marcá los días que asiste y el turno correspondiente.
       </Typography>
 
       {diasOptions.length === 0 ? (
-        <Typography sx={{ color: 'rgba(21,44,112,0.4)', fontSize: '0.85rem', fontStyle: 'italic' }}>
+        <Typography sx={{ color: 'rgba(21,44,112,0.72)', fontSize: '0.85rem', fontStyle: 'italic' }}>
           Cargando días disponibles…
         </Typography>
       ) : (

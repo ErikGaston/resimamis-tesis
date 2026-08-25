@@ -22,6 +22,8 @@ import { ChartLocalitiesMother } from '../../organisms/statistics/ChartLocalitie
 import { ChartSupplies } from '../../organisms/statistics/ChartSupplies';
 import { ChartAssignmentMonth } from '../../organisms/statistics/ChartAssignmentMonth';
 import { ChartWeightEvolution } from '../../organisms/statistics/ChartWeightEvolution';
+import { ChartBabyPermanence } from '../../organisms/statistics/ChartBabyPermanence';
+import { APP_SCROLL_BOTTOM_PADDING } from '../../../helpers/const/appLayout';
 
 const CHART_OPTIONS = [
     { id: 1, label: 'Edades de las madres', icon: AddchartIcon },
@@ -30,6 +32,7 @@ const CHART_OPTIONS = [
     { id: 4, label: 'Abrazos por mes', icon: AddchartIcon },
     { id: 5, label: 'Duración de abrazos', icon: AccessTimeIcon },
     { id: 6, label: 'Evolución de peso de los bebés', icon: MonitorWeightOutlinedIcon, soloCoordinadora: true },
+    { id: 7, label: 'Permanencia de los bebés', icon: AccessTimeIcon, soloCoordinadora: true },
 ];
 
 // Paper del dialog mobile: centrado en columna 444px
@@ -89,6 +92,7 @@ const StatisticsTemplate = (props) => {
         statisticsAssignment,
         statisticsDurationHug,
         statisticsWeightEvolution,
+        statisticsPermanencia,
         isCoordinadora,
     } = props;
 
@@ -146,21 +150,22 @@ const StatisticsTemplate = (props) => {
                     <Typography sx={{ fontWeight: 700, color: '#152C70', fontSize: '1rem' }}>
                         {CHART_OPTIONS.find((o) => o.id === valueChart)?.label ?? 'Estadística'}
                     </Typography>
-                    <IconButton onClick={() => setStateChart('')} aria-label="Cerrar" size="small">
+                    <IconButton onClick={() => setStateChart('')} aria-label="Cerrar" sx={{ width: 44, height: 44 }}>
                         <CloseIcon fontSize="small" />
                     </IconButton>
                 </DialogTitle>
 
-                <DialogContent sx={{ px: 2, pt: 0.5, pb: 3 }}>
+                <DialogContent sx={{ px: 2, pt: '20px !important', pb: 3 }}>
                     {valueChart === 1 && <ChartHugMonth statisticsMonthMother={statisticsMonthMother} />}
                     {valueChart === 2 && <ChartLocalitiesMother statisticsLocalities={statisticsLocalities} />}
                     {valueChart === 3 && <ChartSupplies statisticsSupplies={statisticsSupplies} />}
                     {valueChart === 4 && <ChartAssignmentMonth statisticsAssignment={statisticsAssignment} />}
                     {valueChart === 6 && <ChartWeightEvolution statisticsWeightEvolution={statisticsWeightEvolution} />}
+                    {valueChart === 7 && <ChartBabyPermanence statisticsPermanencia={statisticsPermanencia} />}
 
                     {/* ── Duración de abrazos ── */}
                     {valueChart === 5 && (
-                        <Box sx={{ pt: 0.5 }}>
+                        <Box sx={{ pt: 2.5 }}>
                             {durationData === null ? (
                                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
                                     <CircularProgress sx={{ color: '#8F00FF' }} />
@@ -208,12 +213,12 @@ const StatisticsTemplate = (props) => {
 
                                     {/* Lista de duraciones */}
                                     {durationData.lista.length === 0 ? (
-                                        <Typography sx={{ color: 'rgba(21,44,112,0.5)', textAlign: 'center', py: 3, fontSize: '0.9rem' }}>
+                                        <Typography sx={{ color: 'rgba(21,44,112,0.75)', textAlign: 'center', py: 3, fontSize: '0.9rem' }}>
                                             Sin registros de duración disponibles.
                                         </Typography>
                                     ) : (
                                         <>
-                                            <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.4)', textTransform: 'uppercase', letterSpacing: '0.09em', mb: 1.25 }}>
+                                            <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(21,44,112,0.72)', textTransform: 'uppercase', letterSpacing: '0.09em', mb: 1.25 }}>
                                                 Detalle por abrazo ({durationData.lista.length})
                                             </Typography>
                                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
@@ -287,7 +292,7 @@ const StatisticsTemplate = (props) => {
 export default StatisticsTemplate;
 
 const ContainerButtons = styled('div')`
-    padding: 20px 16px;
+    padding: 20px 16px ${APP_SCROLL_BOTTOM_PADDING};
     display: flex;
     flex-direction: column;
 `;
