@@ -80,7 +80,9 @@ const ActivityTask = ({
                     variant="contained"
                     disableElevation
                     onClick={submitAssistence}
-                    disabled={check}
+                    // El backend admite un solo ingreso por día: con la jornada
+                    // cerrada, volver a habilitar entrada daría 400.
+                    disabled={check || salidaRegistrada}
                     endIcon={
                         <CheckCircleIcon sx={{ color: check ? '#fff' : 'rgba(255,255,255,0.55)' }} />
                     }
@@ -103,6 +105,14 @@ const ActivityTask = ({
                     >
                         Registrar salida
                     </Button>
+                )}
+                {salidaRegistrada && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, px: 0.5, pt: 0.25 }}>
+                        <CheckCircleIcon sx={{ fontSize: 16, color: '#2E7D32' }} />
+                        <Typography sx={{ fontSize: '0.8125rem', color: 'rgba(21,44,112,0.85)' }}>
+                            Jornada de hoy registrada. Podés volver a marcar entrada mañana.
+                        </Typography>
+                    </Box>
                 )}
             </Box>
 

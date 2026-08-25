@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { clearVolunteer, getAssistance, getAssistanceHistoricas, getAssistanceToday, getVolunteersFree, postAssistance, postAssistanceSalida } from "../../redux/actions/volunteerActions";
+import { clearVolunteer, clearVolunteerWrites, getAssistance, getAssistanceHistoricas, getAssistanceToday, getVolunteersFree, postAssistance, postAssistanceSalida } from "../../redux/actions/volunteerActions";
 import { clearBaby, getBabysFree } from "../../redux/actions/babyActions";
 import { clearAssignment, getAssignmentById, getAssignmentToday, getAssignmentTodayById, postAssignmentGenerate, postAssignmentGenerateTarea, postDetailAssignment, postEndHug, postStartHug } from "../../redux/actions/assignmentActions";
 import { clearSupply, getSupplies } from "../../redux/actions/supplyActions";
@@ -253,6 +253,10 @@ export const TasksPage = () => {
                 dispatch(getAssignmentTodayById(idVolunteer))
                 dispatch(showToast({ message: '¡Asistencia registrada con éxito!', severity: 'success' }))
             }
+            // Sin esto el flag queda en el slice y el efecto lo vuelve a leer
+            // cuando cambia cualquier otra dependencia: repetía el toast de
+            // entrada al registrar la salida.
+            dispatch(clearVolunteerWrites())
         }
         if (dataVolunteer?.postAssistanceSalida !== null) {
             dispatch(showLoading(false))
@@ -260,6 +264,7 @@ export const TasksPage = () => {
             setSalidaRegistrada(true);
             dispatch(getAssistance(idVolunteer))
             dispatch(showToast({ message: '¡Salida registrada con éxito!', severity: 'success' }))
+            dispatch(clearVolunteerWrites())
         }
         if (dataVolunteer?.getVolunteersFree !== null) {
             dispatch(showLoading(false))
@@ -289,14 +294,24 @@ export const TasksPage = () => {
         }
     }, [dataVolunteer?.getAssistanceToday, dataVolunteer?.getAssistanceHistoricas, dispatch]);
 
+    // `getAssistance` devuelve el registro de hoy exista o no la salida. Tomarlo
+    // como "está adentro" sin mirar `fechaHoraSalida` rehabilitaba el botón de
+    // salida después de haberla registrado, y el backend respondía 400.
     useEffect(() => {
-        if (dataVolunteer?.getAssistance !== null) {
-            dispatch(showLoading(false))
-            if (dataVolunteer?.getAssistance?.data) {
-                setCheckAssistance(true);
-                dispatch(getAssignmentTodayById(idVolunteer))
-            }
+        if (dataVolunteer?.getAssistance === null) return;
+        dispatch(showLoading(false))
+
+        const asistenciaHoy = dataVolunteer?.getAssistance?.data;
+        if (!asistenciaHoy) {
+            setCheckAssistance(false);
+            setSalidaRegistrada(false);
+            return;
         }
+
+        const yaSalio = Boolean(asistenciaHoy.fechaHoraSalida ?? asistenciaHoy.FechaHoraSalida);
+        setCheckAssistance(!yaSalio);
+        setSalidaRegistrada(yaSalio);
+        dispatch(getAssignmentTodayById(idVolunteer))
     }, [dataVolunteer?.getAssistance, dispatch, idVolunteer])
 
     useEffect(() => {

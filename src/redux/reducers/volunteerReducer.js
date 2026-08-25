@@ -74,6 +74,8 @@ export default function volunteerReducer(state = initialState, action) {
         if (action.type === 'CLEAR_VOLUNTEER_WRITES') {
             return {
                 ...state,
+                postAssistance: null,
+                postAssistanceSalida: null,
                 postAssistanceDelete: null,
                 postVolunteerDelete: null,
                 error: null,
