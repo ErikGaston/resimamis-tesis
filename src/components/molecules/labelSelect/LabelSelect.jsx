@@ -77,4 +77,16 @@ const StyledInputLabel = styled(InputLabel, { shouldForwardProp: (p) => !['label
 `;
 
 const StyledSelectCustomized = styled(SelectCustomized)`
+    /* En modo lectura el select va disabled y MUI pinta el valor a
+       rgba(0,0,0,0.38): el dato queda más claro que el de los TextField de al
+       lado, que sí reciben este tratamiento. */
+    &.Mui-disabled,
+    .MuiSelect-select.Mui-disabled {
+        -webkit-text-fill-color: #152C70;
+        color: #152C70;
+        opacity: 1;
+    }
+    &.Mui-disabled .MuiOutlinedInput-notchedOutline {
+        border-color: rgba(21, 44, 112, 0.25);
+    }
 `;

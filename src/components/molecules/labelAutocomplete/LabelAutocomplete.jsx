@@ -47,4 +47,13 @@ const StyledInputLabel = styled(InputLabel, { shouldForwardProp: (p) => !['label
 `;
 
 const StyledAutocompleteCustomized = styled(AutocompleteCustomized)`
+    /* En modo lectura va disabled y MUI pinta el valor a rgba(0,0,0,0.38), con
+       lo que el dato queda más claro que el de los campos de al lado. */
+    .MuiInputBase-input.Mui-disabled {
+        -webkit-text-fill-color: #152C70;
+        opacity: 1;
+    }
+    .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
+        border-color: rgba(21, 44, 112, 0.25);
+    }
 `;
