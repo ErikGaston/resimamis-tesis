@@ -25,6 +25,9 @@ const BabyForm = ({
     madreDisplayName = '',
     /** Opcional: salas desde GET `/bebe/listarSalas` como `{ label, value }` (value = idSala). */
     salaOptions = null,
+    fieldErrors = {},
+    /** En el alta el bebé pertenece a la madre que se está creando: no se elige de un listado. */
+    madreFija = false,
 }) => {
 
     const safeSetModel = readOnly ? noop : setModel
@@ -105,6 +108,8 @@ const BabyForm = ({
         <div>
             <LabelInput
                 name='nombre'
+                error={!!fieldErrors.nombre}
+                helperText={fieldErrors.nombre}
                 label='Nombre'
                 value={model?.nombre || ''}
                 onChange={onChangeText}
@@ -116,6 +121,8 @@ const BabyForm = ({
             />
             <LabelInput
                 name='apellido'
+                error={!!fieldErrors.apellido}
+                helperText={fieldErrors.apellido}
                 label='Apellido'
                 value={model?.apellido}
                 onChange={onChangeText}
@@ -127,6 +134,8 @@ const BabyForm = ({
             />
             <LabelInput
                 name='dni'
+                error={!!fieldErrors.dni}
+                helperText={fieldErrors.dni}
                 label='DNI'
                 value={model?.dni}
                 onChange={onChangeNumber}
@@ -144,10 +153,14 @@ const BabyForm = ({
                 inputColor={'#152C70'}
                 styleLabel={{ fontSize: '16px' }}
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaNacimiento')}
+                error={!!fieldErrors.fechaNacimiento}
+                helperText={fieldErrors.fechaNacimiento}
                 disabled={readOnly}
             />
             <LabelInput
                 name='lugarNacimiento'
+                error={!!fieldErrors.lugarNacimiento}
+                helperText={fieldErrors.lugarNacimiento}
                 label='Lugar de nacimiento'
                 value={model?.lugarNacimiento}
                 onChange={onChangeText}
@@ -164,16 +177,18 @@ const BabyForm = ({
                 value={sexoOption}
                 onChange={onChangeAutocompleteSexo}
                 required
+                error={!!fieldErrors.sexo}
+                helperText={fieldErrors.sexo}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
                 styleLabel={{ fontSize: '16px' }}
                 disabled={readOnly}
             />
-            {readOnly ? (
+            {readOnly || madreFija ? (
                 <LabelInput
                     label='Madre'
                     name='madre_display'
-                    value={model?.nombre_madre || madreDisplayName || '—'}
+                    value={madreFija ? (madreDisplayName || 'La madre que estás cargando') : (model?.nombre_madre || madreDisplayName || '—')}
                     onChange={noop}
                     labelColor={'#152C70'}
                     inputColor={'#152C70'}
@@ -229,6 +244,8 @@ const BabyForm = ({
                 inputColor={'#152C70'}
                 styleLabel={{ fontSize: '16px' }}
                 onChange={(newValue) => onChangeDateTime(newValue, 'fechaIngresoNEO')}
+                error={!!fieldErrors.fechaIngresoNEO}
+                helperText={fieldErrors.fechaIngresoNEO}
                 disabled={readOnly}
             />
             {listLocalities != null ? (

@@ -63,3 +63,33 @@ export function normalizeBabyApiPayload(baby, idMadreFallback) {
 
   return body;
 }
+
+/**
+ * Fila de bebé para el alta conjunta `POST /madre` (body `MADRE.bebe[]`).
+ *
+ * A diferencia de `normalizeBabyApiPayload`, omite `id`, `idMadre` y `idEstado`: el bebé se
+ * inserta junto con la madre, EF resuelve la FK y el backend le asigna "Sin abrazar".
+ * `id` además no puede viajar en null porque `BEBE.ID` es un int no nullable.
+ * @param {Record<string, unknown>} baby
+ */
+export function normalizeBabyForAlta(baby) {
+  const b = baby || {};
+  const numeroOpcional = (v) => (v != null && v !== '' ? Number(v) : null);
+
+  return {
+    dni: b.dni != null && b.dni !== '' ? Number(String(b.dni).replace(/\D/g, '')) : null,
+    nombre: b.nombre ?? null,
+    apellido: b.apellido ?? null,
+    sexo: b.sexo ? String(b.sexo).trim().toUpperCase() : null,
+    fechaNacimiento: b.fechaNacimiento || null,
+    lugarNacimiento: b.lugarNacimiento ?? null,
+    fechaIngresoNEO: b.fechaIngresoNEO || null,
+    pesoNacimiento: numeroOpcional(b.pesoNacimiento),
+    pesoIngresoNEO: numeroOpcional(b.pesoIngresoNEO),
+    pesoDiaAbrazos: numeroOpcional(b.pesoDiaAbrazos),
+    pesoAlta: numeroOpcional(b.pesoAlta),
+    diagnosticoIngreso: b.diagnosticoIngreso ?? null,
+    diagnosticoEgreso: b.diagnosticoEgreso ?? null,
+    idSala: numeroOpcional(b.idSala),
+  };
+}

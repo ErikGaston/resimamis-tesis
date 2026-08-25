@@ -54,15 +54,27 @@ const MotherAccordionForm = (props) => {
         error,
         setError,
         listMothers,
-        submitBaby,
+        submitAlta,
         expandedMother = false,
         editForm,
         setEditForm,
         typeForm,
         fieldErrors,
         setFieldErrors,
+        babyFieldErrors = [],
+        motherStepDone = false,
+        openSection,
+        setOpenSection,
         profileBabyExtras,
     } = props;
+
+    const isAlta = typeForm === 'ALTA';
+    const sectionProps = (key) => (isAlta && setOpenSection
+        ? {
+            expanded: openSection === key,
+            onExpandedChange: (isOpen) => setOpenSection(isOpen ? key : null),
+        }
+        : {});
 
     const [editingBabyIndex, setEditingBabyIndex] = useState(null);
 
@@ -91,6 +103,7 @@ const MotherAccordionForm = (props) => {
                     key={item}
                     item={item}
                     defaultExpanded={index === 0 && expandedMother}
+                    {...sectionProps('madre')}
                     expandIcon={<ExpandCircleDownIcon style={{ color: '#8F00FF' }} />}
                     summary={
                         <TitleAccordion>
@@ -119,8 +132,13 @@ const MotherAccordionForm = (props) => {
                                                 onClick={submitMother}
                                                 sx={btnSave}
                                             >
-                                                Guardar madre
+                                                Guardar madre y continuar
                                             </Button>
+                                            <HelperText>
+                                                {motherStepDone
+                                                    ? 'Datos guardados en este dispositivo. El alta se registra cuando completes el bebé.'
+                                                    : 'Guarda lo cargado y sigue con la ficha del bebé. La madre y el bebé se registran juntos al final.'}
+                                            </HelperText>
                                         </Box>
                                     )}
 
@@ -164,18 +182,18 @@ const MotherAccordionForm = (props) => {
                 />
             ))}
 
-            {typeForm === 'ALTA' && submitBaby &&
+            {isAlta && submitAlta &&
                 (model?.bebe ?? [{}]).map((_, babyIdx) => {
                     const totalBebes = (model?.bebe ?? [{}]).length;
                     const babyTitle = totalBebes > 1 ? `Bebé ${babyIdx + 1}` : 'Datos del bebé';
                     return (
-                        <AccordionCustomized
-                            key={`alta-bebe-${babyIdx}`}
-                            item={`alta-bebe-${babyIdx}`}
-                            expandIcon={<ExpandCircleDownIcon style={{ color: '#8F00FF' }} />}
-                            summary={<TitleAccordion>{babyTitle}</TitleAccordion>}
-                            details={
-                                <>
+                        <div key={`alta-bebe-${babyIdx}`} id={`alta-bebe-${babyIdx}`}>
+                            <AccordionCustomized
+                                item={`alta-bebe-${babyIdx}`}
+                                {...sectionProps(`bebe-${babyIdx}`)}
+                                expandIcon={<ExpandCircleDownIcon style={{ color: '#8F00FF' }} />}
+                                summary={<TitleAccordion>{babyTitle}</TitleAccordion>}
+                                details={
                                     <BabyForm
                                         model={model?.bebe?.[babyIdx] ?? {}}
                                         setModel={(nextBaby) => {
@@ -187,45 +205,53 @@ const MotherAccordionForm = (props) => {
                                                 return { ...m, bebe: next };
                                             });
                                         }}
-                                        error={error}
                                         listLocalities={listLocalities}
-                                        listMothers={listMothers}
+                                        listMothers={null}
+                                        madreFija
+                                        madreDisplayName={madreNombreCompleto}
+                                        fieldErrors={babyFieldErrors[babyIdx] ?? {}}
                                         salaOptions={profileBabyExtras?.babySalasOptions ?? null}
                                     />
-                                    <Box sx={{ mt: 2 }}>
-                                        <Button
-                                            variant="contained"
-                                            fullWidth
-                                            onClick={() => submitBaby(babyIdx)}
-                                            sx={btnSave}
-                                        >
-                                            Registrar bebé
-                                        </Button>
-                                    </Box>
-                                </>
-                            }
-                        />
+                                }
+                            />
+                        </div>
                     );
                 })}
 
-            {typeForm === 'ALTA' && submitBaby && (
-                <Button
-                    variant="outlined"
-                    fullWidth
-                    startIcon={<AddIcon />}
-                    onClick={() => setModel((m) => ({ ...m, bebe: [...(m?.bebe ?? [{}]), {}] }))}
-                    sx={{
-                        mt: 1,
-                        textTransform: 'none',
-                        borderRadius: '10px',
-                        borderColor: 'rgba(127,0,255,0.35)',
-                        color: '#7A659B',
-                        fontWeight: 600,
-                        minHeight: 44,
-                    }}
-                >
-                    + Agregar otro bebé
-                </Button>
+            {isAlta && submitAlta && (
+                <>
+                    <Button
+                        variant="outlined"
+                        fullWidth
+                        startIcon={<AddIcon />}
+                        onClick={() => setModel((m) => ({ ...m, bebe: [...(m?.bebe ?? [{}]), {}] }))}
+                        sx={{
+                            mt: 1,
+                            textTransform: 'none',
+                            borderRadius: '10px',
+                            borderColor: 'rgba(127,0,255,0.35)',
+                            color: '#7A659B',
+                            fontWeight: 600,
+                            minHeight: 44,
+                        }}
+                    >
+                        + Agregar otro bebé
+                    </Button>
+
+                    <Box sx={{ mt: 2.5 }}>
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={submitAlta}
+                            sx={btnSave}
+                        >
+                            Finalizar alta
+                        </Button>
+                        <HelperText>
+                            Registra la madre y su bebé en una sola operación. No se guarda uno sin el otro.
+                        </HelperText>
+                    </Box>
+                </>
             )}
 
             {typeForm !== 'ALTA' && model?.bebe?.map((item, index) => {
@@ -307,6 +333,14 @@ const MotherAccordionForm = (props) => {
 }
 
 export default MotherAccordionForm;
+
+const HelperText = styled('p')`
+    margin: 8px 2px 0;
+    color: rgba(21, 44, 112, 0.55);
+    font-family: Roboto;
+    font-size: 12px;
+    line-height: 1.45;
+`;
 
 const TitleAccordion = styled('span')`
     color: #152C70;
