@@ -1284,14 +1284,14 @@ export const CoordinacionPage = () => {
             color: '#fff', flexShrink: 0,
           }}
         >
-          <Box>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography component="span" sx={{ fontWeight: 700, fontSize: '1.05rem', display: 'block' }}>
               Reporte de asistencia
             </Typography>
             {asistenciaReporteMeta && (
               <Typography component="span" sx={{ fontSize: '0.75rem', opacity: 0.85, display: 'block' }}>
                 {asistenciaReporteMeta.fechaInicio && asistenciaReporteMeta.fechaFin
-                  ? `${asistenciaReporteMeta.fechaInicio} → ${asistenciaReporteMeta.fechaFin}`
+                  ? `${dayjs(asistenciaReporteMeta.fechaInicio).format('DD/MM/YYYY')} → ${dayjs(asistenciaReporteMeta.fechaFin).format('DD/MM/YYYY')}`
                   : ''}
               </Typography>
             )}
@@ -1299,7 +1299,7 @@ export const CoordinacionPage = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {asistenciaReporteMeta?.total != null && (
               <Chip
-                label={`${asistenciaReporteMeta.total} registros`}
+                label={`${asistenciaReporteMeta.total} ${asistenciaReporteMeta.total === 1 ? 'registro' : 'registros'}`}
                 size="small"
                 sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: '#fff', fontWeight: 700, fontSize: '0.72rem' }}
               />
