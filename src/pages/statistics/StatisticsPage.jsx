@@ -4,10 +4,12 @@ import { showLoading } from "../../redux/actions/loadingActions";
 import { clearMother, getStatisticsAgeMother, getStatisticsLocalities } from "../../redux/actions/motherActions";
 import { clearSupply, getStatisticsSupplies } from "../../redux/actions/supplyActions";
 import { clearAssignment, getStatisticsAssignmentMonth, getDurationHug } from "../../redux/actions/assignmentActions";
+import { clearBaby, getBabyWeightEvolution } from "../../redux/actions/babyActions";
 import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
 import StatisticsTemplate from "../../components/templates/statistics/StatisticsTemplate";
 import { PageWrapper } from "../../components/common/PageWrapper";
 import { getIdVolunteer } from '../../utils/localStorage';
+import { isCoordinadoraSession } from '../../utils/coordinadoraRole';
 
 export const StatisticsPage = () => {
     const dispatch = useDispatch();
@@ -15,7 +17,9 @@ export const StatisticsPage = () => {
     const dataMother = useSelector(state => state.motherReducer)
     const dataSupply = useSelector(state => state.supplyReducer)
     const dataAssignment = useSelector(state => state.assignmentReducer)
+    const dataBaby = useSelector(state => state.babyReducer)
     let idVolunteer = getIdVolunteer();
+    const isCoordinadora = isCoordinadoraSession();
     const [stateChart, setStateChart] = React.useState('')
     const [valueChart, setValueChart] = React.useState('')
 
@@ -38,6 +42,9 @@ export const StatisticsPage = () => {
             case 5:
                 dispatch(getDurationHug());
                 break;
+            case 6:
+                dispatch(getBabyWeightEvolution());
+                break;
         }
     }
 
@@ -45,21 +52,23 @@ export const StatisticsPage = () => {
         dispatch(clearMother())
         dispatch(clearSupply())
         dispatch(clearAssignment())
+        dispatch(clearBaby())
         return () => {
             dispatch(clearMother())
             dispatch(clearSupply())
             dispatch(clearAssignment())
+            dispatch(clearBaby())
         }
     }, [])
 
     useEffect(() => {
         if ((dataMother?.getStatisticsLocalities !== null || dataMother?.getStatisticsAgeMother !== null
             || dataSupply.getStatisticsSupplies !== null || dataAssignment?.getStatisticsAssignmentMonth !== null
-            || dataAssignment?.getDurationHug !== null) && valueChart !== 0) {
+            || dataAssignment?.getDurationHug !== null || dataBaby?.getBabyWeightEvolution !== null) && valueChart !== 0) {
             setStateChart('OPEN')
             dispatch(showLoading(false))
         }
-    }, [dataMother?.getStatisticsLocalities, dataMother?.getStatisticsAgeMother, dataSupply?.getStatisticsSupplies, dataAssignment?.getStatisticsAssignmentMonth, dataAssignment?.getDurationHug])
+    }, [dataMother?.getStatisticsLocalities, dataMother?.getStatisticsAgeMother, dataSupply?.getStatisticsSupplies, dataAssignment?.getStatisticsAssignmentMonth, dataAssignment?.getDurationHug, dataBaby?.getBabyWeightEvolution])
 
 
     return (
@@ -74,6 +83,8 @@ export const StatisticsPage = () => {
                 statisticsSupplies={dataSupply?.getStatisticsSupplies?.data}
                 statisticsAssignment={dataAssignment?.getStatisticsAssignmentMonth?.data}
                 statisticsDurationHug={dataAssignment?.getDurationHug}
+                statisticsWeightEvolution={dataBaby?.getBabyWeightEvolution?.data}
+                isCoordinadora={isCoordinadora}
             />
         </PageWrapper>
     )

@@ -2,6 +2,7 @@ import React from 'react';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AddchartIcon from '@mui/icons-material/Addchart';
 import CloseIcon from '@mui/icons-material/Close';
+import MonitorWeightOutlinedIcon from '@mui/icons-material/MonitorWeightOutlined';
 import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
 import {
     Box,
@@ -20,6 +21,7 @@ import { ChartHugMonth } from '../../organisms/statistics/ChartHugMonth';
 import { ChartLocalitiesMother } from '../../organisms/statistics/ChartLocalitiesMother';
 import { ChartSupplies } from '../../organisms/statistics/ChartSupplies';
 import { ChartAssignmentMonth } from '../../organisms/statistics/ChartAssignmentMonth';
+import { ChartWeightEvolution } from '../../organisms/statistics/ChartWeightEvolution';
 
 const CHART_OPTIONS = [
     { id: 1, label: 'Edades de las madres', icon: AddchartIcon },
@@ -27,6 +29,7 @@ const CHART_OPTIONS = [
     { id: 3, label: 'Insumos más utilizados', icon: AddchartIcon },
     { id: 4, label: 'Abrazos por mes', icon: AddchartIcon },
     { id: 5, label: 'Duración de abrazos', icon: AccessTimeIcon },
+    { id: 6, label: 'Evolución de peso de los bebés', icon: MonitorWeightOutlinedIcon, soloCoordinadora: true },
 ];
 
 // Paper del dialog mobile: centrado en columna 444px
@@ -85,7 +88,11 @@ const StatisticsTemplate = (props) => {
         statisticsSupplies,
         statisticsAssignment,
         statisticsDurationHug,
+        statisticsWeightEvolution,
+        isCoordinadora,
     } = props;
+
+    const chartOptions = CHART_OPTIONS.filter((o) => !o.soloCoordinadora || isCoordinadora);
 
     const durationData = React.useMemo(() => {
         if (statisticsDurationHug == null) return null;
@@ -101,7 +108,7 @@ const StatisticsTemplate = (props) => {
         <div style={{ height: '100%' }}>
             <PageHeader title="Estadísticas" />
             <ContainerButtons>
-                {CHART_OPTIONS.map(({ id, label, icon: Icon }) => (
+                {chartOptions.map(({ id, label, icon: Icon }) => (
                     <Button
                         key={id}
                         fullWidth
@@ -149,6 +156,7 @@ const StatisticsTemplate = (props) => {
                     {valueChart === 2 && <ChartLocalitiesMother statisticsLocalities={statisticsLocalities} />}
                     {valueChart === 3 && <ChartSupplies statisticsSupplies={statisticsSupplies} />}
                     {valueChart === 4 && <ChartAssignmentMonth statisticsAssignment={statisticsAssignment} />}
+                    {valueChart === 6 && <ChartWeightEvolution statisticsWeightEvolution={statisticsWeightEvolution} />}
 
                     {/* ── Duración de abrazos ── */}
                     {valueChart === 5 && (

@@ -47,6 +47,13 @@ export function postBabyDelete(idBebe) {
 }
 
 
+export function getBabyWeightEvolution(params) {
+    return {
+        type: actionTypes.GET_BABY_WEIGHT_EVOLUTION,
+        payload: params,
+    };
+}
+
 export function clearBaby() {
     return {
         type: actionTypes.CLEAR_BABY,

@@ -686,6 +686,16 @@ export const postBabyDelete = async (idBebe) => {
       throw e;
     });
 };
+
+/** Evolución de peso ingreso NEO vs egreso. `params` opcional: { fechaDesde, fechaHasta }. */
+export const getBabyWeightEvolution = async (params) => {
+  return AxiosInstance
+    .get('/dashboard/bebes/evolucion-peso', params ? { params } : undefined)
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
 //#endregion
 
 //#region - MADRE EXTRA
