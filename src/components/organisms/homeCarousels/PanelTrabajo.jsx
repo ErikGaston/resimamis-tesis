@@ -9,6 +9,8 @@ import insumo from "../../../assets/home/carousel-work/insumo-home.svg";
 import coordinacion from "../../../assets/home/carousel-work/coordinacion-home.svg";
 
 import { isCoordinadoraSession } from "../../../utils/coordinadoraRole";
+import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
+import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 
 const ROW_PERSONAS = [
     { name: "Madres", image: mama, url: "/madres" },
@@ -54,10 +56,54 @@ function WorkCard({ name, image, url }) {
     );
 }
 
+/** Accesos de coordinación. No usan las ilustraciones porque esas traen la
+ *  etiqueta incrustada en el SVG; acá el texto va aparte. */
+function ShortcutCard({ icon: Icon, name, description, url }) {
+    return (
+        <Box
+            component={Link}
+            to={url}
+            sx={{
+                flex: 1,
+                minWidth: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: 1.25,
+                px: 1.5,
+                py: 1.25,
+                minHeight: 44,
+                borderRadius: "14px",
+                textDecoration: "none",
+                bgcolor: "#faf8fc",
+                border: "1px solid rgba(143,0,255,0.14)",
+                WebkitTapHighlightColor: "transparent",
+                transition: "background-color 0.15s",
+                "&:active": { bgcolor: "rgba(143,0,255,0.08)" },
+            }}
+        >
+            <Box sx={{
+                width: 38, height: 38, borderRadius: "11px", flexShrink: 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: "linear-gradient(135deg, #A54DFF 0%, #8F00FF 100%)",
+            }}>
+                <Icon sx={{ color: "#fff", fontSize: 20 }} />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+                <Typography sx={{ fontWeight: 700, color: "#152C70", fontSize: "0.9rem", lineHeight: 1.2 }}>
+                    {name}
+                </Typography>
+                <Typography sx={{ color: "rgba(21,44,112,0.75)", fontSize: "0.78rem", lineHeight: 1.3 }}>
+                    {description}
+                </Typography>
+            </Box>
+        </Box>
+    );
+}
+
 const SectionLabel = ({ children }) => (
     <Typography
         sx={{
-            fontSize: "0.65rem",
+            fontSize: "0.75rem",
             fontWeight: 700,
             color: "rgba(21,44,112,0.72)",
             textTransform: "uppercase",
@@ -106,6 +152,28 @@ const PanelTrabajo = () => {
                     <WorkCard key={item.url} {...item} />
                 ))}
             </Box>
+
+            {isCoord && (
+                <>
+                    <Box sx={{ mt: 2.5 }}>
+                        <SectionLabel>Coordinación</SectionLabel>
+                    </Box>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                        <ShortcutCard
+                            icon={InsightsOutlinedIcon}
+                            name="Panel del día"
+                            description="Cobertura de abrazos y situación de hoy"
+                            url="/panel"
+                        />
+                        <ShortcutCard
+                            icon={SmartToyOutlinedIcon}
+                            name="Asistente"
+                            description="Consultá los datos del programa"
+                            url="/asistente"
+                        />
+                    </Box>
+                </>
+            )}
         </Box>
     );
 };

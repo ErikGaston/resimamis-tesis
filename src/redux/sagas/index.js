@@ -11,6 +11,8 @@ import tareaSaga from "./tareaSaga";
 import visitaSaga from "./visitaSaga";
 import proveedorSaga from "./proveedorSaga";
 import salaSaga from "./salaSaga";
+import dashboardSaga from "./dashboardSaga";
+import asistenteSaga from "./asistenteSaga";
 
 export default function* rootSaga() {
     yield all([
@@ -26,5 +28,7 @@ export default function* rootSaga() {
         visitaSaga(),
         proveedorSaga(),
         salaSaga(),
+        dashboardSaga(),
+        asistenteSaga(),
     ]);
 }

@@ -17,6 +17,8 @@ const StatisticsPage = lazy(() =>
   import('../pages/statistics/StatisticsPage').then(m => ({ default: m.StatisticsPage }))
 )
 const CoordinacionPage = lazy(() => import('../pages/coordinacion/CoordinacionPage'))
+const PanelDiaPage = lazy(() => import('../pages/panel/PanelDiaPage'))
+const AsistentePage = lazy(() => import('../pages/asistente/AsistentePage'))
 const SupplyPage = lazy(() =>
   import('../pages/supply/SupplyPage').then(m => ({ default: m.SupplyPage }))
 )
@@ -106,6 +108,14 @@ export const RouterApp = () => {
     {
       path: 'coordinacion',
       element: withAuth(<CoordinacionPage />),
+    },
+    {
+      path: 'panel',
+      element: withAuth(<PanelDiaPage />),
+    },
+    {
+      path: 'asistente',
+      element: withAuth(<AsistentePage />),
     },
     {
       path: 'mi-perfil',

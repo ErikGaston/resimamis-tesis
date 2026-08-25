@@ -1019,3 +1019,36 @@ export const postSalaDelete = async (idSala) => {
   return AxiosInstance.post(`${salaBase}/delete`, null, { params: { idSala } }).then((r) => r).catch((e) => { throw e; });
 };
 //#endregion
+
+//#region - DASHBOARD
+/** Snapshot operativo del día: bebés, abrazos, voluntarias presentes, abrazos colgados. */
+export const getCoordinacionHoy = async () =>
+  AxiosInstance.get('/dashboard/coordinacion/hoy').then((r) => r).catch((e) => { throw e; });
+
+/** Cobertura de abrazos del día + lista nominal de bebés que no recibieron. */
+export const getCoberturaHoy = async () =>
+  AxiosInstance.get('/dashboard/coordinacion/cobertura-hoy').then((r) => r).catch((e) => { throw e; });
+
+export const getBebesPorSala = async () =>
+  AxiosInstance.get('/dashboard/bebes/por-sala').then((r) => r).catch((e) => { throw e; });
+
+export const getBebesPorEstado = async () =>
+  AxiosInstance.get('/dashboard/bebes/por-estado').then((r) => r).catch((e) => { throw e; });
+
+export const getBebesRangoEdades = async () =>
+  AxiosInstance.get('/dashboard/bebes/rango-edades').then((r) => r).catch((e) => { throw e; });
+
+/** Ranking de voluntarias. Requiere fechaDesde y fechaHasta; `top` va de 1 a 100. */
+export const getRankingVoluntarias = async (params) =>
+  AxiosInstance.get('/dashboard/voluntarias/ranking-abrazos', { params }).then((r) => r).catch((e) => { throw e; });
+//#endregion
+
+//#region - ASISTENTE IA
+/** Estado del asistente: si está habilitado, modelo y qué puede consultar. */
+export const getAsistenteEstado = async () =>
+  AxiosInstance.get('/asistente/estado').then((r) => r).catch((e) => { throw e; });
+
+/** Pregunta al asistente. Body: { pregunta, historial: [{ rol, contenido }] }. Solo coordinadora. */
+export const postAsistentePregunta = async (payload) =>
+  AxiosInstance.post('/asistente/preguntar', payload).then((r) => r).catch((e) => { throw e; });
+//#endregion

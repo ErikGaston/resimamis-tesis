@@ -12,6 +12,8 @@ import tareaReducer from "./tareaReducer";
 import visitaReducer from "./visitaReducer";
 import proveedorReducer from "./proveedorReducer";
 import salaReducer from "./salaReducer";
+import dashboardReducer from "./dashboardReducer";
+import asistenteReducer from "./asistenteReducer";
 
 const rootReducer = combineReducers({
     userReducer: userReducer,
@@ -27,6 +29,8 @@ const rootReducer = combineReducers({
     visitaReducer: visitaReducer,
     proveedorReducer: proveedorReducer,
     salaReducer: salaReducer,
+    dashboardReducer: dashboardReducer,
+    asistenteReducer: asistenteReducer,
 });
 
 export default rootReducer;
