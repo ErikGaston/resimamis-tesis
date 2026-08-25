@@ -73,7 +73,7 @@ const TasksTemplate = (props) => {
                             <IconButton
                                 onClick={() => navigate('/coordinacion')}
                                 aria-label="Ir a administración"
-                                sx={{ color: '#fff' }}
+                                sx={{ color: '#fff', width: 48, height: 48 }}
                             >
                                 <TuneIcon fontSize="small" />
                             </IconButton>

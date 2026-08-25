@@ -55,7 +55,7 @@ const BTN_CANCEL_SX = {
   borderRadius: 2,
   color: '#4A148C',
   border: '1.5px solid rgba(21,44,112,0.22)',
-  '&:hover': { bgcolor: 'rgba(21,44,112,0.04)', borderColor: 'rgba(21,44,112,0.72)' },
+  '&:hover': { bgcolor: 'rgba(21,44,112,0.04)', borderColor: 'rgba(21,44,112,0.35)' },
 };
 
 // Paper del bottom-sheet (Dialog configurado como drawer desde abajo)
@@ -357,7 +357,14 @@ const SupplyTemplate = (props) => {
     Number(editStockMax) >= Number(editStockMin);
 
   return (
-    <div style={{ height: '100%' }}>
+    <Box
+      sx={{
+        height: '100%',
+        // Editar y eliminar de cada fila quedan en 29px con size="small", y el
+        // destructivo va pegado al de editar.
+        '& .MuiIconButton-sizeSmall': { minWidth: 44, minHeight: 44 },
+      }}
+    >
       <PageHeader title="Insumos" />
 
       {/* Tab bar */}
@@ -1425,7 +1432,7 @@ const SupplyTemplate = (props) => {
           </Dialog>
         </Box>
       )}
-    </div>
+    </Box>
   );
 };
 

@@ -36,6 +36,7 @@ import dayjs from 'dayjs';
 import Footer from '../../components/molecules/Footer';
 import PageScrollMain from '../../components/common/PageScrollMain';
 import { PageHeader } from '../../components/common/PageHeader';
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { isCoordinadoraSession } from '../../utils/coordinadoraRole';
 import {
   getAssignmentToday,
@@ -391,9 +392,19 @@ export const CoordinacionPage = () => {
   })();
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', position: 'relative' }}>
+    <Box
+      sx={{
+        display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', position: 'relative',
+        // Los IconButton de editar/eliminar de cada fila quedan en 30px con
+        // size="small", y van pegados de a pares con el destructivo al lado.
+        '& .MuiIconButton-sizeSmall': { minWidth: 44, minHeight: 44 },
+        // El tema tiene los overrides comentados, así que los Button caen en el
+        // default de MUI: ~36px y en mayúsculas, contra el resto de la app.
+        '& .MuiButton-root': { textTransform: 'none', minHeight: 44 },
+      }}
+    >
       {loading && <Loading position="absolute" height="100%" />}
-      <PageHeader title="Administracion" />
+      <PageHeader title="Administración" />
       <PageScrollMain>
         <Paper elevation={0} sx={{ p: 2, mx: 1, mb: 2, borderRadius: 2 }}>
 
@@ -1494,18 +1505,14 @@ export const CoordinacionPage = () => {
       </Dialog>
 
       {/* Confirm Dialog */}
-      <Dialog open={confirmDialog.open} onClose={handleCancelConfirm} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 600, color: '#152C70' }}>Confirmar</DialogTitle>
-        <DialogContent>
-          <Typography>{confirmDialog.message}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelConfirm}>Cancelar</Button>
-          <Button onClick={handleConfirm} color="error" variant="contained">
-            Confirmar
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title="Confirmar"
+        message={confirmDialog.message}
+        confirmLabel="Confirmar"
+        onConfirm={handleConfirm}
+        onCancel={handleCancelConfirm}
+      />
 
       {/* Edit Proveedor Dialog */}
       <Dialog
