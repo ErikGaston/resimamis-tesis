@@ -155,8 +155,12 @@ export const MyProfilePage = () => {
     setFieldErrors(errors);
     if (!ok) return;
     dispatch(showLoading(true));
+    // El perfil no edita el estado: reenviarlo lo hace validar contra el
+    // catálogo del backend, que rechaza a quien esté dado de baja. Omitirlo
+    // deja el estado intacto del lado del servidor.
+    const { idEstado: _estadoNoEditable, ...datosEditables } = mdl;
     const payload = normalizeVolunteerPayload({
-      ...mdl,
+      ...datosEditables,
       idVoluntaria: Number.isFinite(selfId) ? selfId : mdl.idVoluntaria,
     });
     dispatch(putVolunteer(payload));
