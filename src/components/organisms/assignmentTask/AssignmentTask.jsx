@@ -12,6 +12,14 @@ import FlashOnIcon from '@mui/icons-material/FlashOn';
 import CloseIcon from '@mui/icons-material/Close';
 import { resolveIdTareaForGenerarTareas, babyRowKey } from '../../../utils/assignmentSelection';
 
+const GRADIENT = 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)';
+
+// El degrade va en `background` (shorthand), asi que pinta background-image y
+// MUI no lo limpia al deshabilitar: sin esto queda su gris sobre el violeta.
+const BTN_DISABLED_SX = {
+    '&.Mui-disabled': { opacity: 0.45, boxShadow: 'none', color: '#fff' },
+};
+
 const AssignmentTask = ({
     listVolunteersFree,
     selectedVolunteerIds = [],
@@ -153,16 +161,15 @@ const AssignmentTask = ({
             {/* ── Botón principal ── */}
             <Box sx={{ mt: 2.5, mb: 1 }}>
                 <ButtonCustomized
-                    variant={'container'}
+                    variant={'contained'}
                     colorText={'#FFF'}
                     sx={{
                         fontSize: '15px',
                         width: '100%',
-                        background: canSubmit
-                            ? 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)'
-                            : undefined,
-                        boxShadow: canSubmit ? '3px 4px 4px 0px rgba(0,0,0,0.25)' : undefined,
+                        background: GRADIENT,
+                        boxShadow: '3px 4px 4px 0px rgba(0,0,0,0.25)',
                         letterSpacing: '0.5px',
+                        ...BTN_DISABLED_SX,
                     }}
                     onClick={submitAssignmentTask}
                     disabled={!canSubmit}
@@ -243,12 +250,13 @@ const AssignmentTask = ({
                         Cancelar
                     </Button>
                     <ButtonCustomized
-                        variant={'container'}
+                        variant={'contained'}
                         colorText={'#FFF'}
                         sx={{
                             fontSize: '14px',
-                            background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
+                            background: GRADIENT,
                             boxShadow: '2px 3px 4px 0px rgba(0,0,0,0.2)',
+                            ...BTN_DISABLED_SX,
                         }}
                         onClick={runQuickAssign}
                         disabled={quickVolId === '' || quickTareaId === ''}
