@@ -188,7 +188,9 @@ export function VolunteerHorarioSection({ idVoluntaria, horarios, onSuccess }) {
           background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
           boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
           color: '#fff',
-          '&.Mui-disabled': { opacity: 0.4, boxShadow: 'none' },
+          // El degrade va en `background`, que MUI no limpia al deshabilitar: sin
+          // forzar el blanco queda su gris sobre el violeta.
+          '&.Mui-disabled': { opacity: 0.4, boxShadow: 'none', color: '#fff' },
         }}
       >
         {diasSeleccionados === 0

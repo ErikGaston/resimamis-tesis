@@ -148,6 +148,7 @@ export const CoordinacionPage = () => {
   const [editAsig, setEditAsig] = useState(null);
   const [editAsigComentario, setEditAsigComentario] = useState('');
   const [editAsigVoluntaria, setEditAsigVoluntaria] = useState('');
+  const [editAsigBebe, setEditAsigBebe] = useState('');
   const [editAsigInicio, setEditAsigInicio] = useState('');
   const [editAsigFin, setEditAsigFin] = useState('');
 
@@ -197,6 +198,7 @@ export const CoordinacionPage = () => {
       dispatch(showLoading(true));
       dispatch(getAssignmentToday());
       dispatch(getVolunteers());
+      dispatch(getBabys());
     } else if (tab === 1) {
       dispatch(showLoading(true));
       dispatch(getAssistanceAll());
@@ -385,6 +387,7 @@ export const CoordinacionPage = () => {
   const volsSinUsuario = normalizarLista(user?.getVoluntariasSinUsuario);
   const asistenciasList = normalizarLista(volunteer?.getAssistanceAll);
   const voluntariasList = normalizarLista(volunteer?.getVolunteers);
+  const bebesList = normalizarLista(baby?.getBabys);
   const proveedoresList = normalizarLista(proveedor?.getProveedoresAll);
   const salasList = normalizarLista(sala?.getSalasAll);
 
@@ -564,6 +567,7 @@ export const CoordinacionPage = () => {
                             setEditAsig(a);
                             setEditAsigComentario(a.comentario ?? '');
                             setEditAsigVoluntaria(a.idVoluntaria != null ? String(a.idVoluntaria) : '');
+                            setEditAsigBebe(a.idBebe != null ? String(a.idBebe) : '');
                             setEditAsigInicio(
                               a.fechaHoraInicio
                                 ? dayjs(a.fechaHoraInicio).format('YYYY-MM-DDTHH:mm')
@@ -1500,6 +1504,30 @@ export const CoordinacionPage = () => {
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ pt: 2.5, overflowY: 'auto' }}>
+          {editAsig?.idBebe != null && (
+            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+              <InputLabel id="edit-asig-bebe-label">Bebé a abrazar</InputLabel>
+              <Select
+                labelId="edit-asig-bebe-label"
+                label="Bebé a abrazar"
+                value={editAsigBebe}
+                onChange={(e) => setEditAsigBebe(e.target.value)}
+              >
+                {bebesList.map((b) => {
+                  const idBebe = b.ID ?? b.id;
+                  if (idBebe == null) return null;
+                  const nombre = [b.nombre, b.apellido].filter(Boolean).join(' ').trim()
+                    || `Bebé #${idBebe}`;
+                  const salaStr = b.sala?.nombre ?? b.nombreSala ?? '';
+                  return (
+                    <MenuItem key={idBebe} value={String(idBebe)}>
+                      {salaStr ? `${nombre} · ${salaStr}` : nombre}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          )}
           <FormControl fullWidth size="small" sx={{ mb: 2 }}>
             <InputLabel id="edit-asig-vol-label">Voluntaria responsable</InputLabel>
             <Select
@@ -1565,6 +1593,9 @@ export const CoordinacionPage = () => {
                 idVoluntaria: editAsigVoluntaria !== ''
                   ? Number(editAsigVoluntaria)
                   : editAsig.idVoluntaria,
+                idBebe: editAsigBebe !== ''
+                  ? Number(editAsigBebe)
+                  : editAsig.idBebe,
                 comentario: editAsigComentario || null,
                 fechaHoraInicio: editAsigInicio ? new Date(editAsigInicio).toISOString() : null,
                 fechaHoraFin: editAsigFin ? new Date(editAsigFin).toISOString() : null,

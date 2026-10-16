@@ -35,6 +35,9 @@ const BTN_PRIMARY = {
   background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
   boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
   color: '#fff',
+  // El degrade va en `background`, que MUI no limpia al deshabilitar: sin forzar
+  // el blanco queda su gris sobre el violeta.
+  '&.Mui-disabled': { opacity: 0.45, boxShadow: 'none', color: '#fff' },
 };
 
 const BTN_CANCEL = {

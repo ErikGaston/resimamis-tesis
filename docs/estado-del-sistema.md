@@ -94,7 +94,8 @@ ranking de voluntarias e historial de abrazos por bebé y por voluntaria.
 
 Panel avanzado, solo coordinadora. Seis secciones en cards:
 
-**Asignación** (editar/eliminar por id, resetear abrazos colgados) · **Asistencia** (reporte por
+**Asignación** (editar bebé, voluntaria responsable, comentario y horarios; eliminar;
+resetear abrazos colgados) · **Asistencia** (reporte por
 fechas, listado, baja) · **Usuarios** (ABM vinculado a voluntarias) · **Bajas** (madre / bebé /
 voluntaria) · **Proveedores** (ABM) · **Salas** (ABM).
 
