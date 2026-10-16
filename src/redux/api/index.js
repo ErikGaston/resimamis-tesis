@@ -1041,7 +1041,17 @@ export const getRankingVoluntarias = async (params) =>
 export const getAsistenteEstado = async () =>
   AxiosInstance.get('/asistente/estado').then((r) => r).catch((e) => { throw e; });
 
+/**
+ * El asistente encadena hasta 8 vueltas de tool-calling contra OpenAI, así que no entra en
+ * los 20 s del interceptor. El backend corta a los 180 s de su propio HttpClient y tiene una
+ * policy de 600 s; 3 min cubre una consulta con varias tools sin dejar la pantalla colgada.
+ */
+export const ASISTENTE_TIMEOUT_MS = 180000;
+
 /** Pregunta al asistente. Body: { pregunta, historial: [{ rol, contenido }] }. Solo coordinadora. */
 export const postAsistentePregunta = async (payload) =>
-  AxiosInstance.post('/asistente/preguntar', payload).then((r) => r).catch((e) => { throw e; });
+  AxiosInstance
+    .post('/asistente/preguntar', payload, { timeout: ASISTENTE_TIMEOUT_MS })
+    .then((r) => r)
+    .catch((e) => { throw e; });
 //#endregion

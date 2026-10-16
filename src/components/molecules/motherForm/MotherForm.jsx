@@ -10,7 +10,7 @@ import {
     MOTHER_MOTIVO_MAX,
     MOTHER_DNI_MAX_LEN,
     MOTHER_MIN_AGE,
-    MOTHER_DATE_MIN_YEARS_BACK,
+    MOTHER_MAX_AGE,
     MOTHER_PHONE_DIGITS_MAX,
     getMotherEstadoCivilOptionsForSelect,
 } from '../../../utils/motherFormValidation';
@@ -136,7 +136,7 @@ const MotherForm = ({
         return estadoCivilOptions.find((o) => o.value === Number(m.estadoCivil)) ?? null;
     };
 
-    const minBirthDate = dayjs().subtract(MOTHER_DATE_MIN_YEARS_BACK, 'year').startOf('day')
+    const minBirthDate = dayjs().subtract(MOTHER_MAX_AGE, 'year').startOf('day')
     const maxBirthDate = dayjs().subtract(MOTHER_MIN_AGE, 'year').startOf('day')
     const shouldDisableBirthDate = (date) => {
         const x = dayjs(date).startOf('day')

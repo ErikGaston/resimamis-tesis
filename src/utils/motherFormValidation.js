@@ -7,7 +7,8 @@ export const MOTHER_DNI_MAX_LEN = 8;
 export const MOTHER_PHONE_DIGITS_MIN = 10;
 export const MOTHER_PHONE_DIGITS_MAX = 15;
 export const MOTHER_MIN_AGE = 13;
-export const MOTHER_DATE_MIN_YEARS_BACK = 100;
+/** `NegMadres.ValidarMadre` rechaza con 400 fuera del rango 10-80; acá el piso es más exigente. */
+export const MOTHER_MAX_AGE = 80;
 
 /** Letras Unicode (incl. enie, tildes), espacios */
 const NAME_REGEX = /^[\p{L}\s]+$/u;
@@ -146,7 +147,11 @@ export function validateMotherForm(model, options = {}) {
       }
       const oldestAllowedBirth = dayjs().subtract(MOTHER_MIN_AGE, 'year').startOf('day');
       if (d.isAfter(oldestAllowedBirth, 'day')) {
-        set('fechaNacimiento', 'La persona debe tener al menos 13 años.');
+        set('fechaNacimiento', `La persona debe tener al menos ${MOTHER_MIN_AGE} años.`);
+      }
+      const youngestAllowedBirth = dayjs().subtract(MOTHER_MAX_AGE, 'year').startOf('day');
+      if (d.isBefore(youngestAllowedBirth, 'day')) {
+        set('fechaNacimiento', `La persona no puede tener más de ${MOTHER_MAX_AGE} años.`);
       }
     }
   }
