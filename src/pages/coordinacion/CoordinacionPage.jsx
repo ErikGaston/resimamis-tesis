@@ -146,6 +146,7 @@ export const CoordinacionPage = () => {
   // Asignación
   const [editAsig, setEditAsig] = useState(null);
   const [editAsigComentario, setEditAsigComentario] = useState('');
+  const [editAsigVoluntaria, setEditAsigVoluntaria] = useState('');
   const [editAsigInicio, setEditAsigInicio] = useState('');
   const [editAsigFin, setEditAsigFin] = useState('');
 
@@ -194,6 +195,7 @@ export const CoordinacionPage = () => {
     if (tab === 0) {
       dispatch(showLoading(true));
       dispatch(getAssignmentToday());
+      dispatch(getVolunteers());
     } else if (tab === 1) {
       dispatch(showLoading(true));
       dispatch(getAssistanceAll());
@@ -554,6 +556,7 @@ export const CoordinacionPage = () => {
                           onClick={() => {
                             setEditAsig(a);
                             setEditAsigComentario(a.comentario ?? '');
+                            setEditAsigVoluntaria(a.idVoluntaria != null ? String(a.idVoluntaria) : '');
                             setEditAsigInicio(
                               a.fechaHoraInicio
                                 ? dayjs(a.fechaHoraInicio).format('YYYY-MM-DDTHH:mm')
@@ -1487,6 +1490,23 @@ export const CoordinacionPage = () => {
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ pt: 2.5, overflowY: 'auto' }}>
+          <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+            <InputLabel id="edit-asig-vol-label">Voluntaria responsable</InputLabel>
+            <Select
+              labelId="edit-asig-vol-label"
+              label="Voluntaria responsable"
+              value={editAsigVoluntaria}
+              onChange={(e) => setEditAsigVoluntaria(e.target.value)}
+            >
+              {(Array.isArray(voluntariasList) ? voluntariasList : []).map((v) => {
+                const idVol = v.idVoluntaria ?? v.IdVoluntaria;
+                if (idVol == null) return null;
+                const nombre = [v.nombre, v.apellido].filter(Boolean).join(' ').trim()
+                  || `Voluntaria #${idVol}`;
+                return <MenuItem key={idVol} value={String(idVol)}>{nombre}</MenuItem>;
+              })}
+            </Select>
+          </FormControl>
           <TextField
             label="Comentario"
             value={editAsigComentario}
@@ -1532,6 +1552,9 @@ export const CoordinacionPage = () => {
               if (!editAsig) return;
               const body = {
                 ...editAsig,
+                idVoluntaria: editAsigVoluntaria !== ''
+                  ? Number(editAsigVoluntaria)
+                  : editAsig.idVoluntaria,
                 comentario: editAsigComentario || null,
                 fechaHoraInicio: editAsigInicio ? new Date(editAsigInicio).toISOString() : null,
                 fechaHoraFin: editAsigFin ? new Date(editAsigFin).toISOString() : null,
