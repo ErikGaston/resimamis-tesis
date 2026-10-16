@@ -304,6 +304,7 @@ const MotherAccordionForm = (props) => {
                                     readOnly={readOnlyBaby}
                                     madreDisplayName={madreNombreCompleto}
                                     salaOptions={profileBabyExtras?.babySalasOptions ?? null}
+                                    permiteFechaSalida
                                 />
 
                                 {typeForm === 'EDITAR' && profileBabyExtras?.onPutBaby && (

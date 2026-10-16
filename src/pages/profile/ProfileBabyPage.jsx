@@ -280,6 +280,7 @@ export const ProfileBabyPage = () => {
                     listMothers={null}
                     listLocalities={null}
                     madreDisplayName={madreNombre ?? ''}
+                    permiteFechaSalida
                   />
 
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>

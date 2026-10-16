@@ -30,6 +30,8 @@ const BabyForm = ({
     fieldErrors = {},
     /** En el alta el bebé pertenece a la madre que se está creando: no se elige de un listado. */
     madreFija = false,
+    /** Solo en la ficha: cargarla da de baja al bebé, no tiene sentido en el alta. */
+    permiteFechaSalida = false,
 }) => {
 
     const safeSetModel = readOnly ? noop : setModel
@@ -101,6 +103,10 @@ const BabyForm = ({
     const neoValue =
         model?.fechaIngresoNEO && dayjs(model.fechaIngresoNEO).isValid()
             ? dayjs(model.fechaIngresoNEO)
+            : null
+    const salidaValue =
+        model?.fechaSalida && dayjs(model.fechaSalida).isValid()
+            ? dayjs(model.fechaSalida)
             : null
 
     /** El bebé que vuelve del backend trae `idLocalidad` + `localidadDetalle`, no `nombre_localidad`. */
@@ -267,6 +273,25 @@ const BabyForm = ({
                 helperText={fieldErrors.fechaIngresoNEO}
                 disabled={readOnly}
             />
+            {permiteFechaSalida && (
+                <LabelDate
+                    label={'Fecha de salida'}
+                    inputFormat="DD/MM/YYYY"
+                    value={salidaValue}
+                    labelColor={'#152C70'}
+                    inputColor={'#152C70'}
+                    styleLabel={{ fontSize: '16px' }}
+                    onChange={(newValue) => onChangeDateTime(newValue, 'fechaSalida')}
+                    minDate={neoValue ?? birthValue ?? undefined}
+                    maxDate={dayjs()}
+                    error={!!fieldErrors.fechaSalida}
+                    helperText={
+                        fieldErrors.fechaSalida
+                        || 'Al cargarla, el bebé deja de figurar pendiente de abrazar.'
+                    }
+                    disabled={readOnly}
+                />
+            )}
             {listLocalities != null ? (
                 <LabelAutocomplete
                     id='nombre_localidad'

@@ -59,6 +59,9 @@ export function normalizeBabyApiPayload(baby, idMadreFallback) {
     fechaNacimiento: b.fechaNacimiento ?? null,
     lugarNacimiento: b.lugarNacimiento ?? null,
     fechaIngresoNEO: b.fechaIngresoNEO ?? null,
+    // `modificarBebe` la asigna tal cual llega: omitirla borraba la fecha de
+    // salida en cualquier edición del bebé.
+    fechaSalida: b.fechaSalida ?? null,
     pesoNacimiento: b.pesoNacimiento != null && b.pesoNacimiento !== '' ? Number(b.pesoNacimiento) : null,
     pesoIngresoNEO: b.pesoIngresoNEO != null && b.pesoIngresoNEO !== '' ? Number(b.pesoIngresoNEO) : null,
     pesoDiaAbrazos: b.pesoDiaAbrazos != null && b.pesoDiaAbrazos !== '' ? Number(b.pesoDiaAbrazos) : null,
