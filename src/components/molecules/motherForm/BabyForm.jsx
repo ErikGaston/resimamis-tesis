@@ -6,6 +6,8 @@ import LabelDate from '../labelDate/LabelDate';
 import LabelAutocomplete from '../labelAutocomplete/LabelAutocomplete';
 import { formattedDate } from '../../../utils/dateFormat';
 import { collectIdMadresForBaby, resolveIdLocalidad } from '../../../utils/babyPayload';
+import { BABY_NAME_MAX } from '../../../utils/babyFormValidation';
+import { filterNameChars } from '../../../utils/inputFilters';
 
 const listSexo = [
     { value: 'M', label: 'Masculino' },
@@ -35,6 +37,11 @@ const BabyForm = ({
     const onChangeText = (e) => {
         const { name, value } = e.target;
         safeSetModel({ ...model, [name]: value })
+    }
+
+    const onChangeName = (e) => {
+        const { name, value } = e.target;
+        safeSetModel({ ...model, [name]: filterNameChars(value).slice(0, BABY_NAME_MAX) })
     }
 
     const onChangeNumber = (e) => {
@@ -124,7 +131,7 @@ const BabyForm = ({
                 helperText={fieldErrors.nombre}
                 label='Nombre'
                 value={model?.nombre || ''}
-                onChange={onChangeText}
+                onChange={onChangeName}
                 className={error && 'errorInput'}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}
@@ -137,7 +144,7 @@ const BabyForm = ({
                 helperText={fieldErrors.apellido}
                 label='Apellido'
                 value={model?.apellido}
-                onChange={onChangeText}
+                onChange={onChangeName}
                 className={error && 'errorInput'}
                 labelColor={'#152C70'}
                 inputColor={'#152C70'}

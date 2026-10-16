@@ -18,7 +18,6 @@ import {
 import {
     validateBabyForm,
     isBabyRowEmpty,
-    firstBabyErrorMessage,
 } from "../../utils/babyFormValidation";
 import { normalizeBabyForAlta } from "../../utils/babyPayload";
 import {
@@ -28,7 +27,6 @@ import {
 } from "../../utils/motherAltaDraft";
 import {
     mapAspNetErrorsToMotherFieldErrors,
-    resolveApiErrorMessage,
 } from "../../utils/apiErrorMessage";
 
 const EMPTY_MODEL = { bebe: [{}] };
@@ -111,26 +109,22 @@ export const MotherPage = () => {
 
         if (!validateMother()) {
             setOpenSection('madre');
-            setError('Revisá los datos de la madre: hay campos incompletos o inválidos.');
-            setStateForm('ERROR');
             return;
         }
 
         const bebes = babiesToSubmit();
         if (bebes.length === 0) {
+            // Sin bebé cargado no hay fila que validar, pero la ficha siempre está
+            // en pantalla: validarla deja los errores bajo cada campo.
+            setBabyFieldErrors([validateBabyForm(model?.bebe?.[0] ?? {}).errors]);
             setOpenSection('bebe-0');
-            setError('Cargá los datos del bebé: no se puede registrar una madre sin bebé.');
-            setStateForm('ERROR');
             return;
         }
 
         const resultados = bebes.map((b) => validateBabyForm(b));
         setBabyFieldErrors(resultados.map((r) => r.errors));
         if (resultados.some((r) => !r.ok)) {
-            const idx = resultados.findIndex((r) => !r.ok);
-            setOpenSection(`bebe-${idx}`);
-            setError(firstBabyErrorMessage(resultados.map((r) => r.errors)));
-            setStateForm('ERROR');
+            setOpenSection(`bebe-${resultados.findIndex((r) => !r.ok)}`);
             return;
         }
 
@@ -234,15 +228,6 @@ export const MotherPage = () => {
                     open={stateForm === 'SUCCESS'}
                     setOpen={setStateForm}
                     message={'¡' + type + ' se ha registrado con éxito'}
-                />
-            }
-            {
-                stateForm === 'ERROR' &&
-                <DialogSuccess
-                    open={stateForm === 'ERROR'}
-                    setOpen={setStateForm}
-                    message={error != null ? resolveApiErrorMessage(typeof error === 'string' ? error : { data: error }) : ''}
-                    error
                 />
             }
             <Footer />

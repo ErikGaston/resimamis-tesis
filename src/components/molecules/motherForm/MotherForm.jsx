@@ -14,6 +14,7 @@ import {
     MOTHER_PHONE_DIGITS_MAX,
     getMotherEstadoCivilOptionsForSelect,
 } from '../../../utils/motherFormValidation';
+import { filterNameChars } from '../../../utils/inputFilters';
 
 const MotherForm = ({
     model,
@@ -46,7 +47,7 @@ const MotherForm = ({
 
     const onChangeName = (e) => {
         const { name, value } = e.target;
-        const v = value.slice(0, MOTHER_NAME_MAX);
+        const v = filterNameChars(value).slice(0, MOTHER_NAME_MAX);
         setModel({ ...m, [name]: v });
         clearField(name);
     }

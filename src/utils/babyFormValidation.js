@@ -115,15 +115,3 @@ export function validateBabyForm(baby) {
   const ok = Object.values(errors).every((e) => e === '');
   return { ok, errors };
 }
-
-/** Primer mensaje de error de una lista de bebés, para el resumen del alta. */
-export function firstBabyErrorMessage(errorsByBaby) {
-  for (let i = 0; i < (errorsByBaby?.length ?? 0); i += 1) {
-    const errors = errorsByBaby[i];
-    const mensaje = Object.values(errors ?? {}).find((e) => e !== '');
-    if (mensaje) {
-      return errorsByBaby.length > 1 ? `Bebé ${i + 1}: ${mensaje}` : mensaje;
-    }
-  }
-  return null;
-}

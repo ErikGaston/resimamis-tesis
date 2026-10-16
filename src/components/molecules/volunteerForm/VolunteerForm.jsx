@@ -5,6 +5,7 @@ import LabelDate from '../labelDate/LabelDate';
 import LabelSelect from '../labelSelect/LabelSelect';
 import { formattedDate } from '../../../utils/dateFormat';
 import ButtonCustomized from '../../atoms/button/ButtonCustomized';
+import { filterNameChars } from '../../../utils/inputFilters';
 import {
     VOLUNTEER_NAME_MAX,
     VOLUNTEER_DNI_LEN,
@@ -33,7 +34,7 @@ const VolunteerForm = ({
 
     const onChangeName = (e) => {
         const { name, value } = e.target;
-        const v = value.replace(/[^\p{L}\s]/gu, '').slice(0, VOLUNTEER_NAME_MAX);
+        const v = filterNameChars(value).slice(0, VOLUNTEER_NAME_MAX);
         setModel({ ...m, [name]: v });
         clearField(name);
     }
