@@ -24,8 +24,9 @@ Helpers: `getIdVolunteer()` / `getNameVolunteer()` en `src/utils/localStorage.js
 5. Navega a `/overview`.
 
 Backend: `NegUsuarios.Loguear` busca por DNI, verifica con `BCrypt.Verify` y firma un JWT con
-claims `NameIdentifier` y `Name` = DNI. Expiración 30 días, pero `ValidateLifetime` está
-comentado → **los tokens no expiran técnicamente** (deuda conocida).
+claims `NameIdentifier` y `Name` = DNI. Expiración 30 días, y desde oct 2026
+**`ValidateLifetime` está activo** (`ClockSkew` 5 min): al vencer, el 401 del interceptor manda
+al login. No hay refresh token.
 
 **Un JWT bien firmado ya no alcanza.** `Starup.cs` agrega `OnTokenValidated`: el DNI del claim
 debe existir y ser un usuario operativo (`NegUsuarios.EsSesionOperativaPorDni` →
@@ -36,6 +37,8 @@ válido.
 ## Interceptor Axios
 
 `src/redux/interceptor/interceptor.js` — base URL `import.meta.env.VITE_URL_API`, timeout 20 s.
+`postAsistentePregunta` lo pisa por request con `ASISTENTE_TIMEOUT_MS` (3 min): el asistente
+encadena tool-calling y no entra en 20 s.
 
 - **Request:** inyecta `Authorization: Bearer <token>` si existe.
 - **Response 401:** el bloque **está activo**. Usa un flag `_retry`, borra puntualmente

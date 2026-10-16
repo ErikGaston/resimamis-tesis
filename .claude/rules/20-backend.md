@@ -121,14 +121,25 @@ Una sola tabla `ESTADO` con `idAmbito` da estados por entidad.
 | `PUT /Asignacion/id/{id}` | estado **derivado de las fechas** |
 
 `PUT /Asignacion/id/{id}` recibe `RespuestaAsignaciones` (el DTO de respuesta) como request e
-**ignora el `estadoAsignacion` del body**. Desde oct 2026 es un **merge, no un reemplazo**:
-`modificarAsignacion` resuelve cada campo con `datos.X ?? existentePrevio.X`, así que omitir un
-nullable lo **conserva** y ya no hay forma de limpiarlo mandando `null`. Además rechaza con 400
-un `fechaHoraFin` sobre una asignación sin `fechaHoraInicio`.
+**ignora el `estadoAsignacion` del body**. Es un **merge por presencia**: `RespuestaAsignaciones`
+expone flags `*Presente` (`comentarioPresente`, `fechaHoraInicioPresente`, …) que
+System.Text.Json enciende solo si la propiedad vino en el JSON, así que un campo **ausente se
+conserva** y uno **enviado en `null` se borra**. El estado se deriva de las fechas **resultantes**:
+limpiar `fechaHoraFin` devuelve la asignación a *Iniciado*. Rechaza con 400 un `fechaHoraFin`
+sobre una asignación sin `fechaHoraInicio`.
+
+> Si agregás un campo al DTO que el PUT deba poder limpiar, necesita su propio flag `*Presente`;
+> con un `get; set;` común no se distingue de un campo ausente.
 
 `resetearAbrazosColgados` solo cierra asignaciones **con bebé**, iniciadas antes del inicio del
-día argentino y sin fin. Prependea un comentario automático de forma idempotente. Las tareas de
-catálogo colgadas no se resetean.
+día argentino y sin fin. Marca `ASIGNACION.cierreAutomatico = true` y prependea un comentario
+automático de forma idempotente. Las tareas de catálogo colgadas no se resetean.
+
+**Las estadísticas de duración filtran por `cierreAutomatico`, no por el comentario.** El fin de
+esos abrazos se graba al momento del cierre, así que la duración no es real.
+`AbrazoAtipico.MarcaCierreAutomatico` quedó solo como el texto que ve el usuario: no volver a
+usarlo como filtro, porque el comentario lo escribe la voluntaria y cualquiera puede escribir
+esa frase.
 
 > **Bug abierto y bloqueante:** ninguna migración siembra `Iniciado` ni `Finalizado` en ESTADO
 > para el ámbito `Asignaciones` — `SeedEstadosAsignaciones` solo inserta `Creada` y `Eliminado`,
@@ -145,7 +156,7 @@ la baja lógica automáticamente.
 Los únicos `DELETE` reales son `DELETE /Asignacion/id/{id}` y
 `DELETE /Horario/voluntaria/{id}`.
 
-## Migraciones (14)
+## Migraciones (15)
 
 ```bash
 cd resimamis
@@ -153,8 +164,13 @@ dotnet ef migrations add NombreMigracion
 dotnet ef database update
 ```
 
+> `dotnet-ef` no viene con el SDK: `dotnet tool install --global dotnet-ef --version 8.*`.
+> Además el `dotnet` del PATH es SDK 7 y el proyecto es `net8.0`; el SDK 8 está en
+> `C:\Users\erikm\dotnet8`.
+
 Últimas: `SeedEstadosAsignaciones` (jun), `InsumoDescripcionOpcional`, `BebeIdLocalidad`,
-`VoluntariaHorarioActiva`, `ProveedorActiva`, `SalaActiva` (jun), **`BebeFechaSalida`** (jul).
+`VoluntariaHorarioActiva`, `ProveedorActiva`, `SalaActiva` (jun), `BebeFechaSalida` (jul),
+**`AsignacionCierreAutomatico`** (oct — agrega la columna y hace backfill desde el comentario).
 
 Todas las posteriores a `Visita` están escritas como **SQL crudo idempotente**
 (`IF NOT EXISTS` / bloques `DO $$`), seguras de re-ejecutar.
