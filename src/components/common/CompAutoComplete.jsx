@@ -67,8 +67,9 @@ const CompAutoComplete = (props) => {
         renderTags={(value, getTagProps, ownerState) =>{
           return value.map((option, index) => {
             return(
-            <Chip 
-              sx={{color:'#000000DE', fontSize:14}} 
+            <Chip
+              key={index}
+              sx={{color:'#000000DE', fontSize:14}}
             
             deleteIcon={<CancelSharpIcon sx={{width:14, color:'black', '&.MuiSvgIcon-root':{color:'#00000099',':hover':{color:'#00000099'}}}} />}
             variant="outlined" 

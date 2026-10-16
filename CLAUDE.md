@@ -45,6 +45,8 @@ npm install
 npm run dev        # http://localhost:5173
 npm run build      # vite build + copia web.config a dist/ para IIS
 npm run preview
+npm run lint       # ESLint (errores + warnings)
+npm run lint:errors # solo errores — sale != 0 si hay alguno, sirve de gate
 
 # Backend
 cd resimamis
@@ -54,8 +56,13 @@ dotnet ef migrations add NombreMigracion
 dotnet ef database update
 ```
 
-**No hay lint, format, tests ni CI** en ninguno de los dos lados. No existe ESLint, Prettier,
-TypeScript, Vitest, Playwright ni `.github/workflows`. No inventes un `npm test`.
+**Hay ESLint** (oct 2026, `.eslintrc.cjs`): `eslint:recommended` + `react` + `react-hooks`,
+con el runtime automático de JSX. Está en **cero errores**; los warnings que quedan son
+`no-unused-vars` y `react-hooks/exhaustive-deps` preexistentes. Antes de commitear, correr
+`npm run lint:errors`.
+
+**No hay format, tests ni CI** en ninguno de los dos lados. No existe Prettier, TypeScript,
+Vitest, Playwright ni `.github/workflows`. No inventes un `npm test`.
 
 ## Convenciones que no se derivan del código
 

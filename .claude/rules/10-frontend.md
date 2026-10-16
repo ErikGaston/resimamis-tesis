@@ -40,13 +40,26 @@ react-router-dom v5.
 ## Scripts
 
 ```bash
-npm run dev      # Vite dev server (http://localhost:5173)
-npm run build    # vite build + copia web.config a dist/ para IIS
-npm run preview  # sirve el build localmente
+npm run dev         # Vite dev server (http://localhost:5173)
+npm run build       # vite build + copia web.config a dist/ para IIS
+npm run preview     # sirve el build localmente
+npm run lint        # ESLint: errores + warnings
+npm run lint:errors # solo errores; exit != 0 si hay alguno
 ```
 
-No hay `lint`, `format`, `test` ni `typecheck` — **no existe ESLint, Prettier, TS ni tests**.
-No hay CI. Ver `docs/deuda-tecnica.md`.
+**ESLint existe desde oct 2026** (`.eslintrc.cjs`): `eslint:recommended` + `plugin:react` +
+`plugin:react/jsx-runtime` + `plugin:react-hooks`. Es deliberadamente chica — atrapa lo que el
+build de Vite no ve (identificadores inexistentes, imports muertos, hooks mal usados) y no
+impone estilo, porque no hay Prettier.
+
+> Vite **no** falla ante un identificador inexistente dentro de JSX: compila y explota recién
+> al renderizar. `npm run lint:errors` es lo único que lo atrapa antes.
+
+El repo está en **cero errores**. Quedan ~52 warnings preexistentes (`no-unused-vars` y
+`react-hooks/exhaustive-deps`); el `import React`, que el runtime automático volvió
+innecesario en ~78 archivos, está ignorado a propósito para no tapar el resto.
+
+No hay `format`, `test` ni `typecheck`, ni CI. Ver `docs/deuda-tecnica.md`.
 
 ## Variables de entorno
 
