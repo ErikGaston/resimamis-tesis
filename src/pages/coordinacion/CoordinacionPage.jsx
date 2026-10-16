@@ -39,6 +39,7 @@ import PageScrollMain from '../../components/common/PageScrollMain';
 import { PageHeader } from '../../components/common/PageHeader';
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { isCoordinadoraSession } from '../../utils/coordinadoraRole';
+import { PASSWORD_RULES_TEXT, isPasswordValid, passwordError } from '../../utils/passwordValidation';
 import {
   getAssignmentToday,
   putAssignmentById,
@@ -386,6 +387,12 @@ export const CoordinacionPage = () => {
   const voluntariasList = normalizarLista(volunteer?.getVolunteers);
   const proveedoresList = normalizarLista(proveedor?.getProveedoresAll);
   const salasList = normalizarLista(sala?.getSalasAll);
+
+  const nuevoUsuarioPwdError = usuarioForm.contrasena === ''
+    ? null
+    : passwordError(usuarioForm.contrasena);
+  // Vacía es válida: significa "no cambiar la contraseña".
+  const editUserPwdError = editUserPwd === '' ? null : passwordError(editUserPwd);
 
   const asistenciasTotalPaginas = Math.max(
     1,
@@ -831,17 +838,19 @@ export const CoordinacionPage = () => {
               inputProps={{ inputMode: 'numeric' }}
             />
             <TextField
-              label="Contraseña (8–15 caracteres)"
+              label="Contraseña"
               type="password"
               value={usuarioForm.contrasena}
               onChange={(e) => setUsuarioForm((f) => ({ ...f, contrasena: e.target.value }))}
               fullWidth
               size="small"
               sx={{ mb: 1 }}
+              error={nuevoUsuarioPwdError != null}
+              helperText={nuevoUsuarioPwdError ?? PASSWORD_RULES_TEXT}
             />
             <Button
               variant="contained"
-              disabled={!usuarioForm.dni || !usuarioForm.contrasena || !usuarioForm.idVoluntaria}
+              disabled={!usuarioForm.dni || !usuarioForm.idVoluntaria || !isPasswordValid(usuarioForm.contrasena)}
               onClick={() => {
                 dispatch(showLoading(true));
                 dispatch(
@@ -1283,7 +1292,8 @@ export const CoordinacionPage = () => {
             onChange={(e) => setEditUserPwd(e.target.value)}
             fullWidth
             size="small"
-            helperText="8–15 caracteres si se ingresa"
+            error={editUserPwdError != null}
+            helperText={editUserPwdError ?? PASSWORD_RULES_TEXT}
           />
         </DialogContent>
         <DialogActions>
@@ -1292,7 +1302,7 @@ export const CoordinacionPage = () => {
           </Button>
           <Button
             variant="contained"
-            disabled={!editUserDni}
+            disabled={!editUserDni || editUserPwdError != null}
             onClick={() => {
               dispatch(showLoading(true));
               dispatch(

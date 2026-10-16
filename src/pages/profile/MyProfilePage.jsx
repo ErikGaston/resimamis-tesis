@@ -19,6 +19,7 @@ import {
   INITIAL_VOLUNTEER_FIELD_ERRORS,
 } from '../../utils/volunteerFormValidation';
 import { getIdVolunteer } from '../../utils/localStorage';
+import { PASSWORD_RULES_TEXT, passwordError } from '../../utils/passwordValidation';
 
 const VIOLET = '#7A659B';
 const NAVY = '#152C70';
@@ -169,7 +170,8 @@ export const MyProfilePage = () => {
   const submitContrasena = () => {
     setPwdError('');
     if (!pwdActual) { setPwdError('Ingresá la contraseña actual.'); return; }
-    if (pwdNueva.length < 8 || pwdNueva.length > 15) { setPwdError('La nueva contraseña debe tener entre 8 y 15 caracteres.'); return; }
+    const errorNueva = passwordError(pwdNueva);
+    if (errorNueva) { setPwdError(errorNueva); return; }
     if (pwdNueva !== pwdConfirm) { setPwdError('Las contraseñas no coinciden.'); return; }
     dispatch(showLoading(true));
     dispatch(putUsuarioContrasena({ ContrasenaActual: pwdActual, ContrasenaNueva: pwdNueva }));
@@ -316,12 +318,13 @@ export const MyProfilePage = () => {
             autoComplete="current-password"
           />
           <TextField
-            label="Nueva contraseña (8–15 caracteres)"
+            label="Nueva contraseña"
             type="password"
             value={pwdNueva}
             onChange={(e) => setPwdNueva(e.target.value)}
             fullWidth size="small" sx={{ mb: 1.5 }}
             autoComplete="new-password"
+            helperText={PASSWORD_RULES_TEXT}
           />
           <TextField
             label="Confirmar nueva contraseña"
