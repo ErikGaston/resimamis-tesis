@@ -214,17 +214,17 @@ const AssignmentTask = ({
                     </FormControl>
 
                     <FormControl fullWidth size="small">
-                        <InputLabel id="quick-baby-label">Bebé / tarea</InputLabel>
+                        <InputLabel id="quick-baby-label">Bebé</InputLabel>
                         <Select
                             labelId="quick-baby-label"
-                            label="Bebé / tarea"
+                            label="Bebé"
                             value={quickTareaId}
                             onChange={(e) => setQuickTareaId(e.target.value)}
                         >
                             {listBabysFree.map((item, index) => {
                                 const tid = resolveIdTareaForGenerarTareas(item);
                                 if (tid == null) return null;
-                                const label = [item.nombre, item.apellido].filter(Boolean).join(' ').trim() || `Tarea #${tid}`;
+                                const label = [item.nombre, item.apellido].filter(Boolean).join(' ').trim() || `Bebé #${tid}`;
                                 return (
                                     <MenuItem key={babyRowKey(item, index)} value={String(tid)}>
                                         {label}

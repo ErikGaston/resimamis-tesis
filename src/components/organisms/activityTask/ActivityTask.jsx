@@ -156,7 +156,7 @@ const ActivityTask = ({
                 <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mt: 1 }}>
                     <StyledImage src={img} alt="Asistencia y abrazo" />
                     <TextImage>
-                        Marcá tu asistencia para que la coordinadora pueda asignarte tareas.
+                        Marcá tu asistencia para que la coordinadora pueda asignarte abrazos.
                     </TextImage>
                 </Box>
             )}

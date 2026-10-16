@@ -186,7 +186,7 @@ function AssignmentReadableBlock({ data }) {
     ['ID asignación', pickStr(o.idAsignacion, o.IdAsignacion)],
     ['Voluntaria', pickStr([vol.nombre, vol.apellido].filter(Boolean).join(' '), vol.nombreCompleto, o.nombreVoluntaria)],
     ['DNI voluntaria', pickStr(vol.dni, vol.Dni)],
-    ['Bebé / tarea', pickStr(bebe.nombre, bebe.apellido, o.descripcionTarea, o.nombreBebe)],
+    ['Bebé', pickStr(bebe.nombre, bebe.apellido, o.descripcionTarea, o.nombreBebe)],
     ['DNI bebé', pickStr(bebe.dni, bebe.Dni)],
     ['Estado', pickStr(o.estado, o.estadoAbrazo, o.Estado)],
   ].filter(([, v]) => v != null);

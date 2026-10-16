@@ -129,6 +129,9 @@ export const ProfileMotherPage = () => {
         dispatch(showLoading(true));
         dispatch(putBaby(payload));
       },
+      onNoBabyChanges: () => {
+        dispatch(showToast({ message: 'No se detectaron cambios.', severity: 'info' }));
+      },
       onReloadMother: () => {
         dispatch(showLoading(true));
         dispatch(getMotherId(id));

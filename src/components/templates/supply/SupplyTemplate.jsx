@@ -66,26 +66,18 @@ const BTN_CANCEL_SX = {
   '&:hover': { bgcolor: 'rgba(21,44,112,0.04)', borderColor: 'rgba(21,44,112,0.35)' },
 };
 
-// Paper del bottom-sheet (Dialog configurado como drawer desde abajo)
-const BOTTOM_SHEET_PAPER_SX = {
+// Paper centrado para el detalle de movimiento: el contenido es corto y como
+// bottom-sheet quedaba pegado al borde inferior, lejos de la vista.
+const DIALOG_CENTERED_SHEET_SX = {
   maxWidth: 444,
   width: '100%',
   m: 0,
   mx: 'auto',
-  mb: 0,
-  mt: 'auto',
-  borderRadius: '20px 20px 0 0',
+  borderRadius: 3,
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
   maxHeight: 'calc(var(--app-vh, 100dvh) * 0.9)',
-};
-
-// sx del Dialog container para alinear hacia abajo
-const BOTTOM_SHEET_DIALOG_SX = {
-  '& .MuiDialog-container': {
-    alignItems: 'flex-end',
-  },
 };
 
 // Paper de Dialog full-height: columna 444px
@@ -1116,8 +1108,7 @@ const SupplyTemplate = (props) => {
                 onClose={() => setDetailMovement(null)}
                 fullWidth
                 maxWidth={false}
-                PaperProps={{ sx: BOTTOM_SHEET_PAPER_SX }}
-                sx={BOTTOM_SHEET_DIALOG_SX}
+                PaperProps={{ sx: DIALOG_CENTERED_SHEET_SX }}
                 aria-labelledby="detail-mov-title"
               >
                 {/* Header */}

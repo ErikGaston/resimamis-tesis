@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import AccordionCustomized from '../../atoms/accordionCustomized/AccordionCustomized'
 import styled from '@emotion/styled'
 import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
@@ -77,6 +77,7 @@ const MotherAccordionForm = (props) => {
         : {});
 
     const [editingBabyIndex, setEditingBabyIndex] = useState(null);
+    const originalBaby = useRef(null);
 
     const madreNombreCompleto = [model?.nombre, model?.apellido].filter(Boolean).join(' ').trim();
     // En un alta vacía "Sin nombre" se lee como un error; hasta que haya nombre
@@ -85,9 +86,19 @@ const MotherAccordionForm = (props) => {
         ? `Datos de la madre: ${madreNombreCompleto}`
         : 'Datos de la madre';
 
+    const handleStartEditBaby = (index) => {
+        originalBaby.current = JSON.stringify(model?.bebe?.[index] ?? null);
+        setEditingBabyIndex(index);
+    };
+
     const handleSaveBaby = (index) => {
         const row = model?.bebe?.[index];
         if (!row || !profileBabyExtras?.onPutBaby) return;
+        if (originalBaby.current != null && JSON.stringify(row) === originalBaby.current) {
+            profileBabyExtras.onNoBabyChanges?.();
+            setEditingBabyIndex(null);
+            return;
+        }
         const payload = normalizeBabyApiPayload(row, model?.idMadre);
         profileBabyExtras.onPutBaby(payload);
         setEditingBabyIndex(null);
@@ -301,7 +312,7 @@ const MotherAccordionForm = (props) => {
                                             <Button
                                                 variant="contained"
                                                 fullWidth
-                                                onClick={() => setEditingBabyIndex(index)}
+                                                onClick={() => handleStartEditBaby(index)}
                                                 sx={btnEdit}
                                             >
                                                 Editar bebé

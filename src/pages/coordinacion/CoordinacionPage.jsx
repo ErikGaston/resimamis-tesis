@@ -100,6 +100,13 @@ function TabPanel({ children, value, index }) {
   return <Box sx={{ pt: 2 }}>{children}</Box>;
 }
 
+function nombreCompletoUsuario(u) {
+  return [u?.nombreVoluntaria ?? u?.nombre, u?.apellidoVoluntaria ?? u?.apellido]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
+}
+
 function normalizarLista(raw) {
   if (!raw) return null;
   if (Array.isArray(raw)) return raw;
@@ -690,8 +697,7 @@ export const CoordinacionPage = () => {
                   >
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Typography variant="body2" fontWeight={600} noWrap>
-                        {u.nombreVoluntaria ?? u.nombre ?? `Usuario #${u.idUsuario ?? u.id}`}{' '}
-                        {u.apellidoVoluntaria ?? u.apellido ?? ''}
+                        {nombreCompletoUsuario(u) || `Usuario #${u.idUsuario ?? u.id}`}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         DNI {u.dni ?? '—'}
@@ -703,7 +709,7 @@ export const CoordinacionPage = () => {
                         onClick={() => {
                           setEditUserTarget({
                             id: u.idUsuario ?? u.id,
-                            nombre: `${u.nombreVoluntaria ?? u.nombre ?? ''} ${u.apellidoVoluntaria ?? u.apellido ?? ''}`.trim(),
+                            nombre: nombreCompletoUsuario(u),
                             idVoluntaria: u.idVoluntaria,
                             idEstado: u.idEstado,
                           });
@@ -719,7 +725,7 @@ export const CoordinacionPage = () => {
                         onClick={() => {
                           const id = u.idUsuario ?? u.id;
                           openConfirm(
-                            `¿Eliminar acceso de ${u.nombreVoluntaria ?? u.nombre ?? 'este usuario'}?`,
+                            `¿Eliminar acceso de ${nombreCompletoUsuario(u) || 'este usuario'}?`,
                             () => { dispatch(showLoading(true)); dispatch(postUsuarioDelete(id)); },
                           );
                         }}
