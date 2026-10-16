@@ -110,6 +110,7 @@ const VolunteerForm = ({
                 inputColor={'#152C70'}
                 styleLabel={{ fontSize: '16px' }}
                 inputProps={{ maxLength: VOLUNTEER_NAME_MAX }}
+                required
             />
             <LabelInput
                 name='apellido'
@@ -123,6 +124,7 @@ const VolunteerForm = ({
                 inputColor={'#152C70'}
                 styleLabel={{ fontSize: '16px' }}
                 inputProps={{ maxLength: VOLUNTEER_NAME_MAX }}
+                required
             />
             <LabelInput
                 name='dni'
@@ -136,6 +138,7 @@ const VolunteerForm = ({
                 inputColor={'#152C70'}
                 styleLabel={{ fontSize: '16px' }}
                 inputProps={{ maxLength: VOLUNTEER_DNI_LEN, inputMode: 'numeric' }}
+                required
             />
             <LabelInput
                 name='celular'
@@ -149,6 +152,7 @@ const VolunteerForm = ({
                 inputColor={'#152C70'}
                 styleLabel={{ fontSize: '16px' }}
                 inputProps={{ maxLength: 16 }}
+                required
             />
             <LabelInput
                 name='mail'
@@ -162,6 +166,7 @@ const VolunteerForm = ({
                 inputColor={'#152C70'}
                 styleLabel={{ fontSize: '16px' }}
                 inputProps={{ maxLength: VOLUNTEER_EMAIL_MAX }}
+                required
             />
             <LabelDate
                 label={'Fecha de nacimiento'}
@@ -175,6 +180,7 @@ const VolunteerForm = ({
                 maxDate={birthMax}
                 error={!!fieldErrors.fechaNacimiento}
                 helperText={fieldErrors.fechaNacimiento}
+                required
             />
             <LabelDate
                 label={'Fecha de inicio'}
@@ -188,6 +194,7 @@ const VolunteerForm = ({
                 maxDate={fechaInicioMax}
                 error={!!fieldErrors.fechaInicio}
                 helperText={fieldErrors.fechaInicio}
+                required
             />
             <LabelSelect
                 label="Turno"

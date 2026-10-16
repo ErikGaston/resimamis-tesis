@@ -7,73 +7,65 @@ const LabelSelect = (props) => {
     const { id, labelColor, styleLabel, name, textDefault, list, onChange, value,
         classes, displayEmpty, labelId, label, placeholder, placeholderColor, sx, required, disabled, helperText, error, } = props;
 
-    const labelShrink =
-        Boolean(displayEmpty) ||
-        (value !== '' && value !== undefined && value !== null);
-
     return (
-        <FormControl
-            fullWidth
-            required={Boolean(required)}
-            error={Boolean(error)}
-            disabled={disabled}
-            sx={{ margin: '10px 0' }}
-        >
+        <div>
             <StyledInputLabel
                 htmlFor={id}
                 labelColor={labelColor}
                 style={styleLabel}
                 id={labelId}
-                shrink={labelShrink}
                 required={Boolean(required)}
+                disabled={disabled}
+                error={Boolean(error)}
             >
                 {label}
             </StyledInputLabel>
-            <StyledSelectCustomized
-                name={name}
-                label={label}
-                textDefault={textDefault}
-                list={list}
-                onChange={onChange}
-                value={value}
-                classes={classes}
-                displayEmpty={displayEmpty}
-                labelId={labelId}
-                placeholder={placeholder}
-                placeholderColor={placeholderColor}
-                sx={sx}
-                required={required}
-                notched={labelShrink}
+            <FormControl
+                fullWidth
+                required={Boolean(required)}
+                error={Boolean(error)}
                 disabled={disabled}
-                error={error}
-            />
-            {helperText ? (
-                <FormHelperText
-                    error={Boolean(error)}
-                    sx={error ? { color: '#d32f2f', marginLeft: 0 } : { marginLeft: 0 }}
-                >
-                    {helperText}
-                </FormHelperText>
-            ) : null}
-        </FormControl>
+            >
+                <StyledSelectCustomized
+                    name={name}
+                    textDefault={textDefault}
+                    list={list}
+                    onChange={onChange}
+                    value={value}
+                    classes={classes}
+                    displayEmpty={displayEmpty}
+                    labelId={labelId}
+                    placeholder={placeholder}
+                    placeholderColor={placeholderColor}
+                    sx={sx}
+                    required={required}
+                    disabled={disabled}
+                    error={error}
+                />
+                {helperText ? (
+                    <FormHelperText
+                        error={Boolean(error)}
+                        sx={error ? { color: '#d32f2f', marginLeft: 0 } : { marginLeft: 0 }}
+                    >
+                        {helperText}
+                    </FormHelperText>
+                ) : null}
+            </FormControl>
+        </div>
     )
 }
 
 export default LabelSelect;
 
+/* Misma etiqueta estática que LabelInput: fuera del FormControl para que MUI no
+   la flote sobre el notchedOutline, donde tapaba el borde del combo. */
 const StyledInputLabel = styled(InputLabel, { shouldForwardProp: (p) => !['labelColor', 'inputColor', 'widthInput'].includes(p) })`
     color: ${(props) => (props.labelColor)};
     font-family: Roboto;
-    font-size: 16px;
+    font-size: 18px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    /* scale(0.75) es el valor que asume MUI para dimensionar el hueco del
-       notchedOutline; con scale(1) la etiqueta queda más ancha que el hueco
-       y se ve el borde cruzando por detrás del texto. */
-    &.MuiInputLabel-shrink {
-        transform: translate(14px, -9px) scale(0.75);
-    }
 `;
 
 const StyledSelectCustomized = styled(SelectCustomized)`

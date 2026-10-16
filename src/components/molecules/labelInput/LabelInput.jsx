@@ -11,7 +11,16 @@ const LabelInput = (props) => {
 
     return (
         <div>
-            <StyledInputLabel htmlFor={id} labelColor={labelColor} style={styleLabel}>{label}</StyledInputLabel>
+            <StyledInputLabel
+                htmlFor={id}
+                labelColor={labelColor}
+                style={styleLabel}
+                required={Boolean(required)}
+                disabled={disabled}
+                error={Boolean(error)}
+            >
+                {label}
+            </StyledInputLabel>
             <StyledTextfield
                 id={id}
                 variant={variant}

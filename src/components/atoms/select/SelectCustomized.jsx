@@ -4,13 +4,12 @@ import React from 'react'
 
 const SelectCustomized = (props) => {
     const { name, textDefault, list, onChange, value,
-        classes, displayEmpty, labelId, label, placeholder, placeholderColor, sx, required, notched, disabled, error, other } = props;
+        classes, displayEmpty, labelId, placeholder, placeholderColor, sx, required, disabled, error, other } = props;
 
     return (
         <StyledSelect
             name={name}
             labelId={labelId}
-            label={label}
             sx={sx}
             displayEmpty={displayEmpty}
             value={value}
@@ -24,7 +23,6 @@ const SelectCustomized = (props) => {
             renderValue={
                 value !== "" ? undefined : () => <span style={{ color: placeholderColor }}>{placeholder}</span>
             }
-            notched={notched}
             {...other}
         >
             {
