@@ -33,6 +33,14 @@ import {
 import LabelSelect from '../../molecules/labelSelect/LabelSelect';
 import LabelInput from '../../molecules/labelInput/LabelInput';
 import { fabBottomAboveNav } from '../../../utils/listScreenAccessibility';
+import {
+  SUPPLY_STOCK_MAX,
+  isSupplyFormValid,
+  supplyDescriptionError,
+  supplyNameError,
+  supplyStockError,
+  supplyStockMaxError,
+} from '../../../utils/supplyFormValidation';
 
 // Constantes de estilos compartidos
 const BTN_GRADIENT = 'linear-gradient(135deg, #7F00FF 0%, #8F00FF 100%)';
@@ -219,18 +227,22 @@ const SupplyTemplate = (props) => {
 
   const onChangeStockNumber = (setter) => (e) => {
     const v = e.target.value;
-    if (/^$|^[0-9]+$/.test(v) && (v === '' || Number(v) <= 999999)) setter(v);
+    if (/^$|^[0-9]+$/.test(v) && (v === '' || Number(v) <= SUPPLY_STOCK_MAX)) setter(v);
   };
 
-  const canSubmitNewSupply =
-    newNombre.trim() !== '' &&
-    !Number.isNaN(Number(newStockMin)) &&
-    !Number.isNaN(Number(newStockMax)) &&
-    !Number.isNaN(Number(newStockActual)) &&
-    Number(newStockMin) >= 0 &&
-    Number(newStockMax) >= 0 &&
-    Number(newStockActual) >= 0 &&
-    Number(newStockMax) >= Number(newStockMin);
+  const newNombreError = supplyNameError(newNombre);
+  const newDescripcionError = supplyDescriptionError(newDescripcion);
+  const newStockActualError = supplyStockError(newStockActual);
+  const newStockMinError = supplyStockError(newStockMin);
+  const newStockMaxError = supplyStockMaxError(newStockMax, newStockMin);
+
+  const canSubmitNewSupply = isSupplyFormValid({
+    nombre: newNombre,
+    descripcion: newDescripcion,
+    stockActual: newStockActual,
+    stockMinimo: newStockMin,
+    stockMaximo: newStockMax,
+  });
 
   useEffect(() => {
     if (createSupplyCloseSignal > 0) closeSupplyDrawer();
@@ -282,13 +294,11 @@ const SupplyTemplate = (props) => {
   };
 
   const submitNewSupply = () => {
-    if (typeof onCreateSupply !== 'function') return;
+    if (typeof onCreateSupply !== 'function' || !canSubmitNewSupply) return;
     const nombre = newNombre.trim();
     const smin = Number(newStockMin);
     const smax = Number(newStockMax);
     const sact = Number(newStockActual);
-    if (!nombre || [smin, smax, sact].some((n) => Number.isNaN(n) || n < 0)) return;
-    if (smax < smin) return;
     onCreateSupply({
       nombre,
       descripcion: newDescripcion.trim() || null,
@@ -299,13 +309,11 @@ const SupplyTemplate = (props) => {
   };
 
   const submitEditSupply = () => {
-    if (!editingSupply || typeof onEditSupply !== 'function') return;
+    if (!editingSupply || typeof onEditSupply !== 'function' || !editFormValid) return;
     const nombre = editNombre.trim();
     const smin = Number(editStockMin);
     const smax = Number(editStockMax);
     const sact = Number(editStockActual);
-    if (!nombre || [smin, smax, sact].some((n) => Number.isNaN(n) || n < 0)) return;
-    if (smax < smin) return;
     onEditSupply(editingSupply.idInsumo, {
       nombre,
       descripcion: editDescripcion.trim() || null,
@@ -345,24 +353,19 @@ const SupplyTemplate = (props) => {
     !Number.isNaN(Number(movCantidad)) &&
     Number(movCantidad) > 0;
 
-  const editNombreError =
-    editNombre.trim().length > 0 &&
-    (editNombre.trim().length < 2 || editNombre.trim().length > 100);
-  const editDescripcionError = editDescripcion.length > 500;
+  const editNombreError = supplyNameError(editNombre);
+  const editDescripcionError = supplyDescriptionError(editDescripcion);
+  const editStockActualError = supplyStockError(editStockActual);
+  const editStockMinError = supplyStockError(editStockMin);
+  const editStockMaxError = supplyStockMaxError(editStockMax, editStockMin);
 
-  const editFormValid =
-    editNombre.trim().length >= 2 &&
-    editNombre.trim().length <= 100 &&
-    !editDescripcionError &&
-    !Number.isNaN(Number(editStockMin)) &&
-    !Number.isNaN(Number(editStockMax)) &&
-    !Number.isNaN(Number(editStockActual)) &&
-    Number(editStockMin) >= 0 &&
-    Number(editStockMin) <= 999999 &&
-    Number(editStockMax) >= 0 &&
-    Number(editStockActual) >= 0 &&
-    Number(editStockActual) <= 999999 &&
-    Number(editStockMax) >= Number(editStockMin);
+  const editFormValid = isSupplyFormValid({
+    nombre: editNombre,
+    descripcion: editDescripcion,
+    stockActual: editStockActual,
+    stockMinimo: editStockMin,
+    stockMaximo: editStockMax,
+  });
 
   return (
     <Box
@@ -627,6 +630,8 @@ const SupplyTemplate = (props) => {
                 inputColor={INPUT_COLOR}
                 styleLabel={LABEL_STYLE}
                 required
+                error={newNombreError != null}
+                helperText={newNombreError ?? undefined}
               />
               <LabelInput
                 name="descripcion"
@@ -638,6 +643,8 @@ const SupplyTemplate = (props) => {
                 styleLabel={LABEL_STYLE}
                 multiline
                 rows={3}
+                error={newDescripcionError != null}
+                helperText={newDescripcionError ?? undefined}
               />
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, mb: 0.5 }}>
@@ -657,6 +664,8 @@ const SupplyTemplate = (props) => {
                 inputColor={INPUT_COLOR}
                 styleLabel={LABEL_STYLE}
                 inputProps={{ inputMode: 'numeric', min: 0 }}
+                error={newStockActualError != null}
+                helperText={newStockActualError ?? undefined}
               />
               <LabelInput
                 name="stockMin"
@@ -667,6 +676,8 @@ const SupplyTemplate = (props) => {
                 inputColor={INPUT_COLOR}
                 styleLabel={LABEL_STYLE}
                 inputProps={{ inputMode: 'numeric', min: 0 }}
+                error={newStockMinError != null}
+                helperText={newStockMinError ?? undefined}
               />
               <LabelInput
                 name="stockMax"
@@ -677,6 +688,8 @@ const SupplyTemplate = (props) => {
                 inputColor={INPUT_COLOR}
                 styleLabel={LABEL_STYLE}
                 inputProps={{ inputMode: 'numeric', min: 0 }}
+                error={newStockMaxError != null}
+                helperText={newStockMaxError ?? undefined}
               />
             </Box>
 
@@ -766,14 +779,8 @@ const SupplyTemplate = (props) => {
                   inputColor={INPUT_COLOR}
                   styleLabel={LABEL_STYLE}
                   required
-                  error={editNombreError}
-                  helperText={
-                    editNombreError
-                      ? editNombre.trim().length < 2
-                        ? 'Mínimo 2 caracteres.'
-                        : 'Máximo 100 caracteres.'
-                      : undefined
-                  }
+                  error={editNombreError != null}
+                  helperText={editNombreError ?? undefined}
                 />
                 <LabelInput
                   name="editDescripcion"
@@ -785,8 +792,8 @@ const SupplyTemplate = (props) => {
                   styleLabel={LABEL_STYLE}
                   multiline
                   rows={3}
-                  error={editDescripcionError}
-                  helperText={editDescripcionError ? 'Máximo 500 caracteres.' : undefined}
+                  error={editDescripcionError != null}
+                  helperText={editDescripcionError ?? undefined}
                 />
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, mb: 0.5 }}>
@@ -806,6 +813,8 @@ const SupplyTemplate = (props) => {
                   inputColor={INPUT_COLOR}
                   styleLabel={LABEL_STYLE}
                   inputProps={{ inputMode: 'numeric', min: 0 }}
+                  error={editStockActualError != null}
+                  helperText={editStockActualError ?? undefined}
                 />
                 <LabelInput
                   name="editStockMin"
@@ -816,6 +825,8 @@ const SupplyTemplate = (props) => {
                   inputColor={INPUT_COLOR}
                   styleLabel={LABEL_STYLE}
                   inputProps={{ inputMode: 'numeric', min: 0 }}
+                  error={editStockMinError != null}
+                  helperText={editStockMinError ?? undefined}
                 />
                 <LabelInput
                   name="editStockMax"
@@ -826,6 +837,8 @@ const SupplyTemplate = (props) => {
                   inputColor={INPUT_COLOR}
                   styleLabel={LABEL_STYLE}
                   inputProps={{ inputMode: 'numeric', min: 0 }}
+                  error={editStockMaxError != null}
+                  helperText={editStockMaxError ?? undefined}
                 />
               </Box>
 
