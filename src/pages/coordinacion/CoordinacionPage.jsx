@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Box,
@@ -13,6 +13,7 @@ import {
   IconButton,
   InputLabel,
   MenuItem,
+  Pagination,
   Paper,
   Select,
   TextField,
@@ -100,6 +101,8 @@ function TabPanel({ children, value, index }) {
   return <Box sx={{ pt: 2 }}>{children}</Box>;
 }
 
+const ASISTENCIAS_POR_PAGINA = 10;
+
 function nombreCompletoUsuario(u) {
   return [u?.nombreVoluntaria ?? u?.nombre, u?.apellidoVoluntaria ?? u?.apellido]
     .filter(Boolean)
@@ -151,6 +154,8 @@ export const CoordinacionPage = () => {
   const [repFin, setRepFin] = useState(() => dayjs().endOf('day').format('YYYY-MM-DDTHH:mm'));
   const [repLastQuery, setRepLastQuery] = useState(null);
   const [reporteOpen, setReporteOpen] = useState(false);
+  const reportePedido = useRef(false);
+  const [asistenciasPage, setAsistenciasPage] = useState(1);
 
   // Usuarios
   const [usuarioForm, setUsuarioForm] = useState({ dni: '', contrasena: '', idVoluntaria: '' });
@@ -229,8 +234,11 @@ export const CoordinacionPage = () => {
     }
   }, [assignment?.putAssignmentById, assignment?.deleteAssignmentById, dispatch, toastOk]);
 
+  // El reporte se refresca solo despues de borrar una asistencia; sin este flag
+  // ese refresco volvia a abrir el dialogo sin que nadie lo pidiera.
   useEffect(() => {
-    if (volunteer?.getAssistanceReporte != null) {
+    if (volunteer?.getAssistanceReporte != null && reportePedido.current) {
+      reportePedido.current = false;
       setReporteOpen(true);
     }
   }, [volunteer?.getAssistanceReporte]);
@@ -376,6 +384,19 @@ export const CoordinacionPage = () => {
   const voluntariasList = normalizarLista(volunteer?.getVolunteers);
   const proveedoresList = normalizarLista(proveedor?.getProveedoresAll);
   const salasList = normalizarLista(sala?.getSalasAll);
+
+  const asistenciasTotalPaginas = Math.max(
+    1,
+    Math.ceil((asistenciasList?.length ?? 0) / ASISTENCIAS_POR_PAGINA),
+  );
+  // Al borrar el ultimo registro de la ultima pagina, el numero guardado queda
+  // fuera de rango y la lista se veria vacia.
+  const asistenciasPaginaActual = Math.min(asistenciasPage, asistenciasTotalPaginas);
+  const asistenciasDesde = (asistenciasPaginaActual - 1) * ASISTENCIAS_POR_PAGINA;
+  const asistenciasVisibles = (asistenciasList ?? []).slice(
+    asistenciasDesde,
+    asistenciasDesde + ASISTENCIAS_POR_PAGINA,
+  );
 
   const asistenciaReporteRows = (() => {
     const raw = volunteer?.getAssistanceReporte;
@@ -607,6 +628,7 @@ export const CoordinacionPage = () => {
                   fechaFin: new Date(repFin).toISOString(),
                 };
                 setRepLastQuery(q);
+                reportePedido.current = true;
                 dispatch(showLoading(true));
                 dispatch(getAssistanceReporte(q));
               }}
@@ -622,7 +644,8 @@ export const CoordinacionPage = () => {
 
             {Array.isArray(asistenciasList) && asistenciasList.length > 0 ? (
               <Box sx={{ mb: 2 }}>
-                {asistenciasList.map((a, i) => {
+                {asistenciasVisibles.map((a, iEnPagina) => {
+                  const i = asistenciasDesde + iEnPagina;
                   const nombre = [a.nombreVoluntaria, a.apellidoVoluntaria].filter(Boolean).join(' ') || `Voluntaria #${a.idVoluntaria ?? i}`;
                   const ingreso = a.fechaHoraIngreso ? dayjs(a.fechaHoraIngreso).format('DD/MM HH:mm') : '—';
                   const salida = a.fechaHoraSalida ? dayjs(a.fechaHoraSalida).format('DD/MM HH:mm') : null;
@@ -667,6 +690,18 @@ export const CoordinacionPage = () => {
                     </Box>
                   );
                 })}
+                {asistenciasTotalPaginas > 1 && (
+                  <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.5 }}>
+                    <Pagination
+                      count={asistenciasTotalPaginas}
+                      page={asistenciasPaginaActual}
+                      onChange={(_, p) => setAsistenciasPage(p)}
+                      size="small"
+                      siblingCount={0}
+                      color="primary"
+                    />
+                  </Box>
+                )}
               </Box>
             ) : Array.isArray(asistenciasList) && asistenciasList.length === 0 ? (
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
