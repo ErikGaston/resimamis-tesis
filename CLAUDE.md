@@ -112,7 +112,9 @@ Cosas que la documentación vieja afirmaba mal y conviene no repetir:
 - **`CoordinacionPage` no redirige** si no sos coordinadora: muestra un `Alert` + botón.
 - **El tab "Inicio" del Footer navega a `/home`**, que redirige a `/overview`.
 - **No existe prop `dataTestId`** en los atoms.
-- `palette.primary.main` está en `'#transparent'`, que no es un color válido.
+- `LabelInput`, `LabelDate` y `LabelSelect` dibujan la etiqueta **estática arriba** del campo y
+  muestran el `*` a partir de `required`. No volver a flotarla sobre el `notchedOutline`: ahí
+  tapaba el borde del combo.
 - El slice `tarea` está cableado en el store y el `rootSaga` pero **ninguna página lo usa**.
 - `react-query` está instalado y sus imports siguen vivos en `main.jsx`, pero el
   `QueryClientProvider` está comentado. No activarlo sin alinear con el equipo.

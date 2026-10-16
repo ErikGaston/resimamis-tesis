@@ -120,9 +120,11 @@ Una sola tabla `ESTADO` con `idAmbito` da estados por entidad.
 | `resetearAbrazosColgados` | → **Finalizado**, en transacción explícita |
 | `PUT /Asignacion/id/{id}` | estado **derivado de las fechas** |
 
-`PUT /Asignacion/id/{id}` recibe `RespuestaAsignaciones` (el DTO de respuesta) como request,
-**ignora el `estadoAsignacion` del body** y es un **reemplazo completo, no un merge**: omitir
-un campo nullable lo deja en null.
+`PUT /Asignacion/id/{id}` recibe `RespuestaAsignaciones` (el DTO de respuesta) como request e
+**ignora el `estadoAsignacion` del body**. Desde oct 2026 es un **merge, no un reemplazo**:
+`modificarAsignacion` resuelve cada campo con `datos.X ?? existentePrevio.X`, así que omitir un
+nullable lo **conserva** y ya no hay forma de limpiarlo mandando `null`. Además rechaza con 400
+un `fechaHoraFin` sobre una asignación sin `fechaHoraInicio`.
 
 `resetearAbrazosColgados` solo cierra asignaciones **con bebé**, iniciadas antes del inicio del
 día argentino y sin fin. Prependea un comentario automático de forma idempotente. Las tareas de
@@ -162,13 +164,20 @@ Todas las posteriores a `Visita` están escritas como **SQL crudo idempotente**
 `AsistenteController` → `NegAsistente` → `OpenAiChatCompletions`.
 
 - Proveedor **OpenAI Chat Completions**, modelo `Asistente:Model` (default `gpt-4o-mini`),
-  `MaxTokens 1500`, `Temperature 0.2`, `HttpClient` nombrado `"OpenAI"` (timeout 90 s).
+  `MaxTokens 1500`, `Temperature 0.2`, `HttpClient` nombrado `"OpenAI"` (timeout
+  `Asistente:HttpTimeoutSeconds`, default 180 s, piso 30 s).
 - API key, en orden: `Asistente:ApiKey` → `apiKey` (config) → env `apiKey` → env `OPENAI_API_KEY`.
 - `POST /Asistente/preguntar` exige coordinadora; **`GET /Asistente/estado` no valida rol**.
 - Límites: pregunta ≤ 2000 chars, historial ≤ 20 mensajes, ≤ 8 vueltas de tool-calling; a la
   novena hace una llamada sin tools para forzar texto.
-- **19 herramientas, todas de solo lectura.** Defaults: reportes de período 30 días, rankings
-  365 días (y reintento ampliando a 365 si el ranking vuelve vacío).
+- **20 herramientas, y ya no son todas de solo lectura:** `generar_asignaciones_abrazos`
+  escribe. El XML doc del controller sigue diciendo "solo lectura" y quedó mal. Defaults:
+  reportes de período 30 días, rankings 365 días (y reintento ampliando a 365 si el ranking
+  vuelve vacío).
+- `POST /Asistente/preguntar` usa la policy `AsistenteLargo`
+  (`RequestTimeouts:AsistenteSeconds`, default 600 s) y devuelve **504** con
+  `{ message, errors }` si se corta. Ojo: el interceptor del front tiene timeout de 20 s, así
+  que las consultas con varias tools revientan antes en el cliente.
 - El prompt separa explícitamente *asistencia/fichaje* de *abrazo*, y cada resultado lleva
   `criterio` + `aclaracion` para que el modelo no mezcle rankings.
 

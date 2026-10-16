@@ -27,6 +27,12 @@ Backend: `NegUsuarios.Loguear` busca por DNI, verifica con `BCrypt.Verify` y fir
 claims `NameIdentifier` y `Name` = DNI. Expiración 30 días, pero `ValidateLifetime` está
 comentado → **los tokens no expiran técnicamente** (deuda conocida).
 
+**Un JWT bien firmado ya no alcanza.** `Starup.cs` agrega `OnTokenValidated`: el DNI del claim
+debe existir y ser un usuario operativo (`NegUsuarios.EsSesionOperativaPorDni` →
+`UsuarioRepositorio.EsUsuarioOperativo`). Si el usuario fue dado de baja, cualquier request
+vuelve 401 y el interceptor lo manda a `/login`, aunque el token siga siendo criptográficamente
+válido.
+
 ## Interceptor Axios
 
 `src/redux/interceptor/interceptor.js` — base URL `import.meta.env.VITE_URL_API`, timeout 20 s.

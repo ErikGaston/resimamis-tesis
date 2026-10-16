@@ -57,7 +57,7 @@ La skill **`sync-api-contract`** automatiza el diff backend↔frontend.
 | `POST /asignacion/registrarDetalleAsignacion/` | Body **array** `[{ idAsignacion, idInsumo, cantidadInsumo }]`. Los tres campos deben ser `> 0`: filtrar antes de enviar |
 | `POST /asignacion/generarTarea` / `generarTareas` | `idTarea`/`idTareas` son **IDs de BEBE**, no de TAREA |
 | `POST /asignacion/generarTareaCatalogo` / `generarTareasCatalogo` | Ahí sí son **IDs de TAREA** |
-| `PUT /asignacion/id/{id}/` | Recibe el DTO de respuesta; **ignora `estadoAsignacion`** (lo deriva de las fechas) y es **reemplazo completo, no merge** |
+| `PUT /asignacion/id/{id}/` | Recibe el DTO de respuesta; **ignora `estadoAsignacion`** (lo deriva de las fechas). Desde oct 2026 es **merge**: un campo en `null` se conserva, no se limpia |
 | `PUT /bebe/` | El id va **en el body**, no en la ruta |
 | `GET /bebe/id/{dni}` | El parámetro se llama `Dni` pero se usa como **ID** |
 | `GET /bebe/disponibles-abrazo` | Alias de `/bebe/abrazar`. La respuesta tiene varias formas: normalizar con `listBabysFromAbrazarResponse` |
