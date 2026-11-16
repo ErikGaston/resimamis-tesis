@@ -400,6 +400,9 @@ export const TasksPage = () => {
             dispatch(getVolunteersFree());
             dispatch(getBabysFree());
             dispatch(getAssignmentTodayById(idVolunteer));
+            // La lista "Asignaciones del día" lee getAssignmentToday: sin esto
+            // quedaba vieja y no mostraba la asignación recién creada.
+            dispatch(getAssignmentToday());
             setChangeAssignedList((s) => !s);
             dispatch(showToast({ message: 'Asignación generada con éxito.', severity: 'success' }))
         }
