@@ -335,7 +335,9 @@ const SupplyTemplate = (props) => {
       esEntrada: movEsEntrada || null,
       observacion: movObservacion.trim() || null,
       idProveedor:
-        movIdProveedor === '' || movIdProveedor === '__none__' ? null : Number(movIdProveedor),
+        movEsEntrada !== 'S' || movIdProveedor === '' || movIdProveedor === '__none__'
+          ? null
+          : Number(movIdProveedor),
       idVoluntaria: idVoluntariaDefault != null ? Number(idVoluntariaDefault) : null,
       idBebe: movIdBebe === '' ? null : Number(movIdBebe),
     });
@@ -1374,7 +1376,8 @@ const SupplyTemplate = (props) => {
                 <Divider sx={{ flex: 1, borderColor: 'rgba(143,0,255,0.15)' }} />
               </Box>
 
-              <LabelSelect
+              {/* El proveedor solo tiene sentido en una entrada de stock. */}
+              {movEsEntrada === 'S' && <LabelSelect
                 label="Proveedor"
                 labelId="mov-prov-label"
                 value={movIdProveedor}
@@ -1390,7 +1393,7 @@ const SupplyTemplate = (props) => {
                 ]}
                 labelColor={LABEL_COLOR}
                 styleLabel={LABEL_STYLE}
-              />
+              />}
 
               <LabelInput
                 name="movObservacion"
