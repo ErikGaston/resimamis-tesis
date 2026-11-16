@@ -9,6 +9,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { Box, Chip, LinearProgress, Paper, Skeleton, Typography } from '@mui/material';
 import { PageHeader } from '../../common/PageHeader';
 import PageScrollMain from '../../common/PageScrollMain';
+import AvisoStockBajo from '../../organisms/alertas/AvisoStockBajo';
 
 const NAVY = '#152C70';
 const VIOLET = '#8F00FF';
@@ -49,7 +50,7 @@ function KpisSkeleton() {
     );
 }
 
-const PanelDiaTemplate = ({ coordinacion, cobertura, cargando }) => {
+const PanelDiaTemplate = ({ coordinacion, cobertura, cargando, insumosBajoMinimo, onVerInsumos }) => {
     const abrazos = coordinacion?.abrazosHoy ?? {};
     const sinAbrazo = cobertura?.bebesSinAbrazoHoy ?? [];
     const porcentaje = Number(cobertura?.porcentajeCobertura ?? 0);
@@ -59,6 +60,8 @@ const PanelDiaTemplate = ({ coordinacion, cobertura, cargando }) => {
             <PageHeader title="Panel del día" />
             <PageScrollMain>
                 <Box sx={{ px: 2, pt: 2 }}>
+
+                    <AvisoStockBajo insumos={insumosBajoMinimo} onVerInsumos={onVerInsumos} sx={{ mb: 2 }} />
 
                     {cargando && !coordinacion ? <KpisSkeleton /> : (
                         <>

@@ -5,6 +5,8 @@ const initialState = {
     diasTurnos: null,
     reporteDiario: null,
     visitasEstadisticas: null,
+    cierresAutomaticos: null,
+    cierreDiarioEstado: null,
     loading: false,
     error: null,
 };
@@ -25,6 +27,9 @@ const ACTIONS = {
     [actionTypes.SUCCESS_GET_DIAS_TURNOS]: guardar('diasTurnos'),
     [actionTypes.SUCCESS_GET_REPORTE_DIARIO]: guardar('reporteDiario'),
     [actionTypes.SUCCESS_GET_VISITAS_ESTADISTICAS]: guardar('visitasEstadisticas'),
+    [actionTypes.GET_CIERRES_AUTOMATICOS]: (state) => ({ ...state, loading: true }),
+    [actionTypes.SUCCESS_GET_CIERRES_AUTOMATICOS]: guardar('cierresAutomaticos'),
+    [actionTypes.SUCCESS_GET_CIERRE_DIARIO_ESTADO]: guardar('cierreDiarioEstado'),
     [actionTypes.ERROR_REPORTE]: (state, action) => ({ ...state, loading: false, error: action.response ?? true }),
     [actionTypes.CLEAR_REPORTE]: () => initialState,
 };

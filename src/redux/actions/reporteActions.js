@@ -19,3 +19,11 @@ export function getVisitasEstadisticas(params) {
 export function clearReporte() {
     return { type: actionTypes.CLEAR_REPORTE };
 }
+
+export function getCierresAutomaticos(params) {
+    return { type: actionTypes.GET_CIERRES_AUTOMATICOS, payload: params };
+}
+
+export function getCierreDiarioEstado() {
+    return { type: actionTypes.GET_CIERRE_DIARIO_ESTADO };
+}

@@ -150,6 +150,16 @@ function* asyncPostSupplyDelete({ payload }) {
     }
 }
 
+function* asyncGetSupplyBajoMinimo() {
+    try {
+        const response = yield call(API.getSupplyBajoMinimo);
+        if (response) yield put({ type: actionTypes.SUCCESS_GET_SUPPLY_BAJO_MINIMO, response });
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_SUPPLY, response: error, message: error.message });
+    }
+}
+
 export default function* supplySaga() {
     yield takeLatest(actionTypes.GET_SUPPLIES, asyncGetSupplies);
     yield takeLatest(actionTypes.GET_STATISTICS_SUPPLIES, asyncGetStatisticsSupplies);
@@ -160,4 +170,5 @@ export default function* supplySaga() {
     yield takeLatest(actionTypes.GET_SUPPLY_BY_ID, asyncGetSupplyById);
     yield takeLatest(actionTypes.PUT_SUPPLY_BY_ID, asyncPutSupplyById);
     yield takeLatest(actionTypes.POST_SUPPLY_DELETE, asyncPostSupplyDelete);
+    yield takeLatest(actionTypes.GET_SUPPLY_BAJO_MINIMO, asyncGetSupplyBajoMinimo);
 }

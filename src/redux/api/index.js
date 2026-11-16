@@ -1090,3 +1090,20 @@ export const getEstadisticaAvanzada = async ({ tipo, params }) => {
   return AxiosInstance.get(`/estadisticas/${tipo}`, { params: params ?? {} }).then((r) => r).catch((e) => { throw e; });
 };
 //#endregion
+
+//#region - ALERTAS Y CIERRES
+/** Insumos activos con stock actual menor o igual al mínimo. Responde un array (sin envelope de listado). */
+export const getSupplyBajoMinimo = async () => {
+  return AxiosInstance.get('/insumo/bajoStockMinimo').then((r) => r).catch((e) => { throw e; });
+};
+
+/** `{ fechaDesde?, fechaHasta? }` en YYYY-MM-DD; sin fechas, los últimos 7 días. */
+export const getCierresAutomaticos = async (params) => {
+  return AxiosInstance.get('/asignacion/cierres-automaticos', { params: params ?? {} }).then((r) => r).catch((e) => { throw e; });
+};
+
+/** Últimas corridas del cierre diario y la próxima programada (hora Argentina). */
+export const getCierreDiarioEstado = async () => {
+  return AxiosInstance.get('/asignacion/cierre-diario/estado').then((r) => r).catch((e) => { throw e; });
+};
+//#endregion

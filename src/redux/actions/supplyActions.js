@@ -65,3 +65,6 @@ export function putSupplyById(idInsumo, body) {
 export function postSupplyDelete(idInsumo) {
     return { type: actionTypes.POST_SUPPLY_DELETE, payload: idInsumo };
 }
+export function getSupplyBajoMinimo() {
+    return { type: actionTypes.GET_SUPPLY_BAJO_MINIMO };
+}

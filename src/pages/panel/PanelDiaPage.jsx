@@ -6,6 +6,7 @@ import Footer from '../../components/molecules/Footer';
 import PanelDiaTemplate from '../../components/templates/panel/PanelDiaTemplate';
 import { clearDashboard, getCoberturaHoy, getCoordinacionHoy } from '../../redux/actions/dashboardActions';
 import { showLoading } from '../../redux/actions/loadingActions';
+import { getSupplyBajoMinimo } from '../../redux/actions/supplyActions';
 import { isCoordinadoraSession } from '../../utils/coordinadoraRole';
 
 export const PanelDiaPage = () => {
@@ -13,6 +14,7 @@ export const PanelDiaPage = () => {
     const navigate = useNavigate();
     const isCoord = isCoordinadoraSession();
     const data = useSelector((state) => state.dashboardReducer);
+    const insumosBajoMinimo = useSelector((state) => state.supplyReducer?.getSupplyBajoMinimo?.data ?? null);
 
     useEffect(() => {
         if (!isCoord) return;
@@ -20,6 +22,7 @@ export const PanelDiaPage = () => {
         dispatch(showLoading(true));
         dispatch(getCoordinacionHoy());
         dispatch(getCoberturaHoy());
+        dispatch(getSupplyBajoMinimo());
         return () => {
             dispatch(clearDashboard());
             dispatch(showLoading(false));
@@ -54,6 +57,8 @@ export const PanelDiaPage = () => {
                 coordinacion={data?.coordinacionHoy?.data}
                 cobertura={data?.coberturaHoy?.data}
                 cargando={data?.coordinacionHoy == null && data?.error == null}
+                insumosBajoMinimo={insumosBajoMinimo}
+                onVerInsumos={() => navigate('/insumos')}
             />
             <Footer />
         </Box>

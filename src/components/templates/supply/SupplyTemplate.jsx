@@ -11,6 +11,7 @@ import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { PageHeader } from '../../common/PageHeader';
+import AvisoStockBajo from '../../organisms/alertas/AvisoStockBajo';
 import {
   Box,
   Button,
@@ -148,6 +149,7 @@ const SupplyTemplate = (props) => {
     onDeleteSupply,
     editCloseSignal,
     deleteCloseSignal,
+    insumosBajoMinimo,
   } = props;
 
   const [listSupplies, setListSupplies] = React.useState(null);
@@ -377,6 +379,8 @@ const SupplyTemplate = (props) => {
       }}
     >
       <PageHeader title="Insumos" />
+
+      <AvisoStockBajo insumos={insumosBajoMinimo} sx={{ mx: 1.5, mt: 1.5 }} />
 
       {/* Tab bar */}
       <Box

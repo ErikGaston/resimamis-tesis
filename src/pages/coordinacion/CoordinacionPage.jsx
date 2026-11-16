@@ -33,10 +33,12 @@ import StoreIcon from '@mui/icons-material/Store';
 import TimerIcon from '@mui/icons-material/Timer';
 import HistoryIcon from '@mui/icons-material/History';
 import SummarizeIcon from '@mui/icons-material/Summarize';
+import AutoModeIcon from '@mui/icons-material/AutoMode';
+import CierresAutomaticos from '../../components/organisms/reportes/CierresAutomaticos';
 import HistorialBajas from '../../components/organisms/reportes/HistorialBajas';
 import ReporteDiario from '../../components/organisms/reportes/ReporteDiario';
 import DiasTurnosVoluntarias from '../../components/organisms/reportes/DiasTurnosVoluntarias';
-import { getHistorialBajas, getDiasTurnos, getReporteDiario } from '../../redux/actions/reporteActions';
+import { getHistorialBajas, getDiasTurnos, getReporteDiario, getCierresAutomaticos, getCierreDiarioEstado } from '../../redux/actions/reporteActions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -124,6 +126,7 @@ const MENU_ITEMS = [
   { label: 'Salas', icon: <MeetingRoomIcon /> },
   { label: 'Historial de bajas', icon: <HistoryIcon /> },
   { label: 'Reporte diario', icon: <SummarizeIcon /> },
+  { label: 'Cierres automáticos', icon: <AutoModeIcon /> },
 ];
 
 function TabPanel({ children, value, index }) {
@@ -251,6 +254,9 @@ export const CoordinacionPage = () => {
       dispatch(getSalasAll());
     } else if (tab === 7) {
       dispatch(getReporteDiario());
+    } else if (tab === 8) {
+      dispatch(getCierreDiarioEstado());
+      dispatch(getCierresAutomaticos());
     }
   }, [tab, dispatch]);
 
@@ -1347,6 +1353,14 @@ export const CoordinacionPage = () => {
             <ReporteDiario
               reporte={reporte?.reporteDiario}
               onConsultar={(fecha) => dispatch(getReporteDiario(fecha))}
+            />
+          </TabPanel>
+
+          <TabPanel value={tab} index={8}>
+            <CierresAutomaticos
+              estado={reporte?.cierreDiarioEstado}
+              resultado={reporte?.cierresAutomaticos}
+              onConsultar={(params) => dispatch(getCierresAutomaticos(params))}
             />
           </TabPanel>
 

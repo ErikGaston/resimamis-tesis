@@ -10,6 +10,7 @@ const initialState = {
     getSupplyById: null,
     putSupplyById: null,
     postSupplyDelete: null,
+    getSupplyBajoMinimo: null,
     loading: false,
     error: null
 };
@@ -27,6 +28,7 @@ export default function supplyReducer(state = initialState, action) {
         [actionTypes.SUCCESS_GET_SUPPLY_BY_ID]: responseToReturn('getSupplyById'),
         [actionTypes.SUCCESS_PUT_SUPPLY_BY_ID]: responseToReturn('putSupplyById'),
         [actionTypes.SUCCESS_POST_SUPPLY_DELETE]: responseToReturn('postSupplyDelete'),
+        [actionTypes.SUCCESS_GET_SUPPLY_BAJO_MINIMO]: responseToReturn('getSupplyBajoMinimo'),
         [actionTypes.ERROR_SUPPLY]: responseToReturn('error'),
         [actionTypes.CLEAR_SUPPLY]: clearSupply(),
         [actionTypes.CLEAR_SUPPLY_WRITES]: clearSupplyWrites(),

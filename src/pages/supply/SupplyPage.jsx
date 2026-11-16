@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { clearSupply, getSupplies, postSupplyConsultMovements, getSupplyProviders, postSupplyRegisterMovement, postSupplyCreate, putSupplyById, postSupplyDelete, clearSupplyWrites } from "../../redux/actions/supplyActions";
+import { clearSupply, getSupplies, getSupplyBajoMinimo, postSupplyConsultMovements, getSupplyProviders, postSupplyRegisterMovement, postSupplyCreate, putSupplyById, postSupplyDelete, clearSupplyWrites } from "../../redux/actions/supplyActions";
 import { getBabys } from "../../redux/actions/babyActions";
 import { showLoading } from "../../redux/actions/loadingActions";
 import { hideToast, showToast } from "../../redux/actions/toastActions";
@@ -68,6 +68,11 @@ export const SupplyPage = () => {
             dispatch(clearSupply());
         };
     }, [dispatch])
+
+    // Cada recarga del listado (al entrar, tras un movimiento, alta, edición o baja) actualiza el aviso.
+    useEffect(() => {
+        if (dataSupply?.getSupplies != null) dispatch(getSupplyBajoMinimo());
+    }, [dataSupply?.getSupplies, dispatch])
 
     useEffect(() => {
         if (valueTask === 1) {
@@ -163,6 +168,7 @@ export const SupplyPage = () => {
                 valueTask={valueTask}
                 changeTask={changeTask}
                 supplies={dataSupply?.getSupplies?.data ?? null}
+                insumosBajoMinimo={dataSupply?.getSupplyBajoMinimo?.data ?? null}
                 movementsData={dataSupply?.postSupplyConsultMovements}
                 providersData={dataSupply?.getSupplyProviders}
                 onRegisterSupplyMovement={registerMovement}

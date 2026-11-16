@@ -20,4 +20,6 @@ export default function* reporteSaga() {
     yield takeLatest(actionTypes.GET_DIAS_TURNOS, crearWorker(API.getDiasTurnos, actionTypes.SUCCESS_GET_DIAS_TURNOS));
     yield takeLatest(actionTypes.GET_REPORTE_DIARIO, crearWorker(API.getReporteDiario, actionTypes.SUCCESS_GET_REPORTE_DIARIO));
     yield takeLatest(actionTypes.GET_VISITAS_ESTADISTICAS, crearWorker(API.getVisitasEstadisticas, actionTypes.SUCCESS_GET_VISITAS_ESTADISTICAS));
+    yield takeLatest(actionTypes.GET_CIERRES_AUTOMATICOS, crearWorker(API.getCierresAutomaticos, actionTypes.SUCCESS_GET_CIERRES_AUTOMATICOS));
+    yield takeLatest(actionTypes.GET_CIERRE_DIARIO_ESTADO, crearWorker(API.getCierreDiarioEstado, actionTypes.SUCCESS_GET_CIERRE_DIARIO_ESTADO));
 }
