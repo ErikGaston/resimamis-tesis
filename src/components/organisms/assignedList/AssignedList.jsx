@@ -23,6 +23,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import CommentIcon from '@mui/icons-material/Comment';
 import dayjs from 'dayjs';
 import styled from '@emotion/styled';
+import { esCierreAutomatico } from '../../../utils/cierreAutomatico';
 
 const NAVY = '#152C70';
 const PURPLE = '#7F00FF';
@@ -45,6 +46,7 @@ const ESTADO_CONFIG = {
     Creada:     { label: 'Creada',     bg: 'rgba(0,0,0,0.07)',          color: '#666' },
     Iniciado:   { label: 'En curso',   bg: 'rgba(255,152,0,0.13)',       color: '#E65100' },
     Finalizado: { label: 'Finalizado', bg: 'rgba(0,168,107,0.1)',        color: '#00A86B' },
+    CierreAutomatico: { label: 'Cierre automático', bg: 'rgba(255,193,7,0.16)', color: '#7A5A00' },
 };
 
 function fmt(iso) {
@@ -84,7 +86,8 @@ function AssignmentFullDialog({ item, onClose, onStartHug }) {
     const estado = item.estadoAsignacion ?? (
         !item.fechaHoraInicio ? 'Creada' : !item.fechaHoraFin ? 'Iniciado' : 'Finalizado'
     );
-    const estadoCfg = ESTADO_CONFIG[estado] ?? { label: estado, bg: 'rgba(0,0,0,0.07)', color: '#666' };
+    const cfgKey = estado === 'Finalizado' && esCierreAutomatico(item) ? 'CierreAutomatico' : estado;
+    const estadoCfg = ESTADO_CONFIG[cfgKey] ?? { label: estado, bg: 'rgba(0,0,0,0.07)', color: '#666' };
 
     const inicio = fmt(item.fechaHoraInicio);
     const fin = fmt(item.fechaHoraFin);

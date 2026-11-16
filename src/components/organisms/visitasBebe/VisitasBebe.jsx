@@ -16,6 +16,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import LabelInput from '../../molecules/labelInput/LabelInput';
+import dayjs from 'dayjs';
 
 const FORM_INIT = {
   nombreVisitante: '',
@@ -99,7 +100,7 @@ const VisitasBebe = ({ visitasList = [], idBebe, onCrear, onEditar, onEliminar }
         nombreVisitante: v.nombreVisitante ?? '',
         familiar: v.familiar ?? '',
         fechaHoraVisita: v.fechaHoraVisita
-          ? new Date(v.fechaHoraVisita).toISOString().slice(0, 16)
+          ? dayjs(v.fechaHoraVisita).format('YYYY-MM-DDTHH:mm') // hora local, no UTC
           : '',
         documentoVisitante: v.documentoVisitante != null ? String(v.documentoVisitante) : '',
         telefonoVisitante: v.telefonoVisitante != null ? String(v.telefonoVisitante) : '',

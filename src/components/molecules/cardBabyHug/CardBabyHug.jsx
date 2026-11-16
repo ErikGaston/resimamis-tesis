@@ -9,6 +9,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import dayjs from 'dayjs';
+import { esCierreAutomatico } from '../../../utils/cierreAutomatico';
 
 const NAVY = '#152C70';
 const GRADIENT = 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)';
@@ -18,12 +19,14 @@ const HEADER_CFG = {
     Creada:     { gradient: GRADIENT },
     Iniciado:   { gradient: 'linear-gradient(90deg, #E65100 0%, #FF6D00 100%)' },
     Finalizado: { gradient: GRADIENT_GREEN },
+    CierreAutomatico: { gradient: 'linear-gradient(90deg, #8A8FA3 0%, #A3A8BA 100%)' },
 };
 
 const ESTADO_CHIP = {
     Creada:     { label: 'Creada',     bg: 'rgba(255,255,255,0.22)', color: '#fff' },
     Iniciado:   { label: 'En curso',   bg: 'rgba(255,255,255,0.22)', color: '#fff' },
     Finalizado: { label: 'Finalizado', bg: 'rgba(255,255,255,0.22)', color: '#fff' },
+    CierreAutomatico: { label: 'Cierre automático', bg: 'rgba(255,255,255,0.22)', color: '#fff' },
 };
 
 function fmt(iso) {
@@ -39,8 +42,10 @@ const CardBabyHug = ({ item, editHug, submitStartHug, onAssignmentDetail, hayAbr
     const estado = item.estadoAsignacion ?? (
         !item.fechaHoraInicio ? 'Creada' : !item.fechaHoraFin ? 'Iniciado' : 'Finalizado'
     );
-    const hdrCfg = HEADER_CFG[estado] ?? HEADER_CFG.Creada;
-    const chip = ESTADO_CHIP[estado] ?? ESTADO_CHIP.Creada;
+    const cierreAuto = estado === 'Finalizado' && esCierreAutomatico(item);
+    const cfgKey = cierreAuto ? 'CierreAutomatico' : estado;
+    const hdrCfg = HEADER_CFG[cfgKey] ?? HEADER_CFG.Creada;
+    const chip = ESTADO_CHIP[cfgKey] ?? ESTADO_CHIP.Creada;
 
     const inicio = fmt(item.fechaHoraInicio);
     const fin = fmt(item.fechaHoraFin);
@@ -125,7 +130,7 @@ const CardBabyHug = ({ item, editHug, submitStartHug, onAssignmentDetail, hayAbr
                     </Box>
                 )}
 
-                {isDone && item.comentario && (
+                {isDone && !cierreAuto && item.comentario && (
                     <Typography sx={{ fontSize: '0.78rem', color: 'rgba(21,44,112,0.75)', fontStyle: 'italic', mt: 0.25, lineHeight: 1.4 }}>
                         "{item.comentario}"
                     </Typography>
@@ -184,13 +189,19 @@ const CardBabyHug = ({ item, editHug, submitStartHug, onAssignmentDetail, hayAbr
                     </Box>
                 )}
 
-                {isDone && (
+                {isDone && !cierreAuto && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.5 }}>
                         <CheckCircleIcon sx={{ fontSize: 14, color: '#00A86B' }} />
                         <Typography sx={{ fontSize: '0.78rem', color: '#00A86B', fontWeight: 600 }}>
                             Abrazo completado
                         </Typography>
                     </Box>
+                )}
+
+                {cierreAuto && (
+                    <Typography sx={{ fontSize: '0.78rem', color: 'rgba(21,44,112,0.75)', mt: 0.5 }}>
+                        Se cerró automáticamente, sin abrazo registrado.
+                    </Typography>
                 )}
             </Box>
         </Paper>

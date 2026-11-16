@@ -5,6 +5,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import RoomIcon from '@mui/icons-material/Room';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { esCierreAutomatico } from '../../../utils/cierreAutomatico';
 
 const NAVY = '#152C70';
 
@@ -12,6 +13,7 @@ const ESTADO_CHIP = {
     Creada:     { label: 'Creada',     bgcolor: 'rgba(0,0,0,0.07)',          color: '#666' },
     Iniciado:   { label: 'En curso',   bgcolor: 'rgba(255,152,0,0.13)',       color: '#E65100' },
     Finalizado: { label: 'Finalizado', bgcolor: 'rgba(0,168,107,0.1)',        color: '#00A86B' },
+    CierreAutomatico: { label: 'Cierre automático', bgcolor: 'rgba(255,193,7,0.16)', color: '#7A5A00' },
 };
 
 const CardAssigned = ({ item, onClick }) => {
@@ -23,7 +25,7 @@ const CardAssigned = ({ item, onClick }) => {
         : !item.fechaHoraFin ? 'Iniciado'
         : 'Finalizado'
     );
-    const chip = ESTADO_CHIP[estado] ?? { label: estado, bgcolor: 'rgba(0,0,0,0.07)', color: '#666' };
+    const chip = ESTADO_CHIP[estado === 'Finalizado' && esCierreAutomatico(item) ? 'CierreAutomatico' : estado] ?? { label: estado, bgcolor: 'rgba(0,0,0,0.07)', color: '#666' };
 
     return (
         <Paper
