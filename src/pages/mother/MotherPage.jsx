@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearMother, clearMotherApiError, getMother, postMother } from "../../redux/actions/motherActions";
-import { clearBaby, getBabySalas } from "../../redux/actions/babyActions";
+import { clearBaby, clearBabyWrites, getBabySalas, postBaby } from "../../redux/actions/babyActions";
 import { showLoading } from "../../redux/actions/loadingActions";
 import { showToast } from "../../redux/actions/toastActions";
 import Loading from "../../components/atoms/loading/Loading";
@@ -9,7 +9,7 @@ import MotherTemplate from "../../components/templates/mother/MotherTemplate";
 import Footer from "../../components/molecules/Footer";
 import { getLocalities, getEstadosCiviles } from "../../redux/actions/genericsActions";
 import DialogSuccess from "../../components/atoms/dialogSuccess/DialogSuccess";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
     validateMotherForm,
     normalizeMotherPayload,
@@ -20,6 +20,7 @@ import {
     isBabyRowEmpty,
 } from "../../utils/babyFormValidation";
 import { normalizeBabyForAlta } from "../../utils/babyPayload";
+import { erroresVisibles } from "../../utils/erroresVisibles";
 import {
     readMotherAltaDraft,
     saveMotherAltaDraft,
@@ -56,6 +57,7 @@ export const MotherPage = () => {
     const [openSection, setOpenSection] = useState('madre');
     const [draftLoaded, setDraftLoaded] = useState(false);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
 
     /** Filas realmente cargadas: una fila agregada y dejada vacía no bloquea el alta. */
     const babiesToSubmit = () => (model?.bebe ?? []).filter((b) => !isBabyRowEmpty(b));
@@ -194,6 +196,24 @@ export const MotherPage = () => {
         }
     }, [dataMother?.error, dataMother?.postMother])
 
+    const registrarBebeMadreExistente = (bebe) => {
+        dispatch(showLoading(true));
+        dispatch(postBaby(bebe));
+    };
+
+    useEffect(() => {
+        if (dataBaby?.error != null) dispatch(showLoading(false));
+        if (dataBaby?.postBaby == null) return;
+        dispatch(showLoading(false));
+        dispatch(clearBabyWrites());
+        setType('El bebé');
+        setStateForm('SUCCESS');
+        setTimeout(() => {
+            setStateForm(null);
+            navigate('/bebes');
+        }, 2500);
+    }, [dataBaby?.postBaby, dataBaby?.error])
+
     return (
         <>
             {loading &&
@@ -214,13 +234,15 @@ export const MotherPage = () => {
                 submitConset={submitConset}
                 submitAlta={submitAlta}
                 typeForm={"ALTA"}
-                fieldErrors={fieldErrors}
+                fieldErrors={erroresVisibles(model, fieldErrors, validateMotherForm(model, { mothers: dataMother?.getMother?.data ?? [], excludeMadreId: null }).errors)}
                 setFieldErrors={setFieldErrors}
-                babyFieldErrors={babyFieldErrors}
+                babyFieldErrors={(model?.bebe ?? []).map((b, i) => erroresVisibles(b, babyFieldErrors[i] ?? {}, validateBabyForm(b).errors))}
                 motherStepDone={motherStepDone}
                 openSection={openSection}
                 setOpenSection={setOpenSection}
                 profileBabyExtras={{ babySalasOptions }}
+                onRegistrarBebeMadreExistente={registrarBebeMadreExistente}
+                iniciarConMadreExistente={searchParams.get('madreExistente') === '1'}
             />
             {
                 stateForm === 'SUCCESS' &&

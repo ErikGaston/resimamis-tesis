@@ -13,6 +13,8 @@ import proveedorSaga from "./proveedorSaga";
 import salaSaga from "./salaSaga";
 import dashboardSaga from "./dashboardSaga";
 import asistenteSaga from "./asistenteSaga";
+import reporteSaga from "./reporteSaga";
+import estadisticaAvanzadaSaga from "./estadisticaAvanzadaSaga";
 
 export default function* rootSaga() {
     yield all([
@@ -30,5 +32,7 @@ export default function* rootSaga() {
         salaSaga(),
         dashboardSaga(),
         asistenteSaga(),
+        reporteSaga(),
+        estadisticaAvanzadaSaga(),
     ]);
 }

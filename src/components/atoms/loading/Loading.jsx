@@ -14,6 +14,9 @@ const pulse = keyframes`
   100% { transform: scale(1);    opacity: 0.6; }
 `;
 
+// El overlay bloquea clics desde el primer instante (evita acciones duplicadas), pero el spinner
+// y el desenfoque recién se ven si la operación pasa los 400 ms: así las acciones rápidas no
+// hacen parpadear la pantalla.
 const ContainerLoading = styled.div`
   position: fixed;
   top: 0;
@@ -21,9 +24,11 @@ const ContainerLoading = styled.div`
   height: 100dvh;
   width: 100%;
   z-index: 9999;
+  opacity: 0;
+  animation: ${fadeIn} 0.18s ease-in 0.4s forwards;
 
-  @media (prefers-reduced-motion: no-preference) {
-    animation: ${fadeIn} 0.18s ease-in;
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: 0s;
   }
 `;
 

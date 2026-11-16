@@ -18,6 +18,7 @@ const btnSave = {
   background: GRADIENT,
   boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
   color: '#fff',
+  '&.Mui-disabled': { opacity: 0.45, boxShadow: 'none', color: '#fff' },
 };
 
 const btnCancel = {
@@ -57,6 +58,7 @@ export const ProfileTemplate = ({
   disableAccordion = false,
   myProfile = false,
   hideHeader = false,
+  submitDisabled = false,
 }) => {
   const headerTitle = [model?.nombre, model?.apellido].filter(Boolean).join(' ').trim() || 'Perfil'
 
@@ -87,6 +89,7 @@ export const ProfileTemplate = ({
               variant="contained"
               fullWidth
               onClick={submit}
+              disabled={submitDisabled}
               sx={btnSave}
             >
               Guardar cambios

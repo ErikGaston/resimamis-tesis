@@ -13,6 +13,7 @@ import AssistanceDataDialog from "../../components/organisms/assistanceDialogs/A
 import { getIdVolunteer } from '../../utils/localStorage';
 import { listBabysFromAbrazarResponse, resolveIdTareaForGenerarTareas } from "../../utils/assignmentSelection";
 import { isCoordinadoraSession } from "../../utils/coordinadoraRole";
+import { ordenarPorNombre } from "../../utils/textSearch";
 
 export const TasksPage = () => {
     const dispatch = useDispatch();
@@ -30,6 +31,12 @@ export const TasksPage = () => {
         () => listBabysFromAbrazarResponse(dataBaby?.getBabysFree),
         [dataBaby?.getBabysFree],
     );
+
+    const voluntariasLibresOrdenadas = useMemo(() => {
+        const lista = dataVolunteer?.getVolunteersFree?.data;
+        if (!Array.isArray(lista)) return null;
+        return ordenarPorNombre(lista, (v) => [v.nombre, v.apellido].filter(Boolean).join(' '));
+    }, [dataVolunteer?.getVolunteersFree]);
 
     /** Para diálogos de asistencia cuando el API no anida `voluntaria` (p. ej. histórico). */
     const assistanceVolunteerFallback = useMemo(() => {
@@ -430,7 +437,7 @@ export const TasksPage = () => {
                 checkAssistance={checkAssistance}
                 salidaRegistrada={salidaRegistrada}
                 assignmentVolunteer={dataAssignment?.getAssignmentTodayById?.data ?? null}
-                volunteersFree={dataVolunteer?.getVolunteersFree?.data ?? null}
+                volunteersFree={voluntariasLibresOrdenadas}
                 listBabysFree={babiesFreeList}
                 selectVolunteersFree={selectVolunteersFree}
                 selectedVolunteerIds={selectedVolunteerIds}

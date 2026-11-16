@@ -12,6 +12,7 @@ import {
     normalizeVolunteerPayload,
     INITIAL_VOLUNTEER_FIELD_ERRORS,
 } from "../../utils/volunteerFormValidation";
+import { erroresVisibles } from "../../utils/erroresVisibles";
 
 export const VolunteerPage = () => {
     const dispatch = useDispatch();
@@ -22,6 +23,11 @@ export const VolunteerPage = () => {
     const [model, setModel] = useState({});
     const [stateForm, setStateForm] = useState(null);
     const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_VOLUNTEER_FIELD_ERRORS });
+
+    // El botón queda deshabilitado hasta que el alta sea válida; para que se entienda por qué, los
+    // errores de los campos ya cargados se ven al momento (los vacíos, recién al intentar guardar).
+    const validacion = validateVolunteerAlta(model || {}, { volunteers: dataVolunteer?.getVolunteers?.data ?? [] });
+    const errorDeCampos = erroresVisibles(model, fieldErrors, validacion.errors);
 
     const submitVolunteer = () => {
         const mdl = model || {};
@@ -69,7 +75,8 @@ export const VolunteerPage = () => {
                 setModel={setModel}
                 localities={localities?.data ?? null}
                 submitVolunteer={submitVolunteer}
-                fieldErrors={fieldErrors}
+                submitDisabled={!validacion.ok}
+                fieldErrors={errorDeCampos}
                 setFieldErrors={setFieldErrors}
             />
             {

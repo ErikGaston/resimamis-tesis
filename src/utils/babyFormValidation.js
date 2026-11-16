@@ -25,6 +25,8 @@ export const INITIAL_BABY_FIELD_ERRORS = {
 };
 
 const PESO_FIELDS = ['pesoNacimiento', 'pesoIngresoNEO', 'pesoAlta', 'pesoDiaAbrazos'];
+export const PESO_MIN_KG = 0.1;
+export const PESO_MAX_KG = 6;
 
 const isBlank = (v) => v === null || v === undefined || String(v).trim() === '';
 
@@ -107,9 +109,9 @@ export function validateBabyForm(baby) {
 
   PESO_FIELDS.forEach((campo) => {
     if (isBlank(b[campo])) return;
-    const n = Number(b[campo]);
+    const n = Number(String(b[campo]).replace(',', '.'));
     if (!Number.isFinite(n)) errors[campo] = 'Peso inválido.';
-    else if (n < 0) errors[campo] = 'El peso no puede ser negativo.';
+    else if (n < PESO_MIN_KG || n > PESO_MAX_KG) errors[campo] = 'El peso debe estar entre 0,1 y 6 kg.';
   });
 
   const ok = Object.values(errors).every((e) => e === '');

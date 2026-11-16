@@ -16,6 +16,30 @@ import { ChartBabyPermanence } from '../../organisms/statistics/ChartBabyPermane
 import { ChartDistribucionBebes } from '../../organisms/statistics/ChartDistribucionBebes';
 import { RankingVoluntarias } from '../../organisms/statistics/RankingVoluntarias';
 import { ChartDuracionAbrazos } from '../../organisms/statistics/ChartDuracionAbrazos';
+import { ChartVisitasBebes } from '../../organisms/statistics/ChartVisitasBebes';
+import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import BalanceIcon from '@mui/icons-material/Balance';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import { ImpactoPrograma } from '../../organisms/statistics/avanzadas/ImpactoPrograma';
+import { PrimerAbrazo } from '../../organisms/statistics/avanzadas/PrimerAbrazo';
+import { EquidadBebes } from '../../organisms/statistics/avanzadas/EquidadBebes';
+import { BebesSinVisitas } from '../../organisms/statistics/avanzadas/BebesSinVisitas';
+import { ProyeccionInsumos } from '../../organisms/statistics/avanzadas/ProyeccionInsumos';
+import { TasaCompletados } from '../../organisms/statistics/avanzadas/TasaCompletados';
+import { CumplimientoHorario } from '../../organisms/statistics/avanzadas/CumplimientoHorario';
+
+const COMPONENTES_AVANZADOS = {
+    13: ImpactoPrograma,
+    14: PrimerAbrazo,
+    15: EquidadBebes,
+    16: BebesSinVisitas,
+    17: ProyeccionInsumos,
+    18: TasaCompletados,
+    19: CumplimientoHorario,
+};
 import { normalizeBebesPorEstado, normalizeBebesPorSala, normalizeBebesRangoEdades, totalDe } from '../../../utils/dashboardDistribuciones';
 import { APP_SCROLL_BOTTOM_PADDING } from '../../../helpers/const/appLayout';
 
@@ -31,6 +55,14 @@ const CHART_OPTIONS = [
     { id: 9, label: 'Bebés por estado', icon: AddchartIcon, soloCoordinadora: true },
     { id: 10, label: 'Edad de los bebés', icon: AddchartIcon, soloCoordinadora: true },
     { id: 11, label: 'Ranking de voluntarias', icon: EmojiEventsOutlinedIcon, soloCoordinadora: true },
+    { id: 12, label: 'Visitas a los bebés', icon: FamilyRestroomIcon, soloCoordinadora: true },
+    { id: 13, label: 'Impacto del programa', icon: TrendingUpIcon, soloCoordinadora: true, seccion: 'Análisis del programa' },
+    { id: 14, label: 'Días hasta el primer abrazo', icon: AccessTimeIcon, soloCoordinadora: true },
+    { id: 15, label: 'Equidad de abrazos entre bebés', icon: BalanceIcon, soloCoordinadora: true },
+    { id: 16, label: 'Bebés sin visitas recientes', icon: FamilyRestroomIcon, soloCoordinadora: true },
+    { id: 17, label: 'Proyección de insumos', icon: Inventory2OutlinedIcon, soloCoordinadora: true },
+    { id: 18, label: 'Abrazos completados', icon: TaskAltIcon, soloCoordinadora: true },
+    { id: 19, label: 'Cumplimiento de horarios', icon: EventAvailableIcon, soloCoordinadora: true },
 ];
 
 // Paper del dialog mobile: centrado en columna 444px
@@ -60,18 +92,28 @@ const StatisticsTemplate = (props) => {
         statisticsRangoEdades,
         statisticsRanking,
         isCoordinadora,
+        bebesParaFiltro,
+        visitasEstadisticas,
+        onConsultarVisitas,
+        estadisticaAvanzada,
     } = props;
 
     const chartOptions = CHART_OPTIONS.filter((o) => !o.soloCoordinadora || isCoordinadora);
+    const ComponenteAvanzado = COMPONENTES_AVANZADOS[valueChart];
 
 
     return (
         <div style={{ height: '100%' }}>
             <PageHeader title="Estadísticas" />
             <ContainerButtons>
-                {chartOptions.map(({ id, label, icon: Icon }) => (
+                {chartOptions.map(({ id, label, icon: Icon, seccion }) => (
+                    <React.Fragment key={id}>
+                    {seccion && (
+                        <Typography sx={{ color: '#152C70', fontWeight: 700, fontSize: '0.95rem', mt: 1.5, mb: 1 }}>
+                            {seccion}
+                        </Typography>
+                    )}
                     <Button
-                        key={id}
                         fullWidth
                         onClick={() => generateChart(id)}
                         sx={{
@@ -93,6 +135,7 @@ const StatisticsTemplate = (props) => {
                             {label}
                         </Typography>
                     </Button>
+                    </React.Fragment>
                 ))}
             </ContainerButtons>
 
@@ -123,6 +166,21 @@ const StatisticsTemplate = (props) => {
                     {valueChart === 9 && <ChartDistribucionBebes datos={normalizeBebesPorEstado(statisticsPorEstado)} total={totalDe(statisticsPorEstado)} />}
                     {valueChart === 10 && <ChartDistribucionBebes datos={normalizeBebesRangoEdades(statisticsRangoEdades)} total={totalDe(statisticsRangoEdades)} notaAlPie="Días de vida cumplidos al día de hoy." />}
                     {valueChart === 11 && <RankingVoluntarias ranking={statisticsRanking} />}
+                    {ComponenteAvanzado && estadisticaAvanzada && (
+                        <>
+                            {estadisticaAvanzada.cargando && !estadisticaAvanzada.datos && (
+                                <Typography sx={{ color: 'rgba(21,44,112,0.75)', fontSize: 14, textAlign: 'center', py: 4 }}>Cargando…</Typography>
+                            )}
+                            <ComponenteAvanzado datos={estadisticaAvanzada.datos} onConsultar={estadisticaAvanzada.onConsultar} />
+                        </>
+                    )}
+                    {valueChart === 12 && (
+                        <ChartVisitasBebes
+                            bebes={bebesParaFiltro}
+                            estadisticas={visitasEstadisticas}
+                            onConsultar={onConsultarVisitas}
+                        />
+                    )}
 
                     {valueChart === 5 && <ChartDuracionAbrazos duracion={statisticsDuracion} />}
                 </DialogContent>

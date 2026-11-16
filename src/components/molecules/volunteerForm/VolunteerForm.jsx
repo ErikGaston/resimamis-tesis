@@ -20,6 +20,7 @@ const VolunteerForm = ({
     setModel,
     error,
     submitVolunteer,
+    submitDisabled = false,
     listTurnos,
     fieldErrors = {},
     setFieldErrors,
@@ -229,9 +230,11 @@ const VolunteerForm = ({
                         textTransform: 'none',
                         fontWeight: 700,
                         background: 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)',
-                        boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)'
+                        boxShadow: '3px 4px 4px 0px rgba(0, 0, 0, 0.25)',
+                        '&.Mui-disabled': { opacity: 0.45, boxShadow: 'none', color: '#fff' },
                     }}
                     onClick={submitVolunteer}
+                    disabled={submitDisabled}
                 >
                     Guardar voluntaria
                 </ButtonCustomized>

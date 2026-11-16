@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { capitalizarNombre } from './capitalizacion';
 
 export const MOTHER_NAME_MAX = 50;
 export const MOTHER_MOTIVO_MAX = 250;
@@ -133,7 +134,7 @@ export function validateMotherForm(model, options = {}) {
       }
       return true;
     });
-    if (dup) set('dni', 'Ya existe una madre registrada con este DNI.');
+    if (dup) set('dni', 'Ya existe una madre con este DNI. Para sumarle un bebé usá "Madre ya registrada".');
   }
 
   if (!model?.fechaNacimiento) {
@@ -216,6 +217,8 @@ export function normalizeMotherPayload(model) {
   delete p.estadoDetalle;
   delete p.localidadDetalle;
   delete p.bebe;
+  p.nombre = capitalizarNombre(p.nombre);
+  p.apellido = capitalizarNombre(p.apellido);
   if (typeof p.celular === 'string') {
     const digits = p.celular.replace(/\D/g, '');
     p.celular = digits ? Number(digits) : p.celular;

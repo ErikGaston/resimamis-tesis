@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { capitalizarNombre } from './capitalizacion';
 
 export const VOLUNTEER_NAME_MAX = 50;
 export const VOLUNTEER_DNI_LEN = 8;
@@ -360,6 +361,8 @@ export function normalizeVolunteerPayload(model) {
     p.idVoluntaria = Number(p.id);
   }
   delete p.id;
+  p.nombre = capitalizarNombre(p.nombre);
+  p.apellido = capitalizarNombre(p.apellido);
   if (typeof p.celular === 'string') {
     const digits = p.celular.replace(/\D/g, '');
     p.celular = digits ? Number(digits) : p.celular;

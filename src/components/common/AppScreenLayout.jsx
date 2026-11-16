@@ -1,6 +1,5 @@
 import { Box } from '@mui/material';
 import { APP_COLUMN_MAX_WIDTH_PX } from '../../helpers/const/appLayout';
-import GlobalRouteTransitionLoader from './GlobalRouteTransitionLoader';
 
 /**
  * Envuelve toda la app: columna centrada con ancho máximo igual al login (mobile-first).
@@ -37,7 +36,6 @@ export default function AppScreenLayout({ children }) {
           boxShadow: { xs: 'none', sm: '0 0 0 1px rgba(143,0,255,0.08), 0 8px 40px rgba(0,0,0,0.12)' },
         }}
       >
-        <GlobalRouteTransitionLoader />
         {children}
       </Box>
     </Box>

@@ -87,6 +87,16 @@ export const ProfileVolunteerPage = () => {
   const { getVolunteer } = dataVolunteer;
   const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_VOLUNTEER_FIELD_ERRORS });
 
+  const guardarDeshabilitado = (() => {
+    if (!editForm || model == null) return true;
+    if (originalModel.current != null && JSON.stringify(model) === originalModel.current) return true;
+    const selfId = model?.idVoluntaria ?? model?.id ?? (id != null && id !== '' ? Number(id) : null);
+    return !validateVolunteerProfile(model, {
+      volunteers: dataVolunteer?.getVolunteers?.data ?? [],
+      excludeVolunteerId: Number.isFinite(selfId) ? selfId : null,
+    }).ok;
+  })();
+
   const submitVolunteer = () => {
     const mdl = model || {};
     if (originalModel.current != null && JSON.stringify(mdl) === originalModel.current) {
@@ -180,6 +190,7 @@ export const ProfileVolunteerPage = () => {
             model={model}
             setModel={setModel}
             submit={submitVolunteer}
+            submitDisabled={guardarDeshabilitado}
             editForm={editForm}
             setEditForm={setEditForm}
             type="VOLUNTEER"

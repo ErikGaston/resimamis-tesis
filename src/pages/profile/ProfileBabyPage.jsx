@@ -21,6 +21,9 @@ import {
 } from '../../redux/actions/visitaActions';
 import { showToast } from '../../redux/actions/toastActions';
 import { normalizeBabyApiPayload } from '../../utils/babyPayload';
+import { validateBabyForm, INITIAL_BABY_FIELD_ERRORS } from '../../utils/babyFormValidation';
+import { erroresVisibles } from '../../utils/erroresVisibles';
+import { getLocalities } from '../../redux/actions/genericsActions';
 import VisitasBebe from '../../components/organisms/visitasBebe/VisitasBebe';
 
 const GRADIENT = 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)';
@@ -127,9 +130,11 @@ export const ProfileBabyPage = () => {
   const motherState = useSelector((s) => s.motherReducer);
   const loading = useSelector((s) => s.babyReducer?.loading);
   const visita = useSelector((s) => s.visitaReducer);
+  const localities = useSelector((s) => s.genericsReducer?.getLocalities);
 
   const [babyModel, setBabyModel] = useState(null);
   const [editMode, setEditMode] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_BABY_FIELD_ERRORS });
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
   // Used to know whether the next getBabys refresh should update the model
   const pendingModelRefresh = useRef(false);
@@ -148,6 +153,7 @@ export const ProfileBabyPage = () => {
     dispatch(showLoading(true));
     dispatch(getBabys());
     dispatch(getBabySalas());
+    dispatch(getLocalities());
     dispatch(getVisitasByBebe(Number(id)));
     return () => {
       dispatch(clearBabyWrites());
@@ -217,6 +223,12 @@ export const ProfileBabyPage = () => {
       .filter((o) => o.value != null);
   }, [babyState?.getBabySalas]);
 
+  const localidadOptions = useMemo(() => {
+    const list = localities?.data;
+    if (!Array.isArray(list)) return null;
+    return list.map((l) => ({ label: l.nombre, value: l.idLocalidad }));
+  }, [localities]);
+
   const madreData = babyModel?.madre ?? motherState?.getMotherId?.data ?? null;
   const madreNombre = madreData
     ? [madreData.nombre, madreData.apellido].filter(Boolean).join(' ').trim()
@@ -230,6 +242,9 @@ export const ProfileBabyPage = () => {
       dispatch(showToast({ message: 'No se detectaron cambios.', severity: 'info' }));
       return;
     }
+    const { ok, errors } = validateBabyForm(babyModel);
+    setFieldErrors(errors);
+    if (!ok) return;
     const payload = normalizeBabyApiPayload(babyModel, babyModel?.idMadre);
     if (payload.id == null) {
       dispatch(showToast({ message: 'No se pudo identificar el bebé. Recargá la página e intentá de nuevo.', severity: 'error' }));
@@ -241,6 +256,7 @@ export const ProfileBabyPage = () => {
 
   const handleCancelEdit = () => {
     setEditMode(false);
+    setFieldErrors({ ...INITIAL_BABY_FIELD_ERRORS });
     // Restore to server data
     const list = normalizarBabyList(babyState?.getBabys);
     const found = list.find((b) => String(b.id ?? b.ID ?? b.idBebe) === String(id));
@@ -278,7 +294,8 @@ export const ProfileBabyPage = () => {
                     readOnly={!editMode}
                     salaOptions={babySalasOptions}
                     listMothers={null}
-                    listLocalities={null}
+                    listLocalities={localidadOptions}
+                    fieldErrors={editMode ? erroresVisibles(babyModel, fieldErrors, validateBabyForm(babyModel).errors) : {}}
                     madreDisplayName={madreNombre ?? ''}
                     permiteFechaSalida
                   />
@@ -302,6 +319,7 @@ export const ProfileBabyPage = () => {
                           variant="contained"
                           fullWidth
                           onClick={handleSaveBaby}
+                          disabled={JSON.stringify(babyModel) === originalBabyModel.current || !validateBabyForm(babyModel).ok}
                           sx={btnSave}
                         >
                           Guardar bebé

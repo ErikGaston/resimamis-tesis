@@ -18,7 +18,7 @@ const listTurnos = [
     },
 ]
 
-const VolunteerTemplate = ({ model, setModel, localities, submitVolunteer, error, setError, fieldErrors, setFieldErrors }) => {
+const VolunteerTemplate = ({ model, setModel, localities, submitVolunteer, submitDisabled = false, error, setError, fieldErrors, setFieldErrors }) => {
     const [listLocalities, setListLocalities] = React.useState(null)
     const [listMothers, setListMothers] = React.useState(null)
 
@@ -45,6 +45,7 @@ const VolunteerTemplate = ({ model, setModel, localities, submitVolunteer, error
                     setFieldErrors={setFieldErrors}
                     listTurnos={listTurnos}
                     submitVolunteer={submitVolunteer}
+                    submitDisabled={submitDisabled}
                 />
             </div>
         </div>

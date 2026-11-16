@@ -1,4 +1,5 @@
 import AxiosInstance from "../interceptor/interceptor";
+import { capitalizarNombre } from "../../utils/capitalizacion";
 
 //#region - GENERICS
 const getLocalitiesURL = '/genericos/localidades';
@@ -928,6 +929,8 @@ export const getVisitaById = async (idVisita) => {
  */
 const normalizeVisitaBody = (body) => ({
   ...body,
+  nombreVisitante: capitalizarNombre(body?.nombreVisitante),
+  familiar: capitalizarNombre(body?.familiar),
   idBebe: body?.idBebe != null ? Number(body.idBebe) : body?.idBebe,
   documentoVisitante:
     body?.documentoVisitante != null && body.documentoVisitante !== ''
@@ -1054,4 +1057,36 @@ export const postAsistentePregunta = async (payload) =>
     .post('/asistente/preguntar', payload, { timeout: ASISTENTE_TIMEOUT_MS })
     .then((r) => r)
     .catch((e) => { throw e; });
+//#endregion
+
+//#region - REPORTES
+/** `tipo` opcional: Madre | Bebé | Voluntaria. */
+export const getHistorialBajas = async (tipo) => {
+  return AxiosInstance.get('/bajas/historial', { params: tipo ? { tipo } : {} }).then((r) => r).catch((e) => { throw e; });
+};
+
+/** `{ fechaDesde, fechaHasta, idVoluntaria? }` con fechas `YYYY-MM-DD`. */
+export const getDiasTurnos = async (params) => {
+  return AxiosInstance.get('/asistencia/dias-turnos', { params }).then((r) => r).catch((e) => { throw e; });
+};
+
+/** `fecha` opcional `YYYY-MM-DD`; sin ella el back usa hoy. */
+export const getReporteDiario = async (fecha) => {
+  return AxiosInstance.get('/dashboard/reporte-diario', { params: fecha ? { fecha } : {} }).then((r) => r).catch((e) => { throw e; });
+};
+
+/** `{ fechaDesde, fechaHasta, idBebe? }`; la respuesta trae `porBebe` ordenado de mayor a menor. */
+export const getVisitasEstadisticas = async (params) => {
+  return AxiosInstance.get('/dashboard/visitas/estadisticas', { params }).then((r) => r).catch((e) => { throw e; });
+};
+//#endregion
+
+//#region - ESTADÍSTICAS AVANZADAS
+/**
+ * `tipo`: impacto | primer-abrazo | equidad-bebes | bebes-sin-visitas | proyeccion-insumos |
+ * tasa-completados | cumplimiento-horario. `params`: `fechaDesde`/`fechaHasta` (YYYY-MM-DD) o `dias`.
+ */
+export const getEstadisticaAvanzada = async ({ tipo, params }) => {
+  return AxiosInstance.get(`/estadisticas/${tipo}`, { params: params ?? {} }).then((r) => r).catch((e) => { throw e; });
+};
 //#endregion

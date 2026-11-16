@@ -56,8 +56,9 @@ const BabyForm = ({
 
     const onChangeWeight = (e) => {
         const { name, value } = e.target;
-        if (/^$|^\d+([.]\d{0,3})?$/.test(value)) {
-            safeSetModel({ ...model, [name]: value })
+        const normalizado = value.replace(',', '.');
+        if (/^$|^\d?([.]\d{0,3})?$/.test(normalizado)) {
+            safeSetModel({ ...model, [name]: normalizado })
         }
     }
 
@@ -321,7 +322,10 @@ const BabyForm = ({
             )}
             <LabelInput
                 name='pesoNacimiento'
-                label='Peso de nacimiento'
+                label='Peso de nacimiento (kg)'
+                error={!!fieldErrors.pesoNacimiento}
+                helperText={fieldErrors.pesoNacimiento}
+                inputProps={{ inputMode: 'decimal' }}
                 value={model?.pesoNacimiento ?? ''}
                 onChange={onChangeWeight}
                 className={error && 'errorInput'}
@@ -332,7 +336,10 @@ const BabyForm = ({
             />
             <LabelInput
                 name='pesoIngresoNEO'
-                label='Peso ingreso a NEO'
+                label='Peso de ingreso a NEO (kg)'
+                error={!!fieldErrors.pesoIngresoNEO}
+                helperText={fieldErrors.pesoIngresoNEO}
+                inputProps={{ inputMode: 'decimal' }}
                 value={model?.pesoIngresoNEO ?? ''}
                 onChange={onChangeWeight}
                 className={error && 'errorInput'}
@@ -343,7 +350,10 @@ const BabyForm = ({
             />
             <LabelInput
                 name='pesoAlta'
-                label='Peso ingreso al programa'
+                label='Peso de ingreso al programa (kg)'
+                error={!!fieldErrors.pesoAlta}
+                helperText={fieldErrors.pesoAlta}
+                inputProps={{ inputMode: 'decimal' }}
                 value={model?.pesoAlta ?? ''}
                 onChange={onChangeWeight}
                 className={error && 'errorInput'}
@@ -354,7 +364,10 @@ const BabyForm = ({
             />
             <LabelInput
                 name='pesoDiaAbrazos'
-                label='Peso día de abrazo'
+                label='Peso del día de abrazo (kg)'
+                error={!!fieldErrors.pesoDiaAbrazos}
+                helperText={fieldErrors.pesoDiaAbrazos}
+                inputProps={{ inputMode: 'decimal' }}
                 value={model?.pesoDiaAbrazos ?? ''}
                 onChange={onChangeWeight}
                 className={error && 'errorInput'}

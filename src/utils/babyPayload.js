@@ -1,3 +1,5 @@
+import { capitalizarNombre, capitalizarTitulo } from './capitalizacion';
+
 /**
  * Normaliza fila de bebé del formulario al body esperado por PUT/POST OpenAPI `BEBE`
  * (incl. `idMadres` cuando hay varias madres; `idMadre` refleja la primera para compatibilidad).
@@ -53,11 +55,11 @@ export function normalizeBabyApiPayload(baby, idMadreFallback) {
   const body = {
     id: id != null ? Number(id) : null,
     dni: b.dni != null && b.dni !== '' ? Number(String(b.dni).replace(/\D/g, '')) : null,
-    nombre: b.nombre ?? null,
-    apellido: b.apellido ?? null,
+    nombre: capitalizarNombre(b.nombre) ?? null,
+    apellido: capitalizarNombre(b.apellido) ?? null,
     sexo: b.sexo ?? null,
     fechaNacimiento: b.fechaNacimiento ?? null,
-    lugarNacimiento: b.lugarNacimiento ?? null,
+    lugarNacimiento: capitalizarTitulo(b.lugarNacimiento) ?? null,
     fechaIngresoNEO: b.fechaIngresoNEO ?? null,
     // `modificarBebe` la asigna tal cual llega: omitirla borraba la fecha de
     // salida en cualquier edición del bebé.
@@ -95,11 +97,11 @@ export function normalizeBabyForAlta(baby) {
 
   return {
     dni: b.dni != null && b.dni !== '' ? Number(String(b.dni).replace(/\D/g, '')) : null,
-    nombre: b.nombre ?? null,
-    apellido: b.apellido ?? null,
+    nombre: capitalizarNombre(b.nombre) ?? null,
+    apellido: capitalizarNombre(b.apellido) ?? null,
     sexo: b.sexo ? String(b.sexo).trim().toUpperCase() : null,
     fechaNacimiento: b.fechaNacimiento || null,
-    lugarNacimiento: b.lugarNacimiento ?? null,
+    lugarNacimiento: capitalizarTitulo(b.lugarNacimiento) ?? null,
     fechaIngresoNEO: b.fechaIngresoNEO || null,
     pesoNacimiento: numeroOpcional(b.pesoNacimiento),
     pesoIngresoNEO: numeroOpcional(b.pesoIngresoNEO),

@@ -351,7 +351,15 @@ const SupplyTemplate = (props) => {
   const editStockMinError = supplyStockError(editStockMin);
   const editStockMaxError = supplyStockMaxError(editStockMax, editStockMin);
 
-  const editFormValid = isSupplyFormValid({
+  const editHayCambios = editingSupply != null && (
+    editNombre.trim() !== (editingSupply.nombre ?? '')
+    || editDescripcion.trim() !== (editingSupply.descripcion ?? '')
+    || Number(editStockMin) !== Number(editingSupply.stockMinimo ?? 0)
+    || Number(editStockMax) !== Number(editingSupply.stockMaximo ?? 1000)
+    || Number(editStockActual) !== Number(editingSupply.stockActual ?? 0)
+  );
+
+  const editFormValid = editHayCambios && isSupplyFormValid({
     nombre: editNombre,
     descripcion: editDescripcion,
     stockActual: editStockActual,

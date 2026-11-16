@@ -9,6 +9,7 @@ import Footer from "../../components/molecules/Footer";
 import SupplyTemplate from "../../components/templates/supply/SupplyTemplate";
 import { getIdVolunteer } from "../../utils/localStorage";
 import { isCoordinadoraSession } from "../../utils/coordinadoraRole";
+import { capitalizarTitulo } from "../../utils/capitalizacion";
 
 function rangeUltimos30DiasISO() {
     const hasta = new Date();
@@ -138,12 +139,12 @@ export const SupplyPage = () => {
 
     const registerCreateSupply = (body) => {
         dispatch(showLoading(true))
-        dispatch(postSupplyCreate(body))
+        dispatch(postSupplyCreate({ ...body, nombre: capitalizarTitulo(body?.nombre) }))
     }
 
     const editSupply = (id, body) => {
         dispatch(showLoading(true))
-        dispatch(putSupplyById(id, body))
+        dispatch(putSupplyById(id, { ...body, nombre: capitalizarTitulo(body?.nombre) }))
     }
 
     const deleteSupply = (id) => {

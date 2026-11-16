@@ -31,6 +31,12 @@ import PeopleIcon from '@mui/icons-material/People';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import StoreIcon from '@mui/icons-material/Store';
 import TimerIcon from '@mui/icons-material/Timer';
+import HistoryIcon from '@mui/icons-material/History';
+import SummarizeIcon from '@mui/icons-material/Summarize';
+import HistorialBajas from '../../components/organisms/reportes/HistorialBajas';
+import ReporteDiario from '../../components/organisms/reportes/ReporteDiario';
+import DiasTurnosVoluntarias from '../../components/organisms/reportes/DiasTurnosVoluntarias';
+import { getHistorialBajas, getDiasTurnos, getReporteDiario } from '../../redux/actions/reporteActions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -70,6 +76,8 @@ import { getSalasAll, postSala, putSala, postSalaDelete, clearSalaWrites } from 
 import { showToast } from '../../redux/actions/toastActions';
 import Loading from '../../components/atoms/loading/Loading';
 import { showLoading } from '../../redux/actions/loadingActions';
+import { coincideBusqueda, ordenarPorNombre } from '../../utils/textSearch';
+import { capitalizarTitulo } from '../../utils/capitalizacion';
 
 const VIOLET = '#7A659B';
 const VIOLET_LIGHT = '#F3EEFF';
@@ -88,6 +96,25 @@ const DIALOG_FULL_SX = {
   overflow: 'hidden',
 };
 
+const DIALOG_CENTRADO_PAPER_SX = {
+  maxWidth: 412,
+  width: 'calc(100% - 32px)',
+  mx: 'auto',
+  borderRadius: '20px',
+  maxHeight: 'calc(var(--app-vh, 100dvh) * 0.9)',
+  display: 'flex',
+  flexDirection: 'column',
+  // Los dialogs se montan en un portal, fuera del Box de la página que corrige los Button de MUI.
+  '& .MuiButton-root': { textTransform: 'none', minHeight: 44 },
+};
+
+// DialogContent pegado a un DialogTitle recibe padding-top 0 con más especificidad que el sx:
+// sin !important la floating label del primer campo queda cortada.
+const DIALOG_CONTENT_SX = { pt: '20px !important', overflowY: 'auto' };
+
+const nombreBebe = (b) => [b?.nombre, b?.apellido].filter(Boolean).join(' ').trim();
+const nombreVoluntaria = (v) => [v?.nombre, v?.apellido].filter(Boolean).join(' ').trim();
+
 const MENU_ITEMS = [
   { label: 'Asignación', icon: <AssignmentIcon /> },
   { label: 'Asistencia', icon: <EventNoteIcon /> },
@@ -95,6 +122,8 @@ const MENU_ITEMS = [
   { label: 'Bajas', icon: <PersonRemoveIcon /> },
   { label: 'Proveedores', icon: <StoreIcon /> },
   { label: 'Salas', icon: <MeetingRoomIcon /> },
+  { label: 'Historial de bajas', icon: <HistoryIcon /> },
+  { label: 'Reporte diario', icon: <SummarizeIcon /> },
 ];
 
 function TabPanel({ children, value, index }) {
@@ -139,7 +168,9 @@ export const CoordinacionPage = () => {
   const baby = useSelector((s) => s.babyReducer);
   const proveedor = useSelector((s) => s.proveedorReducer);
   const sala = useSelector((s) => s.salaReducer);
+  const reporte = useSelector((s) => s.reporteReducer);
   const loading = useSelector((s) => s.assignmentReducer?.loading);
+  const [tipoHistorial, setTipoHistorial] = useState(null);
 
   const [tab, setTab] = useState(0);
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
@@ -202,6 +233,7 @@ export const CoordinacionPage = () => {
     } else if (tab === 1) {
       dispatch(showLoading(true));
       dispatch(getAssistanceAll());
+      dispatch(getVolunteers());
     } else if (tab === 2) {
       dispatch(showLoading(true));
       dispatch(getUsuarios());
@@ -217,15 +249,27 @@ export const CoordinacionPage = () => {
     } else if (tab === 5) {
       dispatch(showLoading(true));
       dispatch(getSalasAll());
+    } else if (tab === 7) {
+      dispatch(getReporteDiario());
     }
   }, [tab, dispatch]);
+
+  useEffect(() => {
+    if (tab === 6) dispatch(getHistorialBajas(tipoHistorial));
+  }, [tab, tipoHistorial, dispatch]);
 
   // Success effects (write operations)
   useEffect(() => {
     if (assignment?.postResetAbrazosColgados != null) {
       dispatch(showLoading(false));
-      toastOk('Operación de asignación ejecutada.');
+      const cerrados = Number(assignment.postResetAbrazosColgados?.data ?? assignment.postResetAbrazosColgados) || 0;
+      toastOk(
+        cerrados === 0 ? 'No había abrazos sin finalizar.'
+          : cerrados === 1 ? 'Se cerró 1 abrazo sin finalizar.'
+            : `Se cerraron ${cerrados} abrazos sin finalizar.`,
+      );
       dispatch(clearAssignmentWrites());
+      dispatch(getAssignmentToday());
     }
   }, [assignment?.postResetAbrazosColgados, dispatch, toastOk]);
 
@@ -396,6 +440,34 @@ export const CoordinacionPage = () => {
     : passwordError(usuarioForm.contrasena);
   // Vacía es válida: significa "no cambiar la contraseña".
   const editUserPwdError = editUserPwd === '' ? null : passwordError(editUserPwd);
+  const editUserCambio = editUserTarget != null
+    && (editUserDni !== String(editUserTarget.dni ?? '') || editUserPwd !== '');
+
+  const fechaLocal = (iso) => (iso ? dayjs(iso).format('YYYY-MM-DDTHH:mm') : '');
+  const editAsigCambio = editAsig != null && (
+    editAsigComentario !== (editAsig.comentario ?? '')
+    || editAsigVoluntaria !== (editAsig.idVoluntaria != null ? String(editAsig.idVoluntaria) : '')
+    || editAsigBebe !== (editAsig.idBebe != null ? String(editAsig.idBebe) : '')
+    || editAsigInicio !== fechaLocal(editAsig.fechaHoraInicio)
+    || editAsigFin !== fechaLocal(editAsig.fechaHoraFin)
+  );
+  const editAsigErrorFechas = (() => {
+    if (editAsigFin && !editAsigInicio) return 'No puede haber fin sin inicio.';
+    if (editAsigFin && editAsigInicio && dayjs(editAsigFin).isBefore(dayjs(editAsigInicio))) return 'El fin no puede ser anterior al inicio.';
+    if ([editAsigInicio, editAsigFin].some((f) => f && dayjs(f).isAfter(dayjs().add(5, 'minute')))) return 'Las horas no pueden ser futuras.';
+    return '';
+  })();
+  const editAsigFechasValidas = editAsigErrorFechas === '';
+
+  const editProveedorCambio = editProveedor != null && (
+    editProveedorForm.nombre !== (editProveedor.nombre ?? '')
+    || editProveedorForm.descripcion !== (editProveedor.descripcion ?? '')
+    || editProveedorForm.Activa !== (editProveedor.activa ?? editProveedor.Activa ?? true)
+  );
+  const editSalaCambio = editSala != null && (
+    editSalaForm.Nombre !== (editSala.Nombre ?? editSala.nombre ?? '')
+    || editSalaForm.Activa !== (editSala.activa ?? editSala.Activa ?? true)
+  );
 
   const asistenciasTotalPaginas = Math.max(
     1,
@@ -499,7 +571,7 @@ export const CoordinacionPage = () => {
               }}
               onClick={() =>
                 openConfirm(
-                  '¿Cerrar todos los abrazos sin finalizar de días anteriores?',
+                  'Se van a finalizar los abrazos que están en curso (de hoy o de días anteriores) y las asignaciones de días anteriores que nunca se iniciaron. Las asignaciones de hoy que todavía no empezaron no se tocan. ¿Continuar?',
                   () => { dispatch(showLoading(true)); dispatch(postResetAbrazosColgados()); },
                 )
               }
@@ -525,6 +597,11 @@ export const CoordinacionPage = () => {
                     Iniciado:   { label: 'En curso',   bgcolor: 'rgba(255,152,0,0.13)',       color: '#E65100' },
                     Finalizado: { label: 'Finalizado', bgcolor: 'rgba(0,168,107,0.1)',        color: '#00A86B' },
                   }[estado] ?? { label: estado, bgcolor: 'rgba(0,0,0,0.06)', color: '#666' };
+                  if (estado === 'Finalizado' && a.comentario?.startsWith('Cierre automático')) {
+                    estadoChip.label = 'Cierre automático';
+                    estadoChip.color = '#8A6D00';
+                    estadoChip.bgcolor = 'rgba(255,193,7,0.16)';
+                  }
                   return (
                     <Box
                       key={a.idAsignacion}
@@ -652,6 +729,14 @@ export const CoordinacionPage = () => {
 
             <Divider sx={{ my: 2 }} />
 
+            <DiasTurnosVoluntarias
+              voluntarias={ordenarPorNombre(voluntariasList, nombreVoluntaria)}
+              resultado={reporte?.diasTurnos}
+              onConsultar={(params) => dispatch(getDiasTurnos(params))}
+            />
+
+            <Divider sx={{ my: 2 }} />
+
             <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2, color: NAVY }}>
               Asistencias registradas
             </Typography>
@@ -761,6 +846,7 @@ export const CoordinacionPage = () => {
                             nombre: nombreCompletoUsuario(u),
                             idVoluntaria: u.idVoluntaria,
                             idEstado: u.idEstado,
+                            dni: u.dni,
                           });
                           setEditUserDni(u.dni != null ? String(u.dni) : '');
                           setEditUserPwd('');
@@ -922,13 +1008,8 @@ export const CoordinacionPage = () => {
               if (!Array.isArray(list)) {
                 return <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textAlign: 'center', py: 3 }}>Cargando madres…</Typography>;
               }
-              const q = bajasSearch.trim().toLowerCase();
-              const filtered = list.filter((m) => {
-                if (!q) return true;
-                const full = `${m.nombre ?? ''} ${m.apellido ?? ''}`.toLowerCase();
-                const dniStr = String(m.dni ?? '');
-                return full.includes(q) || dniStr.includes(q.replace(/\D/g, ''));
-              });
+              const filtered = list.filter((m) =>
+                coincideBusqueda(bajasSearch, [`${m.nombre ?? ''} ${m.apellido ?? ''}`], m.dni));
               if (!filtered.length) {
                 return <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textAlign: 'center', py: 3 }}>Sin resultados.</Typography>;
               }
@@ -936,7 +1017,7 @@ export const CoordinacionPage = () => {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   {filtered.map((m) => (
                     <Box
-                      key={m.IdMadre}
+                      key={m.idMadre ?? m.IdMadre}
                       sx={{
                         display: 'flex', alignItems: 'center', gap: 1.5,
                         p: 1.5, bgcolor: '#fff', borderRadius: 2,
@@ -957,7 +1038,7 @@ export const CoordinacionPage = () => {
                         color="error"
                         onClick={() => openConfirm(
                           `¿Dar de baja a ${`${m.nombre ?? ''} ${m.apellido ?? ''}`.trim()}?`,
-                          () => { dispatch(showLoading(true)); dispatch(postMotherDelete(m.IdMadre)); },
+                          () => { dispatch(showLoading(true)); dispatch(postMotherDelete(m.idMadre ?? m.IdMadre)); },
                         )}
                       >
                         <DeleteOutlineIcon fontSize="small" />
@@ -973,13 +1054,10 @@ export const CoordinacionPage = () => {
               if (!Array.isArray(list)) {
                 return <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textAlign: 'center', py: 3 }}>Cargando bebés…</Typography>;
               }
-              const q = bajasSearch.trim().toLowerCase();
-              const filtered = list.filter((b) => {
-                if (!q) return true;
-                const full = `${b.nombre ?? ''} ${b.apellido ?? ''}`.toLowerCase();
-                const madreFull = `${b.madre?.nombre ?? b.madre?.Nombre ?? ''} ${b.madre?.apellido ?? b.madre?.Apellido ?? ''}`.toLowerCase().trim();
-                return full.includes(q) || madreFull.includes(q);
-              });
+              const filtered = list.filter((b) => coincideBusqueda(bajasSearch, [
+                `${b.nombre ?? ''} ${b.apellido ?? ''}`,
+                `${b.madre?.nombre ?? b.madre?.Nombre ?? ''} ${b.madre?.apellido ?? b.madre?.Apellido ?? ''}`,
+              ], b.dni));
               if (!filtered.length) {
                 return <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textAlign: 'center', py: 3 }}>Sin resultados.</Typography>;
               }
@@ -1032,13 +1110,8 @@ export const CoordinacionPage = () => {
               if (!Array.isArray(voluntariasList)) {
                 return <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textAlign: 'center', py: 3 }}>Cargando voluntarias…</Typography>;
               }
-              const q = bajasSearch.trim().toLowerCase();
-              const filtered = voluntariasList.filter((v) => {
-                if (!q) return true;
-                const full = `${v.nombre ?? ''} ${v.apellido ?? ''}`.toLowerCase();
-                const dniStr = String(v.dni ?? '');
-                return full.includes(q) || dniStr.includes(q.replace(/\D/g, ''));
-              });
+              const filtered = voluntariasList.filter((v) =>
+                coincideBusqueda(bajasSearch, [`${v.nombre ?? ''} ${v.apellido ?? ''}`], v.dni));
               if (!filtered.length) {
                 return <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textAlign: 'center', py: 3 }}>Sin resultados.</Typography>;
               }
@@ -1172,7 +1245,7 @@ export const CoordinacionPage = () => {
               sx={{ bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
               onClick={() => {
                 dispatch(showLoading(true));
-                dispatch(postProveedor({ nombre: newProveedorForm.nombre, descripcion: newProveedorForm.descripcion || null, Activa: true }));
+                dispatch(postProveedor({ nombre: capitalizarTitulo(newProveedorForm.nombre), descripcion: newProveedorForm.descripcion || null, Activa: true }));
               }}
             >
               Crear proveedor
@@ -1255,11 +1328,26 @@ export const CoordinacionPage = () => {
               sx={{ bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
               onClick={() => {
                 dispatch(showLoading(true));
-                dispatch(postSala({ Nombre: newSalaForm.Nombre, Activa: true }));
+                dispatch(postSala({ Nombre: capitalizarTitulo(newSalaForm.Nombre), Activa: true }));
               }}
             >
               Crear sala
             </Button>
+          </TabPanel>
+
+          <TabPanel value={tab} index={6}>
+            <HistorialBajas
+              historial={reporte?.historialBajas}
+              tipo={tipoHistorial}
+              onCambiarTipo={setTipoHistorial}
+            />
+          </TabPanel>
+
+          <TabPanel value={tab} index={7}>
+            <ReporteDiario
+              reporte={reporte?.reporteDiario}
+              onConsultar={(fecha) => dispatch(getReporteDiario(fecha))}
+            />
           </TabPanel>
 
         </Paper>
@@ -1273,7 +1361,7 @@ export const CoordinacionPage = () => {
         fullWidth
       >
         <DialogTitle sx={{ fontWeight: 600, color: '#152C70' }}>Editar acceso</DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
+        <DialogContent sx={DIALOG_CONTENT_SX}>
           <Typography variant="body1" fontWeight={600} sx={{ mb: 0.5 }}>
             {editUserTarget?.nombre}
           </Typography>
@@ -1306,7 +1394,7 @@ export const CoordinacionPage = () => {
           </Button>
           <Button
             variant="contained"
-            disabled={!editUserDni || editUserPwdError != null}
+            disabled={!/^\d{7,8}$/.test(editUserDni) || editUserPwdError != null || !editUserCambio}
             onClick={() => {
               dispatch(showLoading(true));
               dispatch(
@@ -1491,19 +1579,15 @@ export const CoordinacionPage = () => {
         onClose={() => setEditAsig(null)}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: 'calc(var(--app-vh, 100dvh) * 0.9)', display: 'flex', flexDirection: 'column' } }}
-        sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
+        PaperProps={{ sx: DIALOG_CENTRADO_PAPER_SX }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25, flexShrink: 0 }}>
-          <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'rgba(21,44,112,0.15)' }} />
-        </Box>
         <DialogTitle sx={{ fontWeight: 700, color: '#152C70', pb: 0.5, flexShrink: 0 }}>
           Editar asignación #{editAsig?.idAsignacion}
           <Typography variant="body2" color="text.secondary" fontWeight={400}>
             {editAsig?.nombreBebe ?? editAsig?.nombreTarea ?? '—'} · {editAsig?.nombreVoluntaria ?? '—'}
           </Typography>
         </DialogTitle>
-        <DialogContent sx={{ pt: 2.5, overflowY: 'auto' }}>
+        <DialogContent sx={DIALOG_CONTENT_SX}>
           {editAsig?.idBebe != null && (
             <FormControl fullWidth size="small" sx={{ mb: 2 }}>
               <InputLabel id="edit-asig-bebe-label">Bebé a abrazar</InputLabel>
@@ -1513,7 +1597,7 @@ export const CoordinacionPage = () => {
                 value={editAsigBebe}
                 onChange={(e) => setEditAsigBebe(e.target.value)}
               >
-                {bebesList.map((b) => {
+                {ordenarPorNombre(bebesList, nombreBebe).map((b) => {
                   const idBebe = b.ID ?? b.id;
                   if (idBebe == null) return null;
                   const nombre = [b.nombre, b.apellido].filter(Boolean).join(' ').trim()
@@ -1536,7 +1620,7 @@ export const CoordinacionPage = () => {
               value={editAsigVoluntaria}
               onChange={(e) => setEditAsigVoluntaria(e.target.value)}
             >
-              {(Array.isArray(voluntariasList) ? voluntariasList : []).map((v) => {
+              {ordenarPorNombre(voluntariasList, nombreVoluntaria).map((v) => {
                 const idVol = v.idVoluntaria ?? v.IdVoluntaria;
                 if (idVol == null) return null;
                 const nombre = [v.nombre, v.apellido].filter(Boolean).join(' ').trim()
@@ -1573,6 +1657,8 @@ export const CoordinacionPage = () => {
             fullWidth
             size="small"
             InputLabelProps={{ shrink: true }}
+            error={!editAsigFechasValidas}
+            helperText={editAsigFechasValidas ? '' : editAsigErrorFechas}
           />
         </DialogContent>
         <DialogActions sx={{ px: 2, pb: 2, gap: 1 }}>
@@ -1585,6 +1671,7 @@ export const CoordinacionPage = () => {
           </Button>
           <Button
             variant="contained"
+            disabled={!editAsigCambio || !editAsigFechasValidas}
             sx={{ flex: 1, bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
             onClick={() => {
               if (!editAsig) return;
@@ -1625,16 +1712,12 @@ export const CoordinacionPage = () => {
         onClose={() => setEditProveedor(null)}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: 'calc(var(--app-vh, 100dvh) * 0.9)', display: 'flex', flexDirection: 'column' } }}
-        sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
+        PaperProps={{ sx: DIALOG_CENTRADO_PAPER_SX }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25 }}>
-          <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'rgba(21,44,112,0.15)' }} />
-        </Box>
         <DialogTitle sx={{ fontWeight: 700, color: NAVY, pb: 0.5 }}>
           Editar proveedor
         </DialogTitle>
-        <DialogContent sx={{ pt: 2.5 }}>
+        <DialogContent sx={DIALOG_CONTENT_SX}>
           <TextField
             label="Nombre *"
             value={editProveedorForm.nombre}
@@ -1665,14 +1748,14 @@ export const CoordinacionPage = () => {
           </Button>
           <Button
             variant="contained"
-            disabled={!editProveedorForm.nombre.trim()}
+            disabled={!editProveedorForm.nombre.trim() || !editProveedorCambio}
             sx={{ flex: 1, bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
             onClick={() => {
               if (!editProveedor) return;
               dispatch(showLoading(true));
               dispatch(putProveedor(editProveedor.idProveedor, {
                 idProveedor: editProveedor.idProveedor,
-                nombre: editProveedorForm.nombre,
+                nombre: capitalizarTitulo(editProveedorForm.nombre),
                 descripcion: editProveedorForm.descripcion || null,
                 Activa: editProveedorForm.Activa,
               }));
@@ -1689,16 +1772,12 @@ export const CoordinacionPage = () => {
         onClose={() => setEditSala(null)}
         maxWidth="xs"
         fullWidth
-        PaperProps={{ sx: { maxWidth: 444, width: '100%', mx: 'auto', mb: 0, mt: 'auto', borderRadius: '20px 20px 0 0', maxHeight: 'calc(var(--app-vh, 100dvh) * 0.9)', display: 'flex', flexDirection: 'column' } }}
-        sx={{ '& .MuiDialog-container': { alignItems: 'flex-end' } }}
+        PaperProps={{ sx: DIALOG_CENTRADO_PAPER_SX }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.25 }}>
-          <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'rgba(21,44,112,0.15)' }} />
-        </Box>
         <DialogTitle sx={{ fontWeight: 700, color: NAVY, pb: 0.5 }}>
           Editar sala
         </DialogTitle>
-        <DialogContent sx={{ pt: 2.5 }}>
+        <DialogContent sx={DIALOG_CONTENT_SX}>
           <TextField
             label="Nombre *"
             value={editSalaForm.Nombre}
@@ -1723,13 +1802,13 @@ export const CoordinacionPage = () => {
           </Button>
           <Button
             variant="contained"
-            disabled={!editSalaForm.Nombre.trim()}
+            disabled={!editSalaForm.Nombre.trim() || !editSalaCambio}
             sx={{ flex: 1, bgcolor: VIOLET, '&:hover': { bgcolor: '#6A549A' } }}
             onClick={() => {
               if (!editSala) return;
               const id = editSala.IdSala ?? editSala.idSala;
               dispatch(showLoading(true));
-              dispatch(putSala(id, { IdSala: id, Nombre: editSalaForm.Nombre, Activa: editSalaForm.Activa }));
+              dispatch(putSala(id, { IdSala: id, Nombre: capitalizarTitulo(editSalaForm.Nombre), Activa: editSalaForm.Activa }));
             }}
           >
             Guardar

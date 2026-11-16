@@ -7,6 +7,15 @@ import MotherForm from '../../molecules/motherForm/MotherForm';
 import BabyForm from '../../molecules/motherForm/BabyForm';
 import { Box, Button } from '@mui/material';
 import { normalizeBabyApiPayload } from '../../../utils/babyPayload';
+import { validateBabyForm, isBabyRowEmpty } from '../../../utils/babyFormValidation';
+import { validateMotherForm } from '../../../utils/motherFormValidation';
+import { erroresVisibles } from '../../../utils/erroresVisibles';
+
+const sinBebes = (m) => {
+    if (!m) return m;
+    const { bebe: _bebe, ...resto } = m;
+    return resto;
+};
 
 const GRADIENT = 'linear-gradient(90deg, #7F00FF 0%, #E100FF 100%)';
 
@@ -19,6 +28,7 @@ const btnSave = {
     background: GRADIENT,
     boxShadow: '0 4px 14px rgba(127,0,255,0.28)',
     color: '#fff',
+    '&.Mui-disabled': { opacity: 0.45, boxShadow: 'none', color: '#fff' },
 };
 
 const btnCancel = {
@@ -77,7 +87,30 @@ const MotherAccordionForm = (props) => {
         : {});
 
     const [editingBabyIndex, setEditingBabyIndex] = useState(null);
+    const [editBabyErrors, setEditBabyErrors] = useState({});
     const originalBaby = useRef(null);
+    const originalMadre = useRef(null);
+
+    if (typeForm === 'EDITAR' && editForm && originalMadre.current == null) {
+        originalMadre.current = JSON.stringify(sinBebes(model));
+    } else if (!editForm && originalMadre.current != null) {
+        originalMadre.current = null;
+    }
+
+    const { ok: madreValida, errors: erroresMadre } = validateMotherForm(model, {
+        mothers: listMothers ?? [],
+        excludeMadreId: typeForm === 'EDITAR' ? (model?.idMadre ?? null) : null,
+    });
+    const madreConCambios = originalMadre.current != null && JSON.stringify(sinBebes(model)) !== originalMadre.current;
+    const bebesCargados = (model?.bebe ?? []).filter((b) => !isBabyRowEmpty(b));
+    const altaCompleta = madreValida && bebesCargados.length > 0 && bebesCargados.every((b) => validateBabyForm(b).ok);
+    const bebeEnEdicionGuardable = (index) => {
+        const row = model?.bebe?.[index];
+        return row != null
+            && originalBaby.current != null
+            && JSON.stringify(row) !== originalBaby.current
+            && validateBabyForm(row).ok;
+    };
 
     const madreNombreCompleto = [model?.nombre, model?.apellido].filter(Boolean).join(' ').trim();
     // En un alta vacía "Sin nombre" se lee como un error; hasta que haya nombre
@@ -94,6 +127,9 @@ const MotherAccordionForm = (props) => {
     const handleSaveBaby = (index) => {
         const row = model?.bebe?.[index];
         if (!row || !profileBabyExtras?.onPutBaby) return;
+        const { ok, errors } = validateBabyForm(row);
+        setEditBabyErrors(errors);
+        if (!ok) return;
         if (originalBaby.current != null && JSON.stringify(row) === originalBaby.current) {
             profileBabyExtras.onNoBabyChanges?.();
             setEditingBabyIndex(null);
@@ -106,6 +142,7 @@ const MotherAccordionForm = (props) => {
 
     const handleCancelBabyEdits = () => {
         setEditingBabyIndex(null);
+        setEditBabyErrors({});
         if (typeof profileBabyExtras?.onReloadMother === 'function') {
             profileBabyExtras.onReloadMother();
         }
@@ -135,7 +172,7 @@ const MotherAccordionForm = (props) => {
                                         listEstadosCiviles={listEstadosCiviles}
                                         editForm={editForm}
                                         typeForm={typeForm}
-                                        fieldErrors={fieldErrors}
+                                        fieldErrors={typeForm === 'EDITAR' && editForm ? erroresVisibles(model, fieldErrors, erroresMadre) : fieldErrors}
                                         setFieldErrors={setFieldErrors}
                                     />
 
@@ -145,6 +182,7 @@ const MotherAccordionForm = (props) => {
                                                 variant="contained"
                                                 fullWidth
                                                 onClick={submitMother}
+                                                disabled={!madreValida}
                                                 sx={btnSave}
                                             >
                                                 Guardar madre y continuar
@@ -174,6 +212,7 @@ const MotherAccordionForm = (props) => {
                                                         variant="contained"
                                                         fullWidth
                                                         onClick={submitMother}
+                                                        disabled={!madreConCambios || !madreValida}
                                                         sx={btnSave}
                                                     >
                                                         Guardar cambios
@@ -258,6 +297,7 @@ const MotherAccordionForm = (props) => {
                             variant="contained"
                             fullWidth
                             onClick={submitAlta}
+                            disabled={!altaCompleta}
                             sx={btnSave}
                         >
                             Finalizar alta
@@ -305,6 +345,7 @@ const MotherAccordionForm = (props) => {
                                     madreDisplayName={madreNombreCompleto}
                                     salaOptions={profileBabyExtras?.babySalasOptions ?? null}
                                     permiteFechaSalida
+                                    fieldErrors={isEditingThisBaby ? erroresVisibles(item, editBabyErrors, validateBabyForm(item).errors) : {}}
                                 />
 
                                 {typeForm === 'EDITAR' && profileBabyExtras?.onPutBaby && (
@@ -324,6 +365,7 @@ const MotherAccordionForm = (props) => {
                                                     variant="contained"
                                                     fullWidth
                                                     onClick={() => handleSaveBaby(index)}
+                                                    disabled={!bebeEnEdicionGuardable(index)}
                                                     sx={btnSave}
                                                 >
                                                     Guardar bebé

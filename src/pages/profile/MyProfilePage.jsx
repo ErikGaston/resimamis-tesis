@@ -140,6 +140,17 @@ export const MyProfilePage = () => {
     }
   }, [userState?.userAdminError, userState?.putUsuarioContrasena]);
 
+  const guardarDeshabilitado = (() => {
+    if (!editForm || model == null) return true;
+    if (originalModel.current != null && JSON.stringify(model) === originalModel.current) return true;
+    const selfId = model?.idVoluntaria ?? model?.id ?? (id != null ? Number(id) : null);
+    return !validateVolunteerProfile(model, {
+      volunteers: volunteerState?.getVolunteers?.data ?? [],
+      excludeVolunteerId: Number.isFinite(selfId) ? selfId : null,
+      myProfile: true,
+    }).ok;
+  })();
+
   const submitVolunteer = () => {
     const mdl = model || {};
     if (originalModel.current != null && JSON.stringify(mdl) === originalModel.current) {
@@ -245,6 +256,7 @@ export const MyProfilePage = () => {
               model={model}
               setModel={setModel}
               submit={submitVolunteer}
+              submitDisabled={guardarDeshabilitado}
               editForm={editForm}
               setEditForm={setEditForm}
               type="VOLUNTEER"

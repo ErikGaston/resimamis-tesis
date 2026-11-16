@@ -238,7 +238,7 @@ const ListBabysTemplate = (props) => {
                 maxWidth: 280,
               }}
             >
-              Podés dar de alta un bebé desde la ficha de una madre.
+              Podés dar de alta un bebé con el botón +, eligiendo una madre ya registrada o cargando una nueva.
             </Typography>
           </EmptyState>
         ) : null}
@@ -246,7 +246,7 @@ const ListBabysTemplate = (props) => {
 
       <Fab
         component={Link}
-        to="/madre"
+        to="/madre?madreExistente=1"
         color="primary"
         aria-label="Registrar bebé"
         sx={{
