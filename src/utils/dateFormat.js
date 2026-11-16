@@ -6,11 +6,13 @@ export const formattedDate = (date) => {
     if (!d.isValid()) return '';
     return d.format('YYYY-MM-DD');
 };
-// Fechas sin hora (p. ej. nacimiento): el back las devuelve como medianoche UTC
+// Fechas sin hora (nacimiento, inicio, baja): el back las devuelve como medianoche UTC
 // ("1990-04-15T00:00:00Z") y dayjs las pasaría a hora argentina, un día antes.
-// Se toma solo AAAA-MM-DD para que se vea el mismo día que se cargó.
+// En ese caso se toma solo AAAA-MM-DD; si trae una hora real, se respeta la hora local.
 export const fechaSinHora = (valor) => {
     if (!valor) return null;
-    const d = dayjs(String(valor).slice(0, 10));
+    const texto = String(valor);
+    const medianocheUtc = /^\d{4}-\d{2}-\d{2}(T00:00:00(\.0+)?(Z|\+00:00)?)?$/.test(texto);
+    const d = medianocheUtc ? dayjs(texto.slice(0, 10)) : dayjs(texto);
     return d.isValid() ? d : null;
 };

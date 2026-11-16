@@ -86,12 +86,8 @@ const ProfileForm = ({
     const birthMax = dayjs().subtract(VOLUNTEER_MIN_AGE, 'year').endOf('day')
 
     const dateNacValue = fechaSinHora(m?.fechaNacimiento);
-    const dateInicioValue = m?.fechaInicio && dayjs(m.fechaInicio).isValid()
-        ? dayjs(m.fechaInicio)
-        : null
-    const dateFinValue = m?.fechaFin && dayjs(m.fechaFin).isValid()
-        ? dayjs(m.fechaFin)
-        : null
+    const dateInicioValue = fechaSinHora(m?.fechaInicio);
+    const dateFinValue = fechaSinHora(m?.fechaFin);
 
     const celDisplay = m?.celular == null || m?.celular === ''
         ? ''
