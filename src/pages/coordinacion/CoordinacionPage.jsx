@@ -200,6 +200,7 @@ export const CoordinacionPage = () => {
   const [editUserTarget, setEditUserTarget] = useState(null);
   const [editUserDni, setEditUserDni] = useState('');
   const [editUserPwd, setEditUserPwd] = useState('');
+  const [editUserRol, setEditUserRol] = useState('2');
 
   // Bajas
   const [bajasSubTab, setBajasSubTab] = useState('madres');
@@ -448,7 +449,7 @@ export const CoordinacionPage = () => {
   // Vacía es válida: significa "no cambiar la contraseña".
   const editUserPwdError = editUserPwd === '' ? null : passwordError(editUserPwd);
   const editUserCambio = editUserTarget != null
-    && (editUserDni !== String(editUserTarget.dni ?? '') || editUserPwd !== '');
+    && (editUserDni !== String(editUserTarget.dni ?? '') || editUserPwd !== '' || editUserRol !== String(editUserTarget.idRol ?? 2));
 
   const fechaLocal = (iso) => (iso ? dayjs(iso).format('YYYY-MM-DDTHH:mm') : '');
   const editAsigCambio = editAsig != null && (
@@ -882,9 +883,11 @@ export const CoordinacionPage = () => {
                             idVoluntaria: u.idVoluntaria,
                             idEstado: u.idEstado,
                             dni: u.dni,
+                            idRol: u.idRol,
                           });
                           setEditUserDni(u.dni != null ? String(u.dni) : '');
                           setEditUserPwd('');
+                          setEditUserRol(String(u.idRol ?? 2));
                         }}
                       >
                         <EditOutlinedIcon fontSize="small" />
@@ -1441,6 +1444,13 @@ export const CoordinacionPage = () => {
             error={editUserPwdError != null}
             helperText={editUserPwdError ?? PASSWORD_RULES_TEXT}
           />
+          <FormControl fullWidth size="small" sx={{ mt: 1.5 }}>
+            <InputLabel>Rol</InputLabel>
+            <Select value={editUserRol} label="Rol" onChange={(e) => setEditUserRol(e.target.value)}>
+              <MenuItem value="2">Voluntaria</MenuItem>
+              <MenuItem value="3">Coordinadora (ve y usa Coordinación)</MenuItem>
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => { setEditUserTarget(null); setEditUserDni(''); setEditUserPwd(''); }}>
@@ -1451,15 +1461,21 @@ export const CoordinacionPage = () => {
             disabled={!/^\d{7,8}$/.test(editUserDni) || editUserPwdError != null || !editUserCambio}
             onClick={() => {
               dispatch(showLoading(true));
-              dispatch(
-                putUsuario(editUserTarget.id, {
-                  idUsuario: editUserTarget.id,
-                  dni: Number(editUserDni),
-                  idVoluntaria: editUserTarget.idVoluntaria,
-                  contrasena: editUserPwd || '',
-                  ...(editUserTarget.idEstado != null && { idEstado: editUserTarget.idEstado }),
-                }),
-              );
+              const cambioDatos = editUserDni !== String(editUserTarget.dni ?? '') || editUserPwd !== '';
+              const cambioRol = editUserRol !== String(editUserTarget.idRol ?? 2);
+              if (cambioDatos) {
+                dispatch(
+                  putUsuario(editUserTarget.id, {
+                    idUsuario: editUserTarget.id,
+                    dni: Number(editUserDni),
+                    idVoluntaria: editUserTarget.idVoluntaria,
+                    contrasena: editUserPwd || '',
+                    ...(editUserTarget.idEstado != null && { idEstado: editUserTarget.idEstado }),
+                  }),
+                );
+              }
+              // El rol va por su propio endpoint (vive en la voluntaria, no en el usuario).
+              if (cambioRol) dispatch(putUsuarioRol(editUserTarget.id, Number(editUserRol)));
             }}
           >
             Guardar
