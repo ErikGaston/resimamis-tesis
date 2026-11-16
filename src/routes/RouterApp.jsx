@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react'
+import React, { lazy as reactLazy, Suspense } from 'react'
 import { Navigate, useLocation, useRoutes } from 'react-router-dom'
 import { HomePage, ListVolunteerPage, LoginPage, MotherPage, ProfileVolunteerPage } from '../pages'
 import ListBabysPage from '../pages/list/ListBabysPage'
@@ -12,6 +12,29 @@ import { RootRedirect } from './RootRedirect'
 import { ErrorBoundary } from '../components/common/ErrorBoundary'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
+
+// Tras un deploy nuevo, una pestaña abierta de antes pide los archivos viejos de la pantalla
+// y falla ("Algo salió mal"). En ese caso se recarga la página una vez para traer la versión nueva.
+const lazy = (importar) =>
+  reactLazy(() =>
+    importar()
+      .then((m) => {
+        try { sessionStorage.removeItem('recargaPorDeploy') } catch { /* sin storage */ }
+        return m
+      })
+      .catch((error) => {
+        let yaRecargo = true
+        try {
+          yaRecargo = !!sessionStorage.getItem('recargaPorDeploy')
+          if (!yaRecargo) sessionStorage.setItem('recargaPorDeploy', '1')
+        } catch { /* sin storage: no recargar para evitar bucles */ }
+        if (!yaRecargo) {
+          window.location.reload()
+          return new Promise(() => {})
+        }
+        throw error
+      })
+  )
 
 const StatisticsPage = lazy(() =>
   import('../pages/statistics/StatisticsPage').then(m => ({ default: m.StatisticsPage }))
