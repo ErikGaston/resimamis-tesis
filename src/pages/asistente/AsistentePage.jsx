@@ -151,11 +151,6 @@ export const AsistentePage = () => {
                             <Typography sx={{ fontSize: '0.9375rem', lineHeight: 1.55, color: m.rol === 'user' ? '#fff' : NAVY, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
                                 {m.contenido}
                             </Typography>
-                            {m.herramientas?.length > 0 && (
-                                <Typography sx={{ fontSize: '0.72rem', color: 'rgba(21,44,112,0.7)', mt: 0.75, fontStyle: 'italic' }}>
-                                    Consultó: {m.herramientas.join(', ')}
-                                </Typography>
-                            )}
                         </Paper>
                     </Box>
                 ))}
