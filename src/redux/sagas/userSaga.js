@@ -52,6 +52,17 @@ function* asyncPutUsuario({ payload }) {
     }
 }
 
+function* asyncPutUsuarioRol({ payload }) {
+    try {
+        const { idUsuario, idRol } = payload || {};
+        const response = yield call(API.putUsuarioRol, idUsuario, idRol);
+        if (response) yield put({ type: actionTypes.SUCCESS_PUT_USUARIO_ROL, response });
+    } catch (error) {
+        yield* showApiErrorToast(error);
+        yield put({ type: actionTypes.ERROR_USER, response: error });
+    }
+}
+
 function* asyncPostUsuarioDelete({ payload }) {
     try {
         const response = yield call(API.postUsuarioDelete, payload);
@@ -97,6 +108,7 @@ export default function* userSaga() {
     yield takeLatest(actionTypes.POST_USUARIO, asyncPostUsuario);
     yield takeLatest(actionTypes.GET_USUARIO_BY_ID, asyncGetUsuarioById);
     yield takeLatest(actionTypes.PUT_USUARIO, asyncPutUsuario);
+    yield takeLatest(actionTypes.PUT_USUARIO_ROL, asyncPutUsuarioRol);
     yield takeLatest(actionTypes.POST_USUARIO_DELETE, asyncPostUsuarioDelete);
     yield takeLatest(actionTypes.GET_USUARIOS, asyncGetUsuarios);
     yield takeLatest(actionTypes.GET_VOLUNTARIAS_SIN_USUARIO, asyncGetVoluntariasSinUsuario);

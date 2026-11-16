@@ -25,6 +25,10 @@ export function putUsuario(idUsuario, body) {
     return { type: actionTypes.PUT_USUARIO, payload: { idUsuario, body } };
 }
 
+export function putUsuarioRol(idUsuario, idRol) {
+    return { type: actionTypes.PUT_USUARIO_ROL, payload: { idUsuario, idRol } };
+}
+
 export function postUsuarioDelete(idUsuario) {
     return { type: actionTypes.POST_USUARIO_DELETE, payload: idUsuario };
 }

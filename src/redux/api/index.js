@@ -754,6 +754,16 @@ export const putUsuarioById = async (idUsuario, body) => {
     });
 };
 
+/** Cambia el rol de la voluntaria dueña del usuario (2 = Voluntaria, 3 = Coordinadora). */
+export const putUsuarioRol = async (idUsuario, idRol) => {
+  return AxiosInstance
+    .put(`${usuarioBase}/id/${idUsuario}/rol`, { idRol })
+    .then((r) => r)
+    .catch((e) => {
+      throw e;
+    });
+};
+
 export const postUsuarioDelete = async (idUsuario) => {
   return AxiosInstance
     .post(`${usuarioBase}/delete`, null, { params: { idUsuario } })

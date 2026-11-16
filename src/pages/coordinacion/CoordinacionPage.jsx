@@ -66,6 +66,7 @@ import {
 import {
   postUsuario,
   putUsuario,
+  putUsuarioRol,
   postUsuarioDelete,
   clearUserAdmin,
   getUsuarios,
@@ -195,7 +196,7 @@ export const CoordinacionPage = () => {
   const [asistenciasPage, setAsistenciasPage] = useState(1);
 
   // Usuarios
-  const [usuarioForm, setUsuarioForm] = useState({ dni: '', contrasena: '', idVoluntaria: '' });
+  const [usuarioForm, setUsuarioForm] = useState({ dni: '', contrasena: '', idVoluntaria: '', idRol: '2' });
   const [editUserTarget, setEditUserTarget] = useState(null);
   const [editUserDni, setEditUserDni] = useState('');
   const [editUserPwd, setEditUserPwd] = useState('');
@@ -309,18 +310,18 @@ export const CoordinacionPage = () => {
   }, [volunteer?.postAssistanceDelete, dispatch, toastOk, repLastQuery]);
 
   useEffect(() => {
-    if (user?.postUsuario != null || user?.putUsuario != null || user?.postUsuarioDelete != null) {
+    if (user?.postUsuario != null || user?.putUsuario != null || user?.putUsuarioRol != null || user?.postUsuarioDelete != null) {
       dispatch(showLoading(false));
       toastOk('Usuario: operación OK.');
       setEditUserTarget(null);
       setEditUserDni('');
       setEditUserPwd('');
-      setUsuarioForm({ dni: '', contrasena: '', idVoluntaria: '' });
+      setUsuarioForm({ dni: '', contrasena: '', idVoluntaria: '', idRol: '2' });
       dispatch(clearUserAdmin());
       dispatch(getUsuarios());
       dispatch(getVoluntariasSinUsuario());
     }
-  }, [user?.postUsuario, user?.putUsuario, user?.postUsuarioDelete, dispatch, toastOk]);
+  }, [user?.postUsuario, user?.putUsuario, user?.putUsuarioRol, user?.postUsuarioDelete, dispatch, toastOk]);
 
   useEffect(() => {
     if (mother?.postMotherDelete != null) {
@@ -839,9 +840,37 @@ export const CoordinacionPage = () => {
                       <Typography variant="body2" fontWeight={600} noWrap>
                         {nombreCompletoUsuario(u) || `Usuario #${u.idUsuario ?? u.id}`}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        DNI {u.dni ?? '—'}
-                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                        <Typography variant="caption" color="text.secondary">
+                          DNI {u.dni ?? '—'}
+                        </Typography>
+                        {(() => {
+                          const esCoord = Number(u.idRol) === 3;
+                          const id = u.idUsuario ?? u.id;
+                          const nombre = nombreCompletoUsuario(u) || 'esta voluntaria';
+                          return (
+                            <Chip
+                              size="small"
+                              label={esCoord ? 'Coordinadora' : 'Voluntaria'}
+                              onClick={() => openConfirm(
+                                esCoord
+                                  ? `¿Quitarle el rol de coordinadora a ${nombre}? Va a quedar como voluntaria común.`
+                                  : `¿Darle el rol de coordinadora a ${nombre}? Va a poder ver y usar Coordinación.`,
+                                () => { dispatch(showLoading(true)); dispatch(putUsuarioRol(id, esCoord ? 2 : 3)); },
+                              )}
+                              title="Cambiar rol"
+                              sx={{
+                                height: 22,
+                                fontSize: '0.7rem',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                bgcolor: esCoord ? 'rgba(122,101,155,0.15)' : 'rgba(21,44,112,0.06)',
+                                color: esCoord ? '#5F1FA8' : '#152C70',
+                              }}
+                            />
+                          );
+                        })()}
+                      </Box>
                     </Box>
                     <Box sx={{ display: 'flex', gap: 0.5 }}>
                       <IconButton
@@ -913,17 +942,27 @@ export const CoordinacionPage = () => {
                   ))}
                 </Select>
               </FormControl>
+            ) : Array.isArray(volsSinUsuario) ? (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Todas las voluntarias activas ya tienen acceso al sistema.
+              </Typography>
             ) : (
-              <TextField
-                label="ID de voluntaria"
-                value={usuarioForm.idVoluntaria}
-                onChange={(e) => setUsuarioForm((f) => ({ ...f, idVoluntaria: e.target.value }))}
-                fullWidth
-                size="small"
-                sx={{ mb: 1 }}
-                inputProps={{ inputMode: 'numeric' }}
-              />
+              // Mientras se recarga la lista: antes aparecía un campo para escribir el ID a mano.
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Cargando voluntarias…
+              </Typography>
             )}
+            <FormControl fullWidth size="small" sx={{ mb: 1 }}>
+              <InputLabel>Rol</InputLabel>
+              <Select
+                value={usuarioForm.idRol}
+                label="Rol"
+                onChange={(e) => setUsuarioForm((f) => ({ ...f, idRol: e.target.value }))}
+              >
+                <MenuItem value="2">Voluntaria</MenuItem>
+                <MenuItem value="3">Coordinadora (ve y usa Coordinación)</MenuItem>
+              </Select>
+            </FormControl>
             <TextField
               label="DNI de acceso"
               value={usuarioForm.dni}
@@ -954,6 +993,7 @@ export const CoordinacionPage = () => {
                     dni: Number(usuarioForm.dni),
                     contrasena: usuarioForm.contrasena || null,
                     idVoluntaria: Number(usuarioForm.idVoluntaria),
+                    idRol: Number(usuarioForm.idRol),
                     fechaCreacion: new Date().toISOString(),
                     idEstado: null,
                   }),
