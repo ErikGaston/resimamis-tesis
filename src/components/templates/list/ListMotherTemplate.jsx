@@ -9,6 +9,7 @@ import styled from '@emotion/styled';
 import CardIcon from '../../molecules/cardIcon/CardIcon';
 import { fabRightInsetInColumn } from '../../../helpers/const/appLayout';
 import { fabBottomAboveNav, listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
+import { linkWhatsApp } from '../../../utils/whatsapp';
 
 function motherMatchesQuery(mother, rawQuery) {
   const q = rawQuery.trim().toLowerCase();
@@ -57,7 +58,7 @@ const ListMotherTemplate = (props) => {
     }
     const enriched = [...mothers].map((item) => ({
       ...item,
-      whatsapp: `https://wa.me/${item.celular}?text=Hola,%20¿cómo%20estás%3F`,
+      whatsapp: linkWhatsApp(item.celular),
     }));
     enriched.sort((a, b) =>
       (a.nombre ?? '').toUpperCase().localeCompare((b.nombre ?? '').toUpperCase()),

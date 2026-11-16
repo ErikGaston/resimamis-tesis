@@ -249,7 +249,7 @@ export const MotherPage = () => {
                 <DialogSuccess
                     open={stateForm === 'SUCCESS'}
                     setOpen={setStateForm}
-                    message={'¡' + type + ' se ha registrado con éxito'}
+                    message={`¡${type} ${type.includes(' y ') ? 'se han' : 'se ha'} registrado con éxito!`}
                 />
             }
             <Footer />

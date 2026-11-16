@@ -6,6 +6,28 @@ const toNumber = (value) => {
     return Number.isFinite(n) ? n : null;
 };
 
+// Los pesos se cargan en kg (1,45) pero puede haber registros viejos en gramos (1450).
+// Mismo criterio que el back en las estadísticas avanzadas: menos de 20 es kg.
+const aGramos = (peso) => {
+    const n = toNumber(peso);
+    if (n === null || n <= 0) return null;
+    return n < 20 ? n * 1000 : n;
+};
+
+/** Ganancia en gramos entre el ingreso a NEO y el egreso, o null si falta algún peso. */
+export function gananciaGramos(bebe) {
+    const ingreso = aGramos(bebe?.pesoIngresoNeo ?? bebe?.pesoIngresoNEO);
+    const egreso = aGramos(bebe?.pesoEgreso ?? bebe?.pesoAlta);
+    return ingreso === null || egreso === null ? null : egreso - ingreso;
+}
+
+// El back devuelve la diferencia en la unidad cargada (kg); se pasa a gramos.
+const diferenciaAGramos = (valor) => {
+    const n = toNumber(valor);
+    if (n === null) return null;
+    return Math.abs(n) < 20 ? n * 1000 : n;
+};
+
 /**
  * Acepta tanto el envelope `{ success, data }` como el payload suelto, porque el reducer
  * guarda la respuesta cruda de Axios y las páginas la desarman de distinta forma.
@@ -16,6 +38,8 @@ export function normalizeWeightEvolution(response) {
     if (raw == null || typeof raw !== 'object') return null;
 
     const bebes = Array.isArray(raw.bebes) ? raw.bebes : [];
+    const ganancias = bebes.map(gananciaGramos).filter((g) => g !== null);
+    const promedio = ganancias.length ? ganancias.reduce((a, b) => a + b, 0) / ganancias.length : null;
     return {
         totalBebes: toNumber(raw.totalBebes) ?? bebes.length,
         bebesConComparacionCompleta: toNumber(raw.bebesConComparacionCompleta) ?? 0,
@@ -24,9 +48,9 @@ export function normalizeWeightEvolution(response) {
         bebesSinCambio: toNumber(raw.bebesSinCambio) ?? 0,
         promedioPesoIngreso: toNumber(raw.promedioPesoIngreso),
         promedioPesoEgreso: toNumber(raw.promedioPesoEgreso),
-        promedioGanancia: toNumber(raw.promedioGanancia ?? raw.promedioDiferencia),
-        gananciaMinima: toNumber(raw.gananciaMinima),
-        gananciaMaxima: toNumber(raw.gananciaMaxima),
+        promedioGanancia: ganancias.length ? promedio : diferenciaAGramos(raw.promedioGanancia ?? raw.promedioDiferencia),
+        gananciaMinima: ganancias.length ? Math.min(...ganancias) : diferenciaAGramos(raw.gananciaMinima),
+        gananciaMaxima: ganancias.length ? Math.max(...ganancias) : diferenciaAGramos(raw.gananciaMaxima),
         bebes,
     };
 }
@@ -47,7 +71,7 @@ export function buildMonthlyAverageGain(bebes) {
     const grupos = new Map();
 
     (bebes ?? []).forEach((bebe) => {
-        const ganancia = toNumber(bebe?.diferenciaIngresoEgreso);
+        const ganancia = gananciaGramos(bebe) ?? diferenciaAGramos(bebe?.diferenciaIngresoEgreso);
         if (ganancia === null) return;
         const fecha = resolveFechaBebe(bebe);
         if (!fecha) return;

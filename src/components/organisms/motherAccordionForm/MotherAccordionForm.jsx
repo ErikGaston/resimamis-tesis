@@ -289,7 +289,7 @@ const MotherAccordionForm = (props) => {
                             minHeight: 44,
                         }}
                     >
-                        + Agregar otro bebé
+                        Agregar otro bebé
                     </Button>
 
                     <Box sx={{ mt: 2.5 }}>

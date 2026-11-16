@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import CardIcon from '../../molecules/cardIcon/CardIcon';
 import { fabRightInsetInColumn } from '../../../helpers/const/appLayout';
 import { fabBottomAboveNav, listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
+import { linkWhatsApp } from '../../../utils/whatsapp';
 
 function volunteerMatchesQuery(volunteer, rawQuery) {
   const q = rawQuery.trim().toLowerCase();
@@ -57,7 +58,7 @@ const ListVolunteerTemplate = (props) => {
     }
     const enriched = [...volunteers].map((item) => ({
       ...item,
-      whatsapp: `https://wa.me/${item.celular}?text=Hola,%20¿cómo%20estás%3F`,
+      whatsapp: linkWhatsApp(item.celular),
     }));
 
     enriched.sort((a, b) => {
