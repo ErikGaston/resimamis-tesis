@@ -137,6 +137,8 @@ export function ChartAssignmentMonth({ title, statisticsAssignment }) {
             borderWidth: 2,
             fill: true,
             tension: 0.35,
+            // Monótona: la curva no baja por debajo (ni sube por encima) de los valores reales entre puntos.
+            cubicInterpolationMode: 'monotone',
             pointRadius: 4,
             pointHoverRadius: 6,
             pointBackgroundColor: '#fff',

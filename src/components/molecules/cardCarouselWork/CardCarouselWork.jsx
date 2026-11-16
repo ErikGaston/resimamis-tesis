@@ -20,7 +20,7 @@ const CardCarouselWork = ({
 
 export default CardCarouselWork;
 
-const StyledContainer = styled(Box)`
+const StyledContainer = styled(Box, { shouldForwardProp: (prop) => prop !== "isFirst" })`
   display: flex;
   flex-direction: column;
   width:70px;

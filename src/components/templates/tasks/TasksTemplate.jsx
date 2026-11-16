@@ -37,6 +37,14 @@ const TasksTemplate = (props) => {
         setChangeInformationHug(true)
     }
 
+    // El cajón muestra la versión más nueva de la asignación (con los insumos que ya guardó el back),
+    // no la copia de cuando se abrió.
+    const hugActual = React.useMemo(() => {
+        if (!selectedHug) return null;
+        const lista = Array.isArray(assignmentVolunteer) ? assignmentVolunteer : [];
+        return lista.find((a) => a?.idAsignacion === selectedHug.idAsignacion) ?? selectedHug;
+    }, [selectedHug, assignmentVolunteer]);
+
     useEffect(() => {
         if (assignmentVolunteer) {
             setListAssignmentVolunteer(assignmentVolunteer);
@@ -152,7 +160,7 @@ const TasksTemplate = (props) => {
                 model={model}
                 setModel={setModel}
                 submitEndHug={submitEndHug}
-                hug={selectedHug}
+                hug={hugActual}
                 stateInsumo={stateInsumo}
                 setStateInsumo={setStateInsumo}
                 changeStateInsumo={changeStateInsumo}

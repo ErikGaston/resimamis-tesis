@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom';
 import Footer from '../../components/molecules/Footer';
 import PageScrollMain from '../../components/common/PageScrollMain';
 import { PageHeader } from '../../components/common/PageHeader';
+import { NoEncontrado, esIdValido } from '../../components/common/NoEncontrado';
 import { showLoading } from '../../redux/actions/loadingActions';
 import { getLocalities, getEstadosCiviles } from '../../redux/actions/genericsActions';
 import { showToast } from '../../redux/actions/toastActions';
@@ -88,6 +89,7 @@ export const ProfileMotherPage = () => {
     setEditFormRaw(val);
   };
   const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_MOTHER_FIELD_ERRORS });
+  const [noEncontrada, setNoEncontrada] = useState(false);
 
   const submitMother = () => {
     dispatch(clearMotherApiError());
@@ -147,6 +149,11 @@ export const ProfileMotherPage = () => {
   }, [editForm]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    setNoEncontrada(false)
+    if (!esIdValido(id)) {
+      setNoEncontrada(true)
+      return undefined
+    }
     dispatch(showLoading(true))
     dispatch(clearMother())
     dispatch(getMotherId(id))
@@ -171,6 +178,8 @@ export const ProfileMotherPage = () => {
   useEffect(() => {
     if (dataMother?.error !== null && dataMother?.error !== undefined) {
       dispatch(showLoading(false));
+      // Falló la carga inicial (id inexistente): antes quedaba "Cargando..." para siempre.
+      if (modelRef.current == null) setNoEncontrada(true);
       const mapped = mapAspNetErrorsToMotherFieldErrors(dataMother.error);
       if (Object.keys(mapped).length > 0) {
         setFieldErrors({ ...INITIAL_MOTHER_FIELD_ERRORS, ...mapped });
@@ -225,7 +234,9 @@ export const ProfileMotherPage = () => {
       )}
       <PageScrollMain>
         {model === null ? (
-          <MotherProfileSkeleton />
+          noEncontrada
+            ? <NoEncontrado titulo="Madre no encontrada" mensaje="No existe una madre con ese número." />
+            : <MotherProfileSkeleton />
         ) : (
           <ProfileTemplate
             model={model}

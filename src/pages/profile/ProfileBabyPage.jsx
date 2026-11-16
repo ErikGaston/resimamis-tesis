@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import AccordionCustomized from '../../components/atoms/accordionCustomized/AccordionCustomized';
 import BabyForm from '../../components/molecules/motherForm/BabyForm';
 import { PageHeader } from '../../components/common/PageHeader';
+import { NoEncontrado, esIdValido } from '../../components/common/NoEncontrado';
 import Loading from '../../components/atoms/loading/Loading';
 import Footer from '../../components/molecules/Footer';
 import PageScrollMain from '../../components/common/PageScrollMain';
@@ -133,6 +134,7 @@ export const ProfileBabyPage = () => {
   const localities = useSelector((s) => s.genericsReducer?.getLocalities);
 
   const [babyModel, setBabyModel] = useState(null);
+  const [noEncontrado, setNoEncontrado] = useState(() => !esIdValido(id));
   const [editMode, setEditMode] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_BABY_FIELD_ERRORS });
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
@@ -150,6 +152,12 @@ export const ProfileBabyPage = () => {
     setConfirmDialog({ open: false, message: '', onConfirm: null });
 
   useEffect(() => {
+    // Con un id que no es número se mandaba `NaN` al back y aparecía su error en inglés.
+    if (!esIdValido(id)) {
+      setNoEncontrado(true);
+      return undefined;
+    }
+    setNoEncontrado(false);
     dispatch(showLoading(true));
     dispatch(getBabys());
     dispatch(getBabySalas());
@@ -179,6 +187,9 @@ export const ProfileBabyPage = () => {
         if (found.idMadre != null && !found.madre) {
           dispatch(getMotherId(found.idMadre));
         }
+      } else {
+        // Solo se ve si todavía no hay modelo: antes quedaba el esqueleto de carga para siempre.
+        setNoEncontrado(true);
       }
     } else if (babyState?.getBabys != null) {
       // List loaded but empty or unexpected format
@@ -271,11 +282,13 @@ export const ProfileBabyPage = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100dvh', maxHeight: '100dvh', minHeight: 0, overflow: 'hidden', position: 'relative' }}>
       {loading && babyModel !== null && <Loading />}
-      <PageHeader title="Perfil del bebé" />
+      {!(babyModel === null && noEncontrado) && <PageHeader title="Perfil del bebé" />}
 
       <PageScrollMain>
         {babyModel === null ? (
-          <BabyProfileSkeleton />
+          noEncontrado
+            ? <NoEncontrado titulo="Bebé no encontrado" mensaje="No existe un bebé con ese número." />
+            : <BabyProfileSkeleton />
         ) : null}
         {babyModel !== null && <Box sx={{ px: 2.5, pt: 1, pb: 1 }}>
 

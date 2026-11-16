@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { postLogin, clearLogin } from "../../redux/actions/userActions";
 import { showLoading } from "../../redux/actions/loadingActions";
@@ -20,7 +20,12 @@ export const LoginPage = () => {
   });
   const [error, setError] = useState(null);
 
+  // `loading` del store llega tarde: sin esto cinco clics seguidos mandaban cinco logins.
+  const enviandoRef = useRef(false);
+
   const handleLogin = () => {
+    if (enviandoRef.current) return;
+    enviandoRef.current = true;
     setError(null);
     dispatch(hideToast());
     dispatch(showLoading(true));
@@ -40,6 +45,7 @@ export const LoginPage = () => {
 
   useEffect(() => {
     if (dataLogin?.error) {
+      enviandoRef.current = false;
       dispatch(showLoading(false));
       const msg =
         typeof dataLogin.error?.message === "string" && dataLogin.error.message.trim()

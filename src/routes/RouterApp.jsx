@@ -121,6 +121,11 @@ export const RouterApp = () => {
       path: 'mi-perfil',
       element: withAuth(<MyProfilePage />),
     },
+    {
+      // Ruta desconocida: antes quedaba la pantalla en blanco. Va al inicio o al login según la sesión.
+      path: '*',
+      element: <RootRedirect />,
+    },
   ])
 
   return (

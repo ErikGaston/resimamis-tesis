@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom';
 import Footer from '../../components/molecules/Footer';
 import PageScrollMain from '../../components/common/PageScrollMain';
 import { PageHeader } from '../../components/common/PageHeader';
+import { NoEncontrado, esIdValido } from '../../components/common/NoEncontrado';
 import { showLoading } from '../../redux/actions/loadingActions';
 import { showToast } from '../../redux/actions/toastActions';
 import DialogSuccess from '../../components/atoms/dialogSuccess/DialogSuccess';
@@ -86,6 +87,7 @@ export const ProfileVolunteerPage = () => {
   };
   const { getVolunteer } = dataVolunteer;
   const [fieldErrors, setFieldErrors] = useState({ ...INITIAL_VOLUNTEER_FIELD_ERRORS });
+  const [noEncontrada, setNoEncontrada] = useState(false);
 
   const guardarDeshabilitado = (() => {
     if (!editForm || model == null) return true;
@@ -127,6 +129,10 @@ export const ProfileVolunteerPage = () => {
   };
 
   useEffect(() => {
+    if (!esIdValido(id)) {
+      setNoEncontrada(true)
+      return undefined
+    }
     dispatch(showLoading(true))
     dispatch(getVolunteers())
     dispatch(getVolunteerById(id))
@@ -152,6 +158,8 @@ export const ProfileVolunteerPage = () => {
   useEffect(() => {
     if (dataVolunteer?.error !== null) {
       dispatch(showLoading(false))
+      // Falló la carga inicial (id inexistente): antes quedaba "Cargando..." para siempre.
+      if (dataVolunteer?.error != null && modelRef.current == null) setNoEncontrada(true)
     }
     if (dataVolunteer?.putVolunteer !== null) {
       setEditFormRaw(false);
@@ -184,7 +192,9 @@ export const ProfileVolunteerPage = () => {
       )}
       <PageScrollMain>
         {model === null ? (
-          <VolunteerProfileSkeleton />
+          noEncontrada
+            ? <NoEncontrado titulo="Voluntaria no encontrada" mensaje="No existe una voluntaria con ese número." />
+            : <VolunteerProfileSkeleton />
         ) : (
           <ProfileTemplate
             model={model}

@@ -48,7 +48,7 @@ const CardCarouselSecundary = ({
 
 export default CardCarouselSecundary;
 
-const StyledCardCarouselSecundary = styled(Box)`
+const StyledCardCarouselSecundary = styled(Box, { shouldForwardProp: (prop) => prop !== "isFirst" })`
   display: flex;
   flex-direction: column;
   align-items: center;

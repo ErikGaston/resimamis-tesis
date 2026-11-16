@@ -131,7 +131,7 @@ const CardBabyHug = ({ item, editHug, submitStartHug, onAssignmentDetail, hayAbr
                 )}
 
                 {isDone && !cierreAuto && item.comentario && (
-                    <Typography sx={{ fontSize: '0.78rem', color: 'rgba(21,44,112,0.75)', fontStyle: 'italic', mt: 0.25, lineHeight: 1.4 }}>
+                    <Typography sx={{ fontSize: '0.78rem', color: 'rgba(21,44,112,0.75)', fontStyle: 'italic', mt: 0.25, lineHeight: 1.4, overflowWrap: 'anywhere' }}>
                         "{item.comentario}"
                     </Typography>
                 )}

@@ -70,6 +70,12 @@ export const TasksPage = () => {
     const [changeAssignedList, setChangeAssignedList] = React.useState(false)
     const pendingAssistanceRef = useRef(null);
     const pendingAssignmentDetailRef = useRef(null);
+    /**
+     * Candado contra el doble clic en iniciar/finalizar abrazo y registrar insumos.
+     * `loading` sale del store y llega tarde: varios clics seguidos pasaban todos y,
+     * como la saga usa takeLatest, la pantalla se quedaba con la respuesta del último (un 409).
+     */
+    const hugPendienteRef = useRef(false);
     const [rawDataDialog, setRawDataDialog] = useState({
         open: false,
         title: '',
@@ -169,13 +175,15 @@ export const TasksPage = () => {
     };
 
     const submitStartHug = (idAsignacion) => {
-        if (loading) return;
+        if (loading || hugPendienteRef.current) return;
+        hugPendienteRef.current = true;
         dispatch(showLoading(true))
         dispatch(postStartHug(idAsignacion))
     }
 
     const submitEndHug = (idAsignacion) => {
-        if (loading) return;
+        if (loading || hugPendienteRef.current) return;
+        hugPendienteRef.current = true;
         dispatch(showLoading(true))
         const raw = model?.comentario;
         const comentario =
@@ -198,6 +206,8 @@ export const TasksPage = () => {
             dispatch(showToast({ message: 'Seleccioná al menos un insumo antes de registrar.', severity: 'info' }));
             return;
         }
+        if (hugPendienteRef.current) return;
+        hugPendienteRef.current = true;
         dispatch(showLoading(true));
         const payload = activeItems.map((item) => ({
             idAsignacion: Number(idAsignacion),
@@ -336,6 +346,11 @@ export const TasksPage = () => {
             if (pendingAssignmentDetailRef.current != null) {
                 pendingAssignmentDetailRef.current = null;
             }
+            if (hugPendienteRef.current) {
+                hugPendienteRef.current = false;
+                // El abrazo pudo haber cambiado igual (otro dispositivo, coordinación): se recarga la lista.
+                dispatch(getAssignmentTodayById(idVolunteer))
+            }
         }
         if (dataAssignment?.getAssignmentTodayById !== null) {
             dispatch(showLoading(false))
@@ -343,7 +358,7 @@ export const TasksPage = () => {
         if (dataAssignment?.getAssignmentToday != null) {
             dispatch(showLoading(false))
         }
-    }, [dataAssignment?.error, dataAssignment?.getAssignmentTodayById, dataAssignment?.getAssignmentToday, dispatch])
+    }, [dataAssignment?.error, dataAssignment?.getAssignmentTodayById, dataAssignment?.getAssignmentToday, dispatch, idVolunteer])
 
     useEffect(() => {
         const expectedId = pendingAssignmentDetailRef.current;
@@ -361,6 +376,7 @@ export const TasksPage = () => {
 
     useEffect(() => {
         if (dataAssignment?.postStartHug !== null) {
+            hugPendienteRef.current = false;
             dispatch(showLoading(false))
             if (dataAssignment?.postStartHug?.data) {
                 dispatch(getAssignmentTodayById(idVolunteer))
@@ -371,6 +387,7 @@ export const TasksPage = () => {
 
     useEffect(() => {
         if (dataAssignment?.postEndHug !== null) {
+            hugPendienteRef.current = false;
             dispatch(showLoading(false))
             if (dataAssignment?.postEndHug?.data) {
                 setModel(null)
@@ -417,11 +434,14 @@ export const TasksPage = () => {
 
     useEffect(() => {
         if (dataAssignment?.postDetailAssignment !== null) {
+            hugPendienteRef.current = false;
             dispatch(showLoading(false))
             setStateInsumo('');
+            // Trae los `detalles` guardados para que el resumen del cajón muestre el total real.
+            dispatch(getAssignmentTodayById(idVolunteer));
             dispatch(showToast({ message: '¡Insumos registrados con éxito!', severity: 'success' }))
         }
-    }, [dataAssignment?.postDetailAssignment, dispatch])
+    }, [dataAssignment?.postDetailAssignment, dispatch, idVolunteer])
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>

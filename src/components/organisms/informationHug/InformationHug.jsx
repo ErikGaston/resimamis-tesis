@@ -45,7 +45,22 @@ const InformationHug = (props) => {
         setModel({ ...model, [name]: value });
     };
 
-    const hasInsumos = Array.isArray(listSupplies) && listSupplies.some((i) => Number(i?.cantidad) > 0);
+    // Total por insumo de lo que el back ya guardó para esta asignación (puede haber varias cargas).
+    const insumosRegistrados = React.useMemo(() => {
+        const porInsumo = new Map();
+        (Array.isArray(hug?.detalles) ? hug.detalles : []).forEach((d) => {
+            const cantidad = Number(d?.cantidad) || 0;
+            if (cantidad <= 0) return;
+            const previo = porInsumo.get(d.idInsumo);
+            porInsumo.set(d.idInsumo, {
+                idInsumo: d.idInsumo,
+                nombre: d.nombreInsumo ?? previo?.nombre ?? 'Insumo',
+                cantidad: (previo?.cantidad ?? 0) + cantidad,
+            });
+        });
+        return [...porInsumo.values()];
+    }, [hug?.detalles]);
+    const hasInsumos = insumosRegistrados.length > 0;
 
     return (
         <>
@@ -123,8 +138,7 @@ const InformationHug = (props) => {
                                 </Typography>
                             </Box>
                             <Box sx={{ mb: 2 }}>
-                                {listSupplies
-                                    .filter((i) => Number(i?.cantidad) > 0)
+                                {insumosRegistrados
                                     .map((i) => (
                                         <Box key={i.idInsumo} sx={{
                                             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
