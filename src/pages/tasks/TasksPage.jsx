@@ -380,10 +380,11 @@ export const TasksPage = () => {
             dispatch(showLoading(false))
             if (dataAssignment?.postStartHug?.data) {
                 dispatch(getAssignmentTodayById(idVolunteer))
+                if (canAccessAssignment) dispatch(getAssignmentToday())
                 dispatch(showToast({ message: '¡Abrazo iniciado con éxito!', severity: 'success' }))
             }
         }
-    }, [dataAssignment?.postStartHug, dispatch, idVolunteer])
+    }, [dataAssignment?.postStartHug, dispatch, idVolunteer, canAccessAssignment])
 
     useEffect(() => {
         if (dataAssignment?.postEndHug !== null) {
@@ -393,10 +394,11 @@ export const TasksPage = () => {
                 setModel(null)
                 setChangeInformationHug(false)
                 dispatch(getAssignmentTodayById(idVolunteer))
+                if (canAccessAssignment) dispatch(getAssignmentToday())
                 dispatch(showToast({ message: '¡Abrazo finalizado con éxito!', severity: 'success' }))
             }
         }
-    }, [dataAssignment?.postEndHug, dispatch, idVolunteer])
+    }, [dataAssignment?.postEndHug, dispatch, idVolunteer, canAccessAssignment])
 
     useEffect(() => {
         if (dataAssignment?.postAssignmentGenerate !== null) {
@@ -469,7 +471,9 @@ export const TasksPage = () => {
                 selectedBabyTareaIds={selectedBabyTareaIds}
                 toggleBabyTareaSelection={toggleBabyTareaSelection}
                 submitAssignmentTask={submitAssignmentTask}
-                listAssignment={dataAssignment?.postAssignmentGenerate?.data ?? dataAssignment?.getAssignmentToday?.data ?? null}
+                // La lista del día va primero: la respuesta de "Generar" es una foto fija y, si quedaba
+                // adelante, la lista seguía mostrando "Creada" en abrazos ya finalizados.
+                listAssignment={dataAssignment?.getAssignmentToday?.data ?? dataAssignment?.postAssignmentGenerate?.data ?? null}
                 submitStartHug={submitStartHug}
                 submitEndHug={submitEndHug}
                 changeStateInsumo={changeStateInsumo}
