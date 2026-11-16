@@ -4,7 +4,7 @@ import { Autocomplete, Chip, TextField } from '@mui/material';
 import LabelInput from '../labelInput/LabelInput';
 import LabelDate from '../labelDate/LabelDate';
 import LabelAutocomplete from '../labelAutocomplete/LabelAutocomplete';
-import { formattedDate } from '../../../utils/dateFormat';
+import { fechaSinHora, formattedDate } from '../../../utils/dateFormat';
 import { collectIdMadresForBaby, resolveIdLocalidad } from '../../../utils/babyPayload';
 import { BABY_NAME_MAX } from '../../../utils/babyFormValidation';
 import { filterNameChars } from '../../../utils/inputFilters';
@@ -97,18 +97,9 @@ const BabyForm = ({
         });
     };
 
-    const birthValue =
-        model?.fechaNacimiento && dayjs(model.fechaNacimiento).isValid()
-            ? dayjs(model.fechaNacimiento)
-            : null
-    const neoValue =
-        model?.fechaIngresoNEO && dayjs(model.fechaIngresoNEO).isValid()
-            ? dayjs(model.fechaIngresoNEO)
-            : null
-    const salidaValue =
-        model?.fechaSalida && dayjs(model.fechaSalida).isValid()
-            ? dayjs(model.fechaSalida)
-            : null
+    const birthValue = fechaSinHora(model?.fechaNacimiento)
+    const neoValue = fechaSinHora(model?.fechaIngresoNEO)
+    const salidaValue = fechaSinHora(model?.fechaSalida)
 
     /** El bebé que vuelve del backend trae `idLocalidad` + `localidadDetalle`, no `nombre_localidad`. */
     const localidadOption = () => {

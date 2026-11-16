@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import LabelInput from '../labelInput/LabelInput';
 import LabelDate from '../labelDate/LabelDate';
 import LabelAutocomplete from '../labelAutocomplete/LabelAutocomplete';
-import { formattedDate } from '../../../utils/dateFormat';
+import { fechaSinHora, formattedDate } from '../../../utils/dateFormat';
 import Loading from '../../atoms/loading/Loading';
 import {
     MOTHER_NAME_MAX,
@@ -142,9 +142,7 @@ const MotherForm = ({
         const x = dayjs(date).startOf('day')
         return x.isBefore(minBirthDate, 'day') || x.isAfter(maxBirthDate, 'day')
     }
-    const dateValue = m?.fechaNacimiento && dayjs(m.fechaNacimiento).isValid()
-        ? dayjs(m.fechaNacimiento)
-        : null
+    const dateValue = fechaSinHora(m?.fechaNacimiento)
 
     const celDisplay = m?.celular == null || m?.celular === ''
         ? ''

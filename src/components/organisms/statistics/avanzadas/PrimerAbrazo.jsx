@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Chip, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import { FilaLista, NAVY, SinDatos, TarjetasNumero } from './comunes';
+import { fechaSinHora } from '../../../../utils/dateFormat';
 
 const dias = (n) => (n == null ? '—' : `${n} ${n === 1 ? 'día' : 'días'}`);
 
@@ -28,7 +29,7 @@ export function PrimerAbrazo({ datos }) {
                         <FilaLista
                             key={b.idBebe}
                             titulo={b.nombre}
-                            subtitulo={b.fechaIngresoNeo ? `Ingresó a NEO el ${dayjs(b.fechaIngresoNeo).format('DD/MM/YYYY')}` : null}
+                            subtitulo={b.fechaIngresoNeo ? `Ingresó a NEO el ${fechaSinHora(b.fechaIngresoNeo)?.format('DD/MM/YYYY')}` : null}
                             derecha={<Chip size="small" label={dias(b.dias)} sx={{ fontWeight: 700, bgcolor: 'rgba(197,56,20,0.1)', color: '#9C2B0F' }} />}
                         />
                     ))}
