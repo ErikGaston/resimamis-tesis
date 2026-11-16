@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import LabelInput from '../labelInput/LabelInput';
 import LabelDate from '../labelDate/LabelDate';
 import LabelSelect from '../labelSelect/LabelSelect';
-import { formattedDate } from '../../../utils/dateFormat';
+import { fechaSinHora, formattedDate } from '../../../utils/dateFormat';
 import ButtonCustomized from '../../atoms/button/ButtonCustomized';
 import { filterNameChars } from '../../../utils/inputFilters';
 import {
@@ -87,9 +87,7 @@ const VolunteerForm = ({
     const birthMin = dayjs().subtract(VOLUNTEER_DATE_MIN_YEARS_BACK, 'year').startOf('day')
     const birthMax = dayjs().subtract(VOLUNTEER_MIN_AGE, 'year').endOf('day')
 
-    const dateNacValue = m?.fechaNacimiento && dayjs(m.fechaNacimiento).isValid()
-        ? dayjs(m.fechaNacimiento)
-        : null
+    const dateNacValue = fechaSinHora(m?.fechaNacimiento);
     const dateInicioValue = m?.fechaInicio && dayjs(m.fechaInicio).isValid()
         ? dayjs(m.fechaInicio)
         : null

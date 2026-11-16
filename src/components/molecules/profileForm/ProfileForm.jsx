@@ -2,7 +2,7 @@ import React from 'react'
 import dayjs from 'dayjs'
 import LabelInput from '../labelInput/LabelInput'
 import LabelDate from '../labelDate/LabelDate';
-import { formattedDate } from '../../../utils/dateFormat';
+import { fechaSinHora, formattedDate } from '../../../utils/dateFormat';
 import {
     VOLUNTEER_NAME_MAX,
     VOLUNTEER_DNI_LEN,
@@ -85,9 +85,7 @@ const ProfileForm = ({
     const birthMin = dayjs().subtract(VOLUNTEER_DATE_MIN_YEARS_BACK, 'year').startOf('day')
     const birthMax = dayjs().subtract(VOLUNTEER_MIN_AGE, 'year').endOf('day')
 
-    const dateNacValue = m?.fechaNacimiento && dayjs(m.fechaNacimiento).isValid()
-        ? dayjs(m.fechaNacimiento)
-        : null
+    const dateNacValue = fechaSinHora(m?.fechaNacimiento);
     const dateInicioValue = m?.fechaInicio && dayjs(m.fechaInicio).isValid()
         ? dayjs(m.fechaInicio)
         : null
