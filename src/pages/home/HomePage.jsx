@@ -7,7 +7,7 @@ import { clearVolunteer, getVolunteersFree } from '../../redux/actions/volunteer
 import VolutariasDisponible from '../../components/organisms/homeCarousels/VolutariasDisponible'
 import Loading from '../../components/atoms/loading/Loading'
 import { showLoading } from '../../redux/actions/loadingActions'
-import { getNameVolunteer } from '../../utils/localStorage'
+import { getFullNameVolunteer } from '../../utils/localStorage'
 
 export const HomePage = () => {
   const dispatch = useDispatch();
@@ -15,7 +15,7 @@ export const HomePage = () => {
   const loading = useSelector(state => state.volunteerReducer?.loading)
   const [stateChart, setStateChart] = React.useState('')
   const [valueChart, setValueChart] = React.useState('')
-  let nameVolunteer = getNameVolunteer();
+  let nameVolunteer = getFullNameVolunteer();
 
   useEffect(() => {
     dispatch(clearVolunteer())

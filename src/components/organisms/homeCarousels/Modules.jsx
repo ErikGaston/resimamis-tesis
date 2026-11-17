@@ -8,7 +8,7 @@ const Modules = (props) => {
     const { nameVolunteer } = props;
     const navigate = useNavigate();
 
-    const TITLE = `¡Hola ${nameVolunteer}!`
+    const TITLE = nameVolunteer ? `¡Hola, ${nameVolunteer}!` : '¡Hola!'
 
     const logout = () => {
         localStorage.clear();
