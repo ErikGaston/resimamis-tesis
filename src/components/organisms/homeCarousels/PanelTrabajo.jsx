@@ -11,6 +11,7 @@ import coordinacion from "../../../assets/home/carousel-work/coordinacion-home.s
 import { isCoordinadoraSession } from "../../../utils/coordinadoraRole";
 import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
+import MeetingRoomOutlinedIcon from "@mui/icons-material/MeetingRoomOutlined";
 
 const ROW_PERSONAS = [
     { name: "Madres", image: mama, url: "/madres" },
@@ -164,6 +165,12 @@ const PanelTrabajo = () => {
                             name="Panel del día"
                             description="Cobertura de abrazos y situación de hoy"
                             url="/panel"
+                        />
+                        <ShortcutCard
+                            icon={MeetingRoomOutlinedIcon}
+                            name="Salas en vivo"
+                            description="Arrastrá voluntarias a los bebés de cada sala"
+                            url="/salas"
                         />
                         <ShortcutCard
                             icon={SmartToyOutlinedIcon}

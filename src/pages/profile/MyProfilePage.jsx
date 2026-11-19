@@ -6,6 +6,7 @@ import {
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useDispatch, useSelector } from 'react-redux';
 import Footer from '../../components/molecules/Footer';
+import PushToggle from '../../components/molecules/pushToggle/PushToggle';
 import PageScrollMain from '../../components/common/PageScrollMain';
 import Loading from '../../components/atoms/loading/Loading';
 import { showLoading } from '../../redux/actions/loadingActions';
@@ -291,6 +292,7 @@ export const MyProfilePage = () => {
             </Button>
           </Box>
         )}
+        {model !== null && <PushToggle />}
       </PageScrollMain>
 
       {/* Bottom-sheet cambio de contraseña */}

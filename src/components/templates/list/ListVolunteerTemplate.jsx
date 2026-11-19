@@ -10,6 +10,7 @@ import CardIcon from '../../molecules/cardIcon/CardIcon';
 import { fabRightInsetInColumn } from '../../../helpers/const/appLayout';
 import { fabBottomAboveNav, listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
 import { linkWhatsApp } from '../../../utils/whatsapp';
+import MailVolunteerDialog from '../../organisms/mailVolunteerDialog/MailVolunteerDialog';
 
 function volunteerMatchesQuery(volunteer, rawQuery) {
   const q = rawQuery.trim().toLowerCase();
@@ -46,6 +47,7 @@ const ListVolunteerTemplate = (props) => {
   const { volunteers, isCoordinator, onDeleteVolunteer } = props;
   const [listVolunteers, setListVolunteers] = React.useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [mailPara, setMailPara] = useState(null);
 
   useEffect(() => {
     if (volunteers == null) {
@@ -124,6 +126,11 @@ const ListVolunteerTemplate = (props) => {
                     ? () => onDeleteVolunteer(item.idVoluntaria, `${item.nombre ?? ''} ${item.apellido ?? ''}`.trim())
                     : undefined
                 }
+                onSendMail={
+                  isCoordinator && item.mail
+                    ? () => setMailPara({ id: item.idVoluntaria, nombre: item.nombre ?? '', mail: item.mail })
+                    : undefined
+                }
               />
             ))}
           </ListStack>
@@ -169,6 +176,7 @@ const ListVolunteerTemplate = (props) => {
       >
         <AddCircleIcon sx={{ fontSize: 32, color: '#fff' }} />
       </Fab>
+      <MailVolunteerDialog open={Boolean(mailPara)} voluntaria={mailPara} onClose={() => setMailPara(null)} />
     </PageRoot>
   );
 };

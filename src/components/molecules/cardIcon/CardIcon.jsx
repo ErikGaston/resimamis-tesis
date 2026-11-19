@@ -7,13 +7,14 @@ import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
 import { Box, IconButton } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 
 const AVATAR_BY_CONTEXT = {
   madre: PersonOutline,
   voluntaria: GroupsOutlined,
 };
 
-const CardIcon = ({ id, name, dni, whatsapp, context, onAdminDelete }) => {
+const CardIcon = ({ id, name, dni, whatsapp, context, onAdminDelete, onSendMail }) => {
   const profilePath = `/${context}/perfil/${id}`;
   const dniLabel = dni != null ? String(dni) : '';
   const AvatarIcon = AVATAR_BY_CONTEXT[context] ?? PersonOutline;
@@ -45,6 +46,15 @@ const CardIcon = ({ id, name, dni, whatsapp, context, onAdminDelete }) => {
           sx={{ p: 1, minWidth: 48, minHeight: 48, flexShrink: 0, color: '#b71c1c' }}
         >
           <DeleteOutlineIcon />
+        </IconButton>
+      )}
+      {typeof onSendMail === 'function' && (
+        <IconButton
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onSendMail(); }}
+          aria-label={`Enviar mail a ${name}`}
+          sx={{ p: 1, minWidth: 48, minHeight: 48, flexShrink: 0, color: '#7F00FF' }}
+        >
+          <MailOutlineIcon sx={{ fontSize: 30 }} />
         </IconButton>
       )}
       <IconButton
