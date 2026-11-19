@@ -4,6 +4,7 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import { useNavigate } from 'react-router-dom'
+import CampanitaAvisos from '../molecules/campanitaAvisos/CampanitaAvisos'
 
 /**
  * Cabecera unificada para todas las pantallas.
@@ -12,8 +13,9 @@ import { useNavigate } from 'react-router-dom'
  *   onBack      — override del handler de volver (default: navigate(-1))
  *   showBack    — mostrar botón volver (default: true)
  *   rightAction — elemento React opcional en el slot derecho (ej: IconButton editar)
+ *   showAvisos  — mostrar la campanita de avisos (default: true)
  */
-export const PageHeader = ({ title, onBack, showBack = true, rightAction }) => {
+export const PageHeader = ({ title, onBack, showBack = true, rightAction, showAvisos = true }) => {
   const navigate = useNavigate()
   const handleBack = onBack ?? (() => navigate(-1))
 
@@ -61,13 +63,10 @@ export const PageHeader = ({ title, onBack, showBack = true, rightAction }) => {
         {title}
       </Typography>
 
-      {rightAction != null ? (
-        <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center', width: 48, justifyContent: 'center' }}>
-          {rightAction}
-        </Box>
-      ) : (
-        <Box sx={{ width: 48, flexShrink: 0 }} />
-      )}
+      <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', minWidth: 48, pr: 0.25 }}>
+        {rightAction}
+        {showAvisos && <CampanitaAvisos />}
+      </Box>
     </Box>
   )
 }

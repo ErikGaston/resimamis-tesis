@@ -3,6 +3,7 @@ import { Box, Typography, Button } from '@mui/material';
 import React from 'react'
 import TitleText from '../../atoms/titleText/TitleText';
 import { useNavigate } from 'react-router-dom';
+import CampanitaAvisos from '../../molecules/campanitaAvisos/CampanitaAvisos';
 
 const Modules = (props) => {
     const { nameVolunteer } = props;
@@ -17,7 +18,8 @@ const Modules = (props) => {
 
     return (
         <>
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                <CampanitaAvisos color="#7F00FF" />
                 <Button style={{ textTransform: 'inherit' }}
                     onClick={logout}
                 >

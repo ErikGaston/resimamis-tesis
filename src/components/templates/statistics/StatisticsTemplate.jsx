@@ -163,7 +163,7 @@ const StatisticsTemplate = (props) => {
                     {valueChart === 6 && <ChartWeightEvolution statisticsWeightEvolution={statisticsWeightEvolution} />}
                     {valueChart === 7 && <ChartBabyPermanence statisticsPermanencia={statisticsPermanencia} />}
                     {valueChart === 8 && <ChartDistribucionBebes datos={normalizeBebesPorSala(statisticsPorSala)} total={totalDe(statisticsPorSala)} notaAlPie="Solo bebés activos, agrupados por la sala donde están internados." />}
-                    {valueChart === 9 && <ChartDistribucionBebes datos={normalizeBebesPorEstado(statisticsPorEstado)} total={totalDe(statisticsPorEstado)} />}
+                    {valueChart === 9 && <ChartDistribucionBebes datos={normalizeBebesPorEstado(statisticsPorEstado)} total={totalDe(statisticsPorEstado)} notaAlPie="Bebés internados según cómo va su día de hoy con los abrazos." />}
                     {valueChart === 10 && <ChartDistribucionBebes datos={normalizeBebesRangoEdades(statisticsRangoEdades)} total={totalDe(statisticsRangoEdades)} notaAlPie="Días de vida cumplidos al día de hoy." />}
                     {valueChart === 11 && <RankingVoluntarias ranking={statisticsRanking} />}
                     {ComponenteAvanzado && estadisticaAvanzada && (
