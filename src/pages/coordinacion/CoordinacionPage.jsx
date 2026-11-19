@@ -313,7 +313,20 @@ export const CoordinacionPage = () => {
   useEffect(() => {
     if (user?.postUsuario != null || user?.putUsuario != null || user?.putUsuarioRol != null || user?.postUsuarioDelete != null) {
       dispatch(showLoading(false));
-      toastOk('Usuario: operación OK.');
+      // El alta devuelve qué pasó con el mail de bienvenida (DNI y clave para la voluntaria).
+      const alta = user?.postUsuario?.data;
+      if (alta && typeof alta === 'object') {
+        if (alta.mailEnviado) {
+          toastOk(`Usuario creado. Le mandamos el DNI y la clave por mail a ${alta.mailDestino}.`);
+        } else {
+          dispatch(showToast({
+            message: `Usuario creado, pero no se mandó el mail: ${alta.motivoMail ?? 'no se pudo enviar'} Pasale el DNI y la clave por otro medio.`,
+            severity: 'warning',
+          }));
+        }
+      } else {
+        toastOk(user?.postUsuario != null ? 'Usuario creado.' : 'Usuario: operación OK.');
+      }
       setEditUserTarget(null);
       setEditUserDni('');
       setEditUserPwd('');
