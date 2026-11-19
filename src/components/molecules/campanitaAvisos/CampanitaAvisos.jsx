@@ -13,7 +13,7 @@ import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import AxiosInstance from '../../../redux/interceptor/interceptor';
 import { isCoordinadoraSession } from '../../../utils/coordinadoraRole';
 import { getIdVolunteer } from '../../../utils/localStorage';
-import { activarPush, soportaPush, suscripcionActual } from '../../../utils/push';
+import { activarPush, desactivarPush, soportaPush, suscripcionActual } from '../../../utils/push';
 
 const NAVY = '#152C70';
 const VIOLET = '#7F00FF';
@@ -170,6 +170,16 @@ const CampanitaAvisos = ({ color = '#fff' }) => {
     }
   };
 
+  const desactivar = async () => {
+    setMensajePush('');
+    try {
+      await desactivarPush();
+      setPush('inactivo');
+    } catch {
+      setMensajePush('No se pudo desactivar. Probá de nuevo en un rato.');
+    }
+  };
+
   const cantidad = avisos?.length ?? 0;
   const urgentes = avisos?.filter((a) => a.tono !== 'info').length ?? 0;
   const Icono = cantidad > 0 ? NotificationsActiveRoundedIcon : NotificationsNoneRoundedIcon;
@@ -256,9 +266,14 @@ const CampanitaAvisos = ({ color = '#fff' }) => {
         {push !== 'no-soportado' && push !== 'cargando' && (
           <Box sx={{ borderTop: '1px solid rgba(21,44,112,0.08)', px: 2, py: 1.5, bgcolor: '#faf8fc' }}>
             {push === 'activo' ? (
-              <Typography sx={{ color: '#2E7D32', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                <CheckCircleRoundedIcon sx={{ fontSize: 18 }} /> Notificaciones activadas en este dispositivo
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography sx={{ color: '#2E7D32', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 0.75, flex: 1 }}>
+                  <CheckCircleRoundedIcon sx={{ fontSize: 18 }} /> Notificaciones activadas
+                </Typography>
+                <Button size="small" onClick={desactivar} sx={{ textTransform: 'none', color: 'rgba(21,44,112,0.75)', fontWeight: 600, borderRadius: '10px' }}>
+                  Desactivar
+                </Button>
+              </Box>
             ) : (
               <>
                 <Typography sx={{ color: NAVY, fontSize: 13, mb: 1 }}>
