@@ -8,6 +8,13 @@ import Footer from '../../components/molecules/Footer';
 import { PageHeader } from '../../components/common/PageHeader';
 import { clearAsistente, getAsistenteEstado, postAsistentePregunta } from '../../redux/actions/asistenteActions';
 import { isCoordinadoraSession } from '../../utils/coordinadoraRole';
+import AsistenteTexto from '../../components/molecules/asistenteTexto/AsistenteTexto';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+
+/** Texto que manda cada botón: el back lo reconoce como confirmación o como negativa. */
+const TEXTO_CONFIRMAR = 'Sí, confirmo.';
+const TEXTO_CANCELAR = 'No, cancelá.';
 
 const NAVY = '#152C70';
 const VIOLET = '#8F00FF';
@@ -23,6 +30,9 @@ export const AsistentePage = () => {
 
     const [pregunta, setPregunta] = useState('');
     const [mensajes, setMensajes] = useState([]);
+    /** Preguntas usadas hoy y tope diario; null hasta saberlo. */
+    const [uso, setUso] = useState(null);
+    const [limiteAlcanzado, setLimiteAlcanzado] = useState(false);
     const finRef = useRef(null);
     const esperandoRef = useRef(false);
 
@@ -41,12 +51,28 @@ export const AsistentePage = () => {
             rol: 'assistant',
             contenido: payload.respuesta ?? '',
             herramientas: payload.herramientasUsadas ?? [],
+            accionPendiente: payload.accionPendiente ?? null,
         }]);
+        if (payload.limiteDiario != null) {
+            setUso({ hoy: payload.preguntasHoy ?? 0, limite: payload.limiteDiario });
+            if (payload.limiteDiario > 0 && (payload.preguntasHoy ?? 0) >= payload.limiteDiario) setLimiteAlcanzado(true);
+        }
     }, [data?.ultimaRespuesta]);
 
     useEffect(() => {
-        if (data?.error) esperandoRef.current = false;
+        if (!data?.error) return;
+        esperandoRef.current = false;
+        // 429: ya hizo todas las preguntas del día.
+        if (data.error?.status === 429) setLimiteAlcanzado(true);
     }, [data?.error]);
+
+    useEffect(() => {
+        const e = data?.estado?.data;
+        if (e?.limiteDiario != null) {
+            setUso({ hoy: e.preguntasHoy ?? 0, limite: e.limiteDiario });
+            if (e.limiteDiario > 0 && (e.preguntasHoy ?? 0) >= e.limiteDiario) setLimiteAlcanzado(true);
+        }
+    }, [data?.estado]);
 
     useEffect(() => {
         finRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -58,18 +84,21 @@ export const AsistentePage = () => {
     const habilitado = estado?.habilitado === true;
     const sugerencias = estado?.quePuedeConsultar ?? [];
 
-    const enviar = (texto) => {
+    const bloqueado = !habilitado || limiteAlcanzado;
+
+    const enviar = (texto, { accionConfirmada } = {}) => {
         const t = (texto ?? pregunta).trim();
-        if (!t || data?.consultando || !habilitado) return;
+        if (!t || data?.consultando || bloqueado) return;
 
         const historial = mensajes
             .slice(-MAX_HISTORIAL)
             .map((m) => ({ rol: m.rol, contenido: m.contenido }));
 
-        setMensajes((prev) => [...prev, { rol: 'user', contenido: t }]);
+        // Una vez respondida, la acción pendiente ya no se puede confirmar de nuevo.
+        setMensajes((prev) => [...prev.map((m) => (m.accionPendiente ? { ...m, accionPendiente: null } : m)), { rol: 'user', contenido: t }]);
         setPregunta('');
         esperandoRef.current = true;
-        dispatch(postAsistentePregunta({ pregunta: t, historial }));
+        dispatch(postAsistentePregunta({ pregunta: t, historial, ...(accionConfirmada ? { accionConfirmada } : {}) }));
     };
 
     if (!isCoord) {
@@ -110,7 +139,7 @@ export const AsistentePage = () => {
                             Preguntá sobre el programa
                         </Typography>
                         <Typography sx={{ color: 'rgba(21,44,112,0.75)', fontSize: '0.875rem', mt: 0.5, px: 1 }}>
-                            Consulta los datos del día en tiempo real. Solo lectura: no modifica nada.
+                            Consulta los datos del día en tiempo real. Solo genera asignaciones o manda avisos si vos lo confirmás.
                         </Typography>
 
                         {sugerencias.length > 0 && (
@@ -148,9 +177,37 @@ export const AsistentePage = () => {
                                 border: m.rol === 'user' ? 'none' : '1px solid rgba(143,0,255,0.12)',
                             }}
                         >
-                            <Typography sx={{ fontSize: '0.9375rem', lineHeight: 1.55, color: m.rol === 'user' ? '#fff' : NAVY, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
-                                {m.contenido}
-                            </Typography>
+                            {m.rol === 'user' ? (
+                                <Typography sx={{ fontSize: '0.9375rem', lineHeight: 1.55, color: '#fff', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
+                                    {m.contenido}
+                                </Typography>
+                            ) : (
+                                <AsistenteTexto texto={m.contenido} />
+                            )}
+                            {m.accionPendiente && (
+                                <Box sx={{ display: 'flex', gap: 1, mt: 1.25 }}>
+                                    <Button
+                                        size="small"
+                                        variant="contained"
+                                        startIcon={<CheckIcon />}
+                                        disabled={data?.consultando || bloqueado}
+                                        onClick={() => enviar(TEXTO_CONFIRMAR, { accionConfirmada: m.accionPendiente })}
+                                        sx={{ textTransform: 'none', fontWeight: 700, bgcolor: VIOLET, borderRadius: '10px', '&:hover': { bgcolor: '#7A00D6' } }}
+                                    >
+                                        Confirmar
+                                    </Button>
+                                    <Button
+                                        size="small"
+                                        variant="outlined"
+                                        startIcon={<CloseIcon />}
+                                        disabled={data?.consultando || bloqueado}
+                                        onClick={() => enviar(TEXTO_CANCELAR)}
+                                        sx={{ textTransform: 'none', fontWeight: 600, color: NAVY, borderColor: 'rgba(21,44,112,0.3)', borderRadius: '10px' }}
+                                    >
+                                        Cancelar
+                                    </Button>
+                                </Box>
+                            )}
                         </Paper>
                     </Box>
                 ))}
@@ -166,6 +223,14 @@ export const AsistentePage = () => {
                 <div ref={finRef} />
             </Box>
 
+            {(limiteAlcanzado || (uso && uso.limite > 0)) && (
+                <Typography sx={{ px: 2, pt: 0.75, fontSize: '0.75rem', textAlign: 'right', color: limiteAlcanzado ? '#C23814' : 'rgba(21,44,112,0.6)', bgcolor: '#fff' }}>
+                    {limiteAlcanzado
+                        ? 'Llegaste al límite de preguntas de hoy. Mañana podés seguir.'
+                        : `${uso.hoy} de ${uso.limite} preguntas hoy`}
+                </Typography>
+            )}
+
             <Box sx={{ px: 2, pt: 1, pb: 1.5, display: 'flex', gap: 1, alignItems: 'flex-end', bgcolor: '#fff', borderTop: '1px solid rgba(21,44,112,0.08)' }}>
                 <TextField
                     fullWidth
@@ -174,7 +239,7 @@ export const AsistentePage = () => {
                     size="small"
                     placeholder="Escribí tu pregunta…"
                     value={pregunta}
-                    disabled={!habilitado || data?.consultando}
+                    disabled={bloqueado || data?.consultando}
                     onChange={(e) => setPregunta(e.target.value.slice(0, MAX_PREGUNTA))}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar(); }
@@ -183,7 +248,7 @@ export const AsistentePage = () => {
                 />
                 <IconButton
                     onClick={() => enviar()}
-                    disabled={!habilitado || data?.consultando || !pregunta.trim()}
+                    disabled={bloqueado || data?.consultando || !pregunta.trim()}
                     aria-label="Enviar pregunta"
                     sx={{
                         width: 48, height: 48, flexShrink: 0,
