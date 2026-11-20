@@ -30,13 +30,13 @@ C:\Users\erikm\dotnet8\dotnet.exe test ResimamisBackend.Tests/ResimamisBackend.T
 ```
 
 - **Stack:** xUnit 2.5.3 + Moq 4.18.4 (versión previa al SponsorLink, sin telemetría).
-- **Qué cubre hoy (~193 tests, 11 clases):** helpers puros (`RolesVoluntaria`,
-  `ValidacionTextoPersona`, `NegConversorFecha`, `ParchePropiedades`) y lógica de negocio con
-  repositorios mockeados (`NegTareas`, `NegVisitas`, `NegInsumos`, `NegMadres`, `NegBebes`,
-  `NegProveedores`, `NegSalas`). Sin cubrir: los `Neg*` acoplados a `ApplicationDbContext`
-  directo (`NegAsignacion`, `NegUsuarios`) y `NegMadres.registrarMadre`/`NegBebes.registrarBebe`
-  (usan `BloqueosDb.Ejecutar(db, ...)`); se puede testear su validación por `modificarMadre` /
-  `ValidarCamposBebe`, que no tocan `db`.
+- **Qué cubre hoy (~217 tests, 13 clases):** helpers puros (`RolesVoluntaria`,
+  `ValidacionTextoPersona`, `NegConversorFecha`, `ParchePropiedades`, `NegGenericos`) y lógica
+  de negocio con repositorios mockeados (`NegTareas`, `NegVisitas`, `NegInsumos`, `NegMadres`,
+  `NegBebes`, `NegProveedores`, `NegSalas`, `NegHorariosVoluntaria`). Sin cubrir: los `Neg*`
+  acoplados a `ApplicationDbContext` directo (`NegAsignacion`, `NegUsuarios`) y
+  `NegMadres.registrarMadre`/`NegBebes.registrarBebe` (usan `BloqueosDb.Ejecutar(db, ...)`); se
+  puede testear su validación por `modificarMadre` / `ValidarCamposBebe`, que no tocan `db`.
 - **Patrón:** para testear un `Neg*`, mockear sus interfaces `I*Repositorio` con Moq; no hace
   falta base de datos. `consultarBebe`/`obtenerParaModificar` **lanzan** `NotFoundException`
   cuando no existe (no devuelven null): el mock debe reflejarlo con `.Throws(...)`.
