@@ -115,14 +115,12 @@ en varios rangos, así que un formulario que pasa el cliente puede rebotar en el
 |-------|--------------------------------|--------------------------|--------|
 | Edad mínima madre | 13 años | 13 años (`edad < 13`) | ✅ Resuelto nov 2026 — back alineado a la spec |
 | Cantidad de hijos | 1-10 | 1-10 (`CantidadHijos > 10`) | ✅ Resuelto nov 2026 — front alineado al back (era 1-40) |
-| Motivo del abrazo | 250 chars | **100 chars** (L225) | ⚠️ Abierto — decisión de producto |
-| Celular | 10-15 dígitos, `+` opcional | **10-13 dígitos, sin `+`** (`^\d{10,13}$`, L231) | ⚠️ Abierto — decisión de producto |
+| Motivo del abrazo | 250 chars | 250 chars | ✅ Resuelto nov 2026 — back alineado a la spec |
+| Celular | 10-15 dígitos, `+` opcional | 10-15 dígitos | ✅ Resuelto nov 2026 — back a 10-15 dígitos; el `+` es solo input del front (`normalizeMotherPayload` lo stripea a Number antes de enviar) |
 
-**Quedan 2 abiertas (motivo, celular):** el front/spec permiten más que el backend, así que un
-form válido en el cliente rebota con 400 (y tira abajo el alta madre+bebé completa). La spec
-coincide con el front, así que el fix natural es **subir el backend** a 250 chars de motivo y a
-celular de 10-15 dígitos con `+` opcional, dejando el front como está. Pendiente de decisión de
-producto.
+**Las 4 están resueltas** (nov 2026, detectadas y saldadas por la suite de tests): edad y motivo
+subidos en el backend a la spec, celular ampliado a 10-15 dígitos, y cantidad de hijos bajada en
+el front a 1-10. El alta madre+bebé ya no rebota con 400 por estos campos.
 
 ---
 
