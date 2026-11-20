@@ -18,9 +18,7 @@ AxiosInstance.interceptors.request.use(
         }
         return config;
     },
-    error => {
-        Promise.reject(error.response || error.message)
-    }
+    error => Promise.reject(error.response || error.message),
 );
 
 AxiosInstance.interceptors.response.use(

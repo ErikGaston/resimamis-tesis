@@ -16,7 +16,7 @@ function* asyncPostAssignmentGenerate({ payload }) {
         yield put({
             type: actionTypes.ERROR_ASSIGNMENT,
             response: error,
-            message: error.mensaje,
+            message: error.message,
         });
     }
 }
@@ -34,7 +34,7 @@ function* asyncPostAssignmentGenerateTarea({ payload }) {
         yield put({
             type: actionTypes.ERROR_ASSIGNMENT,
             response: error,
-            message: error.mensaje,
+            message: error.message,
         });
     }
 }

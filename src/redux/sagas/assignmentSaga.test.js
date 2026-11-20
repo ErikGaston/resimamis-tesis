@@ -72,13 +72,11 @@ describe('assignmentSaga', () => {
     expect(emitted.at(-1)).toEqual(put({ type: actionTypes.ERROR_ASSIGNMENT, response: error }));
   });
 
-  // NOTA (posible bug/typo): asyncPostAssignmentGenerate usa `message: error.mensaje`
-  // (propiedad inexistente en un Error) en vez de error.message. El message queda undefined.
-  it('error en POST_ASSIGNMENT_GENERATE pone message=undefined por el typo error.mensaje', () => {
+  it('error en POST_ASSIGNMENT_GENERATE -> ERROR_ASSIGNMENT con message = error.message', () => {
     const gen = workers[actionTypes.POST_ASSIGNMENT_GENERATE]({ payload: {} });
     gen.next();
     const error = new Error('falló');
     const emitted = drainFromThrow(gen, error);
-    expect(emitted.at(-1)).toEqual(put({ type: actionTypes.ERROR_ASSIGNMENT, response: error, message: undefined }));
+    expect(emitted.at(-1)).toEqual(put({ type: actionTypes.ERROR_ASSIGNMENT, response: error, message: error.message }));
   });
 });

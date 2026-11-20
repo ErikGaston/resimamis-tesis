@@ -24,6 +24,10 @@ describe('interceptor — request', () => {
     const config = reqHandler.fulfilled({ headers: {} });
     expect(config.headers.Authorization).toBeUndefined();
   });
+
+  it('propaga el error de request como rechazo', async () => {
+    await expect(reqHandler.rejected({ message: 'boom' })).rejects.toBe('boom');
+  });
 });
 
 describe('interceptor — response', () => {
