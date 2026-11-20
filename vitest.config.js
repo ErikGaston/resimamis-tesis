@@ -8,6 +8,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    // jsdom solo habilita localStorage/sessionStorage con un origin no opaco (URL real).
+    environmentOptions: {
+      jsdom: { url: 'http://localhost:5173/' },
+    },
     setupFiles: ['./src/test/setup.js'],
     include: ['src/**/*.{test,spec}.{js,jsx}'],
     clearMocks: true,
