@@ -105,6 +105,25 @@ Sobre una API con JWT en header. Restringir a los orígenes del frontend.
 | `dist/` versionado | Build commiteado en el árbol de trabajo |
 | Tema legacy | ~160 líneas de overrides MUI v4 comentadas en `theme.js`. Como están comentadas, MUI usa sus defaults: por eso los botones quedan en ~36px y hay que forzar `minHeight: 44` caso por caso |
 
+### Discrepancias de validación front ↔ back — madre (detectadas nov 2026 por la suite de tests)
+
+El alta de madre+bebé es **una sola operación**: un 400 del backend tira abajo el alta completa.
+El front (`utils/motherFormValidation.js`) y el backend (`NegMadres.ValidarMadre`) no coinciden
+en varios rangos, así que un formulario que pasa el cliente puede rebotar en el servidor:
+
+| Campo | Front / spec (`01-negocio.md`) | Backend (`NegMadres.cs`) |
+|-------|--------------------------------|--------------------------|
+| Edad mínima madre | 13 años | **10 años** (`edad < 10`, L198) |
+| Cantidad de hijos | 1-40 | **1-10** (`CantidadHijos > 10`, L220) |
+| Motivo del abrazo | 250 chars | **100 chars** (L225) |
+| Celular | 10-15 dígitos, `+` inicial opcional | **10-13 dígitos, sin `+`** (`^\d{10,13}$`, L231) |
+
+En edad el front es **más estricto** (no deja pasar <13; el backend aceptaría 10). En los otros
+tres el front es **más laxo**: 11-40 hijos, motivo >100 chars, o celular de 14-15 dígitos / con
+`+` pasan el cliente y el backend los rechaza con 400. La spec coincide con el front en motivo y
+celular, así que probablemente el backend esté desactualizado. **Decidir por campo** si se alinea
+front→back o back→spec. Flaggeado para decisión de producto.
+
 ---
 
 ## P3 — Infraestructura ausente
