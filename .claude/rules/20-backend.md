@@ -18,6 +18,33 @@ ignorado por el repo del frontend. Actualizar con `cd resimamis && git pull`.
 | Docs | Swagger — expuesto en **`/`** (`RoutePrefix = ""`) |
 | Deploy | Docker + Render (`RENDER_DEPLOY.md`) |
 
+## Tests (xUnit)
+
+Suite de tests unitarios en `resimamis/ResimamisBackend.Tests/` (proyecto xUnit net8.0 que
+referencia al main). **Antes no había tests**; se agregaron en nov 2026.
+
+```bash
+cd resimamis
+# El dotnet del PATH es SDK 7; el proyecto es net8.0 → usar el SDK 8:
+C:\Users\erikm\dotnet8\dotnet.exe test ResimamisBackend.Tests/ResimamisBackend.Tests.csproj
+```
+
+- **Stack:** xUnit 2.5.3 + Moq 4.18.4 (versión previa al SponsorLink, sin telemetría).
+- **Qué cubre hoy (~193 tests, 11 clases):** helpers puros (`RolesVoluntaria`,
+  `ValidacionTextoPersona`, `NegConversorFecha`, `ParchePropiedades`) y lógica de negocio con
+  repositorios mockeados (`NegTareas`, `NegVisitas`, `NegInsumos`, `NegMadres`, `NegBebes`,
+  `NegProveedores`, `NegSalas`). Sin cubrir: los `Neg*` acoplados a `ApplicationDbContext`
+  directo (`NegAsignacion`, `NegUsuarios`) y `NegMadres.registrarMadre`/`NegBebes.registrarBebe`
+  (usan `BloqueosDb.Ejecutar(db, ...)`); se puede testear su validación por `modificarMadre` /
+  `ValidarCamposBebe`, que no tocan `db`.
+- **Patrón:** para testear un `Neg*`, mockear sus interfaces `I*Repositorio` con Moq; no hace
+  falta base de datos. `consultarBebe`/`obtenerParaModificar` **lanzan** `NotFoundException`
+  cuando no existe (no devuelven null): el mock debe reflejarlo con `.Throws(...)`.
+- **Ojo con el csproj del main:** `ResimamisBackend.csproj` excluye la carpeta de tests de su
+  compile con `<DefaultItemExcludes>...ResimamisBackend.Tests\**\*</DefaultItemExcludes>`. Sin
+  eso, el glob implícito `**/*.cs` del proyecto Web se traga los `.cs` del test y el build
+  rompe (el main no referencia xUnit).
+
 ## Capas
 
 ```
