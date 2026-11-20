@@ -1,4 +1,12 @@
+import { vi } from 'vitest';
 import '@testing-library/jest-dom';
+
+// La campanita monta en CADA cabecera (PageHeader) y dispara fetch async en effects;
+// en los tests que NO la testean eso genera warnings de act() sin valor. Se stubbea
+// globalmente a null. Su test propio (CampanitaAvisos.test.jsx) la des-mockea con vi.unmock.
+vi.mock('../components/molecules/campanitaAvisos/CampanitaAvisos.jsx', () => ({
+  default: () => null,
+}));
 
 // jsdom (bajo Vitest 0.34) no siempre expone localStorage/sessionStorage.
 // Polyfill mínimo en memoria para tests que leen/escriben la sesión.
