@@ -2,6 +2,7 @@ import { render } from '@testing-library/react';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
+import { MemoryRouter } from 'react-router-dom';
 import { baseTheme } from '../helpers/theme';
 
 // El theme de la app extiende MUI con claves custom (theme.shadow.*, etc.) que
@@ -18,11 +19,13 @@ export function renderWithTheme(ui, options) {
 // Para páginas conectadas a Redux: store de test inerte (el estado queda fijo en
 // preloadedState; los dispatch no lo mutan) + ThemeProvider. Devuelve el store para
 // poder espiar dispatch con vi.spyOn(store, 'dispatch').
-export function renderWithProviders(ui, { preloadedState = {}, store, ...options } = {}) {
+export function renderWithProviders(ui, { preloadedState = {}, store, route = '/', ...options } = {}) {
   const testStore = store ?? createStore((state = preloadedState) => state, preloadedState);
   const Wrapper = ({ children }) => (
     <Provider store={testStore}>
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
+      </ThemeProvider>
     </Provider>
   );
   return { store: testStore, ...render(ui, { wrapper: Wrapper, ...options }) };
