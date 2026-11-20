@@ -28,3 +28,8 @@ if (!globalThis.localStorage) {
 if (!globalThis.sessionStorage) {
   globalThis.sessionStorage = createMemoryStorage();
 }
+
+// jsdom no implementa scrollIntoView, pero varios componentes lo llaman en effects.
+if (typeof window !== 'undefined' && window.HTMLElement) {
+  window.HTMLElement.prototype.scrollIntoView = () => {};
+}

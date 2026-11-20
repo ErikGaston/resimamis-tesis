@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Badge, Box, Button, CircularProgress, IconButton, Popover, Typography } from '@mui/material';
 import { keyframes } from '@emotion/react';
@@ -119,6 +119,11 @@ const CampanitaAvisos = ({ color = '#fff' }) => {
   const [push, setPush] = useState(soportaPush() ? 'cargando' : 'no-soportado');
   const [mensajePush, setMensajePush] = useState('');
 
+  // Evita setState tras desmontar: la campanita monta en cada cabecera y sus
+  // pedidos async pueden resolver después de navegar a otra pantalla.
+  const montado = useRef(true);
+  useEffect(() => () => { montado.current = false; }, []);
+
   const refrescar = useCallback(async (forzar = false) => {
     if (!forzar && recordados() && Date.now() - memoria.t < CADA_MS) {
       setAvisos(memoria.avisos);
@@ -128,9 +133,9 @@ const CampanitaAvisos = ({ color = '#fff' }) => {
     try {
       const nuevos = await buscarAvisos(esCoord);
       memoria = { t: Date.now(), avisos: nuevos, sesion: sesionActual() };
-      setAvisos(nuevos);
+      if (montado.current) setAvisos(nuevos);
     } finally {
-      setCargando(false);
+      if (montado.current) setCargando(false);
     }
   }, [esCoord]);
 
@@ -143,8 +148,8 @@ const CampanitaAvisos = ({ color = '#fff' }) => {
   useEffect(() => {
     if (!soportaPush()) return;
     suscripcionActual()
-      .then((s) => setPush(s && Notification.permission === 'granted' ? 'activo' : 'inactivo'))
-      .catch(() => setPush('inactivo'));
+      .then((s) => { if (montado.current) setPush(s && Notification.permission === 'granted' ? 'activo' : 'inactivo'); })
+      .catch(() => { if (montado.current) setPush('inactivo'); });
   }, []);
 
   const abrir = (e) => {
