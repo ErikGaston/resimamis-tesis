@@ -1,10 +1,12 @@
 import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
 
 // Config exclusiva de Vitest: no toca vite.config.js (el build queda intacto).
 // Vite 4 ⇒ Vitest 0.34.x (Vitest 1.x exige Vite 5).
+// NO usamos @vitejs/plugin-react acá: su Fast Refresh inyecta un preamble que en
+// Vitest no existe ("can't detect preamble"). En tests no hace falta Fast Refresh,
+// así que esbuild transpila el JSX con el runtime automático de React 18.
 export default defineConfig({
-  plugins: [react()],
+  esbuild: { jsx: 'automatic' },
   test: {
     globals: true,
     environment: 'jsdom',
