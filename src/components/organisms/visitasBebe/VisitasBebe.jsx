@@ -79,7 +79,7 @@ const VisitasBebe = ({ visitasList = [], idBebe, onCrear, onEditar, onEliminar }
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(FORM_INIT);
 
-  const [editDialog, setEditDialog] = useState({ open: false, idVisita: null, form: FORM_INIT });
+  const [editDialog, setEditDialog] = useState({ open: false, idVisita: null, form: FORM_INIT, original: null });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -93,19 +93,21 @@ const VisitasBebe = ({ visitasList = [], idBebe, onCrear, onEditar, onEliminar }
   };
 
   const handleOpenEdit = (v) => {
+    const editForm = {
+      nombreVisitante: v.nombreVisitante ?? '',
+      familiar: v.familiar ?? '',
+      fechaHoraVisita: v.fechaHoraVisita
+        ? dayjs(v.fechaHoraVisita).format('YYYY-MM-DDTHH:mm') // hora local, no UTC
+        : '',
+      documentoVisitante: v.documentoVisitante != null ? String(v.documentoVisitante) : '',
+      telefonoVisitante: v.telefonoVisitante != null ? String(v.telefonoVisitante) : '',
+      observacion: v.observacion ?? '',
+    };
     setEditDialog({
       open: true,
       idVisita: v.idVisita,
-      form: {
-        nombreVisitante: v.nombreVisitante ?? '',
-        familiar: v.familiar ?? '',
-        fechaHoraVisita: v.fechaHoraVisita
-          ? dayjs(v.fechaHoraVisita).format('YYYY-MM-DDTHH:mm') // hora local, no UTC
-          : '',
-        documentoVisitante: v.documentoVisitante != null ? String(v.documentoVisitante) : '',
-        telefonoVisitante: v.telefonoVisitante != null ? String(v.telefonoVisitante) : '',
-        observacion: v.observacion ?? '',
-      },
+      form: editForm,
+      original: JSON.stringify(editForm),
     });
   };
 
@@ -117,13 +119,16 @@ const VisitasBebe = ({ visitasList = [], idBebe, onCrear, onEditar, onEliminar }
   const handleGuardarEdit = () => {
     const payload = buildPayload(editDialog.form, idBebe);
     onEditar(editDialog.idVisita, payload);
-    setEditDialog({ open: false, idVisita: null, form: FORM_INIT });
+    setEditDialog({ open: false, idVisita: null, form: FORM_INIT, original: null });
   };
 
   const canSubmit =
     form.nombreVisitante.trim() && form.familiar.trim() && form.fechaHoraVisita;
 
+  const editHayCambios = JSON.stringify(editDialog.form) !== editDialog.original;
+
   const canSubmitEdit =
+    editHayCambios &&
     editDialog.form.nombreVisitante.trim() &&
     editDialog.form.familiar.trim() &&
     editDialog.form.fechaHoraVisita;
