@@ -49,6 +49,7 @@ días anteriores y nunca finalizados) y accede al panel `/coordinacion`.
   5 Viuda/o, 6 Separada/o). Si el backend devuelve un código fuera de rango, la UI muestra
   `"Código N (registrado en el sistema)"` como opción legacy.
 - **Celular:** 10-15 dígitos, permite `+` inicial.
+- **Cantidad de hijos (madre):** entero 1-10 (front y backend alineados; nov 2026, antes el front permitía 40).
 - **`movimientoStock.esEntrada`:** el backend espera el string **`"S"` (entrada) o `"N"`
   (salida)**, no un boolean; rechaza cualquier otro valor con 400.
   `normalizeEsEntradaForApi()` normaliza lo que venga del formulario a `"S"`/`"N"`.

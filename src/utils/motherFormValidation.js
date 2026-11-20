@@ -190,8 +190,8 @@ export function validateMotherForm(model, options = {}) {
     set('cantidadHijos', 'La cantidad de hijos es obligatoria.');
   } else {
     const n = Number(ch);
-    if (!Number.isInteger(n) || n < 1 || n > 40) {
-      set('cantidadHijos', 'Ingresá un número entero entre 1 y 40.');
+    if (!Number.isInteger(n) || n < 1 || n > 10) {
+      set('cantidadHijos', 'Ingresá un número entero entre 1 y 10.');
     }
   }
 

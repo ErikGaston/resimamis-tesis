@@ -111,18 +111,18 @@ El alta de madre+bebé es **una sola operación**: un 400 del backend tira abajo
 El front (`utils/motherFormValidation.js`) y el backend (`NegMadres.ValidarMadre`) no coinciden
 en varios rangos, así que un formulario que pasa el cliente puede rebotar en el servidor:
 
-| Campo | Front / spec (`01-negocio.md`) | Backend (`NegMadres.cs`) |
-|-------|--------------------------------|--------------------------|
-| Edad mínima madre | 13 años | **10 años** (`edad < 10`, L198) |
-| Cantidad de hijos | 1-40 | **1-10** (`CantidadHijos > 10`, L220) |
-| Motivo del abrazo | 250 chars | **100 chars** (L225) |
-| Celular | 10-15 dígitos, `+` inicial opcional | **10-13 dígitos, sin `+`** (`^\d{10,13}$`, L231) |
+| Campo | Front / spec (`01-negocio.md`) | Backend (`NegMadres.cs`) | Estado |
+|-------|--------------------------------|--------------------------|--------|
+| Edad mínima madre | 13 años | 13 años (`edad < 13`) | ✅ Resuelto nov 2026 — back alineado a la spec |
+| Cantidad de hijos | 1-10 | 1-10 (`CantidadHijos > 10`) | ✅ Resuelto nov 2026 — front alineado al back (era 1-40) |
+| Motivo del abrazo | 250 chars | **100 chars** (L225) | ⚠️ Abierto — decisión de producto |
+| Celular | 10-15 dígitos, `+` opcional | **10-13 dígitos, sin `+`** (`^\d{10,13}$`, L231) | ⚠️ Abierto — decisión de producto |
 
-En edad el front es **más estricto** (no deja pasar <13; el backend aceptaría 10). En los otros
-tres el front es **más laxo**: 11-40 hijos, motivo >100 chars, o celular de 14-15 dígitos / con
-`+` pasan el cliente y el backend los rechaza con 400. La spec coincide con el front en motivo y
-celular, así que probablemente el backend esté desactualizado. **Decidir por campo** si se alinea
-front→back o back→spec. Flaggeado para decisión de producto.
+**Quedan 2 abiertas (motivo, celular):** el front/spec permiten más que el backend, así que un
+form válido en el cliente rebota con 400 (y tira abajo el alta madre+bebé completa). La spec
+coincide con el front, así que el fix natural es **subir el backend** a 250 chars de motivo y a
+celular de 10-15 dígitos con `+` opcional, dejando el front como está. Pendiente de decisión de
+producto.
 
 ---
 

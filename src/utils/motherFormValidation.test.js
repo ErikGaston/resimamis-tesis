@@ -91,9 +91,10 @@ describe('validateMotherForm', () => {
     expect(validateMotherForm({ ...validModel(), fechaNacimiento: menor }).errors.fechaNacimiento).toMatch(/13/);
   });
 
-  it('valida cantidad de hijos (entero 1-40)', () => {
+  it('valida cantidad de hijos (entero 1-10, alineado al backend)', () => {
     expect(validateMotherForm({ ...validModel(), cantidadHijos: 0 }).errors.cantidadHijos).toBeTruthy();
-    expect(validateMotherForm({ ...validModel(), cantidadHijos: 41 }).errors.cantidadHijos).toBeTruthy();
+    expect(validateMotherForm({ ...validModel(), cantidadHijos: 11 }).errors.cantidadHijos).toBeTruthy();
+    expect(validateMotherForm({ ...validModel(), cantidadHijos: 10 }).ok).toBe(true);
   });
 
   it('valida celular (10-15 dígitos, + inicial opcional)', () => {
