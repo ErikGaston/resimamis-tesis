@@ -3,7 +3,10 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AddchartIcon from '@mui/icons-material/Addchart';
 import CloseIcon from '@mui/icons-material/Close';
 import MonitorWeightOutlinedIcon from '@mui/icons-material/MonitorWeightOutlined';
-import { Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Snackbar, Typography } from '@mui/material';
+import GridOnIcon from '@mui/icons-material/GridOn';
+import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
+import { aTablas, exportarExcel, exportarPdf } from '../../../utils/exportarReporte';
 import styled from '@emotion/styled';
 import { PageHeader } from '../../common/PageHeader';
 import { ChartHugMonth } from '../../organisms/statistics/ChartHugMonth';
@@ -100,6 +103,46 @@ const StatisticsTemplate = (props) => {
 
     const chartOptions = CHART_OPTIONS.filter((o) => !o.soloCoordinadora || isCoordinadora);
     const ComponenteAvanzado = COMPONENTES_AVANZADOS[valueChart];
+    const titulo = CHART_OPTIONS.find((o) => o.id === valueChart)?.label ?? 'Estadística';
+
+    // Datos crudos de la estadística abierta, para el Excel.
+    const datosExportar = ({
+        1: statisticsMonthMother,
+        2: statisticsLocalities,
+        3: statisticsSupplies,
+        4: statisticsAssignment,
+        5: statisticsDuracion,
+        6: statisticsWeightEvolution,
+        7: statisticsPermanencia,
+        8: statisticsPorSala,
+        9: statisticsPorEstado,
+        10: statisticsRangoEdades,
+        11: statisticsRanking,
+        12: visitasEstadisticas,
+    })[valueChart] ?? estadisticaAvanzada?.datos ?? null;
+    const hayDatos = aTablas(datosExportar).length > 0;
+
+    const contenidoRef = React.useRef(null);
+    const [exportando, setExportando] = React.useState(false);
+    const [avisoExport, setAvisoExport] = React.useState('');
+
+    const descargarExcel = async () => {
+        setExportando(true);
+        try {
+            const ok = await exportarExcel(titulo, datosExportar);
+            if (!ok) setAvisoExport('No hay datos para exportar.');
+        } catch {
+            setAvisoExport('No se pudo generar el Excel.');
+        } finally {
+            setExportando(false);
+        }
+    };
+
+    const descargarPdf = () => {
+        if (!exportarPdf(titulo, contenidoRef.current)) {
+            setAvisoExport('El navegador bloqueó la ventana. Permití las ventanas emergentes para este sitio.');
+        }
+    };
 
 
     return (
@@ -148,14 +191,36 @@ const StatisticsTemplate = (props) => {
             >
                 <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1.5, px: 2 }}>
                     <Typography sx={{ fontWeight: 700, color: '#152C70', fontSize: '1rem' }}>
-                        {CHART_OPTIONS.find((o) => o.id === valueChart)?.label ?? 'Estadística'}
+                        {titulo}
                     </Typography>
                     <IconButton onClick={() => setStateChart('')} aria-label="Cerrar" sx={{ width: 44, height: 44 }}>
                         <CloseIcon fontSize="small" />
                     </IconButton>
                 </DialogTitle>
 
-                <DialogContent sx={{ px: 2, pt: '20px !important', pb: 3 }}>
+                <Box className="no-imprimir" sx={{ display: 'flex', gap: 1, px: 2, pb: 0.5 }}>
+                    <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<GridOnIcon />}
+                        disabled={!hayDatos || exportando}
+                        onClick={descargarExcel}
+                        sx={{ textTransform: 'none', fontWeight: 600, borderRadius: '10px', color: '#1D6F42', borderColor: 'rgba(29,111,66,0.4)' }}
+                    >
+                        Excel
+                    </Button>
+                    <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<PictureAsPdfOutlinedIcon />}
+                        onClick={descargarPdf}
+                        sx={{ textTransform: 'none', fontWeight: 600, borderRadius: '10px', color: '#C23814', borderColor: 'rgba(194,56,20,0.4)' }}
+                    >
+                        PDF
+                    </Button>
+                </Box>
+
+                <DialogContent ref={contenidoRef} sx={{ px: 2, pt: '12px !important', pb: 3 }}>
                     {valueChart === 1 && <ChartHugMonth statisticsMonthMother={statisticsMonthMother} />}
                     {valueChart === 2 && <ChartLocalitiesMother statisticsLocalities={statisticsLocalities} />}
                     {valueChart === 3 && <ChartSupplies statisticsSupplies={statisticsSupplies} />}
@@ -185,6 +250,13 @@ const StatisticsTemplate = (props) => {
                     {valueChart === 5 && <ChartDuracionAbrazos duracion={statisticsDuracion} />}
                 </DialogContent>
             </Dialog>
+            <Snackbar
+                open={!!avisoExport}
+                autoHideDuration={4000}
+                onClose={() => setAvisoExport("")}
+                message={avisoExport}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            />
         </div>
     );
 };
