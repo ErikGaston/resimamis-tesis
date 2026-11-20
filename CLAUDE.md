@@ -47,6 +47,9 @@ npm run build      # vite build + copia web.config a dist/ para IIS
 npm run preview
 npm run lint       # ESLint (errores + warnings)
 npm run lint:errors # solo errores — sale != 0 si hay alguno, sirve de gate
+npm test           # Vitest (unit tests, una corrida)
+npm run test:watch # Vitest en watch
+npm run test:coverage # Vitest con cobertura
 
 # Backend
 cd resimamis
@@ -61,8 +64,10 @@ con el runtime automático de JSX. Está en **cero errores**; los warnings que q
 `no-unused-vars` y `react-hooks/exhaustive-deps` preexistentes. Antes de commitear, correr
 `npm run lint:errors`.
 
-**No hay format, tests ni CI** en ninguno de los dos lados. No existe Prettier, TypeScript,
-Vitest, Playwright ni `.github/workflows`. No inventes un `npm test`.
+**Hay tests unitarios** (nov 2026): front con **Vitest** + `@testing-library/react` + jsdom
+(`npm test`, config en `vitest.config.js`, setup en `src/test/setup.js`), y backend con
+**xUnit** (`cd resimamis && dotnet test`). Los tests van colocados como `*.test.js(x)` al lado
+del archivo. **No hay** Prettier, TypeScript, Playwright ni CI (`.github/workflows`).
 
 ## Convenciones que no se derivan del código
 

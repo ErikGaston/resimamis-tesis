@@ -119,9 +119,10 @@ deja el compositor deshabilitado.
 
 ## Lo que el sistema NO tiene
 
-- **Tests automáticos**: no hay suite configurada en ninguno de los dos repos.
+- **Tests automáticos**: hay unit tests (nov 2026) — Vitest en el front (`src/utils/**`,
+  `src/redux/**`) y xUnit en el back. Falta cobertura de componentes/páginas (RTL) y E2E.
 - **CI**: no hay `.github/workflows`.
-- **Lint/format**: no hay ESLint ni Prettier.
+- **Format**: no hay Prettier (ESLint sí existe desde oct 2026).
 - Recupero de contraseña por email.
 - Notificaciones push (sí hay email, solo para stock mínimo).
 - Multi-idioma.

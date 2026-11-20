@@ -23,6 +23,7 @@ paths:
 | Gráficos | chart.js + react-chartjs-2 |
 | Fechas | **dayjs** |
 | Carrusel | `@trendyol-js/react-carousel` |
+| Tests | **Vitest** 0.34 + `@testing-library/react` + jsdom (nov 2026) |
 
 **Ojo con estos hechos**, que suelen documentarse mal:
 
@@ -45,7 +46,17 @@ npm run build       # vite build + copia web.config a dist/ para IIS
 npm run preview     # sirve el build localmente
 npm run lint        # ESLint: errores + warnings
 npm run lint:errors # solo errores; exit != 0 si hay alguno
+npm test            # Vitest: una corrida (vitest run)
+npm run test:watch  # Vitest en watch
+npm run test:coverage # Vitest con cobertura (v8)
 ```
+
+**Hay Vitest desde nov 2026** (`vitest.config.js`, setup en `src/test/setup.js`). Environment
+`jsdom`; el setup incluye un polyfill de `localStorage`/`sessionStorage` porque jsdom bajo
+Vitest 0.34 no los expone. Tests colocados como `*.test.js(x)` al lado del archivo; import
+explícito desde `'vitest'`. `npx vitest run <ruta>` corre un subconjunto (ojo: `rtk` manglea
+`vitest`, usar `npm test` o `npx vitest run` directo). **Vite 4 ⇒ Vitest 0.34.x** (Vitest 1.x
+exige Vite 5).
 
 **ESLint existe desde oct 2026** (`.eslintrc.cjs`): `eslint:recommended` + `plugin:react` +
 `plugin:react/jsx-runtime` + `plugin:react-hooks`. Es deliberadamente chica — atrapa lo que el
@@ -59,7 +70,7 @@ El repo está en **cero errores**. Quedan ~52 warnings preexistentes (`no-unused
 `react-hooks/exhaustive-deps`); el `import React`, que el runtime automático volvió
 innecesario en ~78 archivos, está ignorado a propósito para no tapar el resto.
 
-No hay `format`, `test` ni `typecheck`, ni CI. Ver `docs/deuda-tecnica.md`.
+Hay `test` (Vitest). No hay `format` ni `typecheck`, ni CI. Ver `docs/deuda-tecnica.md`.
 
 ## Variables de entorno
 

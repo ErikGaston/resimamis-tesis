@@ -109,12 +109,12 @@ Sobre una API con JWT en header. Restringir a los orígenes del frontend.
 
 ## P3 — Infraestructura ausente
 
-**No existe nada de esto, en ninguno de los dos repos:**
+**Infraestructura todavía ausente (salvo donde se indica):**
 
 | Falta | Impacto |
 |-------|---------|
-| ESLint / Prettier / EditorConfig | Nada detecta automáticamente ninguno de los ítems P2 |
-| Tests (Vitest, Jest, Playwright) | Cero archivos `*.test.*`. Cada release se valida a mano |
+| Prettier / EditorConfig | No hay formateo automático (ESLint sí existe desde oct 2026) |
+| Tests unitarios | **Iniciados (nov 2026):** front con Vitest (`npm test`) sobre `src/utils/**` y `src/redux/**`; backend con xUnit (`dotnet test`). Falta cobertura de componentes/páginas (React Testing Library) y E2E |
 | CI (`.github/workflows`) | No hay build ni verificación automática en PR |
 | TypeScript | `@types/react*` instalados sin efecto |
 | Alias de imports (`jsconfig.json`) | Todos los imports son relativos (`../../../`) |
