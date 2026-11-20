@@ -29,17 +29,31 @@ cd resimamis
 C:\Users\erikm\dotnet8\dotnet.exe test ResimamisBackend.Tests/ResimamisBackend.Tests.csproj
 ```
 
-- **Stack:** xUnit 2.5.3 + Moq 4.18.4 (versión previa al SponsorLink, sin telemetría).
-- **Qué cubre hoy (~217 tests, 13 clases):** helpers puros (`RolesVoluntaria`,
+- **Stack:** xUnit 2.5.3 + Moq 4.18.4 (versión previa al SponsorLink, sin telemetría) +
+  Microsoft.EntityFrameworkCore.InMemory 8.0.0 para los `Neg*` acoplados al `db`.
+- **Qué cubre hoy (~254 tests, 16 clases):** helpers puros (`RolesVoluntaria`,
   `ValidacionTextoPersona`, `NegConversorFecha`, `ParchePropiedades`, `NegGenericos`) y lógica
-  de negocio con repositorios mockeados (`NegTareas`, `NegVisitas`, `NegInsumos`, `NegMadres`,
-  `NegBebes`, `NegProveedores`, `NegSalas`, `NegHorariosVoluntaria`). Sin cubrir: los `Neg*`
-  acoplados a `ApplicationDbContext` directo (`NegAsignacion`, `NegUsuarios`) y
-  `NegMadres.registrarMadre`/`NegBebes.registrarBebe` (usan `BloqueosDb.Ejecutar(db, ...)`); se
-  puede testear su validación por `modificarMadre` / `ValidarCamposBebe`, que no tocan `db`.
+  de negocio (`NegTareas`, `NegVisitas`, `NegInsumos`, `NegMadres`, `NegBebes`, `NegProveedores`,
+  `NegSalas`, `NegHorariosVoluntaria`, `NegUsuarios`, `NegAsignacion`), con repositorios
+  mockeados y, cuando hace falta el `db`, un `ApplicationDbContext` InMemory.
+- **Sin cubrir aún:** los flujos de abrazo de `NegAsignacion` con transacción explícita
+  (`iniciar`/`finalizar`/`generar`/`CerrarAbrazosSinFinalizar`): dependen de sembrar
+  `ESTADO`+`AMBITO` y hoy arrastran el bug de estados `Iniciado`/`Finalizado` sin migración
+  (ver abajo). También `NegAsistente`, `NegEnvioMail` y `NegDashboard`.
 - **Patrón:** para testear un `Neg*`, mockear sus interfaces `I*Repositorio` con Moq; no hace
   falta base de datos. `consultarBebe`/`obtenerParaModificar` **lanzan** `NotFoundException`
   cuando no existe (no devuelven null): el mock debe reflejarlo con `.Throws(...)`.
+- **Harness InMemory (`ResimamisBackend.Tests/Infra/TestDb.cs`):** `TestDb.Crear()` devuelve un
+  `ApplicationDbContext` InMemory con nombre de base único por test. Los `Neg*` que reciben el
+  `db` directo (`NegUsuarios`, `NegAsignacion`) o lo usan solo por el wrapper transaccional
+  `BloqueosDb.Ejecutar` (`registrarMadre`/`registrarBebe`/`RegistrarUsuario`) se construyen con
+  ese contexto. **InMemory no soporta transacciones**, así que `TestDb` ignora el
+  `InMemoryEventId.TransactionIgnoredWarning` (si no, `BeginTransaction` tira). Las queries SQL
+  crudas (`pg_advisory_xact_lock`) se saltean solas: están detrás de `db.Database.IsRelational()`,
+  que es `false` en InMemory.
+- **Ojo con Moq y args opcionales:** un `Setup(r => r.ObtenerPorDni(dni))` sobre un método con
+  parámetro opcional (`asNoTracking = false`) **no compila** (CS0854: árbol de expresión). Pasar
+  todos los argumentos explícitos: `Setup(r => r.ObtenerPorDni(dni, false))`.
 - **Ojo con el csproj del main:** `ResimamisBackend.csproj` excluye la carpeta de tests de su
   compile con `<DefaultItemExcludes>...ResimamisBackend.Tests\**\*</DefaultItemExcludes>`. Sin
   eso, el glob implícito `**/*.cs` del proyecto Web se traga los `.cs` del test y el build
