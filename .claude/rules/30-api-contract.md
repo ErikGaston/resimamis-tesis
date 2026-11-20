@@ -33,7 +33,7 @@ La skill **`sync-api-contract`** automatiza el diff backend↔frontend.
 
 | Dominio | Funciones | Saga |
 |---------|-----------|------|
-| Usuario | `postLogin`, `postUsuario`, `getUsuarios`, `getUsuarioById`, `putUsuarioById`, `postUsuarioDelete`, `putUsuarioContrasena`, `getVoluntariasSinUsuario` | `userSaga` |
+| Usuario | `postLogin`, `postUsuario`, `getUsuarios`, `getUsuarioById`, `putUsuarioById`, `putUsuarioRol`, `postUsuarioDelete`, `putUsuarioContrasena`, `getVoluntariasSinUsuario` | `userSaga` |
 | Genéricos | `getLocalities`, `getEstadosCiviles` | `genericsSaga` |
 | Madre | `postMother`, `getMother`, `getMotherId`, `putMother`, `getStatisticsLocalities`, `getStatisticsAgeMother`, `postMotherDelete` | `motherSaga` |
 | Voluntaria + Asistencia | `postVolunteer`, `putVolunteer`, `getVolunteers`, `getVolunteersFree`, `getVolunteersStates`, `getVolunteerById`, `postVolunteerDelete`, `postAssistance`, `postAssistanceSalida`, `getAssistance`, `getAssistanceToday`, `getAssistanceHistoricas`, `getAssistanceReporte`, `getAsistenciasAll`, `postAssistanceDelete` | `volunteerSaga` |

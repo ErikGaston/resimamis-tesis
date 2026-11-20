@@ -79,6 +79,8 @@ export default function supplyReducer(state = initialState, action) {
                 ...state,
                 putSupplyById: null,
                 postSupplyDelete: null,
+                postSupplyCreate: null,
+                postSupplyRegisterMovement: null,
                 error: null,
             };
         }

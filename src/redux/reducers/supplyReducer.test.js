@@ -51,17 +51,21 @@ describe('supplyReducer', () => {
     expect(next.loading).toBe(false);
   });
 
-  it('CLEAR_SUPPLY_WRITES limpia put/delete y error, conservando el listado', () => {
+  it('CLEAR_SUPPLY_WRITES limpia todos los flags de escritura y error, conservando el listado', () => {
     const dirty = {
       ...initialState,
       getSupplies: [{ idInsumo: 1 }],
       putSupplyById: { ok: 1 },
       postSupplyDelete: { ok: 1 },
+      postSupplyCreate: { ok: 1 },
+      postSupplyRegisterMovement: { ok: 1 },
       error: 'e',
     };
     const next = reducer(dirty, { type: actionTypes.CLEAR_SUPPLY_WRITES });
     expect(next.putSupplyById).toBeNull();
     expect(next.postSupplyDelete).toBeNull();
+    expect(next.postSupplyCreate).toBeNull();
+    expect(next.postSupplyRegisterMovement).toBeNull();
     expect(next.error).toBeNull();
     expect(next.getSupplies).toEqual([{ idInsumo: 1 }]);
   });

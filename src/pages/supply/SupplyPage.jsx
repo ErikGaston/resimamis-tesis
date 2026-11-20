@@ -108,6 +108,7 @@ export const SupplyPage = () => {
         setMovementCloseSignal((s) => s + 1)
         dispatch(postSupplyConsultMovements(buildConsultaMovimientosPayload()))
         dispatch(getSupplies())
+        dispatch(clearSupplyWrites())
         dispatch(showToast({ message: 'Movimiento registrado.', severity: 'success' }))
     }, [dataSupply?.postSupplyRegisterMovement, dispatch])
 
@@ -116,6 +117,7 @@ export const SupplyPage = () => {
         dispatch(showLoading(false))
         setCreateSupplyCloseSignal((s) => s + 1)
         dispatch(getSupplies())
+        dispatch(clearSupplyWrites())
         dispatch(showToast({ message: 'Insumo registrado.', severity: 'success' }))
     }, [dataSupply?.postSupplyCreate, dispatch])
 
