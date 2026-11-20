@@ -10,22 +10,8 @@ import CardIcon from '../../molecules/cardIcon/CardIcon';
 import { fabRightInsetInColumn } from '../../../helpers/const/appLayout';
 import { fabBottomAboveNav, listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
 import { linkWhatsApp } from '../../../utils/whatsapp';
+import { coincideBusqueda, ordenarPorNombre } from '../../../utils/textSearch';
 import MailVolunteerDialog from '../../organisms/mailVolunteerDialog/MailVolunteerDialog';
-
-function volunteerMatchesQuery(volunteer, rawQuery) {
-  const q = rawQuery.trim().toLowerCase();
-  if (!q) return true;
-  const nombre = (volunteer?.nombre ?? '').toLowerCase();
-  const apellido = (volunteer?.apellido ?? '').toLowerCase();
-  const full = `${nombre} ${apellido}`.trim();
-  const dniStr = volunteer?.dni != null ? String(volunteer.dni) : '';
-  const qDigits = q.replace(/\D/g, '');
-  const dniDigits = dniStr.replace(/\D/g, '');
-  if (full.includes(q) || nombre.includes(q) || apellido.includes(q)) return true;
-  if (qDigits.length > 0 && dniDigits.includes(qDigits)) return true;
-  if (dniStr.toLowerCase().includes(q)) return true;
-  return false;
-}
 
 const SkeletonCard = () => (
   <Box sx={{
@@ -63,18 +49,16 @@ const ListVolunteerTemplate = (props) => {
       whatsapp: linkWhatsApp(item.celular),
     }));
 
-    enriched.sort((a, b) => {
-      const nombreA = (a.nombre ?? '').toUpperCase();
-      const nombreB = (b.nombre ?? '').toUpperCase();
-      return nombreA.localeCompare(nombreB);
-    });
-
-    setListVolunteers(enriched);
+    setListVolunteers(
+      ordenarPorNombre(enriched, (v) => `${v.nombre ?? ''} ${v.apellido ?? ''}`),
+    );
   }, [volunteers]);
 
   const filteredVolunteers = useMemo(() => {
     if (!listVolunteers?.length) return null;
-    return listVolunteers.filter((v) => volunteerMatchesQuery(v, searchQuery));
+    return listVolunteers.filter((v) =>
+      coincideBusqueda(searchQuery, [v.nombre, v.apellido, `${v.nombre ?? ''} ${v.apellido ?? ''}`], v.dni),
+    );
   }, [listVolunteers, searchQuery]);
 
   const isLoading = volunteers === null;

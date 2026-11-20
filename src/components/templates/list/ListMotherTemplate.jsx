@@ -10,21 +10,7 @@ import CardIcon from '../../molecules/cardIcon/CardIcon';
 import { fabRightInsetInColumn } from '../../../helpers/const/appLayout';
 import { fabBottomAboveNav, listSearchTextFieldSx } from '../../../utils/listScreenAccessibility';
 import { linkWhatsApp } from '../../../utils/whatsapp';
-
-function motherMatchesQuery(mother, rawQuery) {
-  const q = rawQuery.trim().toLowerCase();
-  if (!q) return true;
-  const nombre = (mother?.nombre ?? '').toLowerCase();
-  const apellido = (mother?.apellido ?? '').toLowerCase();
-  const full = `${nombre} ${apellido}`.trim();
-  const dniStr = mother?.dni != null ? String(mother.dni) : '';
-  const qDigits = q.replace(/\D/g, '');
-  const dniDigits = dniStr.replace(/\D/g, '');
-  if (full.includes(q) || nombre.includes(q) || apellido.includes(q)) return true;
-  if (qDigits.length > 0 && dniDigits.includes(qDigits)) return true;
-  if (dniStr.toLowerCase().includes(q)) return true;
-  return false;
-}
+import { coincideBusqueda, ordenarPorNombre } from '../../../utils/textSearch';
 
 const SkeletonCard = () => (
   <Box sx={{
@@ -60,15 +46,16 @@ const ListMotherTemplate = (props) => {
       ...item,
       whatsapp: linkWhatsApp(item.celular),
     }));
-    enriched.sort((a, b) =>
-      (a.nombre ?? '').toUpperCase().localeCompare((b.nombre ?? '').toUpperCase()),
+    setListMothers(
+      ordenarPorNombre(enriched, (m) => `${m.nombre ?? ''} ${m.apellido ?? ''}`),
     );
-    setListMothers(enriched);
   }, [mothers]);
 
   const filteredMothers = useMemo(() => {
     if (!listMothers?.length) return null;
-    return listMothers.filter((m) => motherMatchesQuery(m, searchQuery));
+    return listMothers.filter((m) =>
+      coincideBusqueda(searchQuery, [m.nombre, m.apellido, `${m.nombre ?? ''} ${m.apellido ?? ''}`], m.dni),
+    );
   }, [listMothers, searchQuery]);
 
   const isLoading = mothers === null;
