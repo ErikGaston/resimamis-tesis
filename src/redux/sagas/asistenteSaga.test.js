@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { call, put } from 'redux-saga/effects';
+import { call, delay, put } from 'redux-saga/effects';
 import asistenteSaga from './asistenteSaga';
 import * as API from '../api';
 import * as actionTypes from '../consts/actionTypes';
@@ -39,12 +39,33 @@ describe('asistenteSaga', () => {
     expect(gen.next(response).value).toEqual(put({ type: actionTypes.SUCCESS_POST_ASISTENTE_PREGUNTA, response }));
   });
 
-  it('asyncPostAsistentePregunta: error SÍ dispara toast + ERROR_ASISTENTE', () => {
+  it('asyncPostAsistentePregunta: error de cliente (4xx) NO reintenta: toast + ERROR_ASISTENTE', () => {
     const gen = workers[actionTypes.POST_ASISTENTE_PREGUNTA]({ payload: { pregunta: 'x' } });
     gen.next();
-    const error = new Error('timeout');
+    const error = { status: 400, data: { message: 'Debe enviar una pregunta.' } };
     const emitted = drainFromThrow(gen, error);
     expect(emitted).toHaveLength(3);
+    expect(emitted.at(-1)).toEqual(put({ type: actionTypes.ERROR_ASISTENTE, response: error }));
+  });
+
+  it('asyncPostAsistentePregunta: timeout / servidor dormido reintenta una vez y usa esa respuesta', () => {
+    const payload = { pregunta: 'cuantos chupetes hay' };
+    const gen = workers[actionTypes.POST_ASISTENTE_PREGUNTA]({ payload });
+    gen.next();
+    const espera = gen.throw(new Error('timeout')).value;
+    expect(espera).toEqual(delay(3000));
+    expect(gen.next().value).toEqual(call(API.postAsistentePregunta, payload));
+    const response = { data: { respuesta: 'Hay 79 chupetes.' } };
+    expect(gen.next(response).value).toEqual(put({ type: actionTypes.SUCCESS_POST_ASISTENTE_PREGUNTA, response }));
+  });
+
+  it('asyncPostAsistentePregunta: si el reintento también falla, toast + ERROR_ASISTENTE', () => {
+    const gen = workers[actionTypes.POST_ASISTENTE_PREGUNTA]({ payload: { pregunta: 'x' } });
+    gen.next();
+    gen.throw({ status: 503 });
+    gen.next();
+    const error = { status: 503 };
+    const emitted = drainFromThrow(gen, error);
     expect(emitted.at(-1)).toEqual(put({ type: actionTypes.ERROR_ASISTENTE, response: error }));
   });
 });

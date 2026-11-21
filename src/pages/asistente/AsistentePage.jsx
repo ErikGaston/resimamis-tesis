@@ -61,10 +61,24 @@ export const AsistentePage = () => {
 
     useEffect(() => {
         if (!data?.error) return;
-        esperandoRef.current = false;
         // 429: ya hizo todas las preguntas del día.
         if (data.error?.status === 429) setLimiteAlcanzado(true);
+        // Si se estaba esperando una respuesta, la coordinadora no se queda con la pregunta sin contestar.
+        if (esperandoRef.current) {
+            esperandoRef.current = false;
+            const mensaje = data.error?.status === 429
+                ? (data.error?.data?.message ?? 'Llegaste al límite de preguntas por hoy.')
+                : 'No pude responder en este momento (el servidor tardó o se cortó la conexión). Volvé a enviar la pregunta: ya debería andar.';
+            setMensajes((prev) => [...prev, { rol: 'assistant', contenido: mensaje, herramientas: [], accionPendiente: null }]);
+        }
     }, [data?.error]);
+
+    // Si /estado no llegó (p. ej. el servidor estaba despertando), se reintenta sin bloquear el chat.
+    useEffect(() => {
+        if (!isCoord || data?.estado) return undefined;
+        const t = setTimeout(() => dispatch(getAsistenteEstado()), 15000);
+        return () => clearTimeout(t);
+    }, [dispatch, isCoord, data?.estado, data?.error]);
 
     useEffect(() => {
         const e = data?.estado?.data;
@@ -81,7 +95,9 @@ export const AsistentePage = () => {
     // El reducer guarda el body del envelope ({ data }), así que el payload va
     // un nivel más adentro.
     const estado = data?.estado?.data;
-    const habilitado = estado?.habilitado === true;
+    // Solo se bloquea si el servidor dice explícitamente que no. Si /estado todavía no llegó
+    // (servidor despertando), se deja preguntar igual: el back siempre responde algo.
+    const habilitado = estado?.habilitado !== false;
     const sugerencias = estado?.quePuedeConsultar ?? [];
 
     const bloqueado = !habilitado || limiteAlcanzado;
