@@ -11,6 +11,11 @@ import { isCoordinadoraSession } from '../../utils/coordinadoraRole';
 import AsistenteTexto from '../../components/molecules/asistenteTexto/AsistenteTexto';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined';
+import { postAsistenteCalificar } from '../../redux/api';
 
 /** Texto que manda cada botón: el back lo reconoce como confirmación o como negativa. */
 const TEXTO_CONFIRMAR = 'Sí, confirmo.';
@@ -21,6 +26,66 @@ const VIOLET = '#8F00FF';
 const MAX_PREGUNTA = 2000;
 /** El backend acepta hasta 20 mensajes de historial. */
 const MAX_HISTORIAL = 20;
+
+/**
+ * 👍/👎 opcional debajo de cada respuesta. Tocar el mismo de nuevo quita el voto.
+ * Con 👎 se puede (si quiere) contar qué estuvo mal. Si falla el envío no se molesta a nadie.
+ */
+export const CalificarRespuesta = ({ idRegistro, calificacion, onCambio }) => {
+    const [comentario, setComentario] = useState('');
+    const [comentarioEnviado, setComentarioEnviado] = useState(false);
+
+    const enviar = (valor, texto) => {
+        postAsistenteCalificar({ idRegistro, calificacion: valor, ...(texto ? { comentario: texto } : {}) }).catch(() => {});
+    };
+
+    const votar = (valor) => {
+        const nuevo = calificacion === valor ? 0 : valor;
+        onCambio(nuevo);
+        setComentarioEnviado(false);
+        setComentario('');
+        enviar(nuevo);
+    };
+
+    const color = 'rgba(21,44,112,0.45)';
+    return (
+        <Box sx={{ mt: 0.75 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                <IconButton size="small" aria-label="Buena respuesta" aria-pressed={calificacion === 1} onClick={() => votar(1)}
+                    sx={{ color: calificacion === 1 ? '#2E7D32' : color, p: 0.5 }}>
+                    {calificacion === 1 ? <ThumbUpIcon sx={{ fontSize: 16 }} /> : <ThumbUpOutlinedIcon sx={{ fontSize: 16 }} />}
+                </IconButton>
+                <IconButton size="small" aria-label="Mala respuesta" aria-pressed={calificacion === -1} onClick={() => votar(-1)}
+                    sx={{ color: calificacion === -1 ? '#C23814' : color, p: 0.5 }}>
+                    {calificacion === -1 ? <ThumbDownIcon sx={{ fontSize: 16 }} /> : <ThumbDownOutlinedIcon sx={{ fontSize: 16 }} />}
+                </IconButton>
+                {calificacion !== 0 && (
+                    <Typography sx={{ fontSize: '0.75rem', color, ml: 0.5 }}>Gracias</Typography>
+                )}
+            </Box>
+            {calificacion === -1 && !comentarioEnviado && (
+                <Box sx={{ display: 'flex', gap: 0.75, mt: 0.5, alignItems: 'center' }}>
+                    <TextField
+                        size="small"
+                        fullWidth
+                        placeholder="¿Qué estuvo mal? (opcional)"
+                        value={comentario}
+                        onChange={(e) => setComentario(e.target.value.slice(0, 300))}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && comentario.trim()) { e.preventDefault(); enviar(-1, comentario.trim()); setComentarioEnviado(true); }
+                        }}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px', fontSize: '0.8125rem', bgcolor: '#fff' } }}
+                    />
+                    <Button size="small" disabled={!comentario.trim()}
+                        onClick={() => { enviar(-1, comentario.trim()); setComentarioEnviado(true); }}
+                        sx={{ textTransform: 'none', fontWeight: 600, color: VIOLET, minWidth: 0 }}>
+                        Enviar
+                    </Button>
+                </Box>
+            )}
+        </Box>
+    );
+};
 
 export const AsistentePage = () => {
     const dispatch = useDispatch();
@@ -52,6 +117,8 @@ export const AsistentePage = () => {
             contenido: payload.respuesta ?? '',
             herramientas: payload.herramientasUsadas ?? [],
             accionPendiente: payload.accionPendiente ?? null,
+            idRegistro: payload.idRegistro ?? null,
+            calificacion: 0,
         }]);
         if (payload.limiteDiario != null) {
             setUso({ hoy: payload.preguntasHoy ?? 0, limite: payload.limiteDiario });
@@ -223,6 +290,13 @@ export const AsistentePage = () => {
                                         Cancelar
                                     </Button>
                                 </Box>
+                            )}
+                            {m.rol === 'assistant' && m.idRegistro && (
+                                <CalificarRespuesta
+                                    idRegistro={m.idRegistro}
+                                    calificacion={m.calificacion ?? 0}
+                                    onCambio={(valor) => setMensajes((prev) => prev.map((x, j) => (j === i ? { ...x, calificacion: valor } : x)))}
+                                />
                             )}
                         </Paper>
                     </Box>

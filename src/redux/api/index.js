@@ -1067,6 +1067,10 @@ export const postAsistentePregunta = async (payload) =>
     .post('/asistente/preguntar', payload, { timeout: ASISTENTE_TIMEOUT_MS })
     .then((r) => r)
     .catch((e) => { throw e; });
+
+/** Calificación opcional de una respuesta: { idRegistro, calificacion: 1 | -1 | 0, comentario? }. */
+export const postAsistenteCalificar = async (payload) =>
+  AxiosInstance.post('/asistente/calificar', payload).then((r) => r).catch((e) => { throw e; });
 //#endregion
 
 //#region - REPORTES
