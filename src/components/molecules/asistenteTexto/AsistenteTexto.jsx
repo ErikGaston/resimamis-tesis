@@ -20,7 +20,8 @@ function inline(texto, clave) {
   return String(texto).split(INLINE).filter((p) => p !== '').map((parte, i) => {
     const k = `${clave}-${i}`;
     if (parte.startsWith('**') && parte.endsWith('**') && parte.length > 4) {
-      return <strong key={k}>{parte.slice(2, -2)}</strong>;
+      // El modelo a veces escribe el link en negrita: **[Juana Pérez](bebe:12)**.
+      return <strong key={k}>{inline(parte.slice(2, -2), k)}</strong>;
     }
     const link = parte.match(LINK);
     if (link) {

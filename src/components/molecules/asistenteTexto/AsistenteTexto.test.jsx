@@ -39,4 +39,12 @@ describe('AsistenteTexto', () => {
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
     expect(screen.getByText(/esto/)).toBeInTheDocument();
   });
+
+  it('un link en negrita igual se arma como link (no queda el texto crudo)', () => {
+    renderTexto('1. **[Coordinadora Demo](voluntaria:42)** - 1 abrazo');
+    const link = screen.getByRole('link', { name: 'Coordinadora Demo' });
+    expect(link).toHaveAttribute('href', '/voluntaria/perfil/42');
+    expect(link.closest('strong')).toBeInTheDocument();
+    expect(screen.queryByText(/\(voluntaria:42\)/)).not.toBeInTheDocument();
+  });
 });
